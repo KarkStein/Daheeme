@@ -24,7 +24,8 @@ function fbStore(base){
       es.addEventListener("put",e=>{const d=JSON.parse(e.data);opened=true;setAt(d.path,d.data);S.timedOut=false;emit()});
       es.addEventListener("patch",e=>{const d=JSON.parse(e.data);Object.keys(d.data||{}).forEach(k=>setAt(d.path+"/"+k,d.data[k]));emit()});
       es.addEventListener("cancel",()=>onErr({code:"revoked"}));
-      es.onerror=()=>{if(opened){S.timedOut=true;render()}};es.onopen=()=>{if(S.timedOut){S.timedOut=false;render()}}},
+      es.onerror=()=>{if(opened){S.timedOut=true;render();return}
+        fetch(base+"/probe.json").then(r=>{S.dbError=(r.status===401||r.status===403)?"rules":(r.ok?null:"offline")},()=>{S.dbError="offline"}).then(()=>{if(S.dbError==="rules")es.close();render()})};es.onopen=()=>{if(S.timedOut){S.timedOut=false;render()}}},
     async tick(wk,key,val){const prev=(tree.weeks&&tree.weeks[wk]&&tree.weeks[wk].ticks||{})[key];
       setAt("weeks/"+wk+"/ticks/"+key,val);emit();
       try{await send("PATCH","/weeks/"+wk+"/ticks",{[key]:val})}catch(e){setAt("weeks/"+wk+"/ticks/"+key,prev===undefined?null:prev);emit();throw e}},
@@ -45,18 +46,21 @@ rep('function localStore(){',fb+'function localStore(){');
 rep('const S={store:null,','const S={key:null,store:null,');
 rep(`if(S.mode==="local")h+=\`<div class="notice">Offline-Modus: Die Daten bleiben nur auf diesem Gerät. Öffnet die App über den claude.ai-Link und meldet euch an, damit ihr beide dieselben Daten seht.</div>\`;`,
     `if(S.mode==="setup"){app.innerHTML=renderSetup();return}
+  if(S.mode==="web"&&S.dbError==="rules"&&!S.cfgConfirmed){app.innerHTML=\`<section class="card"><h2>Die Datenbank lehnt den Zugriff ab</h2><div>In Firebase sind die Regeln noch nicht veröffentlicht. Öffne dort „Realtime Database“, Reiter „Regeln“, ersetze den gesamten Text durch die folgende Zeile und tippe auf „Veröffentlichen“.</div><input type="text" readonly id="rulesline" value='{"rules":{"haushalt":{"$key":{".read":true,".write":true}}}}'><div><button class="primary" data-act="reload">Erneut versuchen</button></div></section>\`;return}
+  if(S.mode==="web"&&S.dbError==="offline"&&!S.cfgConfirmed){app.innerHTML=\`<section class="card"><h2>Keine Verbindung zur Datenbank</h2><div>Entweder fehlt gerade das Internet, oder die Regeln in Firebase sind noch nicht veröffentlicht. Für den zweiten Fall: Öffne in Firebase „Realtime Database“, Reiter „Regeln“, ersetze den gesamten Text durch die folgende Zeile und tippe auf „Veröffentlichen“.</div><input type="text" readonly id="rulesline" value='{"rules":{"haushalt":{"$key":{".read":true,".write":true}}}}'><div><button class="primary" data-act="reload">Erneut versuchen</button></div></section>\`;return}
   if(S.mode==="local")h+=\`<div class="notice">Der Abgleich ist noch nicht eingerichtet. Die Daten bleiben vorerst nur auf diesem Gerät.</div>\`;`);
 rep('if(S.timedOut&&S.mode==="db")','if(S.timedOut&&S.mode==="web")');
 rep('<div class="notice">Grundregel: Ihr könnt immer gemeinsam abweichen und den Plan anpassen.</div></section>`;',
     '<div class="notice">Grundregel: Ihr könnt immer gemeinsam abweichen und den Plan anpassen.</div></section>`;\n  if(S.mode==="web")h+=`<section class="card"><h2>Einladungs-Link</h2><div class="freq">Schick diesen Link an ${esc(pname("p1"))}. Wer ihn öffnet, sieht denselben Plan. Tipp: im Browser „Zum Home-Bildschirm“ wählen, dann startet die App wie eine normale App.</div><input type="text" id="invite" readonly value="${esc(inviteLink())}"><div><button class="ghost" data-act="copy">Link kopieren</button></div></section>`;');
 rep('  const act=b.dataset.act;',`  const act=b.dataset.act;
+  if(act==="reload"){location.reload();return}
   if(act==="newhouse"){enter(newKey());return}
   if(act==="join"){const m=(document.getElementById("joinlink").value||"").match(/k=([A-Za-z0-9_-]{12,64})/);if(m)enter(m[1]);else toast("Das ist kein gültiger Einladungs-Link.");return}
   if(act==="copy"){const el=document.getElementById("invite");try{await navigator.clipboard.writeText(el.value);toast("Link kopiert")}catch(_){el.focus();el.select();toast("Link markiert, jetzt kopieren")}return}`);
 rep(`(async()=>{let db=null;try{if(window.claude&&window.claude.use)db=await window.claude.use("db")}catch(e){db=null}
   if(db)start(dbStore(db),"db");else start(localStore(),"local")})();`,
 `function enter(k){S.key=k;try{localStorage.setItem("hq-key",k);history.replaceState(null,"","#k="+k)}catch(e){}
-  start(fbStore(SYNC_URL+"/haushalt/"+k),"web")}
+  start(fbStore(SYNC_URL+"/haushalt/"+k),"web");render()}
 if(!SYNC_URL)start(localStore(),"local");else{const k=houseKey();if(k)enter(k);else{S.mode="setup";render()}}
 window.addEventListener("hashchange",()=>{const m=location.hash.match(/k=([A-Za-z0-9_-]{12,64})/);if(m&&m[1]!==S.key)location.reload()});`);
 rep('toast(e&&e.code==="invalid_argument"?"Speichern nicht erlaubt: Du brauchst Bearbeitungsrechte.":"Konnte nicht speichern. Bitte nochmal tippen.")','toast(e&&e.code==="invalid_argument"?"Speichern wurde abgelehnt. Bitte den Einladungs-Link prüfen.":"Keine Verbindung. Bitte nochmal tippen, sobald du online bist.")');
