@@ -26,9 +26,9 @@ srv.listen(8765,async()=>{
   const B=await mk();await B.goto(link);await B.waitForSelector('[data-me=p1]');
   await A.click('[data-me=p0]');await B.click('[data-me=p1]');
   await A.click('[data-task=einkaufen][data-slot="0"]');
-  await B.waitForSelector('[data-task=einkaufen][data-slot="0"].on.p0');
+  await B.waitForSelector('[data-task=einkaufen][data-slot="0"].on.chk');
   await B.click('[data-task=bad][data-slot="0"]');
-  await A.waitForSelector('[data-task=bad][data-slot="0"].on.p1');
+  await A.waitForSelector('[data-task=bad][data-slot="0"].on.chk');
   await B.click('[data-task=einkaufen][data-slot="0"]');
   await A.waitForSelector('[data-task=einkaufen][data-slot="0"]:not(.on)');
   await A.click('[data-tab=plan]');await A.click('[data-act=swap]');await B.waitForTimeout(300);

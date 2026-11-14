@@ -6,7 +6,7 @@ const syncUrl=(process.argv[2]||'').replace(/\/+$/,'');
 function rep(a,b){if(!s.includes(a))throw new Error('missing: '+a.slice(0,60));s=s.replace(a,b)}
 
 rep('<meta name="claude:viewport-fit-sides" content="cover">','');
-rep(':root{\n  --bg:#eef3f2;',':root{padding-top:env(safe-area-inset-top,0px);\n  --bg:#eef3f2;');
+rep(':root{\n  --bg:',':root{padding-top:env(safe-area-inset-top,0px);\n  --bg:');
 
 const fb=`
 const SYNC_URL=${JSON.stringify(syncUrl)};
@@ -66,12 +66,12 @@ window.addEventListener("hashchange",()=>{const m=location.hash.match(/k=([A-Za-
 rep('toast(e&&e.code==="invalid_argument"?"Speichern nicht erlaubt: Du brauchst Bearbeitungsrechte.":"Konnte nicht speichern. Bitte nochmal tippen.")','toast(e&&e.code==="invalid_argument"?"Speichern wurde abgelehnt. Bitte den Einladungs-Link prüfen.":"Keine Verbindung. Bitte nochmal tippen, sobald du online bist.")');
 rep('toast("Speichern nicht möglich. Du brauchst Bearbeitungsrechte.")','toast("Speichern nicht möglich. Bitte Verbindung prüfen.")');
 
-const icon="data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#0e5a52"/><path d="M18 33l9 9 19-21" fill="none" stroke="#f3c623" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+const icon="data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#1f4a40"/><path d="M18 33l9 9 19-21" fill="none" stroke="#f4b860" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>');
 const head=`<!doctype html>
 <html lang="de"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#0e5a52">
+<meta name="theme-color" content="#1f4a40">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="icon" href="${icon}">
