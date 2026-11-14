@@ -560,7 +560,7 @@ function renderAll(){
   if(ho.length)h+=`<section class="card"><h2><i class="dot ho"></i>Wer im Homeoffice ist</h2>${li(ho)}</section>`;
   return h}
 const CAMP=[["tent","Zelt",3],["pit","Feuerstelle",8],["tree1","Tanne",15],["chairs","Campingstühle",25],["tree2","Zweite Tanne",40],["lantern","Laterne",60],["hammock","Hängematte",80],["lights","Lichterkette",105],["hills","Berge",135],["lake","See",170],["canoe","Kanu",210],["flags","Wimpelkette",260],["fox","Fuchs",320]];
-const HOUSE=[["haus","Haus",0],["leucht","Leuchtturm",0],["hortensia","Hortensien",15],["bench","Gartenbank",25],["boat","Fischerboot",40],["wall","Steinmauer",60],["strandkorb","Strandkorb",80],["flags","Wimpelkette",105],["isles","Inseln",135],["crepe","Crêpe-Stand",170],["sail","Segelboot",210],["kite","Drachen",260],["seal","Robbe",320]];
+const HOUSE=[["haus","Haus",0],["leucht","Leuchtturm",0],["hortensia","Hortensien",15],["bench","Gartenbank",25],["boat","Fischerboot",40],["wall","Steinmauer",60],["strandkorb","Strandkorb",80],["flags","Wimpelkette",105],["isles","Inseln",135],["sail","Segelboot",210],["kite","Drachen",260],["seal","Robbe",320]];
 const HOUSE_GUESTS={spring:["🦋","🐌","🐚"],summer:["🦀","🐚","🦋"],autumn:["🦀","🍄","🦔"],winter:["🦭","🐚","🦉"]};
 function scene(){const q=/[?&]bild=(haus|zelt)/.exec(location.search);if(q){try{localStorage.setItem("hq-bild",q[1])}catch(_){}return q[1]}try{return localStorage.getItem("hq-bild")==="haus"?"haus":"zelt"}catch(_){return "zelt"}}
 const SC=()=>scene()==="haus"?HOUSE:CAMP;
@@ -578,6 +578,10 @@ function houseScene(has,light,night,extras,sea,guests,dots){dots=dots||{};
   if(!night)g+=`<path d="M176 70 q5 -5 10 0 q5 -5 10 0 M222 86 q4 -4 8 0 q4 -4 8 0" fill="none" stroke="#4b5866" stroke-width="1.6" stroke-linecap="round"/>`;
   if(has.kite)g+=`<path d="M246 52 L256 40 L266 52 L256 70Z" fill="#f25f5c"/><path d="M256 40 V70 M246 52 H266" stroke="#fff" stroke-width="1"/><path d="M256 70 Q262 120 248 176" fill="none" stroke="#5b4a3a" stroke-width=".8"/><path d="M256 70 q-4 6 2 10 q-6 4 0 10" fill="none" stroke="#ffd66b" stroke-width="2"/>`;
   g+=`<rect x="0" y="118" width="360" height="142" fill="url(#hsea)"/><path d="M180 132h22M262 150h26M300 196h30M206 170h18M320 228h24" stroke="#fff" stroke-opacity=".45" stroke-width="2" stroke-linecap="round"/>`;
+  // Klippen links hinten, steigen zur Sonne hin an (Privat)
+  {const rk=night?"#4f4c47":"#a89a88",rk2=night?"#3e3b37":"#8c7f70",top=C.head;
+   g+=`<path d="M0 146 V82 Q14 78 26 84 L44 90 Q62 96 78 106 L96 116 Q110 124 118 146Z" fill="${rk}"/><path d="M0 146 V100 L18 104 L36 112 L60 118 L84 128 L100 146Z" fill="${rk2}" opacity=".55"/><path d="M8 92 l6 14 M30 98 l4 16 M52 104 l2 14 M74 114 l4 14 M94 124 l2 12" stroke="${rk2}" stroke-width="1.4" stroke-linecap="round"/><path d="M0 82 Q14 78 26 84 L44 90 Q62 96 78 106 L96 116 Q102 119 106 124 L100 122 Q88 114 76 109 Q60 100 44 94 L26 88 Q14 83 0 86Z" fill="${top}"/>`;
+   g+=`<path d="M24 82 h10 M25 82 v3 M33 82 v3" stroke="${night?"#2a2a2a":"#5b4a3a"}" stroke-width="1.4" stroke-linecap="round"/><circle cx="27" cy="78" r="1.8" fill="${night?"#333":"#5b4a3a"}"/><circle cx="31.5" cy="78" r="1.8" fill="${night?"#333":"#5b4a3a"}"/>`}
   g+=`<path d="M262 124 Q292 98 360 102 V126 H262Z" fill="${C.head}"/><path d="M262 124 l10 -6 l8 7 l10 -4 l12 6Z" fill="#7d7f7a"/>`;
   const bx=318,by=106,a=(0.25+0.75*light)*(night?1:.7);
   if(light>0){g+=`<circle cx="${bx}" cy="${by-44}" r="${10+26*light}" fill="url(#hglow)" opacity="${night?1:.7}"/><path class="beam" d="M${bx-4} ${by-46} L${bx-150} ${by-74} L${bx-150} ${by-24}Z" fill="url(#hbeam)" opacity="${a.toFixed(2)}"/>`}
@@ -590,7 +594,6 @@ function houseScene(has,light,night,extras,sea,guests,dots){dots=dots||{};
   g+=`<path d="M0 222 Q120 206 262 230 L270 260 H0Z" fill="${C.land2}"/>`;
   if(sea==="spring")[[20,246,"#f7a8c4"],[86,252,"#fff"],[238,250,"#f7a8c4"],[70,236,"#ffd66b"],[18,206,"#fff"],[60,176,"#ffd66b"],[226,214,"#f7a8c4"]].forEach(p=>{g+=`<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="${p[2]}"/><circle cx="${p[0]}" cy="${p[1]}" r="1.1" fill="#e0a030"/>`});
   if(sea==="autumn")[[20,246,"#d9792b",20],[86,252,"#b3402a",-30],[238,250,"#e0a030",40],[70,236,"#e0a030",10],[18,204,"#b3402a",-15],[226,214,"#d9792b",60]].forEach(p=>{g+=`<ellipse cx="${p[0]}" cy="${p[1]}" rx="4.5" ry="2.2" fill="${p[2]}" transform="rotate(${p[3]} ${p[0]} ${p[1]})"/>`});
-  if(has.crepe)g+=`<rect x="30" y="150" width="34" height="18" fill="#f4f1ea"/><path d="M26 150 h42 l-4 -10 h-34z" fill="#3f6fa8"/><path d="M34 140 v10 M42 140 v10 M50 140 v10 M58 140 v10" stroke="#fff" stroke-width="3"/><circle cx="47" cy="160" r="5" fill="#e0a030"/><circle cx="36" cy="170" r="3" fill="#5b4a3a"/><circle cx="58" cy="170" r="3" fill="#5b4a3a"/>`;
   // Haus
   const H=`<path d="M112 104h12v20h-12z M186 104h12v20h-12z" fill="${C.wall}"/><path d="M110 102h16v4h-16z M184 102h16v4h-16z" fill="${C.stone}"/>`
    +`<path d="M94 160 L114 118 H196 L216 160Z" fill="${C.roof}"/><path d="M114 118 H196" stroke="#2c3540" stroke-width="2"/><path d="M104 140 H206 M99 150 H211 M109 129 H201" stroke="#3a4552" stroke-width=".8" opacity=".7"/>`
@@ -690,7 +693,7 @@ function renderCamp(){
   const spot=(x,y,w,hh,go,label,ft)=>`<button class="spot" style="left:${(x/3.6).toFixed(1)}%;top:${(y/2.6).toFixed(1)}%;width:${(w/3.6).toFixed(1)}%;height:${(hh/2.6).toFixed(1)}%" data-go="${go}"${ft?` data-ft="${ft}"`:""} aria-label="${label}"></button>`;
   const G=haus?HOUSE_GUESTS:GUESTS,place=haus?"am Meer":"auf dem Zeltplatz";
   let h=`<div><div class="eyebrow">${SEASON_NAME[sea]} ${place}</div><h1>Hallo${S.me?" "+esc(pname(S.me)):""}</h1></div>${S.me?"":meChooser()}
-   <div class="camp">${haus?houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:openW>0,shop:openS>0})+spot(166,196,50,48,"woche","Woche: offene Aufträge")+spot(119,148,42,96,"essen","Essen",mealTxt?"plan":"")+spot(116,210,50,28,"einkauf","Einkaufsliste")+spot(208,203,24,30,"kita","Kita")+spot(31,212,54,34,"ausflug","Ausflüge mit dem Bus")+spot(318,80,34,64,"projekte","Ideen")+spot(155,168,22,20,"amhaus","Am Haus: Lampe")+spot(240,238,26,26,"spiel","Sport und Spiel")
+   <div class="camp">${haus?houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:openW>0,shop:openS>0})+spot(166,196,50,48,"woche","Woche: offene Aufträge")+spot(119,148,42,96,"essen","Essen",mealTxt?"plan":"")+spot(116,210,50,28,"einkauf","Einkaufsliste")+spot(208,203,24,30,"kita","Kita")+spot(31,212,54,34,"ausflug","Ausflüge mit dem Bus")+spot(318,80,34,64,"projekte","Ideen")+spot(48,106,92,48,"privat","Privat: Klippen")+spot(155,168,22,20,"amhaus","Am Haus: Lampe")+spot(240,238,26,26,"spiel","Sport und Spiel")
        :campScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:openW>0,shop:openS>0})+spot(176,172,124,104,"woche","Woche: offene Aufträge")+spot(268,222,64,48,"essen","Essen",mealTxt?"plan":"")+spot(340,200,44,46,"einkauf","Einkaufsliste")+spot(208,244,46,36,"alle","Übersicht und Plan")}</div>
    <div class="freq" style="text-align:center;margin-top:-6px">${haus?"Tippt ins Bild: Besen, Schornstein, Fahrrad, Rucksack, Bus, Ball, Lampe oder Leuchtturm. Den Plan findet ihr oben rechts.":"Tippt ins Bild: Besen am Zelt, Lagerfeuer, Aushang oder das Holzschild am Rand."}</div>
    <section class="card today"><h2>Heute</h2>
@@ -955,10 +958,15 @@ function listOf(m){m=m||{};return Object.keys(m).filter(k=>m[k]&&m[k].name).map(
 const trips=()=>listOf(S.food&&S.food.trip),packs=()=>listOf(S.food&&S.food.pack).sort((a,b)=>(a.at||0)-(b.at||0));
 const newId=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 function safeLink(u){u=(u||"").trim();return /^https?:\/\//i.test(u)?u:""}
+// Urlaub: erst einmal eine einfache Liste, wird später verfeinert
+const urlaube=()=>listOf(S.food&&S.food.urlaub).sort((a,b)=>(a.at||0)-(b.at||0));
+function renderUrlaub(){const l=urlaube();return `<section class="card"><div class="section-head"><h2>🏝️ Urlaub</h2></div><div class="freq" style="margin-bottom:8px">Ziele, Ideen und Termine für den nächsten Urlaub. Mehr Felder kommen später.</div>
+  <form class="addrow" id="urlaubform"><input type="text" id="urlaubinput" placeholder="Zum Beispiel Bretagne im Mai" maxlength="80" autocomplete="off" aria-label="Urlaubsidee"><button class="primary" type="submit">+</button></form>
+  ${l.length?`<ul class="shop">${l.map(x=>`<li><span class="nm" style="flex:1;padding:10px 0">${esc(x.name)}</span><button class="rm" data-urlaubrm="${esc(x.id)}" aria-label="${esc(x.name)} entfernen">✕</button></li>`).join("")}</ul>`:`<div class="empty"><div>Noch nichts eingetragen.</div></div>`}</section>`}
 function renderTrips(){
   let h=`<div><div class="eyebrow">Gemeinsam unterwegs</div><h1>Ausflüge</h1></div>${bellRow("ausflug")}
-   <div class="filters" role="group" aria-label="Bereich"><button class="chipbtn neutral" data-trip="ideen" aria-pressed="${S.tripTab==="ideen"}">Ideen</button><button class="chipbtn neutral" data-trip="pack" aria-pressed="${S.tripTab==="pack"}">Packliste</button></div>`;
-  return h+(S.tripTab==="pack"?renderPack():renderTripIdeas())}
+   <div class="filters" role="group" aria-label="Bereich"><button class="chipbtn neutral" data-trip="ideen" aria-pressed="${S.tripTab==="ideen"}">Ideen</button><button class="chipbtn neutral" data-trip="pack" aria-pressed="${S.tripTab==="pack"}">Packliste</button><button class="chipbtn neutral" data-trip="urlaub" aria-pressed="${S.tripTab==="urlaub"}">🏝️ Urlaub</button></div>`;
+  return h+(S.tripTab==="pack"?renderPack():S.tripTab==="urlaub"?renderUrlaub():renderTripIdeas())}
 const TRIP_KIND=[["wandern","🥾","Wandern"],["wasser","🏖️","Baden und Strand"],["stadt","🏛️","Stadt und Museum"],["tiere","🐐","Tiere"],["spiel","🛝","Spielplatz"],["rad","🚲","Radtour"],["essen","🍽️","Einkehren"],["sonst","✨","Sonstiges"]];
 const TRIP_WX=[["sonne","☀️","Nur bei schönem Wetter"],["egal","🌧️","Geht auch bei Regen"]];
 const TRIP_DUR=[["kurz","Ein paar Stunden"],["halb","Halber Tag"],["ganz","Ganzer Tag"],["nacht","Mit Übernachtung"]];
@@ -1330,6 +1338,7 @@ app.addEventListener("click",async e=>{
     const base="food/idea/"+d.id+"/";
     try{await S.store.setPath(base+"name",name);for(const k of ["cat","state"])await S.store.setPath(base+k,d[k]||null);await S.store.setPath(base+"for",d.cat==="geschenk"?((d.for||"").trim().slice(0,60)||null):null);await S.store.setPath(base+"link",safeLink(d.link)||null);await S.store.setPath(base+"note",(d.note||"").trim().slice(0,1000)||null);S.projDraft=null;toast("Gespeichert");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.act==="projdel"){try{await S.store.setPath("food/idea/"+S.projDraft.id,null);S.projDraft=null;toast("Gelöscht");render()}catch(_){toast("Konnte nicht speichern.")}return}
+  if(b.dataset.urlaubrm){S.store.setPath("food/urlaub/"+b.dataset.urlaubrm,null).catch(()=>toast("Konnte nicht speichern."));return}
   if(b.dataset.trip){S.tripDraft=null;S.tripTab=b.dataset.trip;render();return}
   if(b.dataset.tset){const d=S.tripDraft;if(d){const f=b.dataset.tset;d[f]=d[f]===b.dataset.v?"":b.dataset.v;render()}return}
   if(b.dataset.ttog){const d=S.tripDraft;if(d){const f=b.dataset.ttog,a=csv(d[f]),v=b.dataset.v;d[f]=(a.includes(v)?a.filter(x=>x!==v):a.concat(v)).join(",");render()}return}
@@ -1444,6 +1453,7 @@ app.addEventListener("change",e=>{const row=e.target.closest(".editrow[data-i]")
   t[f]=(f==="times"||f==="pts")?(+e.target.value||0):e.target.value;if(f==="freq"&&t.freq==="week"&&!t.times)t.times=1;if(f==="freq"||f==="owner")render()});
 app.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="mealinput"){e.preventDefault();const b=app.querySelector("[data-act=mealsave]");if(b)b.click()}});
 app.addEventListener("submit",e=>{if(e.target.id==="kitaform"){e.preventDefault();const v=S.kitaText;S.kitaText="";const el=document.getElementById("kitainput");if(el)el.value="";kitaAdd(v);return}
+  if(e.target.id==="urlaubform"){e.preventDefault();const el=document.getElementById("urlaubinput"),v=(el&&el.value||"").trim().slice(0,80);if(!v)return;el.value="";S.store.setPath("food/urlaub/"+newId("u"),{name:v,at:Date.now(),by:S.me||""}).catch(()=>toast("Konnte nicht speichern."));return}
   if(e.target.id==="bookform"){e.preventDefault();const el=document.getElementById("bookinput"),v=(el&&el.value||"").trim().slice(0,40);if(!v)return;
     if(S.bookEdit){const id=S.bookEdit;S.bookEdit=null;S.store.setPath("food/book/"+id+"/name",v).then(()=>render()).catch(()=>toast("Konnte nicht speichern."));if(id==="main")S.store.setPath("food/book/main/at",Date.now()).catch(()=>{});return}
     const id="b"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);S.bookNew=false;S.book=id;S.store.setPath("food/book/"+id,{name:v,at:Date.now()}).then(()=>render()).catch(()=>toast("Konnte nicht speichern."));render();return}
