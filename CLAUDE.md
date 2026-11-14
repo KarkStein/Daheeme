@@ -21,6 +21,7 @@ Live: https://karkstein.github.io/Daheeme/ (GitHub Pages aus `main`, Wurzelverze
 - `food/rec/<id>` `{name,ing (Zeilen),note,link,at}`, `food/plan/<YYYY-Www>/d0..d6` `{text,rec?,at,by}`
 - `food/lunch/<id>` `{name,dishes,note,maps,at,r:{p0,p1}}`, `food/lunchmap` = Link zu Google Maps
 - Ausflüge (liegen unter `food`, damit der Abgleich nichts Neues braucht): `food/trip/<id>` `{name,note,link,kind,wx,dur,drive,kid,cost,season,pack,at,by,done,doneAt}` (`kid` und `season` sind Komma-Listen, `pack` ist die Id einer Packliste), `food/packlist/<id>` `{name,at}` (die Liste "Tagesausflug" mit Id `main` ist fest), `food/pack/<id>` `{name,done,at,list?}` (Packliste bleibt, "Alles wieder auspacken" setzt nur `done` zurück)
+- Ideen und Projekte (Leuchtturm): `food/idea/<id>` `{name,cat,state,for?,link,note,at,by,done,doneAt}`; `cat` aus `PROJ_CATS` (geschenk, spiel, wohnen, ordnung, haus, sonst), `state` idee|geplant|dran, `for` nur bei Geschenken
 
 ## Testen und Veröffentlichen
 
@@ -44,7 +45,8 @@ git add -A && git commit && git push origin main
 - Rezepte, Ideen und Einkaufsliste sind verbunden: Zutaten kommen als Block auf die Liste (Rezept, Idee "+ Liste", Wochenplan) und gehen als Block wieder runter (Leiste "Für Rezepte" auf der Einkaufsliste oder Knopf am Rezept). Zutaten, die schon offen auf der Liste standen, werden nicht doppelt angelegt und gehören keinem Block.
 - Unten immer genau 4 Reiter. Mit Ausflügen: Start, Woche, Essen (mit Einkauf darin), Ausflüge. Essen und Einkauf behalten im Startbild ihr eigenes Symbol.
 - Ausflüge: Eingabemaske mit Art, Wetter, Dauer, Fahrzeit, Kleinkind, Kosten, Jahreszeit, Packliste, Link, Notiz; Filter nach Art und "Bei Regen". Mehrere Packlisten, jede bleibt bestehen. Noch Entwurf.
-- Haus am Meer: Antippbar sind Besen an der Tür (Woche), Schornstein (Essen), Fahrrad (Einkauf), Rucksack (Ausflüge), kleiner Briefkasten am linken Rand (Plan); Fahrrad unter dem linken Fenster an die Wand gelehnt, Rucksack rechts an die Hauswand gelehnt. Der Leuchtturm strahlt heller mit dem Wochenfortschritt. Erst nach ausdrücklichem Okay für beide einschalten.
+- Ideen und Projekte: eigener Bereich, erreichbar nur über den Leuchtturm im Haus-Bild (kein Reiter, unten bleiben 4). Für geistige Planung: Geschenke, Spielsachen, Einrichtung, Aufräumen, Haus und Garten. Sport und Spiel gehört nicht dazu; dafür ist ein eigenes Symbol (Ball) im Gespräch.
+- Haus am Meer: Antippbar sind Besen an der Tür (Woche), Schornstein (Essen), Fahrrad (Einkauf), Rucksack (Ausflüge), Leuchtturm (Ideen und Projekte), kleiner Briefkasten am linken Rand (Plan); Fahrrad unter dem linken Fenster an die Wand gelehnt, Rucksack rechts an die Hauswand gelehnt. Der Leuchtturm strahlt heller mit dem Wochenfortschritt. Erst nach ausdrücklichem Okay für beide einschalten.
 - Rezept-Recherche: ein Rezept pro Kategorie (`cat` in `ideen.json`: gesund, schnell, vegetarisch, saisonal, exotisch; Liste `IDEA_CATS`). Quellen kuratiert der Besitzer selbst in `quellen.txt`. Eine geplante Aufgabe in claude.ai ("Tägliche Rezept-Recherche Daheeme", täglich 5:43 Uhr Berlin) erneuert `ideen.json` direkt auf main.
 - Die Zurück-Taste geht in der App schrittweise zurück (History-Einträge je Bereich, siehe `syncNav`).
 
