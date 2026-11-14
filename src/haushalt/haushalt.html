@@ -1,0 +1,438 @@
+<title>Haushalts-Quest</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: eine schmale App-Spalte, oben Wochen-Scoreboard, darunter Aufgabenkarten mit tippbaren Häkchen-Slots; Tabs unten fixiert */
+:root{
+  --bg:#eef3f2; --surface:#ffffff; --surface-2:#e3ebe9; --fg:#14231f; --muted:#5b6e69; --line:#d2dcd9;
+  --ink:#0e5a52; --lemon:#f3c623; --lemon-ink:#5a4600;
+  --p0:#2f63d8; --p0-soft:#dce6fb; --p1:#d9466f; --p1-soft:#fadbe4;
+  --both:#6b5bd6; --both-soft:#e6e2fa; --ho:#2b8a5c; --ho-soft:#d9f0e4;
+  --good:#1f8a4c; --warn:#b26a00;
+  --f-display:"Bricolage Grotesque",ui-rounded,system-ui,sans-serif;
+  --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1514; --surface:#16211f; --surface-2:#1e2c29; --fg:#e4efec; --muted:#93a7a2; --line:#2a3a37;
+  --ink:#5fd0c2; --lemon:#f3c623; --lemon-ink:#1d1600;
+  --p0:#7ea3ff; --p0-soft:#1d2a4a; --p1:#ff83a5; --p1-soft:#47202c;
+  --both:#ab9fff; --both-soft:#2b2650; --ho:#5fd39a; --ho-soft:#163527;
+  --good:#5fd39a; --warn:#f0b04a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1514; --surface:#16211f; --surface-2:#1e2c29; --fg:#e4efec; --muted:#93a7a2; --line:#2a3a37;
+  --ink:#5fd0c2; --lemon:#f3c623; --lemon-ink:#1d1600;
+  --p0:#7ea3ff; --p0-soft:#1d2a4a; --p1:#ff83a5; --p1-soft:#47202c;
+  --both:#ab9fff; --both-soft:#2b2650; --ho:#5fd39a; --ho-soft:#163527;
+  --good:#5fd39a; --warn:#f0b04a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+.app{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 110px;display:flex;flex-direction:column;gap:16px}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:1.6rem;font-weight:800}
+h2{font-size:1.1rem;font-weight:800}
+.eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:700}
+.num{font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.weeknav{display:flex;align-items:center;gap:6px}
+.iconbtn{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;font-size:1.1rem}
+.iconbtn:disabled{opacity:.35;cursor:default}
+.me{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.me span{font-size:.85rem;color:var(--muted)}
+.chipbtn{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;font-weight:600;font-size:.9rem}
+.chipbtn[aria-pressed="true"].p0{background:var(--p0);border-color:var(--p0);color:#fff}
+.chipbtn[aria-pressed="true"].p1{background:var(--p1);border-color:var(--p1);color:#fff}
+.chipbtn[aria-pressed="true"].neutral{background:var(--fg);border-color:var(--fg);color:var(--bg)}
+/* Scoreboard */
+.board{background:var(--ink);color:#fff;border-radius:20px;padding:16px;display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;position:relative;overflow:hidden}
+:root[data-theme="dark"] .board{color:#06201c}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .board{color:#06201c}}
+.board .who{display:flex;flex-direction:column;gap:2px;min-width:0}
+.board .who.right{text-align:right}
+.board .name{font-weight:700;font-size:.9rem;opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.board .pts{font-family:var(--f-display);font-weight:800;font-size:2.2rem;line-height:1}
+.board .sub{font-size:.75rem;opacity:.75}
+.ring{width:84px;height:84px;position:relative}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .lbl{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font-weight:800;font-family:var(--f-display);font-size:1.15rem;line-height:1}
+.ring .lbl small{display:block;font-family:var(--f-body);font-weight:600;font-size:.62rem;opacity:.8;margin-top:2px}
+.balance{grid-column:1/-1;display:flex;flex-direction:column;gap:5px}
+.balbar{height:8px;border-radius:99px;background:rgba(255,255,255,.22);overflow:hidden;display:flex}
+.balbar i{display:block;height:100%}
+.balrow{display:flex;justify-content:space-between;font-size:.75rem;opacity:.85;gap:8px}
+.streak{display:flex;gap:8px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 11px;font-size:.82rem;font-weight:600;background:var(--surface);border:1px solid var(--line)}
+.pill.lemon{background:var(--lemon);color:var(--lemon-ink);border-color:transparent}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+/* Sections and tasks */
+.section{display:flex;flex-direction:column;gap:8px}
+.section-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.task{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 12px 12px 14px;display:flex;flex-direction:column;gap:9px;position:relative}
+.task.done{background:var(--surface-2)}
+.task-top{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.task-title{font-weight:600;min-width:0}
+.task.done .task-title{color:var(--muted)}
+.meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:3px}
+.owner{font-size:.74rem;font-weight:700;border-radius:6px;padding:2px 7px;white-space:nowrap}
+.owner.p0{background:var(--p0-soft);color:var(--p0)}
+.owner.p1{background:var(--p1-soft);color:var(--p1)}
+.owner.both{background:var(--both-soft);color:var(--both)}
+.owner.ho{background:var(--ho-soft);color:var(--ho)}
+.freq{font-size:.74rem;color:var(--muted)}
+.xp{font-weight:800;font-size:.8rem;color:var(--lemon-ink);background:var(--lemon);border-radius:6px;padding:2px 7px;white-space:nowrap;flex:none}
+.slots{display:flex;gap:6px;flex-wrap:wrap}
+.slot{width:38px;height:38px;border-radius:50%;border:2px dashed var(--line);background:transparent;display:grid;place-items:center;font-size:.7rem;font-weight:700;color:var(--muted);position:relative;transition:transform .15s}
+.slot:active{transform:scale(.9)}
+.slot.today{border-style:solid;border-color:var(--ink);color:var(--ink)}
+.slot.future{opacity:.35}
+.slot.on{border-style:solid;color:#fff;font-size:.8rem}
+.slot.on.p0{background:var(--p0);border-color:var(--p0)}
+.slot.on.p1{background:var(--p1);border-color:var(--p1)}
+:root[data-theme="dark"] .slot.on{color:#0d1514}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .slot.on{color:#0d1514}}
+.bigcheck{display:flex;align-items:center;gap:10px;border:2px dashed var(--line);border-radius:12px;padding:8px 12px;background:transparent;font-weight:600;text-align:left;color:var(--muted)}
+.bigcheck.on{border-style:solid;color:var(--fg)}
+.bigcheck.on.p0{border-color:var(--p0);background:var(--p0-soft)}
+.bigcheck.on.p1{border-color:var(--p1);background:var(--p1-soft)}
+.float{position:absolute;pointer-events:none;font-weight:800;font-family:var(--f-display);color:var(--lemon-ink);background:var(--lemon);border-radius:8px;padding:1px 6px;font-size:.85rem;animation:up .9s ease-out forwards;z-index:3}
+@keyframes up{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-34px)}}
+@media (prefers-reduced-motion: reduce){.float{animation:none;opacity:0}.slot{transition:none}}
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:var(--r);padding:20px;text-align:center;color:var(--muted);display:flex;flex-direction:column;gap:10px;align-items:center}
+.notice{font-size:.85rem;background:var(--surface-2);border-radius:10px;padding:10px 12px;color:var(--muted)}
+.primary{background:var(--ink);color:var(--bg);border:none;border-radius:10px;padding:10px 16px;font-weight:700}
+.ghost{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 14px;font-weight:600}
+.danger{color:var(--p1)}
+/* Tabs */
+.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px);z-index:5}
+.tabs button{flex:1;max-width:160px;background:none;border:none;padding:10px 4px 12px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.78rem;font-weight:600;color:var(--muted)}
+.tabs button svg{width:22px;height:22px}
+.tabs button[aria-selected="true"]{color:var(--ink)}
+/* Score tab */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px}
+.level{display:flex;gap:14px;align-items:center}
+.badge{width:64px;height:64px;border-radius:18px;background:var(--lemon);color:var(--lemon-ink);display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:1.8rem;flex:none}
+.xpbar{height:10px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.xpbar i{display:block;height:100%;background:var(--lemon)}
+.chart{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;align-items:end;height:150px}
+.bar{display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:2px;min-width:0}
+.bar i{display:block;border-radius:4px}
+.bar .b0{background:var(--p0)}.bar .b1{background:var(--p1)}
+.bar.ok::after{content:"";}
+.chart-x{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;font-size:.7rem;color:var(--muted);text-align:center}
+.legend{display:flex;gap:14px;font-size:.8rem;color:var(--muted);flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--surface-2);border-radius:12px;padding:12px}
+.stat b{display:block;font-family:var(--f-display);font-size:1.5rem}
+/* Plan tab */
+.rotlist{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rotlist > div{border-radius:12px;padding:10px 12px;min-width:0}
+.rotlist .r0{background:var(--p0-soft)}.rotlist .r1{background:var(--p1-soft)}
+.rotlist ul{margin:6px 0 0;padding-left:18px;font-size:.88rem}
+.editrow{display:grid;grid-template-columns:1fr;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px}
+.editrow .line{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.editrow input[type=text]{flex:1 1 200px;min-width:0}
+input,select{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 9px}
+input[type=number]{width:64px}
+label.sm{font-size:.78rem;color:var(--muted);display:flex;align-items:center;gap:4px}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:.88rem;font-weight:600;z-index:9;max-width:calc(100% - 32px)}
+.celebrate{background:var(--lemon);color:var(--lemon-ink);border-radius:var(--r);padding:12px 14px;font-weight:700;display:flex;gap:10px;align-items:center}
+</style>
+
+<div class="app" id="app">
+  <div class="empty" id="boot">Haushalts-Quest wird geladen …</div>
+</div>
+<nav class="tabs" role="tablist" id="tabs">
+  <button role="tab" data-tab="woche" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18M8 15l2.5 2.5L16 13"/></svg>Woche</button>
+  <button role="tab" data-tab="punkte" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>Punkte</button>
+  <button role="tab" data-tab="plan" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/><path d="M18 16l2 2-2 2"/></svg>Plan</button>
+</nav>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+"use strict";
+// ---------- Vorlage (nur per Knopf im leeren Zustand) ----------
+const TEMPLATE={persons:["Florian","Judith"],rotOffset:0,tasks:[
+ {id:"essen",name:"Essen machen, Tisch wischen, Küche in Schuss halten",owner:"ho",freq:"day",pts:3},
+ {id:"schlafzimmer",name:"Schlafzimmer aufräumen",owner:"both",freq:"day",pts:1},
+ {id:"einkaufen",name:"Einkaufen",owner:"rot",pack:"A",freq:"week",times:3,pts:4},
+ {id:"bad",name:"Bad putzen",owner:"rot",pack:"A",freq:"week",times:1,pts:5},
+ {id:"muell",name:"Müll rausbringen",owner:"rot",pack:"A",freq:"week",times:3,pts:1},
+ {id:"plastik",name:"Plastikmüll rausbringen",owner:"rot",pack:"A",freq:"week",times:1,pts:1},
+ {id:"waesche",name:"Wäsche waschen, auf- und abhängen",owner:"rot",pack:"B",freq:"week",times:3,pts:3},
+ {id:"saugen",name:"Saugen (Wohnbereich)",owner:"rot",pack:"B",freq:"week",times:2,pts:3},
+ {id:"kueche-putzen",name:"Küche putzen",owner:"rot",pack:"B",freq:"week",times:1,pts:5},
+ {id:"treppe",name:"Treppe saugen/wischen (Roboter starten, leeren)",owner:"rot",pack:"B",freq:"week",times:1,pts:1},
+ {id:"bringen-0",name:"Bringen",owner:"p0",freq:"week",times:3,pts:2},
+ {id:"bringen-1",name:"Bringen",owner:"p1",freq:"week",times:2,pts:2},
+ {id:"mittag",name:"Gemeinsames Mittagessen",owner:"both",freq:"week",times:1,pts:2},
+ {id:"eigenes",name:"Eigenes Zeug aufräumen (alles außer Schlafzimmer)",owner:"both",freq:"week",times:3,pts:1},
+ {id:"nathan",name:"Nathans Klamotten einräumen",owner:"p1",freq:"week",times:3,pts:1},
+ {id:"pflanzen-drinnen",name:"Pflanzen drinnen",owner:"p1",freq:"week",times:1,pts:2},
+ {id:"pflanzen-draussen",name:"Pflanzen draußen",owner:"p0",freq:"week",times:2,pts:1},
+ {id:"balkon",name:"Balkon",owner:"p0",freq:"week",times:1,pts:2},
+ {id:"sz-saugen",name:"Staubsaugen Schlafzimmer",owner:"p0",freq:"week",times:1,pts:2},
+ {id:"zimmer-drueben",name:"Zimmer drüben putzen",owner:"rot",freq:"month",pts:6},
+ {id:"flaechen-1",name:"Flächen: Kommode und Fensterbank",owner:"p1",freq:"month",pts:2},
+ {id:"flaechen-0",name:"Flächen: roter Schrank",owner:"p0",freq:"month",pts:2},
+ {id:"buecherregal",name:"Bücherregal Wohnzimmer",owner:"p1",freq:"half",pts:6},
+ {id:"grossputz",name:"Großputz (langes Wochenende)",owner:"p0",freq:"half",pts:48},
+ {id:"center",name:"Center putzen",owner:"rot",freq:"year",pts:18}
+]};
+const FREQ_LABEL={day:"täglich",week:"pro Woche",month:"monatlich",half:"halbjährlich",year:"jährlich"};
+const OWNER_LABEL={rot:"Im Wechsel",both:"Beide",ho:"Homeoffice"};
+const LEVELS=["Chaos-Höhle","Studi-Bude","Ordentliche WG","Gemütliches Nest","Blitzblank-Wohnung","Wohlfühl-Zuhause","Hausmeister-Palast","Glanz-Villa","Putz-Schloss","Legendäres Heim"];
+const DAYS=["Mo","Di","Mi","Do","Fr","Sa","So"];
+const GOAL=0.8;
+
+// ---------- Datum ----------
+const DAY=864e5;
+function startOfDay(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate())}
+function mondayOf(d){const x=startOfDay(d);x.setDate(x.getDate()-((x.getDay()+6)%7));return x}
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
+function isoWeek(d){const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const day=t.getUTCDay()||7;t.setUTCDate(t.getUTCDate()+4-day);const y=t.getUTCFullYear();const w=Math.ceil(((t-Date.UTC(y,0,1))/DAY+1)/7);return {y,w}}
+function wkKey(mon){const {y,w}=isoWeek(mon);return y+"-W"+String(w).padStart(2,"0")}
+function mondayFromKey(k){const [y,w]=k.split("-W").map(Number);return addDays(mondayOf(new Date(y,0,4)),(w-1)*7)}
+const REF=new Date(2024,0,1);
+function weekIndex(mon){return Math.round((mon-REF)/(7*DAY))}
+function periodOf(freq,mon){const th=addDays(mon,3);const y=th.getFullYear(),m=th.getMonth();
+  if(freq==="month")return {id:y+"-"+m,idx:y*12+m};
+  if(freq==="half")return {id:y+"-H"+(m<6?1:2),idx:y*2+(m<6?0:1)};
+  if(freq==="year")return {id:""+y,idx:y};
+  return {id:wkKey(mon),idx:weekIndex(mon)}}
+const fmt=(d,o)=>d.toLocaleDateString("de-DE",o);
+
+// ---------- Zustand ----------
+const S={store:null,mode:"loading",config:null,weeks:{},view:mondayOf(new Date()),tab:"woche",filter:"alle",me:null,draft:null,timedOut:false};
+try{const m=localStorage.getItem("hq-me");if(m==="p0"||m==="p1")S.me=m;const f=localStorage.getItem("hq-filter");if(f)S.filter=f;}catch(e){}
+
+// ---------- Speicher-Adapter ----------
+function dbStore(db){
+  const chains={};
+  return {
+    listen(onCfg,onWeeks,onErr){
+      db.doc("config/main").onSnapshot(s=>onCfg(s.exists?s.data():null,s.metadata.fromCache),onErr);
+      db.collection("weeks").limit(1000).onSnapshot(q=>{const w={};q.docs.forEach(d=>{w[d.id]=d.data()});onWeeks(w,q.metadata.fromCache)},onErr);
+    },
+    tick(wk,key,val){const run=async()=>{const ref=db.doc("weeks/"+wk);
+        if(!S.weeks[wk]) await ref.set({wk,ticks:{[key]:val}}); else await ref.update({ticks:{[key]:val}});};
+      chains[wk]=(chains[wk]||Promise.resolve()).then(run,run);return chains[wk]},
+    saveConfig(cfg){return db.doc("config/main").set(cfg)}
+  }
+}
+function localStore(){
+  const K="hq-local-v1";let data={config:null,weeks:{}};
+  try{const raw=localStorage.getItem(K);if(raw)data=JSON.parse(raw)}catch(e){}
+  let cbs=null;const save=()=>{try{localStorage.setItem(K,JSON.stringify(data))}catch(e){}};
+  const emit=()=>{if(cbs){cbs[0](data.config,false);cbs[1](JSON.parse(JSON.stringify(data.weeks)),false)}};
+  return {
+    listen(a,b){cbs=[a,b];emit()},
+    async tick(wk,key,val){data.weeks[wk]=data.weeks[wk]||{wk,ticks:{}};data.weeks[wk].ticks[key]=val;save();emit()},
+    async saveConfig(cfg){data.config=cfg;save();emit()}
+  }
+}
+
+// ---------- Logik ----------
+function tasks(){return (S.config&&S.config.tasks)||[]}
+function pname(p){const ps=(S.config&&S.config.persons)||TEMPLATE.persons;return p==="p0"?ps[0]:ps[1]}
+function slotsOf(t){return t.freq==="day"?7:t.freq==="week"?Math.max(1,t.times|0||1):1}
+function load(t){return (t.pts||0)*slotsOf(t)}
+function group(f){return f==="day"||f==="week"?"week":f}
+// Rotationsaufgaben je Rhythmus in zwei gleich schwere Pakete A/B teilen
+function rotSplit(){const res={};
+  ["week","month","half","year"].forEach(g=>{const all=tasks().filter(t=>t.owner==="rot"&&group(t.freq)===g);
+    let a=0,b=0;all.forEach(t=>{if(t.pack==="A"){res[t.id]="A";a+=load(t)}else if(t.pack==="B"){res[t.id]="B";b+=load(t)}});
+    all.filter(t=>t.pack!=="A"&&t.pack!=="B").sort((x,y)=>load(y)-load(x)).forEach(t=>{if(a<=b){res[t.id]="A";a+=load(t)}else{res[t.id]="B";b+=load(t)}})});
+  return res}
+// Gerade ISO-KW / gerader Monat / gerades Jahr: Paket A -> Person 1 (Florian), Paket B -> Person 2
+function rotParity(freq,mon){const th=addDays(mon,3);
+  if(group(freq)==="week")return isoWeek(mon).w%2;
+  if(freq==="month")return (th.getMonth()+1)%2;
+  if(freq==="half")return th.getMonth()<6?1:0;
+  return th.getFullYear()%2}
+function ownerFor(t,mon,split){
+  if(t.owner!=="rot")return t.owner;
+  const flip=(rotParity(t.freq,mon)+((S.config&&S.config.rotOffset)|0))%2;
+  const pack=(split||rotSplit())[t.id]||"A";
+  return (pack==="A")===(flip===0)?"p0":"p1"}
+function ticksOf(wk){return (S.weeks[wk]&&S.weeks[wk].ticks)||{}}
+function periodTick(t,mon){const pid=periodOf(t.freq,mon).id;const key=t.id+"__p";
+  for(const wk in S.weeks){const v=ticksOf(wk)[key];if(v&&periodOf(t.freq,mondayFromKey(wk)).id===pid)return {wk,v}}
+  return null}
+function weekScore(wk){const mon=mondayFromKey(wk);const tk=ticksOf(wk);const byId={};tasks().forEach(t=>byId[t.id]=t);
+  const pts={p0:0,p1:0};
+  for(const k in tk){const v=tk[k];if(!v)continue;const t=byId[k.split("__")[0]];if(!t)continue;if(v.by==="p0"||v.by==="p1")pts[v.by]+=t.pts||0}
+  let due=0,done=0;const split=rotSplit();const assigned={p0:0,p1:0};
+  tasks().forEach(t=>{if(group(t.freq)!=="week")return;const n=slotsOf(t);due+=n*(t.pts||0);
+    for(let i=0;i<n;i++)if(tk[t.id+"__"+i])done+=t.pts||0;
+    const o=ownerFor(t,mon,split);if(o==="p0"||o==="p1")assigned[o]+=load(t)});
+  return {pts,due,done,pct:due?done/due:0,assigned}}
+function allTime(){const tot={p0:0,p1:0};Object.keys(S.weeks).forEach(wk=>{const s=weekScore(wk);tot.p0+=s.pts.p0;tot.p1+=s.pts.p1});return tot}
+function levelFor(xp){let n=0;const need=k=>Math.round(120*k*(k+1)/2);while(need(n+1)<=xp&&n<LEVELS.length-1)n++;return {n,cur:xp-need(n),span:need(n+1)-need(n)}}
+function streak(){const cur=mondayOf(new Date());let s=0;let m=addDays(cur,-7);
+  for(let i=0;i<200;i++){const sc=weekScore(wkKey(m));if(sc.pct>=GOAL){s++;m=addDays(m,-7)}else break}
+  if(weekScore(wkKey(cur)).pct>=GOAL)s++;return s}
+
+// ---------- Aktionen ----------
+function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2600)}
+function floatAt(btn,txt){const card=btn.closest(".task");if(!card)return;const f=document.createElement("span");f.className="float";f.textContent=txt;
+  const r=btn.getBoundingClientRect(),c=card.getBoundingClientRect();f.style.left=(r.left-c.left+4)+"px";f.style.top=(r.top-c.top-6)+"px";card.appendChild(f);setTimeout(()=>f.remove(),950)}
+async function toggle(btn){
+  if(!S.me){toast("Wähle oben zuerst, wer du bist.");return}
+  const t=tasks().find(x=>x.id===btn.dataset.task);if(!t)return;
+  let wk=wkKey(S.view),key,cur;
+  if(btn.dataset.slot==="p"){const pt=periodTick(t,S.view);key=t.id+"__p";if(pt){wk=pt.wk;cur=pt.v}}
+  else{key=t.id+"__"+btn.dataset.slot;cur=ticksOf(wk)[key]}
+  const val=cur?null:{by:S.me,at:Date.now()};
+  if(val)floatAt(btn,"+"+(t.pts||0));
+  try{await S.store.tick(wk,key,val)}catch(e){toast(e&&e.code==="invalid_argument"?"Speichern nicht erlaubt: Du brauchst Bearbeitungsrechte.":"Konnte nicht speichern. Bitte nochmal tippen.")}
+}
+
+// ---------- Rendering ----------
+const app=document.getElementById("app");
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function ownerChip(o,isRot){const cls=o==="p0"||o==="p1"?o:o;const lbl=o==="p0"||o==="p1"?pname(o):OWNER_LABEL[o];
+  return `<span class="owner ${cls}">${isRot?"↻ ":""}${esc(lbl)}</span>`}
+function meChooser(){return `<div class="me"><span>Ich bin</span>
+  <button class="chipbtn p0" data-me="p0" aria-pressed="${S.me==="p0"}">${esc(pname("p0"))}</button>
+  <button class="chipbtn p1" data-me="p1" aria-pressed="${S.me==="p1"}">${esc(pname("p1"))}</button></div>`}
+function ring(p){const r=36,c=2*Math.PI*r;const off=c*(1-Math.min(1,p));
+  return `<svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="${r}" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="8"/><circle cx="42" cy="42" r="${r}" fill="none" stroke="var(--lemon)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}"/></svg>`}
+
+function renderWeek(){
+  const mon=S.view,wk=wkKey(mon),cur=mondayOf(new Date()),isCur=+mon===+cur;
+  const today=isCur?(new Date().getDay()+6)%7:(mon<cur?7:-1);
+  const sc=weekScore(wk),split=rotSplit(),tk=ticksOf(wk);
+  const {w}=isoWeek(mon);
+  const st=streak();
+  let h=`<div class="top"><div><div class="eyebrow">KW ${w} · ${fmt(mon,{day:"numeric",month:"short"})} – ${fmt(addDays(mon,6),{day:"numeric",month:"short"})}</div><h1>${isCur?"Diese Woche":(mon<cur?"Rückblick":"Vorschau")}</h1></div>
+   <div class="weeknav"><button class="iconbtn" data-nav="-1" aria-label="Vorige Woche">‹</button>${isCur?"":`<button class="ghost" data-nav="0">Heute</button>`}<button class="iconbtn" data-nav="1" aria-label="Nächste Woche" ${isCur?"disabled":""}>›</button></div></div>`;
+  h+=meChooser();
+  const tot=sc.assigned.p0+sc.assigned.p1||1;const ptot=sc.pts.p0+sc.pts.p1||1;
+  h+=`<section class="board" aria-label="Wochenstand">
+    <div class="who"><span class="name">${esc(pname("p0"))}</span><span class="pts num">${sc.pts.p0}</span><span class="sub">Punkte</span></div>
+    <div class="ring">${ring(sc.pct)}<div class="lbl num">${Math.round(sc.pct*100)}%<small>der Woche</small></div></div>
+    <div class="who right"><span class="name">${esc(pname("p1"))}</span><span class="pts num">${sc.pts.p1}</span><span class="sub">Punkte</span></div>
+    <div class="balance"><div class="balrow"><span>Tatsächlich erledigt</span><span class="num">${Math.round(sc.pts.p0/ptot*100)} : ${Math.round(sc.pts.p1/ptot*100)}</span></div>
+      <div class="balbar"><i style="width:${sc.pts.p0/ptot*100}%;background:var(--p0)"></i><i style="width:${sc.pts.p1/ptot*100}%;background:var(--p1)"></i></div>
+      <div class="balrow"><span>Laut Plan zugeteilt</span><span class="num">${sc.assigned.p0} : ${sc.assigned.p1} Punkte</span></div></div>
+  </section>`;
+  h+=`<div class="streak"><span class="pill lemon">🔥 ${st} ${st===1?"Woche":"Wochen"} Serie</span><span class="pill">Ziel: ${Math.round(GOAL*100)} % der Wochenpunkte gemeinsam</span></div>`;
+  if(sc.pct>=GOAL)h+=`<div class="celebrate">★ Wochenziel geschafft! Diese Woche zählt für eure Serie.</div>`;
+  h+=`<div class="filters" role="group" aria-label="Filter"><button class="chipbtn neutral" data-filter="alle" aria-pressed="${S.filter==="alle"}">Alle Aufgaben</button><button class="chipbtn neutral" data-filter="meine" aria-pressed="${S.filter==="meine"}">Nur meine</button><button class="chipbtn neutral" data-filter="offen" aria-pressed="${S.filter==="offen"}">Nur offene</button></div>`;
+  if(S.filter==="meine"&&!S.me)h+=`<div class="notice">Wähle oben aus, wer du bist, damit „Nur meine“ funktioniert.</div>`;
+
+  const show=(t,o,isDone)=>{if(S.filter==="meine"&&S.me&&!(o===S.me||o==="both"||o==="ho"))return false;if(S.filter==="offen"&&isDone)return false;return true};
+  const sections=[["day","Täglich"],["week","Diese Woche"],["month","Diesen Monat"],["half","Dieses Halbjahr"],["year","Dieses Jahr"]];
+  sections.forEach(([f,title])=>{
+    const list=tasks().filter(t=>t.freq===f);if(!list.length)return;
+    let body="",cnt=0;
+    list.forEach(t=>{const o=ownerFor(t,mon,split);const isRot=t.owner==="rot";let slots="",doneAll;
+      if(f==="day"||f==="week"){const n=slotsOf(t);let c=0;
+        for(let i=0;i<n;i++){const v=tk[t.id+"__"+i];if(v)c++;
+          const cls=["slot"];if(v)cls.push("on",v.by);if(f==="day"){if(i===today)cls.push("today");if(i>today)cls.push("future")}
+          const lbl=v?esc(pname(v.by).charAt(0)):(f==="day"?DAYS[i]:"");
+          slots+=`<button class="${cls.join(" ")}" data-task="${esc(t.id)}" data-slot="${i}" ${f==="day"&&i>today?"disabled":""} aria-pressed="${!!v}" aria-label="${esc(t.name)} ${f==="day"?DAYS[i]:(i+1)+". Mal"}${v?" erledigt von "+esc(pname(v.by)):""}">${lbl}</button>`}
+        doneAll=c>=n;
+        const extra=f==="week"?` · ${c}/${n}`:"";
+        if(!show(t,o,doneAll))return;cnt++;
+        body+=`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${f==="day"?"täglich":n+"× pro Woche"}${extra}</span></div></div><span class="xp">+${t.pts||0}</span></div><div class="slots">${slots}</div></article>`;
+      }else{const pt=periodTick(t,mon);doneAll=!!pt;if(!show(t,o,doneAll))return;cnt++;
+        const lbl=pt?`✓ Erledigt von ${esc(pname(pt.v.by))} am ${fmt(new Date(pt.v.at),{day:"numeric",month:"short"})}`:"○ Als erledigt markieren";
+        body+=`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${FREQ_LABEL[f]}</span></div></div><span class="xp">+${t.pts||0}</span></div><div><button class="bigcheck${pt?" on "+pt.v.by:""}" data-task="${esc(t.id)}" data-slot="p" aria-pressed="${doneAll}">${lbl}</button></div></article>`;}
+    });
+    if(cnt)h+=`<section class="section"><div class="section-head"><h2>${title}</h2>${f==="day"?`<span class="freq">„Homeoffice“ = wer an dem Tag zu Hause ist</span>`:""}</div>${body}</section>`;
+  });
+  return h}
+
+function renderScore(){
+  const tot=allTime(),xp=tot.p0+tot.p1,lv=levelFor(xp),st=streak();
+  const cur=mondayOf(new Date());const weeks=[];for(let i=7;i>=0;i--){const m=addDays(cur,-7*i);weeks.push({m,s:weekScore(wkKey(m))})}
+  const max=Math.max(10,...weeks.map(x=>x.s.pts.p0+x.s.pts.p1));
+  let best=0;Object.keys(S.weeks).forEach(k=>{const s=weekScore(k);best=Math.max(best,s.pts.p0+s.pts.p1)});
+  let h=`<div><div class="eyebrow">Euer Zuhause</div><h1>Punkte & Level</h1></div>`;
+  h+=`<section class="card"><div class="level"><div class="badge num">${lv.n+1}</div><div style="min-width:0;flex:1"><div class="eyebrow">Haus-Level</div><h2>${LEVELS[lv.n]}</h2>
+     <div class="xpbar" style="margin-top:8px"><i style="width:${lv.n>=LEVELS.length-1?100:Math.round(lv.cur/lv.span*100)}%"></i></div>
+     <div class="freq num" style="margin-top:4px">${lv.n>=LEVELS.length-1?"Höchstes Level erreicht":`${lv.cur} / ${lv.span} XP bis „${LEVELS[lv.n+1]}“`}</div></div></div>
+     <div class="notice">Alle Punkte von euch beiden zählen zusammen. Ihr levelt euer Zuhause gemeinsam, nicht gegeneinander.</div></section>`;
+  h+=`<div class="stats"><div class="stat"><span class="freq">${esc(pname("p0"))}, gesamt</span><b class="num" style="color:var(--p0)">${tot.p0}</b></div><div class="stat"><span class="freq">${esc(pname("p1"))}, gesamt</span><b class="num" style="color:var(--p1)">${tot.p1}</b></div>
+      <div class="stat"><span class="freq">Wochen-Serie</span><b class="num">🔥 ${st}</b></div><div class="stat"><span class="freq">Beste Woche</span><b class="num">${best} P.</b></div></div>`;
+  h+=`<section class="card"><div class="section-head"><h2>Letzte 8 Wochen</h2><div class="legend"><span><i style="background:var(--p0)"></i>${esc(pname("p0"))}</span><span><i style="background:var(--p1)"></i>${esc(pname("p1"))}</span></div></div>
+     <div class="chart" role="img" aria-label="Punkte pro Woche">${weeks.map(x=>`<div class="bar" title="${x.s.pts.p0} / ${x.s.pts.p1}"><i class="b1" style="height:${x.s.pts.p1/max*100}%"></i><i class="b0" style="height:${x.s.pts.p0/max*100}%"></i></div>`).join("")}</div>
+     <div class="chart-x num">${weeks.map(x=>`<span>${x.s.pct>=GOAL?"★":""}KW${isoWeek(x.m).w}</span>`).join("")}</div>
+     <div class="freq">★ = Wochenziel (${Math.round(GOAL*100)} %) erreicht</div></section>`;
+  return h}
+
+function renderPlan(){
+  const d=S.draft||(S.draft=JSON.parse(JSON.stringify(S.config)));
+  const mon=mondayOf(new Date()),split=rotSplit();
+  const rot={p0:[],p1:[]};tasks().filter(t=>t.owner==="rot").forEach(t=>rot[ownerFor(t,mon,split)].push(t));
+  const li=a=>a.map(t=>`<li>${esc(t.name)} <span class="freq">(${t.freq==="week"?(t.times||1)+"×/Woche":FREQ_LABEL[t.freq]})</span></li>`).join("")||"<li>nichts</li>";
+  let h=`<div><div class="eyebrow">Fairer Plan</div><h1>Wer macht was</h1></div>
+   <section class="card"><h2>Wechsel-Aufgaben, aktuell</h2>
+   <div class="freq">Wöchentliche Wechsel-Aufgaben sind in Paket A und Paket B geteilt. In geraden Kalenderwochen hat ${esc(pname("p0"))} Paket A, in ungeraden ${esc(pname("p1"))}. Monatliche Wechsel-Aufgaben: gerader Monat ${esc(pname("p0"))}, ungerader ${esc(pname("p1"))}. Jährliche: gerades Jahr ${esc(pname("p0"))}, ungerades ${esc(pname("p1"))}.</div>
+   <div class="rotlist"><div class="r0"><b>${esc(pname("p0"))}</b><ul>${li(rot.p0)}</ul></div><div class="r1"><b>${esc(pname("p1"))}</b><ul>${li(rot.p1)}</ul></div></div>
+   <div><button class="ghost" data-act="swap">Pakete tauschen</button></div>
+   <div class="notice">Grundregel: Ihr könnt immer gemeinsam abweichen und den Plan anpassen.</div></section>`;
+  h+=`<section class="section"><div class="section-head"><h2>Aufgaben bearbeiten</h2></div>
+   <div class="editrow"><div class="line"><label class="sm">Person 1 <input type="text" id="pn0" value="${esc(d.persons[0])}"></label><label class="sm">Person 2 <input type="text" id="pn1" value="${esc(d.persons[1])}"></label></div></div>`;
+  d.tasks.forEach((t,i)=>{
+    const ownOpts=[["p0",d.persons[0]],["p1",d.persons[1]],["rot","Im Wechsel"],["both","Beide"],["ho","Homeoffice"]].map(([v,l])=>`<option value="${v}" ${t.owner===v?"selected":""}>${esc(l)}</option>`).join("");
+    const fOpts=Object.keys(FREQ_LABEL).map(v=>`<option value="${v}" ${t.freq===v?"selected":""}>${v==="week"?"x-mal pro Woche":FREQ_LABEL[v]}</option>`).join("");
+    h+=`<div class="editrow" data-i="${i}"><div class="line"><input type="text" id="tn-${esc(t.id)}" data-f="name" value="${esc(t.name)}" aria-label="Aufgabe"><button class="ghost danger" data-del="${i}" aria-label="Löschen">✕</button></div>
+      <div class="line"><select id="to-${esc(t.id)}" data-f="owner" aria-label="Wer">${ownOpts}</select><select id="tf-${esc(t.id)}" data-f="freq" aria-label="Rhythmus">${fOpts}</select>
+      ${t.freq==="week"?`<label class="sm"><input type="number" min="1" max="14" id="tt-${esc(t.id)}" data-f="times" value="${t.times||1}">× </label>`:""}
+      ${t.owner==="rot"&&t.freq!=="month"&&t.freq!=="year"?`<select id="tk-${esc(t.id)}" data-f="pack" aria-label="Paket"><option value="" ${!t.pack?"selected":""}>Paket automatisch</option><option value="A" ${t.pack==="A"?"selected":""}>Paket A</option><option value="B" ${t.pack==="B"?"selected":""}>Paket B</option></select>`:""}
+      <label class="sm"><input type="number" min="0" max="50" id="tp-${esc(t.id)}" data-f="pts" value="${t.pts||0}"> Punkte</label></div></div>`});
+  h+=`<div class="line" style="display:flex;gap:8px;flex-wrap:wrap"><button class="ghost" data-act="add">+ Aufgabe</button><button class="primary" data-act="save">Plan speichern</button><button class="ghost" data-act="reset">Änderungen verwerfen</button></div></section>`;
+  return h}
+
+function render(){
+  if(S.mode==="loading")return;
+  document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===S.tab));
+  let h="";
+  if(S.mode==="local")h+=`<div class="notice">Offline-Modus: Die Daten bleiben nur auf diesem Gerät. Öffnet die App über den claude.ai-Link und meldet euch an, damit ihr beide dieselben Daten seht.</div>`;
+  if(S.timedOut&&S.mode==="db")h+=`<div class="notice">Die gemeinsamen Daten sind gerade nicht erreichbar. Angezeigtes kann veraltet sein.</div>`;
+  if(!S.config&&!S.cfgConfirmed&&!S.timedOut){app.innerHTML=h+`<div class="empty">Plan wird geladen …</div>`;return}
+  if(!S.config){h+=`<div class="empty"><h2>Noch kein Haushaltsplan hinterlegt</h2><div>Legt euren Plan aus der Vorlage an (eure Liste mit Müll, Saugen, Wäsche und Co.). Danach könnt ihr alles unter „Plan“ anpassen.</div><button class="primary" data-act="template">Plan aus Vorlage anlegen</button></div>`;app.innerHTML=h;return}
+  h+=S.tab==="woche"?renderWeek():S.tab==="punkte"?renderScore():renderPlan();
+  const y=window.scrollY;app.innerHTML=h;window.scrollTo(0,y);
+}
+
+// ---------- Events ----------
+document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("button[data-tab]");if(!b)return;S.tab=b.dataset.tab;if(S.tab!=="plan")S.draft=null;render();window.scrollTo(0,0)});
+app.addEventListener("click",async e=>{
+  const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.me){S.me=b.dataset.me;try{localStorage.setItem("hq-me",S.me)}catch(_){}render();return}
+  if(b.dataset.filter){S.filter=b.dataset.filter;try{localStorage.setItem("hq-filter",S.filter)}catch(_){}render();return}
+  if(b.dataset.nav){const n=+b.dataset.nav;S.view=n===0?mondayOf(new Date()):addDays(S.view,7*n);render();return}
+  if(b.dataset.task){toggle(b);return}
+  if(b.dataset.del){S.draft.tasks.splice(+b.dataset.del,1);render();return}
+  const act=b.dataset.act;
+  if(act==="template"){try{await S.store.saveConfig(JSON.parse(JSON.stringify(TEMPLATE)));toast("Plan angelegt")}catch(_){toast("Konnte den Plan nicht speichern.")}}
+  if(act==="add"){S.draft.tasks.push({id:"t"+Date.now().toString(36),name:"Neue Aufgabe",owner:"rot",freq:"week",times:1,pts:2});render()}
+  if(act==="reset"){S.draft=null;render()}
+  if(act==="swap"){const c=JSON.parse(JSON.stringify(S.config));c.rotOffset=((c.rotOffset|0)+1)%2;try{await S.store.saveConfig(c);S.draft=null;toast("Pakete getauscht")}catch(_){toast("Konnte nicht speichern.")}}
+  if(act==="save"){const d=S.draft;d.persons=[document.getElementById("pn0").value.trim()||"Person 1",document.getElementById("pn1").value.trim()||"Person 2"];
+    d.tasks.forEach(t=>{t.name=(t.name||"").trim()||"Aufgabe";t.pts=Math.max(0,Math.min(50,t.pts|0));if(t.freq==="week")t.times=Math.max(1,Math.min(14,t.times|0||1));else delete t.times;if(t.owner!=="rot"||(t.pack!=="A"&&t.pack!=="B"))delete t.pack});
+    try{await S.store.saveConfig(JSON.parse(JSON.stringify(d)));S.draft=null;toast("Plan gespeichert")}catch(_){toast("Speichern nicht möglich. Du brauchst Bearbeitungsrechte.")}}
+});
+app.addEventListener("change",e=>{const row=e.target.closest(".editrow[data-i]");if(!row||!S.draft)return;const t=S.draft.tasks[+row.dataset.i];const f=e.target.dataset.f;if(!f)return;
+  t[f]=(f==="times"||f==="pts")?(+e.target.value||0):e.target.value;if(f==="freq"&&t.freq==="week"&&!t.times)t.times=1;if(f==="freq"||f==="owner")render()});
+app.addEventListener("input",e=>{const row=e.target.closest(".editrow[data-i]");if(!row||!S.draft)return;if(e.target.dataset.f==="name")S.draft.tasks[+row.dataset.i].name=e.target.value});
+
+// ---------- Start ----------
+function start(store,mode){S.store=store;S.mode=mode;let gotCfg=false,gotWeeks=false;
+  const timer=setTimeout(()=>{S.timedOut=true;if(!gotCfg)S.config=S.config||null;render()},10000);
+  store.listen((cfg,fromCache)=>{S.config=cfg;if(!fromCache){gotCfg=true;S.cfgConfirmed=true}if(gotCfg&&gotWeeks){clearTimeout(timer);S.timedOut=false}render()},
+    (w,fromCache)=>{S.weeks=w;if(!fromCache)gotWeeks=true;if(gotCfg&&gotWeeks){clearTimeout(timer);S.timedOut=false}render()},
+    err=>{clearTimeout(timer);toast("Verbindung zu den gemeinsamen Daten verloren. Seite neu öffnen.")});
+}
+(async()=>{let db=null;try{if(window.claude&&window.claude.use)db=await window.claude.use("db")}catch(e){db=null}
+  if(db)start(dbStore(db),"db");else start(localStore(),"local")})();
+})();
+</script>

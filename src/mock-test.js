@@ -1,0 +1,38 @@
+// Minimal Firebase-RTDB-like mock (REST + SSE) and a two-device sync test.
+const http=require('http'),fs=require('fs'),path=require('path');const {chromium}=require('playwright');
+let tree={};const clients=[];
+const get=p=>p.reduce((o,k)=>o==null?null:o[k],tree);
+function setAt(p,d){if(!p.length){tree=d||{};return}let o=tree;for(let i=0;i<p.length-1;i++){if(typeof o[p[i]]!=='object'||o[p[i]]===null)o[p[i]]={};o=o[p[i]]}
+  if(d===null)delete o[p[p.length-1]];else o[p[p.length-1]]=d}
+const html=()=>fs.readFileSync(path.join(__dirname,'web/index.html'));
+const srv=http.createServer((req,res)=>{
+  const u=new URL(req.url,'http://x');
+  if(!u.pathname.endsWith('.json')){res.writeHead(200,{'content-type':'text/html'});return res.end(html())}
+  const p=u.pathname.slice(1,-5).split('/').filter(Boolean);
+  res.setHeader('access-control-allow-origin','*');
+  if(req.method==='GET'){res.writeHead(200,{'content-type':'text/event-stream'});
+    res.write('event: put\ndata: '+JSON.stringify({path:'/',data:get(p)??null})+'\n\n');clients.push({p,res});return}
+  let b='';req.on('data',c=>b+=c);req.on('end',()=>{const d=JSON.parse(b);
+    if(req.method==='PUT')setAt(p,d);else Object.keys(d).forEach(k=>setAt(p.concat(k),d[k]));
+    clients.forEach(c=>{if(c.p.every((x,i)=>p[i]===x)){const rel='/'+p.slice(c.p.length).join('/');
+      c.res.write('event: '+(req.method==='PUT'?'put':'patch')+'\ndata: '+JSON.stringify({path:rel,data:d})+'\n\n')}});
+    res.writeHead(200,{'content-type':'application/json'});res.end(b)})});
+srv.listen(8765,async()=>{
+  const b=await chromium.launch();const errs=[];
+  const mk=async()=>{const c=await b.newContext({viewport:{width:400,height:900}});const p=await c.newPage();p.on('pageerror',e=>errs.push(e.message));return p};
+  const A=await mk();await A.goto('http://localhost:8765/');await A.click('[data-act=newhouse]');
+  await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');
+  const link=A.url();console.log('link',link);
+  const B=await mk();await B.goto(link);await B.waitForSelector('[data-me=p1]');
+  await A.click('[data-me=p0]');await B.click('[data-me=p1]');
+  await A.click('[data-task=einkaufen][data-slot="0"]');
+  await B.waitForSelector('[data-task=einkaufen][data-slot="0"].on.p0');
+  await B.click('[data-task=bad][data-slot="0"]');
+  await A.waitForSelector('[data-task=bad][data-slot="0"].on.p1');
+  await B.click('[data-task=einkaufen][data-slot="0"]');
+  await A.waitForSelector('[data-task=einkaufen][data-slot="0"]:not(.on)');
+  await A.click('[data-tab=plan]');await A.click('[data-act=swap]');await B.waitForTimeout(300);
+  console.log('rotOffset',tree.haushalt[Object.keys(tree.haushalt)[0]].config.rotOffset,'ticks',JSON.stringify(Object.values(tree.haushalt)[0].weeks));
+  await A.evaluate(()=>scrollTo(0,9999));await A.screenshot({path:path.join(__dirname,'web-plan.png')});
+  const C=await mk();await C.goto('http://localhost:8765/');await C.screenshot({path:path.join(__dirname,'web-setup.png')});
+  console.log('errs',errs,'SYNC OK');await b.close();process.exit(0)});
