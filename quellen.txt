@@ -1,0 +1,2 @@
+# Webseiten, aus denen die Recherche Rezeptideen holt. Eine Adresse pro Zeile.
+# Zeilen mit # am Anfang werden ignoriert.
