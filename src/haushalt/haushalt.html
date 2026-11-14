@@ -75,7 +75,9 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .task.done{background:var(--surface-2);box-shadow:none}
 .task-top{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
 .task-title{font-weight:600;min-width:0}
-.task.done .task-title{color:var(--muted)}
+.task.done .task-title{color:var(--muted);text-decoration:line-through}
+.donesep{display:flex;align-items:center;gap:10px;font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;font-weight:700;color:var(--muted);margin-top:4px}
+.donesep::before,.donesep::after{content:"";flex:1;height:1px;background:var(--line)}
 .meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:3px}
 .owner{font-size:.74rem;font-weight:700;border-radius:6px;padding:2px 7px;white-space:nowrap}
 .owner.p0{background:var(--p0-soft);color:var(--p0)}
@@ -217,8 +219,8 @@ function periodOf(freq,mon){const th=addDays(mon,3);const y=th.getFullYear(),m=t
 const fmt=(d,o)=>d.toLocaleDateString("de-DE",o);
 
 // ---------- Zustand ----------
-const S={store:null,mode:"loading",config:null,weeks:{},view:mondayOf(new Date()),tab:"woche",filter:"alle",me:null,draft:null,timedOut:false};
-try{const m=localStorage.getItem("hq-me");if(m==="p0"||m==="p1")S.me=m;const f=localStorage.getItem("hq-filter");if(f)S.filter=f;}catch(e){}
+const S={store:null,mode:"loading",config:null,weeks:{},view:mondayOf(new Date()),tab:"woche",filter:"alle",hideDone:false,me:null,draft:null,timedOut:false};
+try{const m=localStorage.getItem("hq-me");if(m==="p0"||m==="p1")S.me=m;const f=localStorage.getItem("hq-filter");if(f==="meine")S.filter="meine";S.hideDone=localStorage.getItem("hq-hidedone")==="1";}catch(e){}
 
 // ---------- Speicher-Adapter ----------
 function dbStore(db){
@@ -312,6 +314,7 @@ function meChooser(){return `<div class="me"><span>Ich bin</span>
 function ring(p){const r=36,c=2*Math.PI*r;const off=c*(1-Math.min(1,p));
   return `<svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="${r}" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="8"/><circle cx="42" cy="42" r="${r}" fill="none" stroke="var(--lemon)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}"/></svg>`}
 
+function scopeSwitch(extra){return `<div class="filters" role="group" aria-label="Ansicht"><button class="chipbtn neutral" data-filter="alle" aria-pressed="${S.filter==="alle"}">Alle</button><button class="chipbtn neutral" data-filter="meine" aria-pressed="${S.filter==="meine"}">Mein Bereich</button>${extra||""}</div>${S.filter==="meine"&&!S.me?`<div class="notice">Wähle oben aus, wer du bist, damit „Mein Bereich“ funktioniert.</div>`:""}`}
 function renderWeek(){
   const mon=S.view,wk=wkKey(mon),cur=mondayOf(new Date()),isCur=+mon===+cur;
   const today=isCur?(new Date().getDay()+6)%7:(mon<cur?7:-1);
@@ -324,20 +327,31 @@ function renderWeek(){
   tasks().forEach(t=>{if(group(t.freq)!=="week"||t.owner!=="rot")return;const o=ownerFor(t,mon,split);const n=slotsOf(t);
     for(let i=0;i<n;i++){const d=tk[t.id+"__"+i]?1:0;cnt.all[0]+=d;cnt.all[1]++;if(o==="p0"||o==="p1"){cnt[o][0]+=d;cnt[o][1]++}}});
   const pct=cnt.all[1]?cnt.all[0]/cnt.all[1]:0;
+  const mine=S.filter==="meine"&&S.me;
+  if(mine){const m={rot:[0,0],fix:[0,0]};
+    tasks().forEach(t=>{if(group(t.freq)!=="week")return;const k=t.owner==="rot"?(ownerFor(t,mon,split)===S.me?"rot":null):(t.owner===S.me?"fix":null);if(!k)return;
+      const n=slotsOf(t);for(let i=0;i<n;i++){m[k][0]+=tk[t.id+"__"+i]?1:0;m[k][1]++}});
+    const d=m.rot[0]+m.fix[0],n=m.rot[1]+m.fix[1];
+    h+=`<section class="board" aria-label="Mein Wochenstand">
+    <div class="who"><span class="name">Im Wechsel</span><span class="pts num">${m.rot[0]}<small>/${m.rot[1]}</small></span><span class="sub">diese Woche erledigt</span></div>
+    <div class="ring">${ring(n?d/n:0)}<div class="lbl num">${d}/${n}<small>${esc(pname(S.me))}</small></div></div>
+    <div class="who right"><span class="name">Feste Aufgaben</span><span class="pts num">${m.fix[0]}<small>/${m.fix[1]}</small></span><span class="sub">diese Woche erledigt</span></div>
+  </section>`;
+    if(n&&d>=n)h+=`<div class="celebrate">Du hast alle deine Aufgaben für diese Woche erledigt.</div>`;
+  }else{
   h+=`<section class="board" aria-label="Wochenstand">
     <div class="who"><span class="name">${esc(pname("p0"))}</span><span class="pts num">${cnt.p0[0]}<small>/${cnt.p0[1]}</small></span><span class="sub">Wechsel-Aufgaben erledigt</span></div>
     <div class="ring">${ring(pct)}<div class="lbl num">${cnt.all[0]}/${cnt.all[1]}<small>im Wechsel</small></div></div>
     <div class="who right"><span class="name">${esc(pname("p1"))}</span><span class="pts num">${cnt.p1[0]}<small>/${cnt.p1[1]}</small></span><span class="sub">Wechsel-Aufgaben erledigt</span></div>
   </section>`;
-  if(cnt.all[1]&&cnt.all[0]>=cnt.all[1])h+=`<div class="celebrate">Alle Wechsel-Aufgaben dieser Woche sind erledigt.</div>`;
-  h+=`<div class="filters" role="group" aria-label="Filter"><button class="chipbtn neutral" data-filter="alle" aria-pressed="${S.filter==="alle"}">Alle Aufgaben</button><button class="chipbtn neutral" data-filter="meine" aria-pressed="${S.filter==="meine"}">Nur meine</button><button class="chipbtn neutral" data-filter="offen" aria-pressed="${S.filter==="offen"}">Nur offene</button></div>`;
-  if(S.filter==="meine"&&!S.me)h+=`<div class="notice">Wähle oben aus, wer du bist, damit „Nur meine“ funktioniert.</div>`;
+  if(cnt.all[1]&&cnt.all[0]>=cnt.all[1])h+=`<div class="celebrate">Alle Wechsel-Aufgaben dieser Woche sind erledigt.</div>`;}
+  h+=scopeSwitch(`<button class="chipbtn neutral" data-act="hidedone" aria-pressed="${S.hideDone}">Erledigte ausblenden</button>`);
 
-  const show=(t,o,isDone)=>{if(S.filter==="meine"&&S.me&&!(o===S.me||o==="both"||o==="ho"))return false;if(S.filter==="offen"&&isDone)return false;return true};
+  const show=(t,o,isDone)=>{if(S.filter==="meine"&&S.me&&!(o===S.me||o==="both"||o==="ho"))return false;if(S.hideDone&&isDone)return false;return true};
   const sections=[["day","Täglich"],["week","Diese Woche"],["month","Diesen Monat"],["half","Dieses Halbjahr"],["year","Dieses Jahr"]];
   sections.forEach(([f,title])=>{
     const list=tasks().filter(t=>t.freq===f);if(!list.length)return;
-    let body="",cnt=0;
+    let cnt=0;const op=[],dn=[];
     list.forEach(t=>{const o=ownerFor(t,mon,split);const isRot=t.owner==="rot";let slots="",doneAll;
       if(f==="day"||f==="week"){const n=slotsOf(t);let c=0;
         for(let i=0;i<n;i++){const v=tk[t.id+"__"+i];if(v)c++;
@@ -347,11 +361,12 @@ function renderWeek(){
         doneAll=c>=n;
         const extra=f==="week"?` · ${c}/${n}`:"";
         if(!show(t,o,doneAll))return;cnt++;
-        body+=`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${f==="day"?"täglich":n+"× pro Woche"}${extra}</span></div></div></div><div class="slots">${slots}</div></article>`;
+        (doneAll?dn:op).push(`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${f==="day"?"täglich":n+"× pro Woche"}${extra}</span></div></div></div><div class="slots">${slots}</div></article>`);
       }else{const pt=periodTick(t,mon);doneAll=!!pt;if(!show(t,o,doneAll))return;cnt++;
         const lbl=pt?`✓ Erledigt von ${esc(pname(pt.v.by))} am ${fmt(new Date(pt.v.at),{day:"numeric",month:"short"})}`:"○ Als erledigt markieren";
-        body+=`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${FREQ_LABEL[f]}</span></div></div></div><div><button class="bigcheck${pt?" on chk":""}" data-task="${esc(t.id)}" data-slot="p" aria-pressed="${doneAll}">${lbl}</button></div></article>`;}
+        (doneAll?dn:op).push(`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${FREQ_LABEL[f]}</span></div></div></div><div><button class="bigcheck${pt?" on chk":""}" data-task="${esc(t.id)}" data-slot="p" aria-pressed="${doneAll}">${lbl}</button></div></article>`);}
     });
+    const body=op.join("")+(dn.length?`<div class="donesep">Erledigt</div>`+dn.join(""):"");
     if(cnt)h+=`<section class="section"><div class="section-head"><h2>${title}</h2>${f==="day"?`<span class="freq">„Homeoffice“ = wer an dem Tag zu Hause ist</span>`:""}</div>${body}</section>`;
   });
   return h}
@@ -380,8 +395,11 @@ function renderAll(){
   const li=a=>a.length?`<ul class="alist">${a.map(t=>`<li><span>${esc(t.name)}</span><span class="freq">${fl(t)}</span></li>`).join("")}</ul>`:`<div class="freq">Nichts</div>`;
   const block=(title,a)=>a.length?`<div><div class="eyebrow">${title}</div>${li(a)}</div>`:"";
   const isW=t=>group(t.freq)==="week";
-  let h=`<div><div class="eyebrow">Zum Nachschauen</div><h1>Alle Aufgaben</h1></div>`;
-  ["p0","p1"].forEach(p=>{const rot=tasks().filter(t=>t.owner==="rot");
+  const mine=S.filter==="meine"&&S.me;const tk=ticksOf(wkKey(mon));
+  let h=`<div><div class="eyebrow">Zum Nachschauen</div><h1>${mine?"Mein Bereich":"Alle Aufgaben"}</h1></div>`+meChooser()+scopeSwitch();
+  if(mine){const open=[];tasks().forEach(t=>{if(group(t.freq)!=="week")return;const o=ownerFor(t,mon,split);if(o!==S.me)return;const n=slotsOf(t);let c=0;for(let i=0;i<n;i++)if(tk[t.id+"__"+i])c++;if(c<n)open.push({t,c,n})});
+    h+=`<section class="card"><h2>Noch offen diese Woche</h2>${open.length?`<ul class="alist">${open.map(x=>`<li><span>${esc(x.t.name)}</span><span class="freq num">${x.c}/${x.n} erledigt</span></li>`).join("")}</ul><div><button class="ghost" data-act="toweek">Zur Woche, abhaken</button></div>`:`<div class="freq">Nichts mehr offen. Alles erledigt.</div>`}</section>`}
+  (mine?[S.me]:["p0","p1"]).forEach(p=>{const rot=tasks().filter(t=>t.owner==="rot");
     h+=`<section class="card"><h2><i class="dot ${p}"></i>${esc(pname(p))}</h2>
       ${block("Im Wechsel, diese Woche (KW "+isoWeek(mon).w+")",rot.filter(t=>isW(t)&&ownerFor(t,mon,split)===p))}
       ${block("Im Wechsel, nächste Woche (KW "+isoWeek(next).w+")",rot.filter(t=>isW(t)&&ownerFor(t,next,split)===p))}
@@ -432,6 +450,7 @@ document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.cl
 app.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;
   if(b.dataset.me){S.me=b.dataset.me;try{localStorage.setItem("hq-me",S.me)}catch(_){}render();return}
+  if(b.dataset.act==="hidedone"){S.hideDone=!S.hideDone;try{localStorage.setItem("hq-hidedone",S.hideDone?"1":"0")}catch(_){}render();return}
   if(b.dataset.filter){S.filter=b.dataset.filter;try{localStorage.setItem("hq-filter",S.filter)}catch(_){}render();return}
   if(b.dataset.nav){const n=+b.dataset.nav;S.view=n===0?mondayOf(new Date()):addDays(S.view,7*n);render();return}
   if(b.dataset.task){toggle(b);return}
@@ -439,6 +458,7 @@ app.addEventListener("click",async e=>{
   const act=b.dataset.act;
   if(act==="template"){try{await S.store.saveConfig(JSON.parse(JSON.stringify(TEMPLATE)));toast("Plan angelegt")}catch(_){toast("Konnte den Plan nicht speichern.")}}
   if(act==="add"){S.draft.tasks.push({id:"t"+Date.now().toString(36),name:"Neue Aufgabe",owner:"rot",freq:"week",times:1,pts:2});render()}
+  if(act==="toweek"){S.tab="woche";S.view=mondayOf(new Date());render();window.scrollTo(0,0);return}
   if(act==="reset"){S.draft=null;render()}
   if(act==="swap"){const c=JSON.parse(JSON.stringify(S.config));c.rotOffset=((c.rotOffset|0)+1)%2;try{await S.store.saveConfig(c);S.draft=null;toast("Pakete getauscht")}catch(_){toast("Konnte nicht speichern.")}}
   if(act==="save"){const d=S.draft;d.persons=[document.getElementById("pn0").value.trim()||"Person 1",document.getElementById("pn1").value.trim()||"Person 2"];
