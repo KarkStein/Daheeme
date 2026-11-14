@@ -236,7 +236,7 @@ function periodOf(freq,mon){const th=addDays(mon,3);const y=th.getFullYear(),m=t
 const fmt=(d,o)=>d.toLocaleDateString("de-DE",o);
 
 // ---------- Zustand ----------
-const S={store:null,mode:"loading",config:null,weeks:{},view:mondayOf(new Date()),tab:"woche",filter:"alle",hideDone:false,groupBy:"freq",me:null,draft:null,timedOut:false};
+const S={store:null,mode:"loading",config:null,weeks:{},view:mondayOf(new Date()),tab:"woche",campDraft:null,filter:"alle",hideDone:false,groupBy:"freq",me:null,draft:null,timedOut:false};
 try{const m=localStorage.getItem("hq-me");if(m==="p0"||m==="p1")S.me=m;const f=localStorage.getItem("hq-filter");if(f==="meine")S.filter="meine";S.hideDone=localStorage.getItem("hq-hidedone")==="1";if(localStorage.getItem("hq-groupby")==="art")S.groupBy="art";}catch(e){}
 
 // ---------- Speicher-Adapter ----------
@@ -432,7 +432,7 @@ function renderAll(){
   return h}
 const CAMP=[["tent","Zelt",3],["pit","Feuerstelle",8],["tree1","Tanne",15],["chairs","Campingstühle",25],["tree2","Zweite Tanne",40],["lantern","Laterne",60],["hammock","Hängematte",80],["lights","Lichterkette",105],["hills","Berge",135],["lake","See",170],["canoe","Kanu",210],["flags","Wimpelkette",260],["fox","Fuchs",320]];
 function campTotal(){let n=0;for(const wk in S.weeks){const tk=ticksOf(wk);for(const k in tk)if(tk[k])n++}return n}
-function campScene(has,fire,night){
+function campScene(has,fire,night,extras){
   const C=night?{sky1:"#0f1f33",sky2:"#27425a",ground:"#2c5443",ground2:"#234537",hill:"#1d3a44",tree:"#1c4436",tree2:"#173a2e",lake:"#2b5d7a"}
                :{sky1:"#bfe3ea",sky2:"#f6efd9",ground:"#8cc084",ground2:"#79b073",hill:"#9dbdb4",tree:"#2f6b5c",tree2:"#255748",lake:"#8fcbe0"};
   const tree=(x,b,h)=>`<rect x="${x-4}" y="${b-14}" width="8" height="16" fill="#7a5230"/><path d="M${x} ${b-h} L${x+26} ${b-h*0.45} H${x-26}Z M${x} ${b-h*0.72} L${x+32} ${b-h*0.2} H${x-32}Z M${x} ${b-h*0.45} L${x+38} ${b-10} H${x-38}Z" fill="${C.tree}"/>`;
@@ -461,19 +461,35 @@ function campScene(has,fire,night){
     if(fire>0){const k=(0.55+0.85*fire).toFixed(2);g+=`<g transform="translate(266,230) scale(${k})"><g class="flame"><path d="M0 0 C-13 -8 -7 -22 0 -34 C7 -22 13 -8 0 0Z" fill="#f2792b"/><path d="M0 -2 C-6 -7 -3 -14 0 -20 C3 -14 6 -7 0 -2Z" fill="#ffd66b"/></g></g>`}
     g+=`<ellipse cx="252" cy="236" rx="5" ry="3.5" fill="#8a8f8c"/><ellipse cx="266" cy="239" rx="5.5" ry="3.5" fill="#a3a8a5"/><ellipse cx="280" cy="236" rx="5" ry="3.5" fill="#8a8f8c"/>`}
   if(has.fox)g+=`<path d="M52 246 q-14 -2 -16 -12 q10 2 14 8z" fill="#e07a3f"/><ellipse cx="66" cy="244" rx="14" ry="7" fill="#e07a3f"/><path d="M76 240 l10 -9 l1 8 l7 2 l-8 6z" fill="#e07a3f"/><path d="M87 245 l7 -4 l-3 6z" fill="#fff"/><circle cx="87" cy="239" r="1.1" fill="#1b2622"/>`;
+  const SPOTS=[[150,252],[212,248],[18,242],[100,238],[344,214],[232,208],[128,224],[336,242],[10,208],[196,258],[60,224],[300,208]];
+  (extras||[]).forEach((e,i)=>{const sp=SPOTS[i%SPOTS.length];g+=`<text x="${sp[0]}" y="${sp[1]}" font-size="22" text-anchor="middle">${esc(e.emoji)}</text>`});
   return `<svg viewBox="0 0 360 260" role="img" aria-label="Euer Zeltplatz">${g}</svg>`}
+const CAMP_IDEAS=["🦔","🦉","🐿️","🦌","🐇","🐸","🦆","🐕","🐈","🦋","🍄","🌻","🎸","🔭","⛄","🚲"];
+function campCfg(){const c=(S.config&&S.config.camp)||{};const ex=c.extras?(Array.isArray(c.extras)?c.extras:Object.values(c.extras)):[];return {costs:c.costs||{},extras:ex.filter(Boolean)}}
+function campItems(cc){cc=cc||campCfg();return CAMP.map(c=>({id:c[0],name:c[1],cost:cc.costs[c[0]]!=null?(cc.costs[c[0]]|0):c[2]})).concat(cc.extras.map(e=>({id:e.id,name:e.name||e.emoji,cost:e.cost|0,emoji:e.emoji}))).sort((a,b)=>a.cost-b.cost)}
 function renderCamp(){
   const total=campTotal(),mon=mondayOf(new Date()),tk=ticksOf(wkKey(mon));
   let d=0,n=0;tasks().forEach(t=>{if(group(t.freq)!=="week"||t.owner!=="rot")return;const m=slotsOf(t);for(let i=0;i<m;i++){n++;if(tk[t.id+"__"+i])d++}});
   const fire=n?d/n:0,hr=new Date().getHours(),night=hr>=18||hr<7;
-  const has={};CAMP.forEach(c=>{has[c[0]]=total>=c[2]});
-  const next=CAMP.find(c=>total<c[2]),prev=next?(CAMP[CAMP.indexOf(next)-1]||[0,0,0])[2]:0;
+  const items=campItems(),has={};items.forEach(c=>{has[c.id]=total>=c.cost});
+  const next=items.find(c=>total<c.cost),prev=Math.max(0,...items.filter(c=>total>=c.cost).map(c=>c.cost));
   let h=`<div><div class="eyebrow">Gemeinsam gebaut</div><h1>Euer Zeltplatz</h1></div>
-   <div class="camp">${campScene(has,has.pit?fire:0,night)}</div>`;
-  h+=`<section class="card"><h2>${next?"Als Nächstes: "+next[1]:"Euer Zeltplatz ist komplett"}</h2>
-    ${next?`<div class="xpbar"><i style="width:${Math.round((total-prev)/(next[2]-prev)*100)}%"></i></div><div class="freq num">Noch ${next[2]-total} ${next[2]-total===1?"Häkchen":"Häkchen"} bis dahin. Bisher habt ihr zusammen ${total} gesetzt.</div>`:`<div class="freq num">Ihr habt zusammen ${total} Häkchen gesetzt.</div>`}
+   <div class="camp">${campScene(has,has.pit?fire:0,night,items.filter(c=>c.emoji&&has[c.id]))}</div>`;
+  h+=`<section class="card"><h2>${next?"Als Nächstes: "+esc(next.emoji?next.emoji+" "+next.name:next.name):"Euer Zeltplatz ist komplett"}</h2>
+    ${next?`<div class="xpbar"><i style="width:${Math.round((total-prev)/Math.max(1,next.cost-prev)*100)}%"></i></div><div class="freq num">Noch ${next.cost-total} Häkchen bis dahin. Bisher habt ihr zusammen ${total} gesetzt.</div>`:`<div class="freq num">Ihr habt zusammen ${total} Häkchen gesetzt.</div>`}
     <div class="notice">Jedes Häkchen von euch beiden zählt, egal für welche Aufgabe. ${has.pit?"Das Lagerfeuer brennt umso höher, je mehr Wechsel-Aufgaben dieser Woche erledigt sind ("+d+" von "+n+").":"Sobald die Feuerstelle steht, brennt das Feuer umso höher, je mehr Wechsel-Aufgaben der Woche erledigt sind."}</div></section>`;
-  h+=`<section class="card"><h2>Ausstattung</h2><div class="unl">${CAMP.map(c=>`<span class="${has[c[0]]?"":"lock"}">${has[c[0]]?"✓ ":""}${c[1]}${has[c[0]]?"":" · ab "+c[2]}</span>`).join("")}</div></section>`;
+  if(!S.campDraft){
+    h+=`<section class="card"><h2>Ausstattung</h2><div class="unl">${items.map(c=>`<span class="${has[c.id]?"":"lock"}">${has[c.id]?"✓ ":""}${c.emoji?esc(c.emoji)+" ":""}${esc(c.name)}${has[c.id]?"":" · ab "+c.cost}</span>`).join("")}</div>
+      <div><button class="ghost" data-act="campedit">Ausstattung bearbeiten</button></div></section>`;
+  }else{const dr=S.campDraft;
+    h+=`<section class="section"><div class="section-head"><h2>Eigenes hinzufügen</h2></div>
+      <div class="card"><div class="freq">Tippe ein Symbol an oder gib unten ein eigenes Emoji ein. Die Kosten sind die Zahl der Häkchen, ab der es auf dem Zeltplatz erscheint.</div>
+      <div class="unl">${CAMP_IDEAS.map(e=>`<button class="chipbtn" data-act="campadd" data-emoji="${e}" aria-label="${e} hinzufügen">${e}</button>`).join("")}<button class="chipbtn" data-act="campadd" data-emoji="⭐">+ Eigenes</button></div></div>
+      ${dr.extras.map((e,i)=>`<div class="editrow" data-cx="${i}"><div class="line"><input type="text" id="ce-${esc(e.id)}" data-f="emoji" value="${esc(e.emoji)}" aria-label="Emoji" style="flex:0 0 64px;text-align:center;font-size:1.2rem"><input type="text" id="cn-${esc(e.id)}" data-f="name" value="${esc(e.name||"")}" placeholder="Name" aria-label="Name"><button class="ghost danger" data-act="campdel" data-i="${i}" aria-label="Löschen">✕</button></div>
+        <div class="line"><label class="sm">Kosten <input type="number" min="0" max="9999" id="cc-${esc(e.id)}" data-f="cost" value="${e.cost|0}"> Häkchen</label></div></div>`).join("")}
+      <div class="section-head"><h2>Kosten der festen Teile</h2></div>
+      <div class="card">${CAMP.map(c=>`<label class="sm" style="justify-content:space-between"><span style="color:var(--fg);font-size:.95rem">${c[1]}</span><span><input type="number" min="0" max="9999" id="ck-${c[0]}" data-ck="${c[0]}" value="${dr.costs[c[0]]|0}"> Häkchen</span></label>`).join("")}</div>
+      <div class="line" style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" data-act="campsave">Speichern</button><button class="ghost" data-act="campcancel">Abbrechen</button></div></section>`}
   return h}
 function renderPlan(){
   const d=S.draft||(S.draft=JSON.parse(JSON.stringify(S.config)));
@@ -512,7 +528,7 @@ function render(){
 }
 
 // ---------- Events ----------
-document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("button[data-tab]");if(!b)return;S.tab=b.dataset.tab;if(S.tab!=="plan")S.draft=null;render();window.scrollTo(0,0)});
+document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("button[data-tab]");if(!b)return;S.tab=b.dataset.tab;if(S.tab!=="plan")S.draft=null;if(S.tab!=="camp")S.campDraft=null;render();window.scrollTo(0,0)});
 app.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;
   if(b.dataset.me){S.me=b.dataset.me;try{localStorage.setItem("hq-me",S.me)}catch(_){}render();return}
@@ -526,6 +542,13 @@ app.addEventListener("click",async e=>{
   const act=b.dataset.act;
   if(act==="template"){try{await S.store.saveConfig(JSON.parse(JSON.stringify(TEMPLATE)));toast("Plan angelegt")}catch(_){toast("Konnte den Plan nicht speichern.")}}
   if(act==="add"){S.draft.tasks.push({id:"t"+Date.now().toString(36),name:"Neue Aufgabe",owner:"rot",freq:"week",times:1,pts:2});render()}
+  if(act==="campedit"){const cc=campCfg(),costs={};campItems(cc).forEach(c=>{if(!c.emoji)costs[c.id]=c.cost});S.campDraft={costs,extras:JSON.parse(JSON.stringify(cc.extras))};render();return}
+  if(act==="campcancel"){S.campDraft=null;render();return}
+  if(act==="campadd"){const dr=S.campDraft;const mx=Math.max(campTotal(),...dr.extras.map(e=>e.cost|0));dr.extras.push({id:"x"+Date.now().toString(36),emoji:b.dataset.emoji,name:"",cost:mx+10});render();return}
+  if(act==="campdel"){S.campDraft.extras.splice(+b.dataset.i,1);render();return}
+  if(act==="campsave"){const dr=S.campDraft,c=JSON.parse(JSON.stringify(S.config));const costs={};CAMP.forEach(x=>{costs[x[0]]=Math.max(0,Math.min(9999,dr.costs[x[0]]|0))});
+    c.camp={costs,extras:dr.extras.filter(e=>(e.emoji||"").trim()).map(e=>({id:e.id,emoji:e.emoji.trim().slice(0,8),name:(e.name||"").trim().slice(0,30),cost:Math.max(0,Math.min(9999,e.cost|0))}))};
+    try{await S.store.saveConfig(c);S.campDraft=null;render();toast("Zeltplatz gespeichert")}catch(_){toast("Speichern nicht möglich. Bitte Verbindung prüfen.")}return}
   if(act==="toweek"){S.tab="woche";S.view=mondayOf(new Date());render();window.scrollTo(0,0);return}
   if(act==="reset"){S.draft=null;render()}
   if(act==="swap"){const c=JSON.parse(JSON.stringify(S.config));c.rotOffset=((c.rotOffset|0)+1)%2;try{await S.store.saveConfig(c);S.draft=null;toast("Pakete getauscht")}catch(_){toast("Konnte nicht speichern.")}}
@@ -535,7 +558,8 @@ app.addEventListener("click",async e=>{
 });
 app.addEventListener("change",e=>{const row=e.target.closest(".editrow[data-i]");if(!row||!S.draft)return;const t=S.draft.tasks[+row.dataset.i];const f=e.target.dataset.f;if(!f)return;
   t[f]=(f==="times"||f==="pts")?(+e.target.value||0):e.target.value;if(f==="freq"&&t.freq==="week"&&!t.times)t.times=1;if(f==="freq"||f==="owner")render()});
-app.addEventListener("input",e=>{const row=e.target.closest(".editrow[data-i]");if(!row||!S.draft)return;if(e.target.dataset.f==="name")S.draft.tasks[+row.dataset.i].name=e.target.value});
+app.addEventListener("input",e=>{if(S.campDraft){const el=e.target;if(el.dataset.ck){S.campDraft.costs[el.dataset.ck]=+el.value||0;return}const r=el.closest("[data-cx]");if(r&&el.dataset.f){const x=S.campDraft.extras[+r.dataset.cx];x[el.dataset.f]=el.dataset.f==="cost"?(+el.value||0):el.value;return}}
+  const row=e.target.closest(".editrow[data-i]");if(!row||!S.draft)return;if(e.target.dataset.f==="name")S.draft.tasks[+row.dataset.i].name=e.target.value});
 
 // ---------- Start ----------
 function start(store,mode){S.store=store;S.mode=mode;let gotCfg=false,gotWeeks=false;
