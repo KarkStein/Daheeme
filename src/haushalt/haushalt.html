@@ -283,6 +283,12 @@ label.sm{font-size:.78rem;color:var(--muted);display:flex;align-items:center;gap
 .fhero .fdish{font-size:1.5rem;line-height:1.2;margin:4px 0 4px}
 .kline{list-style:none;margin:0;padding:0;display:grid;gap:4px}.kline b{display:inline-block;min-width:88px;font-weight:600}
 .btnlink{text-decoration:none;display:inline-flex;align-items:center}
+.tiles.books{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.tiles.books .tile{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:var(--surface)}
+.tiles.books .tile[aria-pressed="true"]{border-color:var(--fg);box-shadow:inset 0 0 0 1px var(--fg)}
+.tiles.books .te{font-size:1.4rem}.tiles.books .tn{font-weight:600;line-height:1.2}.tiles.books .add{border-style:dashed;opacity:.8}
+details.paste{margin:6px 0 12px;border:1px dashed var(--line);border-radius:12px;padding:8px 10px}details.paste summary{cursor:pointer;font-weight:600}
+details.paste textarea{width:100%;box-sizing:border-box}
 .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:.88rem;font-weight:600;z-index:9;max-width:calc(100% - 32px)}
 .celebrate{background:var(--lemon);color:var(--lemon-ink);border-radius:var(--r);padding:12px 14px;font-weight:700;display:flex;gap:10px;align-items:center}
 </style>
@@ -767,15 +773,36 @@ async function shopRemoveBlock(src){const l=shopItems().filter(i=>!i.done&&i.src
 function planWeek(){return S.foodWeek||mondayOf(new Date())}
 function planDays(mon){return ((S.food&&S.food.plan)||{})[wkKey(mon)]||{}}
 function recMeta(r,ing,link){const m=[];if(link){try{m.push(new URL(link).hostname.replace(/^www\./,""))}catch(_){}}m.push(ing.length+" "+(ing.length===1?"Zutat":"Zutaten"));if(ing.length&&ing.filter(l=>!hasQty(l)).length*2>ing.length)m.push("ohne Mengen");const mon=mondayOf(new Date()),days=planDays(mon),d=Object.keys(days).filter(k=>days[k]&&(days[k].rec===r.id||days[k].text===r.name)).map(k=>DAYN[+k.slice(1)].slice(0,2));if(d.length)m.push("📅 "+d.join(", "));if(shopBlocks()[r.name])m.push("🛒 auf der Liste");return m}
-function renderRecipes(){const list=recs(),d=S.recDraft;
+// ---------- Kochbücher ----------
+const BOOK_EMO=["📕","📗","📘","📙","📓","📒"];
+function books(){const m=(S.food&&S.food.book)||{};const l=Object.keys(m).filter(k=>m[k]&&m[k].name&&k!=="main").map(k=>Object.assign({id:k},m[k])).sort((a,b)=>(a.at||0)-(b.at||0));return [{id:"main",name:(m.main&&m.main.name)||"Unsere Rezepte",emoji:"🍲"},...l]}
+const recBook=r=>{const b=r&&r.book;return b&&((S.food&&S.food.book)||{})[b]?b:"main"};
+// Eingefügten Rezepttext zerlegen: Titel, Link, Zutaten (mit Mengen), Zubereitung
+function parseRecipe(txt){const out={name:"",link:"",ing:[],note:[]};const um=/https?:\/\/\S+/.exec(txt||"");if(um)out.link=um[0].replace(/[).,]+$/,"");
+  let mode="";const qs=l=>/^(\d+(?:[.,/]\d+)?(?!\d*[.)]\s)|[½¼¾⅓]|ca\.?\s*\d|eine?n?\s|etwas\s|prise|msp\.?\s)/i.test(l);
+  for(let raw of String(txt||"").split(/\r?\n/)){let l=raw.replace(/https?:\/\/\S+/g,"").replace(/^[\s•\-*–·▢☐□✓]+/,"").replace(/\s+/g," ").trim();if(!l)continue;
+    if(/^(zutaten|einkaufsliste|du brauchst|ihr braucht)\b/i.test(l)){mode="ing";continue}
+    if(/^(zubereitung|anleitung|so geht'?s|so wird'?s gemacht|schritte|arbeitsschritte|zubereitungsschritte|und so geht'?s)\b/i.test(l)){mode="note";continue}
+    if(/^(für\s+)?\d+\s*(portionen|personen)\b|^portionen\b|^(arbeitszeit|zubereitungszeit|kochzeit|gesamtzeit|schwierigkeit|kalorien|drucken|teilen|merken|bewertung)\b/i.test(l))continue;
+    if(!out.name&&!mode&&!qs(l)&&l.length<=80){out.name=l;continue}
+    const step=/^\d+[.)]\s/.test(l)||/^schritt\s*\d/i.test(l);
+    if(mode==="ing"&&!step&&l.length<=90)out.ing.push(l);else if(mode==="note"||step||l.length>90)out.note.push(l.replace(/^schritt\s*\d+:?\s*/i,""));else if(qs(l))out.ing.push(l);else out.note.push(l)}
+  return out}
+function renderBooks(){const bs=books(),cnt={};recs().forEach(r=>{const b=recBook(r);cnt[b]=(cnt[b]||0)+1});const cur=S.book||"main";
+  let h=`<section class="card"><div class="section-head"><h2>📚 Kochbücher</h2></div><div class="tiles books">${bs.map((b,i)=>`<button class="tile" data-book="${esc(b.id)}" aria-pressed="${cur===b.id}"><span class="te">${b.emoji||BOOK_EMO[(i-1)%BOOK_EMO.length]}</span><span class="tn">${esc(b.name)}</span><span class="freq">${cnt[b.id]||0} ${(cnt[b.id]||0)===1?"Rezept":"Rezepte"}</span></button>`).join("")}<button class="tile add" data-act="booknew"><span class="te">＋</span><span class="tn">Neues Kochbuch</span></button></div>`;
+  if(S.bookNew||S.bookEdit)h+=`<form class="addrow" id="bookform" style="margin-top:10px"><input type="text" id="bookinput" placeholder="${S.bookEdit?"Neuer Name":"Zum Beispiel Omas Küche"}" value="${esc(S.bookEdit?((bs.find(b=>b.id===S.bookEdit)||{}).name||""):"")}" maxlength="40" autocomplete="off" aria-label="Name des Kochbuchs"><button class="primary" type="submit">${S.bookEdit?"Speichern":"Anlegen"}</button></form>`;
+  return h+`</section>`}
+function renderRecipes(){const d=S.recDraft,bk=S.book||"main",list=recs().filter(r=>recBook(r)===bk),bobj=books().find(b=>b.id===bk)||books()[0];
   if(d)return `<section class="card"><h2>${d.id?"Rezept bearbeiten":"Neues Rezept"}</h2>
+    ${d.id?"":`<details class="paste"${d.paste?" open":""}><summary>📋 Rezepttext einfügen und erkennen</summary><div class="freq" style="margin:6px 0">Kopiere ein Rezept aus einer Webseite, einer Nachricht oder von mir und füge es hier ein. Die App füllt Name, Zutaten, Zubereitung und Link aus.</div><textarea id="rec-paste" data-rf="pasteText" rows="6" placeholder="Rezept hier einfügen">${esc(d.pasteText||"")}</textarea><div class="btnrow" style="margin-top:6px"><button class="primary" data-act="recparse">Erkennen</button></div></details>`}
+    <div class="fld"><span>Kochbuch</span><div class="unl">${books().map(b=>`<button class="chipbtn neutral" data-recbook="${esc(b.id)}" aria-pressed="${(d.book||"main")===b.id}">${esc(b.name)}</button>`).join("")}</div></div>
     <label class="fld"><span>Name</span><input type="text" id="rec-name" data-rf="name" value="${esc(d.name)}" maxlength="80" placeholder="Zum Beispiel Linsensuppe" autocomplete="off"></label>
     <label class="fld"><span>Zutaten, eine pro Zeile</span><textarea id="rec-ing" data-rf="ing" rows="6" placeholder="250 g rote Linsen">${esc(d.ing)}</textarea></label>
     <label class="fld"><span>Zubereitung oder Notiz</span><textarea id="rec-note" data-rf="note" rows="5">${esc(d.note)}</textarea></label>
     <label class="fld"><span>Link zum Rezept (optional)</span><input type="url" id="rec-link" data-rf="link" value="${esc(d.link)}" placeholder="https://" autocomplete="off"></label>
     <div class="btnrow"><button class="primary" data-act="recsave">Speichern</button><button class="ghost" data-act="reccancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="recdel">Löschen</button>`:""}</div></section>`;
-  let h=`<div><button class="primary" data-act="recnew">+ Neues Rezept</button></div>`;
-  if(!list.length)return h+`<div class="empty"><h2>Noch keine Rezepte</h2><div>Sammelt hier eure Lieblingsgerichte. Die Zutaten wandern mit einem Tipp auf die Einkaufsliste, und im Essensplan könnt ihr die Rezepte auf Tage legen.</div></div>`;
+  let h=renderBooks()+`<div class="section-head" style="align-items:center"><h2>${esc(bobj.name)}</h2><div class="weeknav"><button class="ghost" data-act="bookedit">Umbenennen</button>${bk!=="main"?`<button class="ghost danger" data-act="bookdel">Löschen</button>`:""}</div></div><div class="btnrow"><button class="primary" data-act="recnew">+ Neues Rezept</button><button class="ghost" data-act="recpaste">📋 Rezept einfügen</button></div>`;
+  if(!list.length)return h+(bk!=="main"?`<div class="empty"><h2>Noch leer</h2><div>Leg ein Rezept an oder füge eines ein. Bestehende Rezepte schiebst du über „Bearbeiten“ hierher.</div></div>`:"")+`<div class="empty"${bk!=="main"?" hidden":""}><h2>Noch keine Rezepte</h2><div>Sammelt hier eure Lieblingsgerichte. Die Zutaten wandern mit einem Tipp auf die Einkaufsliste, und im Essensplan könnt ihr die Rezepte auf Tage legen.</div></div>`;
   h+=list.map(r=>{const open=S.recOpen===r.id,ing=withQty(r.name,recIng(r)),link=/^https?:\/\//i.test(r.link||"")?r.link:"";
     const meta=recMeta(r,ing,link),onList=!!shopBlocks()[r.name];
     return `<section class="card rec${open?"":" compact"}"><div class="recbar"><button class="rechead" data-rec="${esc(r.id)}" aria-expanded="${open}"><span style="min-width:0"><span class="nm">${esc(r.name)}</span>${meta.length?`<br><span class="freq">${meta.map(esc).join(" · ")}</span>`:""}</span><span class="freq">${open?"▴":"▾"}</span></button>${ing.length?`<button class="catbtn" ${onList?`data-shopblockrm="${esc(r.name)}" aria-label="Zutaten von ${esc(r.name)} wieder von der Liste nehmen" style="background:none;border:none;padding:8px 4px"`:`data-recshop="${esc(r.id)}" aria-label="Zutaten von ${esc(r.name)} auf die Einkaufsliste" style="background:none;border:none;padding:8px 4px;filter:grayscale(1);opacity:.6"`}>🛒</button>`:""}${bell("rezepte",r)}<button class="catbtn" data-recrm="${esc(r.id)}" aria-label="${esc(r.name)} entfernen" style="background:none;border:none;opacity:.6;padding:8px 4px">✕</button></div>
@@ -1360,12 +1387,20 @@ app.addEventListener("click",async e=>{
   if(b.dataset.recshop){const r=recs().find(x=>x.id===b.dataset.recshop);if(r)openPick([{src:r.name,lines:recIng(r)}]);return}
   if(b.dataset.shopblockrm){shopRemoveBlock(b.dataset.shopblockrm);return}
   if(b.dataset.ideashop){const x=((S.ideas&&S.ideas.items)||[])[+b.dataset.ideashop];if(x&&Array.isArray(x.ing))openPick([{src:x.name,lines:x.ing.map(String)}]);return}
-  if(b.dataset.recedit){const r=recs().find(x=>x.id===b.dataset.recedit);if(r){S.recDraft={id:r.id,name:r.name||"",ing:r.ing||"",note:r.note||"",link:r.link||"",at:r.at||Date.now()};render();window.scrollTo(0,0)}return}
-  if(b.dataset.act==="recnew"){S.recDraft={id:null,name:"",ing:"",note:"",link:""};render();const el=document.getElementById("rec-name");if(el)el.focus();return}
+  if(b.dataset.book){S.book=b.dataset.book;S.bookNew=false;S.bookEdit=null;S.recOpen=null;render();return}
+  if(b.dataset.act==="booknew"){S.bookNew=!S.bookNew;S.bookEdit=null;render();const el=document.getElementById("bookinput");if(el)el.focus();return}
+  if(b.dataset.act==="bookedit"){S.bookEdit=S.bookEdit?null:(S.book||"main");S.bookNew=false;render();const el=document.getElementById("bookinput");if(el)el.focus();return}
+  if(b.dataset.act==="bookdel"){const id=S.book;if(!id||id==="main")return;const rs=recs().filter(r=>r.book===id);try{for(const r of rs)await S.store.setPath("food/rec/"+r.id+"/book",null);await S.store.setPath("food/book/"+id,null)}catch(_){toast("Konnte nicht speichern.");return}S.book="main";toast(rs.length?"Kochbuch gelöscht. "+rs.length+" Rezepte liegen jetzt in „Unsere Rezepte“":"Kochbuch gelöscht");render();return}
+  if(b.dataset.recbook){if(S.recDraft){S.recDraft.book=b.dataset.recbook;render()}return}
+  if(b.dataset.act==="recpaste"){S.recDraft={id:null,name:"",ing:"",note:"",link:"",book:S.book||"main",paste:true,pasteText:""};render();window.scrollTo(0,0);const el=document.getElementById("rec-paste");if(el)el.focus();return}
+  if(b.dataset.act==="recparse"){const d=S.recDraft;if(!d)return;const el=document.getElementById("rec-paste");const t=el?el.value:(d.pasteText||"");const r=parseRecipe(t);if(!r.name&&!r.ing.length){toast("Nichts erkannt. Steht ein Rezept im Feld?");return}
+    if(r.name)d.name=r.name.slice(0,80);if(r.ing.length)d.ing=r.ing.join("\n");if(r.note.length)d.note=r.note.join("\n");if(r.link)d.link=r.link;d.paste=false;d.pasteText=t;render();toast(r.ing.length+" Zutaten erkannt. Bitte kurz prüfen und speichern.");return}
+  if(b.dataset.recedit){const r=recs().find(x=>x.id===b.dataset.recedit);if(r){S.recDraft={id:r.id,name:r.name||"",ing:r.ing||"",note:r.note||"",link:r.link||"",at:r.at||Date.now(),book:recBook(r)};render();window.scrollTo(0,0)}return}
+  if(b.dataset.act==="recnew"){S.recDraft={id:null,name:"",ing:"",note:"",link:"",book:S.book||"main"};render();const el=document.getElementById("rec-name");if(el)el.focus();return}
   if(b.dataset.act==="reccancel"){S.recDraft=null;render();return}
   if(b.dataset.act==="recsave"){const d=S.recDraft;if(!d)return;const name=(d.name||"").trim().slice(0,80);if(!name){toast("Bitte einen Namen eintragen.");return}
     const id=d.id||("r"+Date.now().toString(36)+Math.random().toString(36).slice(2,5));
-    const v={name,ing:recIng(d).map(x=>x.slice(0,80)).slice(0,60).join("\n"),note:(d.note||"").trim().slice(0,4000),link:(d.link||"").trim().slice(0,500),at:d.at||Date.now()};
+    const v={name,ing:recIng(d).map(x=>x.slice(0,80)).slice(0,60).join("\n"),note:(d.note||"").trim().slice(0,4000),link:(d.link||"").trim().slice(0,500),at:d.at||Date.now()};if(d.book&&d.book!=="main")v.book=d.book;S.book=d.book||"main";
     try{await S.store.setPath("food/rec/"+id,v);S.recDraft=null;S.recOpen=id;toast("Rezept gespeichert");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.act==="recdel"){const d=S.recDraft;if(!d||!d.id)return;if(!d.sure){d.sure=true;b.textContent="Wirklich löschen?";return}
     try{await S.store.setPath("food/rec/"+d.id,null);S.recDraft=null;toast("Rezept gelöscht");render()}catch(_){toast("Konnte nicht speichern.")}return}
@@ -1408,6 +1443,9 @@ app.addEventListener("change",e=>{const row=e.target.closest(".editrow[data-i]")
   t[f]=(f==="times"||f==="pts")?(+e.target.value||0):e.target.value;if(f==="freq"&&t.freq==="week"&&!t.times)t.times=1;if(f==="freq"||f==="owner")render()});
 app.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="mealinput"){e.preventDefault();const b=app.querySelector("[data-act=mealsave]");if(b)b.click()}});
 app.addEventListener("submit",e=>{if(e.target.id==="kitaform"){e.preventDefault();const v=S.kitaText;S.kitaText="";const el=document.getElementById("kitainput");if(el)el.value="";kitaAdd(v);return}
+  if(e.target.id==="bookform"){e.preventDefault();const el=document.getElementById("bookinput"),v=(el&&el.value||"").trim().slice(0,40);if(!v)return;
+    if(S.bookEdit){const id=S.bookEdit;S.bookEdit=null;S.store.setPath("food/book/"+id+"/name",v).then(()=>render()).catch(()=>toast("Konnte nicht speichern."));if(id==="main")S.store.setPath("food/book/main/at",Date.now()).catch(()=>{});return}
+    const id="b"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);S.bookNew=false;S.book=id;S.store.setPath("food/book/"+id,{name:v,at:Date.now()}).then(()=>render()).catch(()=>toast("Konnte nicht speichern."));render();return}
   if(e.target.id==="pantryform"){e.preventDefault();const el=document.getElementById("pantryinput"),v=(el&&el.value||"").trim().slice(0,40);if(!v)return;const l=pantry();if(!l.some(x=>x.toLowerCase()===v.toLowerCase()))l.push(v);el.value="";S.store.setPath("food/pantry",l.join("\n")).catch(()=>toast("Konnte nicht speichern."));return}
   if(e.target.id==="wxform"){e.preventDefault();const el=document.getElementById("wxinput"),q=(el&&el.value||"").trim();if(!q)return;fetch("https://geocoding-api.open-meteo.com/v1/search?count=1&language=de&name="+encodeURIComponent(q)).then(r=>r.ok?r.json():null).then(async j=>{const g=j&&j.results&&j.results[0];if(!g){toast("Ort nicht gefunden");return}try{await S.store.setPath("food/wxplace",{name:g.name,lat:Math.round(g.latitude*100)/100,lon:Math.round(g.longitude*100)/100});S.wxEdit=false;S.wx=null;toast("Wetter für "+g.name);render()}catch(_){toast("Konnte nicht speichern.")}}).catch(()=>toast("Wetter gerade nicht erreichbar"));return}
   if(e.target.id==="prioform"){e.preventDefault();const v=(S.prioText||"").trim().slice(0,80);S.prioText="";const el=document.getElementById("prioinput");if(el)el.value="";if(!v)return;S.store.setPath("food/prio/"+newId("w"),{name:v,from:"frei",at:Date.now(),by:S.me||""}).catch(()=>toast("Konnte nicht speichern. Bitte Verbindung prüfen."));return}
