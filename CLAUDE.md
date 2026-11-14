@@ -17,7 +17,7 @@ Live: https://karkstein.github.io/Daheeme/ (GitHub Pages aus `main`, Wurzelverze
 
 - `config`: `persons`, `rotOffset`, `tasks[{id,name,owner:p0|p1|rot|both|ho,freq:day|week|month|half|year,times,pts,pack?:A|B}]`, `camp:{costs,extras[{id,emoji,name,cost}]}`
 - `weeks/<YYYY-Www>/ticks/<key>` = `{by,at}`; Schlüssel `<id>__<slot>`, `<id>__p` (Monat und länger), `<id>__<slot>_p0/_p1` (halbe Häkchen bei owner both)
-- `food/shop/<id>` `{name,done,at,by,doneAt,cat?}`, `food/fav/<hash>` `{name,n,cat?}`
+- `food/shop/<id>` `{name,done,at,by,doneAt,cat?,src?}` (`src` = Name des Rezepts, wenn die Zutat als Block von einem Rezept, einer Idee oder dem Wochenplan kam; so lässt sich der Block auf einmal entfernen), `food/fav/<hash>` `{name,n,cat?}`
 - `food/rec/<id>` `{name,ing (Zeilen),note,link,at}`, `food/plan/<YYYY-Www>/d0..d6` `{text,rec?,at,by}`
 - `food/lunch/<id>` `{name,dishes,note,maps,at,r:{p0,p1}}`, `food/lunchmap` = Link zu Google Maps
 - Ausflüge (liegen unter `food`, damit der Abgleich nichts Neues braucht): `food/trip/<id>` `{name,note,link,at,by,done,doneAt}`, `food/pack/<id>` `{name,done,at}` (Packliste bleibt, "Alles wieder auspacken" setzt nur `done` zurück)
@@ -41,6 +41,7 @@ git add -A && git commit && git push origin main
 - Keine Blau/Rot-Farben für Mann/Frau; Haken statt Kürzel (Kürzel nur bei Homeoffice-Aufgaben).
 - Startbild: keine Wörter im Bild, antippbare Dinge; keine Zahl offener Aufgaben ("Offene Aufträge" reicht).
 - Einkaufsliste ist ein eigener Bereich, nicht Teil von "Essen".
+- Rezepte, Ideen und Einkaufsliste sind verbunden: Zutaten kommen als Block auf die Liste (Rezept, Idee "+ Liste", Wochenplan) und gehen als Block wieder runter (Leiste "Für Rezepte" auf der Einkaufsliste oder Knopf am Rezept). Zutaten, die schon offen auf der Liste standen, werden nicht doppelt angelegt und gehören keinem Block.
 - Ausflüge werden ein eigener Bereich (fünfter Tab, Rucksack im Startbild). Erster Entwurf: Ideen-Liste mit "Schon gemacht" und bleibende Packliste. Den Inhalt legt der Besitzer später fest.
 - Haus am Meer: Antippbar sind Besen an der Tür (Woche), Schornstein (Essen), Fahrrad (Einkauf), Rucksack (Ausflüge), gelber Briefkasten (Plan). Der Leuchtturm strahlt heller mit dem Wochenfortschritt. Erst nach ausdrücklichem Okay für beide einschalten.
 - Rezept-Recherche: ein Rezept pro Kategorie (`cat` in `ideen.json`: gesund, schnell, vegetarisch, saisonal, exotisch; Liste `IDEA_CATS`). Quellen kuratiert der Besitzer selbst in `quellen.txt`.

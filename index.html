@@ -716,11 +716,14 @@ async function shopAdd(name){name=(name||"").trim().slice(0,80);if(!name)return;
 const DAYN=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"];
 function recs(){const m=(S.food&&S.food.rec)||{};return Object.keys(m).filter(k=>m[k]).map(k=>Object.assign({id:k},m[k])).sort((a,b)=>(a.name||"").localeCompare(b.name||"","de"))}
 function recIng(r){return ((r&&r.ing)||"").split("\n").map(x=>x.trim()).filter(Boolean)}
-async function shopAddMany(list){let n=0;const have=new Set(shopItems().filter(i=>!i.done).map(i=>i.name.toLowerCase()));
+async function shopAddMany(list,src){src=(src||"").trim().slice(0,80);let n=0;const have=new Set(shopItems().filter(i=>!i.done).map(i=>i.name.toLowerCase()));
   for(const raw of list){const name=raw.trim().slice(0,80);if(!name||have.has(name.toLowerCase()))continue;have.add(name.toLowerCase());
     const id="i"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-    try{await S.store.setPath("food/shop/"+id,{name,done:false,at:Date.now()+n,by:S.me||""});n++}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.");return}}
+    try{const v={name,done:false,at:Date.now()+n,by:S.me||""};if(src)v.src=src;await S.store.setPath("food/shop/"+id,v);n++}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.");return}}
   toast(n?n+(n===1?" Zutat":" Zutaten")+" auf der Einkaufsliste":"Steht alles schon auf der Liste")}
+const shopBlocks=()=>{const m={};shopItems().filter(i=>!i.done&&i.src).forEach(i=>{m[i.src]=(m[i.src]||0)+1});return m};
+async function shopRemoveBlock(src){const l=shopItems().filter(i=>!i.done&&i.src===src);for(const i of l){try{await S.store.setPath("food/shop/"+i.id,null)}catch(_){toast("Konnte nicht speichern.");return}}
+  toast(l.length?l.length+(l.length===1?" Zutat":" Zutaten")+" für „"+src+"“ entfernt":"Nichts mehr auf der Liste")}
 function planWeek(){return S.foodWeek||mondayOf(new Date())}
 function planDays(mon){return ((S.food&&S.food.plan)||{})[wkKey(mon)]||{}}
 function renderRecipes(){const list=recs(),d=S.recDraft;
@@ -735,14 +738,14 @@ function renderRecipes(){const list=recs(),d=S.recDraft;
   h+=list.map(r=>{const open=S.recOpen===r.id,ing=recIng(r),link=/^https?:\/\//i.test(r.link||"")?r.link:"";
     return `<section class="card rec"><button class="rechead" data-rec="${esc(r.id)}" aria-expanded="${open}"><span class="nm">${esc(r.name)}</span><span class="freq">${ing.length} ${ing.length===1?"Zutat":"Zutaten"} ${open?"▴":"▾"}</span></button>
       ${open?`${ing.length?`<ul class="ing">${ing.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}${r.note?`<div class="recnote">${esc(r.note)}</div>`:""}${link?`<div><a href="${esc(link)}" target="_blank" rel="noopener noreferrer">Rezept im Netz öffnen</a></div>`:""}
-      <div class="btnrow">${ing.length?`<button class="primary" data-recshop="${esc(r.id)}">Zutaten auf die Einkaufsliste</button>`:""}<button class="ghost" data-recedit="${esc(r.id)}">Bearbeiten</button></div>`:""}</section>`}).join("");
+      <div class="btnrow">${ing.length?(shopBlocks()[r.name]?`<button class="ghost" data-shopblockrm="${esc(r.name)}">Zutaten wieder von der Liste nehmen</button>`:`<button class="primary" data-recshop="${esc(r.id)}">Zutaten auf die Einkaufsliste</button>`):""}<button class="ghost" data-recedit="${esc(r.id)}">Bearbeiten</button></div>`:""}</section>`}).join("");
   return h}
 const IDEA_CATS=[["gesund","🥗","Gesund"],["schnell","⏱️","Schnell"],["vegetarisch","🌱","Vegetarisch"],["saisonal","🍂","Saisonal"],["exotisch","🌶️","Exotisch"]];
 const ideaCat=x=>IDEA_CATS.find(c=>c[0]===x.cat);
 function ideaList(){const have=new Set(recs().map(r=>(r.name||"").toLowerCase()));return ((S.ideas&&S.ideas.items)||[]).map((x,i)=>Object.assign({i},x)).filter(x=>x&&x.name&&!have.has(String(x.name).toLowerCase())).sort((a,b)=>{const o=x=>{const i=IDEA_CATS.findIndex(c=>c[0]===x.cat);return i<0?99:i};return o(a)-o(b)})}
 function renderIdeas(){const l=ideaList();if(!l.length)return "";const u=S.ideas.updated?String(S.ideas.updated).split("-").reverse().join("."):"";
   return `<section class="card"><div class="section-head"><h2>Ideen aus der Recherche</h2>${u?`<span class="freq">Stand ${esc(u)}</span>`:""}</div>
-    <ul class="shop">${l.map(x=>{const link=/^https?:\/\//i.test(x.link||"")?x.link:"";return `<li style="padding:10px 0;gap:12px"><div style="flex:1;min-width:0">${ideaCat(x)?`<div class="eyebrow" style="margin:0">${ideaCat(x)[1]} ${ideaCat(x)[2]}</div>`:""}<div style="font-weight:600;overflow-wrap:anywhere">${esc(x.name)}</div><div class="freq">${link?`<a href="${esc(link)}" target="_blank" rel="noopener noreferrer">${esc(x.source||"Zum Rezept")}</a>`:esc(x.source||"")}</div></div><button class="ghost" data-idea="${x.i}">Übernehmen</button></li>`}).join("")}</ul></section>`}
+    <ul class="shop">${l.map(x=>{const link=/^https?:\/\//i.test(x.link||"")?x.link:"";return `<li style="padding:10px 0;gap:12px"><div style="flex:1;min-width:0">${ideaCat(x)?`<div class="eyebrow" style="margin:0">${ideaCat(x)[1]} ${ideaCat(x)[2]}</div>`:""}<div style="font-weight:600;overflow-wrap:anywhere">${esc(x.name)}</div><div class="freq">${link?`<a href="${esc(link)}" target="_blank" rel="noopener noreferrer">${esc(x.source||"Zum Rezept")}</a>`:esc(x.source||"")}</div></div><button class="ghost" data-idea="${x.i}">Übernehmen</button>${Array.isArray(x.ing)&&x.ing.length?(shopBlocks()[x.name]?`<button class="ghost" data-shopblockrm="${esc(x.name)}" aria-label="Zutaten von ${esc(x.name)} wieder von der Liste nehmen">− Liste</button>`:`<button class="ghost" data-ideashop="${x.i}" aria-label="Zutaten von ${esc(x.name)} auf die Einkaufsliste">+ Liste</button>`):""}</li>`}).join("")}</ul></section>`}
 function renderMealPlan(){const mon=planWeek(),days=planDays(mon),rl=recs(),rmap={};rl.forEach(r=>rmap[r.id]=r);
   const cur=mondayOf(new Date()),isCur=+mon===+cur,today=startOfDay(new Date()),sun=addDays(mon,6);
   const dm=x=>x.getDate()+"."+(x.getMonth()+1)+".";
@@ -809,9 +812,11 @@ function renderFood(){
   return h+renderMealPlan()}
 function renderShop(){let h=`<div><div class="eyebrow">Gemeinsam</div><h1>Einkaufsliste</h1></div>`;
   const items=shopItems(),open=items.filter(i=>!i.done),done=items.filter(i=>i.done).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0)),favs=shopFavs();
-  const li=i=>`<li class="${i.done?"done":""}"><button class="item" data-shop="${esc(i.id)}" aria-pressed="${!!i.done}"><span class="box">${i.done?"✓":""}</span><span class="nm">${esc(i.name)}</span></button>${i.done?"":`<button class="catbtn" data-shopcat="${esc(i.id)}" aria-label="Gruppe ändern" aria-expanded="${S.shopCatEdit===i.id}">${CATS.find(c=>c[0]===itemCat(i))[1]}</button>`}<button class="rm" data-shoprm="${esc(i.id)}" aria-label="${esc(i.name)} entfernen">✕</button></li>${!i.done&&S.shopCatEdit===i.id?`<li class="catpick"><div class="unl">${CATS.map(c=>`<button class="chipbtn" data-setcat="${c[0]}" aria-pressed="${itemCat(i)===c[0]}">${c[1]} ${c[2]}</button>`).join("")}</div></li>`:""}`;
+  const li=i=>`<li class="${i.done?"done":""}"><button class="item" data-shop="${esc(i.id)}" aria-pressed="${!!i.done}"><span class="box">${i.done?"✓":""}</span><span class="nm">${esc(i.name)}${i.src&&!i.done?`<br><span class="freq">für ${esc(i.src)}</span>`:""}</span></button>${i.done?"":`<button class="catbtn" data-shopcat="${esc(i.id)}" aria-label="Gruppe ändern" aria-expanded="${S.shopCatEdit===i.id}">${CATS.find(c=>c[0]===itemCat(i))[1]}</button>`}<button class="rm" data-shoprm="${esc(i.id)}" aria-label="${esc(i.name)} entfernen">✕</button></li>${!i.done&&S.shopCatEdit===i.id?`<li class="catpick"><div class="unl">${CATS.map(c=>`<button class="chipbtn" data-setcat="${c[0]}" aria-pressed="${itemCat(i)===c[0]}">${c[1]} ${c[2]}</button>`).join("")}</div></li>`:""}`;
   const grp=CATS.map(c=>[c,open.filter(i=>itemCat(i)===c[0])]).filter(g=>g[1].length);
   h+=`<form class="addrow" id="shopform"><input type="text" id="shopinput" placeholder="Was fehlt? Zum Beispiel Milch" value="${esc(S.shopText)}" autocomplete="off" enterkeyhint="done" aria-label="Artikel"><button class="primary" type="submit">Hinzufügen</button></form>`;
+  const bl=shopBlocks(),bk=Object.keys(bl);
+  if(bk.length)h+=`<div><div class="eyebrow" style="margin-bottom:6px">Für Rezepte, auf einmal entfernen</div><div class="unl">${bk.map(s=>`<button class="chipbtn" data-shopblockrm="${esc(s)}" aria-label="Zutaten für ${esc(s)} entfernen">🍲 ${esc(s)} · ${bl[s]} ✕</button>`).join("")}</div></div>`;
   if(favs.length)h+=`<div><div class="eyebrow" style="margin-bottom:6px">Oft gekauft</div><div class="unl">${favs.map(n=>`<button class="chipbtn" data-shopfav="${esc(n)}">+ ${esc(n)}</button>`).join("")}</div></div>`;
   h+=open.length?`<section class="card"><div class="section-head"><h2>Noch zu kaufen</h2><span class="freq num">${open.length}</span></div>${grp.map(g=>`<div class="shopgrp"><span aria-hidden="true">${g[0][1]}</span>${g[0][2]}</div><ul class="shop">${g[1].map(li).join("")}</ul>`).join("")}</section>`
     :`<div class="empty"><h2>${items.length?"Alles eingekauft":"Die Liste ist leer"}</h2><div>Schreib oben auf, was fehlt. Ihr seht beide dieselbe Liste und hakt im Laden ab.</div></div>`;
@@ -952,7 +957,9 @@ app.addEventListener("click",async e=>{
     const v={name:String(x.name).slice(0,80),ing:(Array.isArray(x.ing)?x.ing:[]).map(y=>String(y).trim().slice(0,80)).filter(Boolean).slice(0,60).join("\n"),note:String(x.note||"").slice(0,4000),link:String(x.link||"").slice(0,500),at:Date.now()};
     try{await S.store.setPath("food/rec/"+id,v);S.recOpen=id;toast("Als Rezept übernommen");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.rec){S.recOpen=S.recOpen===b.dataset.rec?null:b.dataset.rec;render();return}
-  if(b.dataset.recshop){const r=recs().find(x=>x.id===b.dataset.recshop);if(r)shopAddMany(recIng(r));return}
+  if(b.dataset.recshop){const r=recs().find(x=>x.id===b.dataset.recshop);if(r)shopAddMany(recIng(r),r.name);return}
+  if(b.dataset.shopblockrm){shopRemoveBlock(b.dataset.shopblockrm);return}
+  if(b.dataset.ideashop){const x=((S.ideas&&S.ideas.items)||[])[+b.dataset.ideashop];if(x&&Array.isArray(x.ing))shopAddMany(x.ing.map(String),x.name);return}
   if(b.dataset.recedit){const r=recs().find(x=>x.id===b.dataset.recedit);if(r){S.recDraft={id:r.id,name:r.name||"",ing:r.ing||"",note:r.note||"",link:r.link||"",at:r.at||Date.now()};render();window.scrollTo(0,0)}return}
   if(b.dataset.act==="recnew"){S.recDraft={id:null,name:"",ing:"",note:"",link:""};render();const el=document.getElementById("rec-name");if(el)el.focus();return}
   if(b.dataset.act==="reccancel"){S.recDraft=null;render();return}
@@ -970,7 +977,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="mealsave"||b.dataset.act==="mealclear"){const k=S.planEdit;if(!k)return;const text=S.planText.trim().slice(0,80);
     const v=(b.dataset.act==="mealclear"||(!text&&!S.planRec))?null:Object.assign({text,at:Date.now(),by:S.me||""},S.planRec?{rec:S.planRec}:{});
     try{await S.store.setPath("food/plan/"+wkKey(planWeek())+"/"+k,v);S.planEdit=null;render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
-  if(b.dataset.act==="mealshop"){const days=planDays(planWeek()),all=[];const rl=recs();Object.keys(days).forEach(k=>{const r=days[k]&&days[k].rec&&rl.find(x=>x.id===days[k].rec);if(r)all.push(...recIng(r))});shopAddMany(all);return}
+  if(b.dataset.act==="mealshop"){const days=planDays(planWeek()),all=[];const rl=recs();Object.keys(days).forEach(k=>{const r=days[k]&&days[k].rec&&rl.find(x=>x.id===days[k].rec);if(r)all.push(r)});let any=0;for(const r of all){await shopAddMany(recIng(r),r.name);any++}if(!any)toast("Keine Rezepte mit Zutaten in dieser Woche");return}
   if(b.dataset.act==="shopclear"){for(const i of shopItems().filter(x=>x.done)){try{await S.store.setPath("food/shop/"+i.id,null)}catch(_){}}return}
   if(b.dataset.me){S.me=b.dataset.me;try{localStorage.setItem("hq-me",S.me)}catch(_){}render();return}
   if(b.dataset.act==="groupby"||b.dataset.jump){const j=b.dataset.jump;S.groupBy=j?"art":(S.groupBy==="art"?"freq":"art");try{localStorage.setItem("hq-groupby",S.groupBy)}catch(_){}render();
