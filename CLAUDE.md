@@ -29,7 +29,7 @@ node src/build-web.js https://haushalt-32464-default-rtdb.europe-west1.firebased
 git add -A && git commit && git push origin main
 ```
 
-`src/mock-test.js` ist ein Firebase-Ersatz plus Test mit zwei Geräten (Playwright). Aus der Cloud-Sitzung sind firebasedatabase.app und github.io nicht erreichbar; die echte Datenbank wurde nur vom Besitzer am Handy geprüft. Vorschau der Jahreszeiten: `?saison=winter|spring|summer|autumn`.
+`src/mock-test.js` ist ein Firebase-Ersatz plus Test mit zwei Geräten (Playwright). Aus der Cloud-Sitzung sind firebasedatabase.app und github.io nicht erreichbar; die echte Datenbank wurde nur vom Besitzer am Handy geprüft. Vorschau der Jahreszeiten: `?saison=winter|spring|summer|autumn`. Startbild Haus am Meer (Entwurf): `?bild=haus` schaltet um und merkt es sich im localStorage `hq-bild`, `?bild=zelt` schaltet zurück. Funktionen `houseScene`, Liste `HOUSE`.
 
 ## Entscheidungen
 

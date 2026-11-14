@@ -163,7 +163,13 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 @keyframes flick{to{transform:scale(1.1,.9) rotate(2deg)}}
 .twinkle{animation:tw 2.4s ease-in-out infinite alternate}
 @keyframes tw{to{opacity:.35}}
-@media (prefers-reduced-motion: reduce){.flame,.twinkle{animation:none}}
+.beam{transform-box:view-box;transform-origin:314px 60px;animation:beam 4s ease-in-out infinite alternate}
+@keyframes beam{from{transform:rotate(-5deg)}to{transform:rotate(6deg)}}
+.bob{animation:bob 3s ease-in-out infinite alternate}
+@keyframes bob{to{transform:translateY(2px)}}
+.smoke{animation:smoke 3.5s ease-in-out infinite alternate}
+@keyframes smoke{to{transform:translate(3px,-3px);opacity:.45}}
+@media (prefers-reduced-motion: reduce){.flame,.twinkle,.beam,.bob,.smoke{animation:none}}
 .unl{display:flex;flex-wrap:wrap;gap:6px}
 .unl span{font-size:.8rem;font-weight:600;border-radius:999px;padding:4px 11px;background:var(--done-soft);color:var(--done);border:1px solid transparent}
 .unl span.lock{background:transparent;color:var(--muted);border:1px dashed var(--line)}
@@ -496,6 +502,65 @@ function renderAll(){
   if(ho.length)h+=`<section class="card"><h2><i class="dot ho"></i>Wer im Homeoffice ist</h2>${li(ho)}</section>`;
   return h}
 const CAMP=[["tent","Zelt",3],["pit","Feuerstelle",8],["tree1","Tanne",15],["chairs","Campingstühle",25],["tree2","Zweite Tanne",40],["lantern","Laterne",60],["hammock","Hängematte",80],["lights","Lichterkette",105],["hills","Berge",135],["lake","See",170],["canoe","Kanu",210],["flags","Wimpelkette",260],["fox","Fuchs",320]];
+const HOUSE=[["haus","Haus",0],["leucht","Leuchtturm",0],["hortensia","Hortensien",15],["bench","Gartenbank",25],["boat","Fischerboot",40],["wall","Steinmauer",60],["strandkorb","Strandkorb",80],["flags","Wimpelkette",105],["isles","Inseln",135],["crepe","Crêpe-Stand",170],["sail","Segelboot",210],["kite","Drachen",260],["seal","Robbe",320]];
+const HOUSE_GUESTS={spring:["🦋","🐌","🐚"],summer:["🦀","🐚","🦋"],autumn:["🦀","🍄","🦔"],winter:["🦭","🐚","🦉"]};
+function scene(){const q=/[?&]bild=(haus|zelt)/.exec(location.search);if(q){try{localStorage.setItem("hq-bild",q[1])}catch(_){}return q[1]}try{return localStorage.getItem("hq-bild")==="haus"?"haus":"zelt"}catch(_){return "zelt"}}
+const SC=()=>scene()==="haus"?HOUSE:CAMP;
+function houseScene(has,light,night,extras,sea,guests,dots){dots=dots||{};
+  const C=night?{sky1:"#0e1d30",sky2:"#2a4560",sea1:"#1d3d5c",sea2:"#16314b",land:"#2d5040",land2:"#254436",sand:"#6f6a55",wall:"#7d7d7c",stone:"#666868",roof:"#283340",head:"#3a4a4a"}
+               :{sky1:"#b8dcec",sky2:"#f3efe0",sea1:"#4f8fb8",sea2:"#2f6c97",land:"#8fbf7f",land2:"#7aae6c",sand:"#e8d8ac",wall:"#bdb8ad",stone:"#a39e93",roof:"#4b5866",head:"#8aa38b"};
+  Object.assign(C,(night?{winter:{land:"#55675f",land2:"#4a5b53"},autumn:{land:"#4a4f33",land2:"#3d422a"}}
+    :{spring:{land:"#9ccf8a",land2:"#86c07a"},autumn:{sky2:"#f6e3c4",land:"#b9b06a",land2:"#a39a57",head:"#9c9a78"},winter:{sky1:"#cbd9e3",sky2:"#eef1f2",land:"#b7c8b5",land2:"#a5b8a3",sea1:"#5d8aa6",sea2:"#406f8e",head:"#9fb0a6"}})[sea]||{});
+  const lit=night?"#ffd66b":"#f6e7b0",dot=(x,y)=>`<circle cx="${x}" cy="${y}" r="5.5" fill="#f25f5c" stroke="#fff" stroke-width="2"/>`;
+  let g=`<defs><linearGradient id="hsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${C.sky1}"/><stop offset="1" stop-color="${C.sky2}"/></linearGradient><linearGradient id="hsea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${C.sea1}"/><stop offset="1" stop-color="${C.sea2}"/></linearGradient><radialGradient id="hglow"><stop offset="0" stop-color="#ffe08a" stop-opacity=".9"/><stop offset="1" stop-color="#ffe08a" stop-opacity="0"/></radialGradient><linearGradient id="hbeam" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#fff3b0" stop-opacity=".85"/><stop offset="1" stop-color="#fff3b0" stop-opacity="0"/></linearGradient></defs>
+  <rect width="360" height="260" fill="url(#hsky)"/>`;
+  if(night){g+=`<circle cx="52" cy="40" r="15" fill="#f3ecd2"/><circle cx="59" cy="36" r="13" fill="${C.sky1}"/>`;
+    [[110,24],[150,52],[196,18],[236,44],[22,78],[88,70],[180,84],[268,22]].forEach((p,i)=>{g+=`<circle class="twinkle" style="animation-delay:${i*0.3}s" cx="${p[0]}" cy="${p[1]}" r="1.5" fill="#fff"/>`})}
+  else g+=`<circle cx="56" cy="44" r="17" fill="#ffd66b"/><path d="M120 46h44a12 12 0 0 0-22-8 10 10 0 0 0-22 8z M214 30h36a10 10 0 0 0-18-6 8 8 0 0 0-18 6z" fill="#fff" opacity=".85"/>`;
+  if(!night)g+=`<path d="M176 70 q5 -5 10 0 q5 -5 10 0 M222 86 q4 -4 8 0 q4 -4 8 0" fill="none" stroke="#4b5866" stroke-width="1.6" stroke-linecap="round"/>`;
+  if(has.kite)g+=`<path d="M246 52 L256 40 L266 52 L256 70Z" fill="#f25f5c"/><path d="M256 40 V70 M246 52 H266" stroke="#fff" stroke-width="1"/><path d="M256 70 Q262 120 248 176" fill="none" stroke="#5b4a3a" stroke-width=".8"/><path d="M256 70 q-4 6 2 10 q-6 4 0 10" fill="none" stroke="#ffd66b" stroke-width="2"/>`;
+  g+=`<rect x="0" y="118" width="360" height="142" fill="url(#hsea)"/><path d="M180 132h22M262 150h26M300 196h30M206 170h18M320 228h24" stroke="#fff" stroke-opacity=".45" stroke-width="2" stroke-linecap="round"/>`;
+  g+=`<path d="M262 124 Q292 98 360 102 V126 H262Z" fill="${C.head}"/><path d="M262 124 l10 -6 l8 7 l10 -4 l12 6Z" fill="#7d7f7a"/>`;
+  const bx=318,by=106,a=(0.25+0.75*light)*(night?1:.7);
+  if(light>0){g+=`<circle cx="${bx}" cy="${by-44}" r="${10+26*light}" fill="url(#hglow)" opacity="${night?1:.7}"/><path class="beam" d="M${bx-4} ${by-46} L${bx-150} ${by-74} L${bx-150} ${by-24}Z" fill="url(#hbeam)" opacity="${a.toFixed(2)}"/>`}
+  g+=`<path d="M${bx-8} ${by} L${bx-5.5} ${by-38} H${bx+5.5} L${bx+8} ${by}Z" fill="#f4f1ea"/><path d="M${bx-7.4} ${by-10} H${bx+7.4} L${bx+7} ${by-17} H${bx-7}Z M${bx-6.3} ${by-25} H${bx+6.3} L${bx+6} ${by-31} H${bx-6}Z" fill="#d6453d"/><rect x="${bx-6}" y="${by-41}" width="12" height="3" fill="#2b2b2b"/><rect x="${bx-4}" y="${by-48}" width="8" height="7" fill="${light>0?"#ffe08a":"#cfd8dc"}" stroke="#2b2b2b" stroke-width="1"/><path d="M${bx-5} ${by-48} L${bx} ${by-54} L${bx+5} ${by-48}Z" fill="#d6453d"/>`;
+  if(has.isles)g+=`<path d="M206 136 q10 -14 24 -4 q8 -6 14 4Z" fill="#7d7f7a"/><path d="M232 142 q6 -8 14 0Z" fill="#8c8f89"/>`;
+  if(has.boat)g+=`<g class="bob"><path d="M268 150 h34 l-6 9 h-24z" fill="#2f5d8a"/><rect x="276" y="140" width="12" height="10" fill="#f4f1ea"/><path d="M294 150 V130" stroke="#5b4a3a" stroke-width="1.6"/><path d="M294 132 l8 4 l-8 3" fill="#f25f5c"/></g>`;
+  if(has.sail)g+=`<g class="bob" style="animation-delay:1.2s"><path d="M300 198 h36 l-5 7 h-26z" fill="#f4f1ea"/><path d="M318 198 V164 L336 196Z" fill="#c7442f"/><path d="M316 198 V170 L302 196Z" fill="#f4f1ea"/></g>`;
+  g+=`<path d="M0 146 Q60 134 132 140 Q206 146 244 172 Q286 202 296 260 H0Z" fill="${C.land}"/>`;
+  g+=`<path d="M244 172 Q286 202 296 260 H276 Q270 212 232 184Z" fill="${C.sand}"/>`;
+  g+=`<path d="M0 222 Q120 206 262 230 L270 260 H0Z" fill="${C.land2}"/>`;
+  if(sea==="spring")[[20,246,"#f7a8c4"],[86,252,"#fff"],[238,250,"#f7a8c4"],[70,236,"#ffd66b"],[18,206,"#fff"],[60,176,"#ffd66b"],[226,214,"#f7a8c4"]].forEach(p=>{g+=`<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="${p[2]}"/><circle cx="${p[0]}" cy="${p[1]}" r="1.1" fill="#e0a030"/>`});
+  if(sea==="autumn")[[20,246,"#d9792b",20],[86,252,"#b3402a",-30],[238,250,"#e0a030",40],[70,236,"#e0a030",10],[18,204,"#b3402a",-15],[226,214,"#d9792b",60]].forEach(p=>{g+=`<ellipse cx="${p[0]}" cy="${p[1]}" rx="4.5" ry="2.2" fill="${p[2]}" transform="rotate(${p[3]} ${p[0]} ${p[1]})"/>`});
+  if(has.crepe)g+=`<rect x="30" y="150" width="34" height="18" fill="#f4f1ea"/><path d="M26 150 h42 l-4 -10 h-34z" fill="#3f6fa8"/><path d="M34 140 v10 M42 140 v10 M50 140 v10 M58 140 v10" stroke="#fff" stroke-width="3"/><circle cx="47" cy="160" r="5" fill="#e0a030"/><circle cx="36" cy="170" r="3" fill="#5b4a3a"/><circle cx="58" cy="170" r="3" fill="#5b4a3a"/>`;
+  // Haus
+  const H=`<path d="M112 104h12v20h-12z M186 104h12v20h-12z" fill="${C.wall}"/><path d="M110 102h16v4h-16z M184 102h16v4h-16z" fill="${C.stone}"/>`
+   +`<path d="M94 160 L114 118 H196 L216 160Z" fill="${C.roof}"/><path d="M114 118 H196" stroke="#2c3540" stroke-width="2"/><path d="M104 140 H206 M99 150 H211 M109 129 H201" stroke="#3a4552" stroke-width=".8" opacity=".7"/>`
+   +`<rect x="100" y="158" width="110" height="56" fill="${C.wall}"/>`
+   +[[106,166,9,5],[124,163,11,5],[140,167,8,4],[168,164,10,5],[196,166,9,5],[108,196,10,5],[128,204,9,5],[186,200,11,5],[200,190,7,4],[118,180,6,3],[192,176,7,4]].map(s=>`<rect x="${s[0]}" y="${s[1]}" width="${s[2]}" height="${s[3]}" rx="1.5" fill="${C.stone}"/>`).join("")
+   +`<path d="M146 214 V188 a9 9 0 0 1 18 0 V214Z" fill="#3f6fa8"/><circle cx="160" cy="202" r="1.4" fill="#ffd66b"/><path d="M147 214 h16" stroke="#7d7f7a" stroke-width="3"/>`
+   +[[116,170],[178,170]].map(w=>`<rect x="${w[0]}" y="${w[1]}" width="16" height="18" fill="${night||w[0]===116?lit:"#cfe3ee"}" stroke="#f4f1ea" stroke-width="1.6"/><path d="M${w[0]+8} ${w[1]} v18 M${w[0]} ${w[1]+9} h16" stroke="#f4f1ea" stroke-width="1"/><rect x="${w[0]-8}" y="${w[1]-1}" width="7" height="20" fill="#3f6fa8"/><rect x="${w[0]+17}" y="${w[1]-1}" width="7" height="20" fill="#3f6fa8"/>`).join("")
+   +`<g class="smoke" opacity=".75"><circle cx="118" cy="94" r="5" fill="#e9ecef"/><circle cx="112" cy="82" r="6.5" fill="#e9ecef" opacity=".8"/><circle cx="118" cy="68" r="7.5" fill="#e9ecef" opacity=".6"/></g>`;
+  g+=H;
+  if(sea==="winter")g+=`<path d="M114 118 H196 L200 126 H110Z" fill="#fff" opacity=".7"/>`;
+  if(night)g+=`<circle cx="124" cy="179" r="22" fill="url(#hglow)" opacity=".35"/>`;
+  if(has.flags){g+=`<path d="M198 112 Q222 160 233 194" fill="none" stroke="#3a2a1a" stroke-width="1.2"/>`;
+    [[205,128,"#f25f5c"],[213,144,"#ffd66b"],[221,160,"#3f6fa8"],[227,176,"#f4f1ea"]].forEach(p=>{g+=`<path d="M${p[0]-5} ${p[1]} h10 l-5 10z" fill="${p[2]}"/>`})}
+  if(has.hortensia)[[104,216],[122,218],[190,218],[206,215]].forEach((p,i)=>{g+=`<circle cx="${p[0]}" cy="${p[1]}" r="9" fill="#2f6b4c"/><circle cx="${p[0]-3}" cy="${p[1]-3}" r="5" fill="${i%2?"#8fa8e8":"#6d8fd8"}"/><circle cx="${p[0]+4}" cy="${p[1]-1}" r="4.5" fill="${i%2?"#c9a3e0":"#8fa8e8"}"/>`});
+  if(has.bench)g+=`<path d="M58 222 h34 M60 222 v10 M90 222 v10 M58 216 h34" stroke="#7a5230" stroke-width="3.2" stroke-linecap="round"/>`;
+  if(has.strandkorb)g+=`<path d="M262 212 h20 v20 h-20z" fill="#f4f1ea"/><path d="M262 212 q10 -14 20 0" fill="#3f6fa8"/><path d="M266 212 v20 M272 212 v20 M278 212 v20" stroke="#3f6fa8" stroke-width="2"/><rect x="264" y="220" width="16" height="9" fill="#d6c7a0"/>`;
+  if(has.seal)g+=`<path d="M318 252 q14 -16 30 -6 q4 4 -2 6Z" fill="#7d7f7a"/><ellipse cx="332" cy="242" rx="11" ry="5" fill="#5d5f62"/><circle cx="342" cy="237" r="4" fill="#5d5f62"/><circle cx="344" cy="236" r=".9" fill="#111"/>`;
+  if(has.wall){g+=`<path d="M0 244 Q120 236 250 248 V260 H0Z" fill="${C.stone}"/>`;for(let x=6;x<246;x+=16)g+=`<rect x="${x}" y="${246-Math.sin(x/40)*2}" width="12" height="6" rx="2" fill="${C.wall}"/>`}
+  // Besen an der Tür (Woche)
+  g+=`<path d="M174 216 L184 178" stroke="#7a5230" stroke-width="3" stroke-linecap="round"/><path d="M166 214 L180 211 L182 224 L166 226Z" fill="#e0a030"/><path d="M169 216 l1 8 M173 215 l1 9 M177 214 l1 9" stroke="#b5771c" stroke-width="1.2"/>${dots.woche?dot(186,175):""}`;
+  // Briefkasten (Plan)
+  g+=`<rect x="231" y="200" width="3.5" height="30" fill="#7a5230"/><path d="M224 192 h18 v12 h-18z" fill="#f2c230"/><path d="M224 192 q9 -8 18 0" fill="#f2c230"/><path d="M228 198 h10" stroke="#5b4a3a" stroke-width="1.6"/>`;
+  // Fahrrad mit Korb (Einkauf)
+  g+=`<g fill="none" stroke="#2f4f6f" stroke-width="2.2"><circle cx="20" cy="226" r="10"/><circle cx="52" cy="226" r="10"/><path d="M20 226 L32 212 H46 L52 226 M32 212 L38 226 L46 212 M30 208 h6 M46 212 l2 -6 h5"/></g><path d="M44 200 h18 l-3 11 h-12z" fill="#b5854a"/><path d="M46 204 h14 M47 208 h12" stroke="#8a6334" stroke-width="1"/><text x="53" y="201" font-size="10" text-anchor="middle">🥖</text>${dots.shop?dot(64,194):""}`;
+  [[84,240],[246,238],[150,236]].slice(0,guests|0).forEach((p,i)=>{g+=`<text x="${p[0]}" y="${p[1]}" font-size="20" text-anchor="middle">${HOUSE_GUESTS[sea][i]}</text>`});
+  const SPOTS=[[14,252],[110,242],[200,252],[232,224],[40,196],[196,236],[78,180],[226,252]];
+  (extras||[]).forEach((e,i)=>{const sp=SPOTS[i%SPOTS.length];g+=`<text x="${sp[0]}" y="${sp[1]}" font-size="20" text-anchor="middle">${esc(e.emoji)}</text>`});
+  return `<svg viewBox="0 0 360 260" role="img" aria-label="Euer Haus am Meer">${g}</svg>`}
 function campTotal(){let n=0;for(const wk in S.weeks){const tk=ticksOf(wk);for(const k in tk)if(tk[k])n++}return n}
 const SEASON_NAME={spring:"Frühling",summer:"Sommer",autumn:"Herbst",winter:"Winter"};
 const GUESTS={spring:["🐇","🐣","🦋"],summer:["🦆","🐸","🦋"],autumn:["🦔","🐿️","🍄"],winter:["⛄","🦌","🦉"]};
@@ -546,12 +611,12 @@ function campScene(has,fire,night,extras,sea,guests,dots){dots=dots||{};
   return `<svg viewBox="0 0 360 260" role="img" aria-label="Euer Zeltplatz">${g}</svg>`}
 const CAMP_IDEAS=["🦔","🦉","🐿️","🦌","🐇","🐸","🦆","🐕","🐈","🦋","🍄","🌻","🎸","🔭","⛄","🚲"];
 function campCfg(){const c=(S.config&&S.config.camp)||{};const ex=c.extras?(Array.isArray(c.extras)?c.extras:Object.values(c.extras)):[];return {costs:c.costs||{},extras:ex.filter(Boolean)}}
-function campItems(cc){cc=cc||campCfg();return CAMP.map(c=>({id:c[0],name:c[1],cost:c[0]==="tent"||c[0]==="pit"?0:cc.costs[c[0]]!=null?(cc.costs[c[0]]|0):c[2]})).concat(cc.extras.map(e=>({id:e.id,name:e.name||e.emoji,cost:e.cost|0,emoji:e.emoji}))).sort((a,b)=>a.cost-b.cost)}
+function campItems(cc){cc=cc||campCfg();return SC().map(c=>({id:c[0],name:c[1],cost:c[2]===0||c[0]==="tent"||c[0]==="pit"?0:cc.costs[c[0]]!=null?(cc.costs[c[0]]|0):c[2]})).concat(cc.extras.map(e=>({id:e.id,name:e.name||e.emoji,cost:e.cost|0,emoji:e.emoji}))).sort((a,b)=>a.cost-b.cost)}
 function renderCamp(){
   const total=campTotal(),mon=mondayOf(new Date()),tk=ticksOf(wkKey(mon));
   let d=0,n=0;tasks().forEach(t=>{if(group(t.freq)!=="week"||t.owner!=="rot")return;const m=slotsOf(t);for(let i=0;i<m;i++){n++;if(tk[t.id+"__"+i])d++}});
   const fire=n?d/n:0,hr=new Date().getHours(),night=hr>=18||hr<7;
-  const items=campItems(),has={};items.forEach(c=>{has[c.id]=total>=c.cost});has.tent=has.pit=true;
+  const items=campItems(),has={};items.forEach(c=>{has[c.id]=total>=c.cost});const haus=scene()==="haus";if(haus)has.haus=has.leucht=true;else has.tent=has.pit=true;
   const next=items.find(c=>total<c.cost),prev=Math.max(0,...items.filter(c=>total>=c.cost).map(c=>c.cost));
   const sea=season(),guests=fire>=1?3:fire>=2/3?2:fire>=1/3?1:0,now=new Date(),di=(now.getDay()+6)%7,split=rotSplit();
   let openW=0;tasks().forEach(t=>{if(group(t.freq)!=="week")return;const o=t.owner==="rot"?ownerFor(t,mon,split):t.owner;if(S.me&&o!==S.me&&o!=="both")return;if(o==="ho")return;
@@ -559,29 +624,30 @@ function renderCamp(){
     if(t.freq==="day")chk(di);else for(let i=0;i<slotsOf(t);i++)chk(i)});
   const openS=shopItems().filter(i=>!i.done).length,meal=planDays(mon)["d"+di],mealTxt=meal?(meal.text||""):"";
   const spot=(x,y,w,hh,go,label,ft)=>`<button class="spot" style="left:${(x/3.6).toFixed(1)}%;top:${(y/2.6).toFixed(1)}%;width:${(w/3.6).toFixed(1)}%;height:${(hh/2.6).toFixed(1)}%" data-go="${go}"${ft?` data-ft="${ft}"`:""} aria-label="${label}"></button>`;
-  let h=`<div><div class="eyebrow">${SEASON_NAME[sea]} auf dem Zeltplatz</div><h1>Hallo${S.me?" "+esc(pname(S.me)):""}</h1></div>${S.me?"":meChooser()}
-   <div class="camp">${campScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:openW>0,shop:openS>0})}
-     ${spot(176,172,124,104,"woche","Woche: offene Aufträge")}${spot(268,222,64,48,"essen","Essen",mealTxt?"plan":"")}${spot(340,200,44,46,"einkauf","Einkaufsliste")}${spot(208,244,46,36,"alle","Übersicht und Plan")}</div>
-   <div class="freq" style="text-align:center;margin-top:-6px">Tippt ins Bild: Besen am Zelt, Lagerfeuer, Aushang oder das Holzschild am Rand.</div>
+  const G=haus?HOUSE_GUESTS:GUESTS,place=haus?"am Meer":"auf dem Zeltplatz";
+  let h=`<div><div class="eyebrow">${SEASON_NAME[sea]} ${place}</div><h1>Hallo${S.me?" "+esc(pname(S.me)):""}</h1></div>${S.me?"":meChooser()}
+   <div class="camp">${haus?houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:openW>0,shop:openS>0})+spot(166,196,50,48,"woche","Woche: offene Aufträge")+spot(119,148,42,96,"essen","Essen",mealTxt?"plan":"")+spot(38,214,64,52,"einkauf","Einkaufsliste")+spot(233,208,30,44,"alle","Übersicht und Plan")
+       :campScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:openW>0,shop:openS>0})+spot(176,172,124,104,"woche","Woche: offene Aufträge")+spot(268,222,64,48,"essen","Essen",mealTxt?"plan":"")+spot(340,200,44,46,"einkauf","Einkaufsliste")+spot(208,244,46,36,"alle","Übersicht und Plan")}</div>
+   <div class="freq" style="text-align:center;margin-top:-6px">${haus?"Tippt ins Bild: Besen an der Tür, Schornstein, Briefkasten oder das Fahrrad.":"Tippt ins Bild: Besen am Zelt, Lagerfeuer, Aushang oder das Holzschild am Rand."}</div>
    <section class="card today"><h2>Heute</h2>
      <button class="todayrow" data-go="woche"><span>🧹</span><span>${openW?"Offene Aufträge":"Alles erledigt, was gerade ansteht"}</span><i>›</i></button>
      <button class="todayrow" data-go="essen" data-ft="plan"><span>🍲</span><span>${mealTxt?"Es gibt "+esc(mealTxt):"Für heute ist noch kein Essen geplant"}</span><i>›</i></button>
      <button class="todayrow" data-go="einkauf"><span>🧺</span><span>${openS?openS+(openS===1?" Artikel steht":" Artikel stehen")+" auf der Einkaufsliste":"Die Einkaufsliste ist leer"}</span><i>›</i></button></section>`;
-  h+=`<section class="card"><h2>${next?"Als Nächstes: "+esc(next.emoji?next.emoji+" "+next.name:next.name):"Euer Zeltplatz ist komplett"}</h2>
+  h+=`<section class="card"><h2>${next?"Als Nächstes: "+esc(next.emoji?next.emoji+" "+next.name:next.name):(haus?"Euer Haus am Meer ist komplett":"Euer Zeltplatz ist komplett")}</h2>
     ${next?`<div class="xpbar"><i style="width:${Math.round((total-prev)/Math.max(1,next.cost-prev)*100)}%"></i></div><div class="freq num">Noch ${next.cost-total} Häkchen bis dahin. Bisher habt ihr zusammen ${total} gesetzt.</div>`:`<div class="freq num">Ihr habt zusammen ${total} Häkchen gesetzt.</div>`}
-    <div class="freq">Gäste im ${SEASON_NAME[sea]}: ${GUESTS[sea].join(" ")} Sie kommen vorbei, sobald ein Drittel, zwei Drittel und alle Wechsel-Aufgaben der Woche erledigt sind. Gerade ${guests===0?"ist noch keiner":guests===1?"ist einer":"sind "+guests} da.</div>
-    <div class="notice">Jedes Häkchen von euch beiden zählt, egal für welche Aufgabe. ${has.pit?"Das Lagerfeuer brennt umso höher, je mehr Wechsel-Aufgaben dieser Woche erledigt sind ("+d+" von "+n+").":"Sobald die Feuerstelle steht, brennt das Feuer umso höher, je mehr Wechsel-Aufgaben der Woche erledigt sind."}</div></section>`;
+    <div class="freq">Gäste im ${SEASON_NAME[sea]}: ${G[sea].join(" ")} Sie kommen vorbei, sobald ein Drittel, zwei Drittel und alle Wechsel-Aufgaben der Woche erledigt sind. Gerade ${guests===0?"ist noch keiner":guests===1?"ist einer":"sind "+guests} da.</div>
+    <div class="notice">Jedes Häkchen von euch beiden zählt, egal für welche Aufgabe. ${haus?"Der Leuchtturm strahlt umso heller, je mehr Wechsel-Aufgaben dieser Woche erledigt sind ("+d+" von "+n+").":has.pit?"Das Lagerfeuer brennt umso höher, je mehr Wechsel-Aufgaben dieser Woche erledigt sind ("+d+" von "+n+").":"Sobald die Feuerstelle steht, brennt das Feuer umso höher, je mehr Wechsel-Aufgaben der Woche erledigt sind."}</div></section>`;
   if(!S.campDraft){
     h+=`<section class="card"><h2>Ausstattung</h2><div class="unl">${items.map(c=>`<span class="${has[c.id]?"":"lock"}">${has[c.id]?"✓ ":""}${c.emoji?esc(c.emoji)+" ":""}${esc(c.name)}${has[c.id]?"":" · ab "+c.cost}</span>`).join("")}</div>
       <div><button class="ghost" data-act="campedit">Ausstattung bearbeiten</button></div></section>`;
   }else{const dr=S.campDraft;
     h+=`<section class="section"><div class="section-head"><h2>Eigenes hinzufügen</h2></div>
-      <div class="card"><div class="freq">Tippe ein Symbol an oder gib unten ein eigenes Emoji ein. Die Kosten sind die Zahl der Häkchen, ab der es auf dem Zeltplatz erscheint.</div>
+      <div class="card"><div class="freq">Tippe ein Symbol an oder gib unten ein eigenes Emoji ein. Die Kosten sind die Zahl der Häkchen, ab der es ${haus?"am Haus":"auf dem Zeltplatz"} erscheint.</div>
       <div class="unl">${CAMP_IDEAS.map(e=>`<button class="chipbtn" data-act="campadd" data-emoji="${e}" aria-label="${e} hinzufügen">${e}</button>`).join("")}<button class="chipbtn" data-act="campadd" data-emoji="⭐">+ Eigenes</button></div></div>
       ${dr.extras.map((e,i)=>`<div class="editrow" data-cx="${i}"><div class="line"><input type="text" id="ce-${esc(e.id)}" data-f="emoji" value="${esc(e.emoji)}" aria-label="Emoji" style="flex:0 0 64px;text-align:center;font-size:1.2rem"><input type="text" id="cn-${esc(e.id)}" data-f="name" value="${esc(e.name||"")}" placeholder="Name" aria-label="Name"><button class="ghost danger" data-act="campdel" data-i="${i}" aria-label="Löschen">✕</button></div>
         <div class="line"><label class="sm">Kosten <input type="number" min="0" max="9999" id="cc-${esc(e.id)}" data-f="cost" value="${e.cost|0}"> Häkchen</label></div></div>`).join("")}
       <div class="section-head"><h2>Kosten der festen Teile</h2></div>
-      <div class="card">${CAMP.map(c=>`<label class="sm" style="justify-content:space-between"><span style="color:var(--fg);font-size:.95rem">${c[1]}</span><span><input type="number" min="0" max="9999" id="ck-${c[0]}" data-ck="${c[0]}" value="${dr.costs[c[0]]|0}"> Häkchen</span></label>`).join("")}</div>
+      <div class="card">${SC().filter(c=>c[2]).map(c=>`<label class="sm" style="justify-content:space-between"><span style="color:var(--fg);font-size:.95rem">${c[1]}</span><span><input type="number" min="0" max="9999" id="ck-${c[0]}" data-ck="${c[0]}" value="${dr.costs[c[0]]|0}"> Häkchen</span></label>`).join("")}</div>
       <div class="line" style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" data-act="campsave">Speichern</button><button class="ghost" data-act="campcancel">Abbrechen</button></div></section>`}
   return h}
 const FOODTABS=[["plan","Essensplan"],["rezepte","Rezepte"],["mittag","Mittagessen"]];
@@ -817,9 +883,9 @@ app.addEventListener("click",async e=>{
   if(act==="campcancel"){S.campDraft=null;render();return}
   if(act==="campadd"){const dr=S.campDraft;const mx=Math.max(campTotal(),...dr.extras.map(e=>e.cost|0));dr.extras.push({id:"x"+Date.now().toString(36),emoji:b.dataset.emoji,name:"",cost:mx+10});render();return}
   if(act==="campdel"){S.campDraft.extras.splice(+b.dataset.i,1);render();return}
-  if(act==="campsave"){const dr=S.campDraft,c=JSON.parse(JSON.stringify(S.config));const costs={};CAMP.forEach(x=>{costs[x[0]]=Math.max(0,Math.min(9999,dr.costs[x[0]]|0))});
+  if(act==="campsave"){const dr=S.campDraft,c=JSON.parse(JSON.stringify(S.config));const costs=Object.assign({},campCfg().costs);SC().forEach(x=>{costs[x[0]]=Math.max(0,Math.min(9999,dr.costs[x[0]]|0))});
     c.camp={costs,extras:dr.extras.filter(e=>(e.emoji||"").trim()).map(e=>({id:e.id,emoji:e.emoji.trim().slice(0,8),name:(e.name||"").trim().slice(0,30),cost:Math.max(0,Math.min(9999,e.cost|0))}))};
-    try{await S.store.saveConfig(c);S.campDraft=null;render();toast("Zeltplatz gespeichert")}catch(_){toast("Speichern nicht möglich. Bitte Verbindung prüfen.")}return}
+    try{await S.store.saveConfig(c);S.campDraft=null;render();toast("Gespeichert")}catch(_){toast("Speichern nicht möglich. Bitte Verbindung prüfen.")}return}
   if(act==="toweek"){S.tab="woche";S.view=mondayOf(new Date());render();window.scrollTo(0,0);return}
   if(act==="reset"){S.draft=null;render()}
   if(act==="swap"){const c=JSON.parse(JSON.stringify(S.config));c.rotOffset=((c.rotOffset|0)+1)%2;try{await S.store.saveConfig(c);S.draft=null;toast("Pakete getauscht")}catch(_){toast("Konnte nicht speichern.")}}
