@@ -190,6 +190,21 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .mealrow .dish.none{color:var(--muted);font-size:.9rem}
 .tag{font-size:.7rem;font-weight:700;border-radius:999px;padding:2px 8px;background:var(--done-soft);color:var(--done);white-space:nowrap}
 .chipbtn[data-mealrec][aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.shopgrp{display:flex;align-items:center;gap:8px;font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+.shopgrp span{font-size:1.05rem}
+.shopgrp+.shop{margin-top:-6px}
+.shop .catbtn{background:none;border:none;padding:8px 4px;font-size:1.05rem;opacity:.75}
+.shop li.catpick{padding:4px 0 12px}
+.shop li.catpick .chipbtn{font-size:.82rem;padding:5px 10px}
+.shop li.catpick .chipbtn[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.starrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.starrow .who{font-weight:600}
+.stars{display:flex;gap:2px}
+.star{background:none;border:none;padding:4px 5px;font-size:1.45rem;line-height:1;color:var(--line)}
+.star.on{color:var(--accent,#f4b860)}
+.mapframe{width:100%;height:300px;border:0;border-radius:10px}
+a.linkbtn{text-decoration:none;color:var(--fg);display:inline-block}
+.fld+input,.card>input[type=url]{font-size:1rem;padding:10px 12px}
 .shop .rm{background:none;border:none;color:var(--muted);padding:8px;font-size:1rem}
 /* Plan tab */
 .rotlist{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -272,7 +287,7 @@ function periodOf(freq,mon){const th=addDays(mon,3);const y=th.getFullYear(),m=t
 const fmt=(d,o)=>d.toLocaleDateString("de-DE",o);
 
 // ---------- Zustand ----------
-const S={recDraft:null,recOpen:null,planEdit:null,planText:"",planRec:null,foodWeek:null,food:{},foodTab:"shop",shopText:"",store:null,mode:"loading",config:null,weeks:{},view:mondayOf(new Date()),tab:"woche",campDraft:null,filter:"alle",hideDone:false,groupBy:"freq",me:null,draft:null,timedOut:false};
+const S={shopCatEdit:null,lunchDraft:null,lunchOpen:null,lunchMapOpen:false,lunchMapEdit:false,lunchMapText:"",recDraft:null,recOpen:null,planEdit:null,planText:"",planRec:null,foodWeek:null,food:{},foodTab:"shop",shopText:"",store:null,mode:"loading",config:null,weeks:{},view:mondayOf(new Date()),tab:"woche",campDraft:null,filter:"alle",hideDone:false,groupBy:"freq",me:null,draft:null,timedOut:false};
 try{const m=localStorage.getItem("hq-me");if(m==="p0"||m==="p1")S.me=m;const f=localStorage.getItem("hq-filter");if(f==="meine")S.filter="meine";S.hideDone=localStorage.getItem("hq-hidedone")==="1";if(localStorage.getItem("hq-groupby")==="art")S.groupBy="art";const ft=localStorage.getItem("hq-foodtab");if(ft)S.foodTab=ft;}catch(e){}
 
 // ---------- Speicher-Adapter ----------
@@ -578,18 +593,59 @@ function renderMealPlan(){const mon=planWeek(),days=planDays(mon),rl=recs(),rmap
     return `<li class="${isToday?"today":""}"><button class="mealrow" data-meal="${k}"><span class="day">${dn.slice(0,2)}<span class="freq"> ${dm(date)}</span></span><span class="dish ${m?"":"none"}">${m?esc(m.text||(r&&r.name)||""):"+ Gericht eintragen"}${r?` <span class="tag">Rezept</span>`:""}</span></button></li>`}).join("")}</ul></section>`;
   if(any)h+=`<div><button class="ghost" data-act="mealshop">Zutaten der Woche auf die Einkaufsliste</button></div>`;
   return h}
+const CATS=[
+ ["obst","🥦","Obst und Gemüse",["apfel","äpfel","birne","banane","beere","traube","zitrone","orange","mandarine","clementine","kiwi","mango","melone","ananas","avocado","tomate","gurke","paprika","salat","rucola","spinat","möhre","karotte","zwiebel","knoblauch","kartoffel","zucchini","aubergine","brokkoli","blumenkohl","kohl","kürbis","lauch","porree","sellerie","pilz","champignon","ingwer","petersilie","basilikum","schnittlauch","kräuter","obst","gemüse","radieschen","fenchel","rote bete","mais","pfirsich","pflaume","kirsche","limette"]],
+ ["brot","🍞","Brot und Backwaren",["brot","brötchen","toast","baguette","croissant","brezel","kuchen","semmel","wrap","tortilla"]],
+ ["kuehl","🥛","Kühlregal",["joghurt","quark","butter","margarine","sahne","schmand","käse","mozzarella","feta","parmesan","frischkäse","eier","skyr","kefir","buttermilch","tofu","hefe","pudding","hafermilch","vollmilch","frischmilch"]],
+ ["fleisch","🥩","Fleisch und Fisch",["fleisch","hack","hähnchen","hühnchen","pute","schnitzel","steak","wurst","würstchen","schinken","salami","speck","bacon","lachs","fisch","thunfisch","garnele","aufschnitt","leberwurst"]],
+ ["tk","🧊","Tiefkühl",["tiefkühl","tk-","pizza","pommes","fischstäbchen","eiscreme","speiseeis"]],
+ ["trinken","🥤","Getränke",["wasser","saft","schorle","cola","limo","bier","wein","sekt","kaffee","espresso","sprudel","sirup"]],
+ ["vorrat","🥫","Vorrat",["nudel","spaghetti","pasta","mehl","zucker","salz","pfeffer","gewürz","linsen","bohnen","kichererbsen","dose","passata","tomatenmark","essig","senf","ketchup","mayo","honig","marmelade","nutella","müsli","haferflocken","cornflakes","nüsse","mandeln","rosinen","brühe","kokosmilch","backpulver","vanille","schokolade","keks","chips","gummibär","couscous","bulgur","quinoa","sojasauce","pesto","soße","sauce","konserve","cracker","zimt","kakao","milch"]],
+ ["drogerie","🧴","Drogerie und Haushalt",["klopapier","toilettenpapier","küchenrolle","taschentücher","zahnpasta","zahnbürste","shampoo","duschgel","seife","deo","creme","windel","feuchttücher","waschmittel","spülmittel","spülmaschine","tabs","müllbeutel","müllsäcke","schwamm","putzmittel","reiniger","alufolie","backpapier","frischhaltefolie","batterie","kerze","pflaster","rasier","watte","binden","tampons","weichspüler"]],
+ ["sonst","🛒","Sonstiges",[]]];
+const CATSHORT=[["milch","kuehl"],["ei","kuehl"],["eis","tk"],["tee","trinken"],["öl","vorrat"],["reis","vorrat"],["rind","fleisch"]];
+function catGuess(name){const s=(name||"").toLowerCase();const f=((S.food&&S.food.fav)||{})[favKey(name||"")];if(f&&f.cat)return f.cat;
+  for(const w of CATSHORT)if(new RegExp("(^|[^a-zäöüß])"+w[0]+"($|[^a-zäöüß])").test(s))return w[1];
+  for(const c of CATS)if(c[3].some(w=>s.includes(w)))return c[0];return "sonst"}
+function itemCat(i){return i.cat&&CATS.some(c=>c[0]===i.cat)?i.cat:catGuess(i.name)}
+function lunches(){const m=(S.food&&S.food.lunch)||{};return Object.keys(m).filter(k=>m[k]&&m[k].name).map(k=>Object.assign({id:k},m[k]))}
+function lunchAvg(l){const r=l.r||{},v=["p0","p1"].map(p=>+r[p]||0).filter(Boolean);return v.length?v.reduce((a,b)=>a+b,0)/v.length:0}
+function mapsEmbed(u){const m=/[?&]mid=([A-Za-z0-9_-]{10,80})/.exec(u||"");return m&&/^https:\/\/(www\.)?google\.[a-z.]+\/maps\/d\//.test(u)?"https://www.google.com/maps/d/embed?mid="+m[1]:null}
+function renderLunch(){const d=S.lunchDraft,mapUrl=(S.food&&S.food.lunchmap)||"",emb=mapsEmbed(mapUrl);
+  if(d)return `<section class="card"><h2>${d.id?"Ort bearbeiten":"Neuer Ort"}</h2>
+    <label class="fld"><span>Name</span><input type="text" id="lu-name" data-lf="name" value="${esc(d.name)}" maxlength="80" placeholder="Zum Beispiel Trattoria am Markt" autocomplete="off"></label>
+    <label class="fld"><span>Lieblingsgerichte, eines pro Zeile</span><textarea id="lu-dishes" data-lf="dishes" rows="4" placeholder="Pizza Diavola">${esc(d.dishes)}</textarea></label>
+    <label class="fld"><span>Notiz</span><textarea id="lu-note" data-lf="note" rows="3" placeholder="Mittagstisch bis 14 Uhr, draußen sitzen">${esc(d.note)}</textarea></label>
+    <label class="fld"><span>Link aus Google Maps (optional)</span><input type="url" id="lu-maps" data-lf="maps" value="${esc(d.maps)}" placeholder="https://maps.app.goo.gl/…" autocomplete="off"></label>
+    <div class="btnrow"><button class="primary" data-act="lusave">Speichern</button><button class="ghost" data-act="lucancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="ludel">Löschen</button>`:""}</div></section>`;
+  const list=lunches().sort((a,b)=>lunchAvg(b)-lunchAvg(a)||(a.name||"").localeCompare(b.name||"","de"));
+  let h=`<div class="btnrow"><button class="primary" data-act="lunew">+ Neuer Ort</button>${emb?`<button class="ghost" data-act="lumaptoggle">${S.lunchMapOpen?"Karte ausblenden":"Karte anzeigen"}</button>`:""}</div>`;
+  if(emb&&S.lunchMapOpen)h+=`<section class="card"><iframe class="mapframe" src="${esc(emb)}" title="Eure Karte" loading="lazy" referrerpolicy="no-referrer"></iframe><div><a href="${esc(mapUrl)}" target="_blank" rel="noopener noreferrer">In Google Maps öffnen</a></div></section>`;
+  if(!list.length)h+=`<div class="empty"><h2>Noch keine Orte</h2><div>Sammelt hier, wo ihr mittags gern esst: mit Lieblingsgerichten, Sternen von euch beiden und einem Link zur Karte.</div></div>`;
+  const stars=(l,p)=>{const cur=+((l.r||{})[p])||0,mine=!S.me||S.me===p;return `<div class="starrow"><span class="who">${esc(pname(p))}</span><span class="stars">${[1,2,3,4,5].map(n=>mine?`<button class="star ${n<=cur?"on":""}" data-star="${esc(l.id)}|${p}|${n}" aria-label="${n} von 5 Sternen">★</button>`:`<span class="star ${n<=cur?"on":""}">★</span>`).join("")}</span></div>`};
+  h+=list.map(l=>{const open=S.lunchOpen===l.id,avg=lunchAvg(l),dishes=(l.dishes||"").split("\n").map(x=>x.trim()).filter(Boolean);
+    const link=/^https?:\/\//i.test(l.maps||"")?l.maps:"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(l.name);
+    return `<section class="card rec"><button class="rechead" data-lunch="${esc(l.id)}" aria-expanded="${open}"><span class="nm">${esc(l.name)}</span><span class="freq">${avg?"★ "+avg.toFixed(1).replace(".",","):"noch ohne Sterne"} ${open?"▴":"▾"}</span></button>
+      ${!open&&dishes.length?`<div class="freq">${esc(dishes.slice(0,3).join(", "))}</div>`:""}
+      ${open?`${dishes.length?`<div><div class="eyebrow" style="margin-bottom:4px">Lieblingsgerichte</div><ul class="ing">${dishes.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`:""}
+      ${stars(l,"p0")}${stars(l,"p1")}${l.note?`<div class="recnote">${esc(l.note)}</div>`:""}
+      <div class="btnrow"><a class="ghost linkbtn" href="${esc(link)}" target="_blank" rel="noopener noreferrer">In Google Maps öffnen</a><button class="ghost" data-luedit="${esc(l.id)}">Bearbeiten</button></div>`:""}</section>`}).join("");
+  h+=S.lunchMapEdit?`<section class="card"><h2>Eure Google-Karte</h2><div class="freq">Öffne deine Karte in „Meine Maps“, tippe auf „Teilen“, erlaube „Jeder mit dem Link kann ansehen“ und füge den Link hier ein. Die App zeigt die Karte dann an. Orte von dort übernehmen kann sie nicht.</div>
+      <input type="url" id="lu-mapurl" value="${esc(S.lunchMapText)}" placeholder="https://www.google.com/maps/d/…" autocomplete="off"><div class="btnrow"><button class="primary" data-act="lumapsave">Speichern</button><button class="ghost" data-act="lumapcancel">Abbrechen</button></div></section>`
+    :`<div><button class="ghost" data-act="lumapedit">${emb?"Google-Karte ändern":"Google-Karte „Meine Maps“ verbinden"}</button></div>`;
+  return h}
 function renderFood(){
   let h=`<div><div class="eyebrow">Gemeinsam planen</div><h1>Essen</h1></div>
    <div class="filters" role="group" aria-label="Bereich">${FOODTABS.map(t=>`<button class="chipbtn neutral" data-food="${t[0]}" aria-pressed="${S.foodTab===t[0]}">${t[1]}</button>`).join("")}</div>`;
   if(S.foodTab==="plan")return h+renderMealPlan();
   if(S.foodTab==="rezepte")return h+renderRecipes();
-  if(S.foodTab!=="shop"){const txt={mittag:"Hier haltet ihr bald eure gemeinsamen Mittagessen fest, mit Ort und kurzer Bewertung von euch beiden."}[S.foodTab];
-    return h+`<div class="empty"><h2>Kommt als Nächstes</h2><div>${txt}</div></div>`}
+  if(S.foodTab==="mittag")return h+renderLunch();
   const items=shopItems(),open=items.filter(i=>!i.done),done=items.filter(i=>i.done).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0)),favs=shopFavs();
-  const li=i=>`<li class="${i.done?"done":""}"><button class="item" data-shop="${esc(i.id)}" aria-pressed="${!!i.done}"><span class="box">${i.done?"✓":""}</span><span class="nm">${esc(i.name)}</span></button><button class="rm" data-shoprm="${esc(i.id)}" aria-label="${esc(i.name)} entfernen">✕</button></li>`;
+  const li=i=>`<li class="${i.done?"done":""}"><button class="item" data-shop="${esc(i.id)}" aria-pressed="${!!i.done}"><span class="box">${i.done?"✓":""}</span><span class="nm">${esc(i.name)}</span></button>${i.done?"":`<button class="catbtn" data-shopcat="${esc(i.id)}" aria-label="Gruppe ändern" aria-expanded="${S.shopCatEdit===i.id}">${CATS.find(c=>c[0]===itemCat(i))[1]}</button>`}<button class="rm" data-shoprm="${esc(i.id)}" aria-label="${esc(i.name)} entfernen">✕</button></li>${!i.done&&S.shopCatEdit===i.id?`<li class="catpick"><div class="unl">${CATS.map(c=>`<button class="chipbtn" data-setcat="${c[0]}" aria-pressed="${itemCat(i)===c[0]}">${c[1]} ${c[2]}</button>`).join("")}</div></li>`:""}`;
+  const grp=CATS.map(c=>[c,open.filter(i=>itemCat(i)===c[0])]).filter(g=>g[1].length);
   h+=`<form class="addrow" id="shopform"><input type="text" id="shopinput" placeholder="Was fehlt? Zum Beispiel Milch" value="${esc(S.shopText)}" autocomplete="off" enterkeyhint="done" aria-label="Artikel"><button class="primary" type="submit">Hinzufügen</button></form>`;
   if(favs.length)h+=`<div><div class="eyebrow" style="margin-bottom:6px">Oft gekauft</div><div class="unl">${favs.map(n=>`<button class="chipbtn" data-shopfav="${esc(n)}">+ ${esc(n)}</button>`).join("")}</div></div>`;
-  h+=open.length?`<section class="card"><div class="section-head"><h2>Noch zu kaufen</h2><span class="freq num">${open.length}</span></div><ul class="shop">${open.map(li).join("")}</ul></section>`
+  h+=open.length?`<section class="card"><div class="section-head"><h2>Noch zu kaufen</h2><span class="freq num">${open.length}</span></div>${grp.map(g=>`<div class="shopgrp"><span aria-hidden="true">${g[0][1]}</span>${g[0][2]}</div><ul class="shop">${g[1].map(li).join("")}</ul>`).join("")}</section>`
     :`<div class="empty"><h2>${items.length?"Alles eingekauft":"Die Liste ist leer"}</h2><div>Schreib oben auf, was fehlt. Ihr seht beide dieselbe Liste und hakt im Laden ab.</div></div>`;
   if(done.length)h+=`<section class="card"><div class="section-head"><h2>Im Wagen</h2><button class="ghost" data-act="shopclear">Erledigte entfernen</button></div><ul class="shop">${done.map(li).join("")}</ul></section>`;
   return h}
@@ -638,10 +694,30 @@ document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.cl
 app.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;
   if(b.dataset.go){S.tab=b.dataset.go;S.draft=null;S.campDraft=null;render();window.scrollTo(0,0);return}
-  if(b.dataset.food){S.recDraft=null;S.planEdit=null;S.foodTab=b.dataset.food;try{localStorage.setItem("hq-foodtab",S.foodTab)}catch(_){}render();return}
-  if(b.dataset.shop){const i=shopItems().find(x=>x.id===b.dataset.shop);if(i){const v={name:i.name,done:!i.done,at:i.at||Date.now(),by:i.by||""};if(v.done)v.doneAt=Date.now();try{await S.store.setPath("food/shop/"+i.id,v)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}return}
+  if(b.dataset.food){S.lunchDraft=null;S.lunchMapEdit=false;S.shopCatEdit=null;S.recDraft=null;S.planEdit=null;S.foodTab=b.dataset.food;try{localStorage.setItem("hq-foodtab",S.foodTab)}catch(_){}render();return}
+  if(b.dataset.shop){const i=shopItems().find(x=>x.id===b.dataset.shop);if(i){const v={name:i.name,done:!i.done,at:i.at||Date.now(),by:i.by||""};if(i.cat)v.cat=i.cat;S.shopCatEdit=null;if(v.done)v.doneAt=Date.now();try{await S.store.setPath("food/shop/"+i.id,v)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}return}
   if(b.dataset.shoprm){try{await S.store.setPath("food/shop/"+b.dataset.shoprm,null)}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.shopfav){shopAdd(b.dataset.shopfav);return}
+  if(b.dataset.shopcat){S.shopCatEdit=S.shopCatEdit===b.dataset.shopcat?null:b.dataset.shopcat;render();return}
+  if(b.dataset.setcat){const i=shopItems().find(x=>x.id===S.shopCatEdit);S.shopCatEdit=null;if(!i){render();return}
+    try{await S.store.setPath("food/shop/"+i.id+"/cat",b.dataset.setcat);const fk=favKey(i.name),cur=(S.food.fav||{})[fk]||{};await S.store.setPath("food/fav/"+fk,{name:cur.name||i.name,n:cur.n||0,cat:b.dataset.setcat})}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}render();return}
+  if(b.dataset.lunch){S.lunchOpen=S.lunchOpen===b.dataset.lunch?null:b.dataset.lunch;render();return}
+  if(b.dataset.star){const p=b.dataset.star.split("|"),l=lunches().find(x=>x.id===p[0]);if(!l)return;const cur=+((l.r||{})[p[1]])||0,n=+p[2];
+    try{await S.store.setPath("food/lunch/"+p[0]+"/r/"+p[1],cur===n?null:n)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
+  if(b.dataset.luedit){const l=lunches().find(x=>x.id===b.dataset.luedit);if(l){S.lunchDraft={id:l.id,name:l.name||"",dishes:l.dishes||"",note:l.note||"",maps:l.maps||""};render();window.scrollTo(0,0)}return}
+  if(b.dataset.act==="lunew"){S.lunchDraft={id:null,name:"",dishes:"",note:"",maps:""};render();const el=document.getElementById("lu-name");if(el)el.focus();return}
+  if(b.dataset.act==="lucancel"){S.lunchDraft=null;render();return}
+  if(b.dataset.act==="lusave"){const d=S.lunchDraft;if(!d)return;const name=(d.name||"").trim().slice(0,80);if(!name){toast("Bitte einen Namen eintragen.");return}
+    const id=d.id||("l"+Date.now().toString(36)+Math.random().toString(36).slice(2,5)),base="food/lunch/"+id+"/";
+    const v={name,dishes:(d.dishes||"").split("\n").map(x=>x.trim().slice(0,80)).filter(Boolean).slice(0,30).join("\n"),note:(d.note||"").trim().slice(0,1000),maps:(d.maps||"").trim().slice(0,500)};
+    try{for(const k of Object.keys(v))await S.store.setPath(base+k,v[k]);if(!d.id)await S.store.setPath(base+"at",Date.now());S.lunchDraft=null;S.lunchOpen=id;toast("Ort gespeichert");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
+  if(b.dataset.act==="ludel"){const d=S.lunchDraft;if(!d||!d.id)return;if(!d.sure){d.sure=true;b.textContent="Wirklich löschen?";return}
+    try{await S.store.setPath("food/lunch/"+d.id,null);S.lunchDraft=null;toast("Ort gelöscht");render()}catch(_){toast("Konnte nicht speichern.")}return}
+  if(b.dataset.act==="lumaptoggle"){S.lunchMapOpen=!S.lunchMapOpen;render();return}
+  if(b.dataset.act==="lumapedit"){S.lunchMapEdit=true;S.lunchMapText=(S.food&&S.food.lunchmap)||"";render();const el=document.getElementById("lu-mapurl");if(el)el.focus();return}
+  if(b.dataset.act==="lumapcancel"){S.lunchMapEdit=false;render();return}
+  if(b.dataset.act==="lumapsave"){const u=S.lunchMapText.trim();if(u&&!mapsEmbed(u)){toast("Das ist kein Link zu einer „Meine Maps“-Karte.");return}
+    try{await S.store.setPath("food/lunchmap",u||null);S.lunchMapEdit=false;S.lunchMapOpen=!!u;render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.rec){S.recOpen=S.recOpen===b.dataset.rec?null:b.dataset.rec;render();return}
   if(b.dataset.recshop){const r=recs().find(x=>x.id===b.dataset.recshop);if(r)shopAddMany(recIng(r));return}
   if(b.dataset.recedit){const r=recs().find(x=>x.id===b.dataset.recedit);if(r){S.recDraft={id:r.id,name:r.name||"",ing:r.ing||"",note:r.note||"",link:r.link||"",at:r.at||Date.now()};render();window.scrollTo(0,0)}return}
@@ -694,6 +770,8 @@ app.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="mealinput"
 app.addEventListener("submit",e=>{if(e.target.id!=="shopform")return;e.preventDefault();const v=S.shopText;S.shopText="";const el=document.getElementById("shopinput");if(el)el.value="";shopAdd(v)});
 app.addEventListener("input",e=>{if(e.target.id==="shopinput"){S.shopText=e.target.value;return}
   if(e.target.id==="mealinput"){S.planText=e.target.value;return}
+  if(e.target.id==="lu-mapurl"){S.lunchMapText=e.target.value;return}
+  if(S.lunchDraft&&e.target.dataset.lf){S.lunchDraft[e.target.dataset.lf]=e.target.value;return}
   if(S.recDraft&&e.target.dataset.rf){S.recDraft[e.target.dataset.rf]=e.target.value;return}
   if(S.campDraft){const el=e.target;if(el.dataset.ck){S.campDraft.costs[el.dataset.ck]=+el.value||0;return}const r=el.closest("[data-cx]");if(r&&el.dataset.f){const x=S.campDraft.extras[+r.dataset.cx];x[el.dataset.f]=el.dataset.f==="cost"?(+el.value||0):el.value;return}}
   const row=e.target.closest(".editrow[data-i]");if(!row||!S.draft)return;if(e.target.dataset.f==="name")S.draft.tasks[+row.dataset.i].name=e.target.value});
