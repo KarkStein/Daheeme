@@ -1,0 +1,51 @@
+# Daheeme: Haushalts-App (Übergabe für jeden neuen Thread)
+
+Gemeinsame Haushalts-App für zwei Personen (p0 und p1, Namen stehen in der App-Konfiguration). Sprache der App und aller Antworten: Deutsch, kurze klare Sätze. Der Besitzer arbeitet meist am Android-Handy und möchte Klick-für-Klick-Anleitungen.
+
+Live: https://karkstein.github.io/Daheeme/ (GitHub Pages aus `main`, Wurzelverzeichnis). App-Name ist das Emoji-Paar 🏕️🧹, URL und Repo bleiben "Daheeme".
+
+## Aufbau
+
+- Eine einzige Seite, Vanilla JS, kein Framework. Quelle: `src/haushalt/haushalt.html`. Alle Funktionen kommen dort hinein.
+- `node src/build-web.js <firebase-url>` baut daraus `src/web/index.html` (fügt Firebase-Abgleich, Einladungs-Link, Kopfzeilen ein). Das Ergebnis wird nach `index.html` in die Wurzel kopiert und von Pages ausgeliefert. Das Skript arbeitet mit Text-Ankern in der Quelle; bricht ein Anker, meldet es `missing: …`.
+- Abgleich: Firebase Realtime Database über REST und EventSource, ohne SDK. Basis `https://haushalt-32464-default-rtdb.europe-west1.firebasedatabase.app/haushalt/<geheimer Schlüssel>`. Der Schlüssel steht nur im Link (`#k=…`) und im localStorage `hq-key`, nie im Repo.
+- Firebase-Regeln: `{"rules":{"haushalt":{"$key":{".read":true,".write":true}}}}`
+- `manifest.json` hat absichtlich kein `start_url`, damit `#k=` erhalten bleibt. Icons: `src/icon.svg` über `src/make-icons.js`.
+- `ideen.json` (Wurzel): Rezeptideen der Recherche, Format `{updated, items:[{name, source, link, ing[], note}]}`. `quellen.txt`: Webseiten für die Recherche, eine pro Zeile.
+
+## Datenmodell (unter dem Schlüssel)
+
+- `config`: `persons`, `rotOffset`, `tasks[{id,name,owner:p0|p1|rot|both|ho,freq:day|week|month|half|year,times,pts,pack?:A|B}]`, `camp:{costs,extras[{id,emoji,name,cost}]}`
+- `weeks/<YYYY-Www>/ticks/<key>` = `{by,at}`; Schlüssel `<id>__<slot>`, `<id>__p` (Monat und länger), `<id>__<slot>_p0/_p1` (halbe Häkchen bei owner both)
+- `food/shop/<id>` `{name,done,at,by,doneAt,cat?}`, `food/fav/<hash>` `{name,n,cat?}`
+- `food/rec/<id>` `{name,ing (Zeilen),note,link,at}`, `food/plan/<YYYY-Www>/d0..d6` `{text,rec?,at,by}`
+- `food/lunch/<id>` `{name,dishes,note,maps,at,r:{p0,p1}}`, `food/lunchmap` = Link zu Google Maps
+
+## Testen und Veröffentlichen
+
+```
+node src/build-web.js http://localhost:8765 && timeout 90 node src/mock-test.js | tail -1   # muss "SYNC OK" zeigen
+node src/build-web.js https://haushalt-32464-default-rtdb.europe-west1.firebasedatabase.app && cp src/web/index.html index.html
+git add -A && git commit && git push origin main
+```
+
+`src/mock-test.js` ist ein Firebase-Ersatz plus Test mit zwei Geräten (Playwright). Aus der Cloud-Sitzung sind firebasedatabase.app und github.io nicht erreichbar; die echte Datenbank wurde nur vom Besitzer am Handy geprüft. Vorschau der Jahreszeiten: `?saison=winter|spring|summer|autumn`.
+
+## Entscheidungen
+
+- Kein Konto für niemanden; wer den Link hat, liest und schreibt.
+- Keine Punkte, kein Wettkampf. `pts` ist nur "Aufwand" zum Ausgleichen der Wechsel-Pakete.
+- Nur Wechsel-Aufgaben zählen in der Wochenübersicht. "Bringen" und Kochen im Homeoffice werden bewusst nicht gewichtet.
+- Wechsel: gerade ISO-Woche = Paket A bei p0; `rotOffset` tauscht. Start der Rotation war KW 47/2026.
+- Keine Blau/Rot-Farben für Mann/Frau; Haken statt Kürzel (Kürzel nur bei Homeoffice-Aufgaben).
+- Startbild: keine Wörter im Bild, antippbare Dinge; keine Zahl offener Aufgaben ("Offene Aufträge" reicht).
+- Einkaufsliste ist ein eigener Bereich, nicht Teil von "Essen".
+- Die Zurück-Taste geht in der App schrittweise zurück (History-Einträge je Bereich, siehe `syncNav`).
+
+## Offene Liste
+
+- Neues Startbild: bretonisches Haus am Meer statt Zeltplatz (Plan: https://claude.ai/artifact/MzunYyXEYMKWLFxg56qyNr).
+- Tägliche Rezept-Recherche, die `ideen.json` erneuert; Webseiten in `quellen.txt` fehlen noch.
+- Test mit zwei echten Handys.
+- Schriften selbst ausliefern statt von Google Fonts laden.
+- Pausiert: Minispiele "Laub fegen" und "Wer macht's?".

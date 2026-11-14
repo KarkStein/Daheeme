@@ -654,6 +654,7 @@ function catGuess(name){const s=(name||"").toLowerCase();const f=((S.food&&S.foo
 function itemCat(i){return i.cat&&CATS.some(c=>c[0]===i.cat)?i.cat:catGuess(i.name)}
 function lunches(){const m=(S.food&&S.food.lunch)||{};return Object.keys(m).filter(k=>m[k]&&m[k].name).map(k=>Object.assign({id:k},m[k]))}
 function lunchAvg(l){const r=l.r||{},v=["p0","p1"].map(p=>+r[p]||0).filter(Boolean);return v.length?v.reduce((a,b)=>a+b,0)/v.length:0}
+function mapOk(u){return /^https:\/\/(maps\.app\.goo\.gl|goo\.gl\/maps|(www\.|maps\.)?google\.[a-z.]+\/maps)/.test(u||"")}
 function mapsEmbed(u){const m=/[?&]mid=([A-Za-z0-9_-]{10,80})/.exec(u||"");return m&&/^https:\/\/(www\.)?google\.[a-z.]+\/maps\/d\//.test(u)?"https://www.google.com/maps/d/embed?mid="+m[1]:null}
 function renderLunch(){const d=S.lunchDraft,mapUrl=(S.food&&S.food.lunchmap)||"",emb=mapsEmbed(mapUrl);
   if(d)return `<section class="card"><h2>${d.id?"Ort bearbeiten":"Neuer Ort"}</h2>
@@ -663,7 +664,7 @@ function renderLunch(){const d=S.lunchDraft,mapUrl=(S.food&&S.food.lunchmap)||""
     <label class="fld"><span>Link aus Google Maps (optional)</span><input type="url" id="lu-maps" data-lf="maps" value="${esc(d.maps)}" placeholder="https://maps.app.goo.gl/…" autocomplete="off"></label>
     <div class="btnrow"><button class="primary" data-act="lusave">Speichern</button><button class="ghost" data-act="lucancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="ludel">Löschen</button>`:""}</div></section>`;
   const list=lunches().sort((a,b)=>lunchAvg(b)-lunchAvg(a)||(a.name||"").localeCompare(b.name||"","de"));
-  let h=`<div class="btnrow"><button class="primary" data-act="lunew">+ Neuer Ort</button>${emb?`<button class="ghost" data-act="lumaptoggle">${S.lunchMapOpen?"Karte ausblenden":"Karte anzeigen"}</button>`:""}</div>`;
+  let h=`<div class="btnrow"><button class="primary" data-act="lunew">+ Neuer Ort</button>${emb?`<button class="ghost" data-act="lumaptoggle">${S.lunchMapOpen?"Karte ausblenden":"Karte anzeigen"}</button>`:mapOk(mapUrl)?`<a class="ghost linkbtn" href="${esc(mapUrl)}" target="_blank" rel="noopener noreferrer">Eure Karte öffnen</a>`:""}</div>`;
   if(emb&&S.lunchMapOpen)h+=`<section class="card"><iframe class="mapframe" src="${esc(emb)}" title="Eure Karte" loading="lazy" referrerpolicy="no-referrer"></iframe><div><a href="${esc(mapUrl)}" target="_blank" rel="noopener noreferrer">In Google Maps öffnen</a></div></section>`;
   if(!list.length)h+=`<div class="empty"><h2>Noch keine Orte</h2><div>Sammelt hier, wo ihr mittags gern esst: mit Lieblingsgerichten, Sternen von euch beiden und einem Link zur Karte.</div></div>`;
   const stars=(l,p)=>{const cur=+((l.r||{})[p])||0,mine=!S.me||S.me===p;return `<div class="starrow"><span class="who">${esc(pname(p))}</span><span class="stars">${[1,2,3,4,5].map(n=>mine?`<button class="star ${n<=cur?"on":""}" data-star="${esc(l.id)}|${p}|${n}" aria-label="${n} von 5 Sternen">★</button>`:`<span class="star ${n<=cur?"on":""}">★</span>`).join("")}</span></div>`};
@@ -674,9 +675,9 @@ function renderLunch(){const d=S.lunchDraft,mapUrl=(S.food&&S.food.lunchmap)||""
       ${open?`${dishes.length?`<div><div class="eyebrow" style="margin-bottom:4px">Lieblingsgerichte</div><ul class="ing">${dishes.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`:""}
       ${stars(l,"p0")}${stars(l,"p1")}${l.note?`<div class="recnote">${esc(l.note)}</div>`:""}
       <div class="btnrow"><a class="ghost linkbtn" href="${esc(link)}" target="_blank" rel="noopener noreferrer">In Google Maps öffnen</a><button class="ghost" data-luedit="${esc(l.id)}">Bearbeiten</button></div>`:""}</section>`}).join("");
-  h+=S.lunchMapEdit?`<section class="card"><h2>Eure Google-Karte</h2><div class="freq">Öffne deine Karte in „Meine Maps“, tippe auf „Teilen“, erlaube „Jeder mit dem Link kann ansehen“ und füge den Link hier ein. Die App zeigt die Karte dann an. Orte von dort übernehmen kann sie nicht.</div>
-      <input type="url" id="lu-mapurl" value="${esc(S.lunchMapText)}" placeholder="https://www.google.com/maps/d/…" autocomplete="off"><div class="btnrow"><button class="primary" data-act="lumapsave">Speichern</button><button class="ghost" data-act="lumapcancel">Abbrechen</button></div></section>`
-    :`<div><button class="ghost" data-act="lumapedit">${emb?"Google-Karte ändern":"Google-Karte „Meine Maps“ verbinden"}</button></div>`;
+  h+=S.lunchMapEdit?`<section class="card"><h2>Eure Google-Karte</h2><div class="freq">Füge hier den Link zu eurer Karte oder Liste aus Google Maps ein. Ein geteilter Link aus der Maps-App wird als Knopf „Eure Karte öffnen“ angezeigt. Nur eine freigegebene Karte aus „Meine Maps“ kann direkt in der App eingeblendet werden. Orte von dort übernehmen kann die App nicht.</div>
+      <input type="url" id="lu-mapurl" value="${esc(S.lunchMapText)}" placeholder="https://maps.app.goo.gl/…" autocomplete="off"><div class="btnrow"><button class="primary" data-act="lumapsave">Speichern</button><button class="ghost" data-act="lumapcancel">Abbrechen</button></div></section>`
+    :`<div><button class="ghost" data-act="lumapedit">${mapOk(mapUrl)?"Google-Karte ändern":"Google-Karte verbinden"}</button></div>`;
   return h}
 function renderFood(){
   if(S.tab==="einkauf")return renderShop();
@@ -733,10 +734,21 @@ function render(){
     :`<div class="appbar"><span class="brand">🏕️🧹</span><button class="iconbtn" data-go="alle" aria-label="Übersicht und Plan"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button></div>`;
   h+=S.tab==="woche"?renderWeek():S.tab==="alle"?renderAll():S.tab==="camp"?renderCamp():S.tab==="essen"||S.tab==="einkauf"?renderFood():renderPlan();
   const y=window.scrollY,ae=document.activeElement,fid=ae&&app.contains(ae)&&ae.id?ae.id:null,sel=fid&&ae.selectionStart!=null?[ae.selectionStart,ae.selectionEnd]:null;
-  app.innerHTML=h;window.scrollTo(0,y);
+  app.innerHTML=h;window.scrollTo(0,y);syncNav();
   if(fid){const el=document.getElementById(fid);if(el){el.focus({preventScroll:true});if(sel){try{el.setSelectionRange(sel[0],sel[1])}catch(_){}}}}
 }
 
+// ---------- Zurück-Taste ----------
+const NAV=[];let navBusy=false;
+function navKey(){return S.tab+"|"+(S.tab==="essen"?S.foodTab:"")+"|"+((S.recDraft||S.planEdit||S.lunchDraft||S.campDraft||S.lunchMapEdit)?"d":"")}
+function syncNav(){if(!S.config)return;const k=navKey();try{
+  if(!NAV.length){NAV.push(k);history.replaceState({i:0,k},"");return}
+  if(NAV[NAV.length-1]===k)return;
+  if(NAV.length>1&&NAV[NAV.length-2]===k){NAV.pop();navBusy=true;history.back();return}
+  NAV.push(k);history.pushState({i:NAV.length-1,k},"")}catch(_){}}
+window.addEventListener("popstate",e=>{if(navBusy){navBusy=false;return}const st=e.state;if(!st||typeof st.k!=="string")return;
+  const p=st.k.split("|");S.tab=p[0];if(p[1])S.foodTab=p[1];S.recDraft=S.planEdit=S.lunchDraft=S.campDraft=null;S.lunchMapEdit=false;S.draft=null;
+  NAV.length=Math.min(NAV.length,st.i);NAV[st.i]=navKey();render();window.scrollTo(0,0)});
 // ---------- Events ----------
 document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("button[data-tab]");if(!b)return;S.tab=b.dataset.tab;if(S.tab!=="plan")S.draft=null;if(S.tab!=="camp")S.campDraft=null;render();window.scrollTo(0,0)});
 app.addEventListener("click",async e=>{
@@ -764,8 +776,8 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="lumaptoggle"){S.lunchMapOpen=!S.lunchMapOpen;render();return}
   if(b.dataset.act==="lumapedit"){S.lunchMapEdit=true;S.lunchMapText=(S.food&&S.food.lunchmap)||"";render();const el=document.getElementById("lu-mapurl");if(el)el.focus();return}
   if(b.dataset.act==="lumapcancel"){S.lunchMapEdit=false;render();return}
-  if(b.dataset.act==="lumapsave"){const u=S.lunchMapText.trim();if(u&&!mapsEmbed(u)){toast("Das ist kein Link zu einer „Meine Maps“-Karte.");return}
-    try{await S.store.setPath("food/lunchmap",u||null);S.lunchMapEdit=false;S.lunchMapOpen=!!u;render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
+  if(b.dataset.act==="lumapsave"){const u=S.lunchMapText.trim();if(u&&!mapOk(u)){toast("Das ist kein Link aus Google Maps.");return}
+    try{await S.store.setPath("food/lunchmap",u||null);S.lunchMapEdit=false;S.lunchMapOpen=!!mapsEmbed(u);render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.idea){const x=((S.ideas&&S.ideas.items)||[])[+b.dataset.idea];if(!x)return;const id="r"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
     const v={name:String(x.name).slice(0,80),ing:(Array.isArray(x.ing)?x.ing:[]).map(y=>String(y).trim().slice(0,80)).filter(Boolean).slice(0,60).join("\n"),note:String(x.note||"").slice(0,4000),link:String(x.link||"").slice(0,500),at:Date.now()};
     try{await S.store.setPath("food/rec/"+id,v);S.recOpen=id;toast("Als Rezept übernommen");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
