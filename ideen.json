@@ -2,75 +2,111 @@
   "updated": "2026-11-14",
   "items": [
     {
-      "name": "Wirsing-Hack-Pfanne mit Nudeln",
-      "source": "heidelberg24.de",
-      "link": "https://www.heidelberg24.de/ratgeber/pasta-sahne-familie-schnell-einfaches-kohl-rezept-wirsing-hack-pfanne-nudeln-zr-92649272.html",
+      "name": "Spinat-Lachs-Lasagne",
+      "cat": "gesund",
+      "source": "eatsmarter.de",
+      "link": "https://eatsmarter.de/rezepte/spinat-lachs-lasagne",
       "ing": [
-        "Wirsing",
-        "Hackfleisch",
-        "Nudeln",
-        "Sahne",
-        "Zwiebel"
+        "12 Vollkorn-Lasagneblätter",
+        "2 EL Olivenöl",
+        "2 Stangen Lauch",
+        "500 g Blattspinat",
+        "30 g Butter",
+        "1 Prise Muskatnuss",
+        "600 g Lachsfilet ohne Haut",
+        "100 g Schafskäse",
+        "300 g Kochsahne"
       ],
-      "note": "Schnelles Pfannengericht mit Wirsing, der im November Saison hat. Die Zutaten sind die Grundzutaten, genaue Mengen stehen im verlinkten Rezept.",
-      "cat": "saisonal"
+      "note": "Vollkorn, Spinat und Lachs, mit Health Score 82 von 100. Der Lachs gart 30 Minuten im Ofen mit; beim Schafskäse auf pasteurisierte Milch achten."
     },
     {
-      "name": "Cremige One-Pot-Pasta mit Kürbis",
+      "name": "Hähnchen-Curry mit Reis",
+      "cat": "schnell",
       "source": "lecker.de",
-      "link": "https://www.lecker.de/schnelles-herbst-rezept-cremige-one-pot-pasta-mit-kuerbis-80129.html",
+      "link": "https://www.lecker.de/haehnchen-curry-mit-reis-32522.html",
       "ing": [
-        "Hokkaido-Kürbis",
-        "Nudeln",
-        "Gemüsebrühe",
-        "Frischkäse",
-        "Zwiebel",
-        "Knoblauch"
+        "200 g Basmatireis",
+        "1 Zwiebel",
+        "20 g Ingwer",
+        "500 g Hähnchenfilet",
+        "2 EL Öl",
+        "2 EL Currypulver",
+        "1 Dose stückige Tomaten (425 ml)",
+        "1 Dose Kokosmilch (400 ml)",
+        "4 Stiele Koriander",
+        "2 EL Sesam"
       ],
-      "note": "Alles in einem Topf, wenig Abwasch. Die Zutaten sind die Grundzutaten, genaue Mengen stehen im verlinkten Rezept.",
-      "cat": "schnell"
+      "note": "In 25 Minuten fertig. Das Hähnchen köchelt 15 Minuten in der Soße und ist dann durch; die Seite nennt keine Portionenzahl, die Mengen reichen aber für 4."
     },
     {
-      "name": "Eintopf mit Kürbis und Wurst",
-      "source": "test.de",
-      "link": "https://www.test.de/Rezept-Eintopf-mit-Kuerbis-und-Wurst-4459119-0/",
+      "name": "Pfannenknödel mit Champignons in Senf-Rahmsauce",
+      "cat": "vegetarisch",
+      "source": "eat-this.org",
+      "link": "https://www.eat-this.org/vegane-pfannenknoedel-mit-champignons-in-senf-rahmsauce/",
       "ing": [
-        "Kürbis",
-        "Kartoffeln",
-        "Würstchen",
-        "Gemüsebrühe",
-        "Zwiebel",
-        "Möhren"
+        "330 g Brötchen vom Vortag (5 Stück)",
+        "2 Schalotten",
+        "20 g glatte Petersilie",
+        "400 ml Sojamilch",
+        "4 EL Kartoffelstärke",
+        "1/2 TL geröstete eingelegte Paprika",
+        "1 Prise Muskat",
+        "4 EL Rapsöl",
+        "650 g Champignons",
+        "1 EL mittelscharfer Senf",
+        "1 EL grober Senf",
+        "250 ml Gemüsebrühe",
+        "250 ml Cashewsahne",
+        "1 Zweig Estragon"
       ],
-      "note": "Lässt sich gut für zwei Tage kochen. Die Zutaten sind die Grundzutaten, genaue Mengen stehen im verlinkten Rezept."
+      "note": "Knödel ohne Ei, direkt in der Pfanne gebraten, in 30 Minuten fertig. Original für 3 Personen, hier auf 4 umgerechnet; statt Cashewsahne geht auch normale Sahne."
     },
     {
-      "name": "Kartoffelgulasch",
-      "source": "babyartikel.de Magazin",
-      "link": "https://www.babyartikel.de/magazin/?p=866900",
+      "name": "Rosenkohlauflauf mit Kartoffeln",
+      "cat": "saisonal",
+      "source": "emmikochteinfach.de",
+      "link": "https://emmikochteinfach.de/rosenkohlauflauf-mit-kartoffeln/",
       "ing": [
-        "Kartoffeln",
-        "Paprika",
-        "Zwiebel",
-        "Tomatenmark",
-        "Gemüsebrühe",
-        "Paprikapulver"
+        "1000 g Rosenkohl (ungeputzt)",
+        "600 g festkochende Kartoffeln",
+        "300 g Sahne",
+        "200 ml Milch",
+        "150 g junger Gouda",
+        "80 g Zwiebeln",
+        "2 Knoblauchzehen",
+        "60 g Butter",
+        "2 EL Mehl",
+        "2 TL Gemüsebrühe",
+        "1 TL Senf",
+        "1 Spritzer Zitronensaft",
+        "1/2 TL Natron",
+        "1 Msp. Muskatnuss"
       ],
-      "note": "Herbstgericht, das auch Kindern schmeckt. Die Zutaten sind die Grundzutaten, genaue Mengen stehen im verlinkten Rezept."
+      "note": "Rosenkohl hat von Oktober bis März Saison. Cremiger Auflauf, den auch Kinder mögen; Gouda aus pasteurisierter Milch nehmen."
     },
     {
-      "name": "Kürbis-Älplermagronen",
-      "source": "familienleben.ch",
-      "link": "https://www.familienleben.ch/freizeit/kochen/einfache-rezepte-steinpilzspaetzlipfanne-kuerbisaelplermagronen-und-mehr-2906",
+      "name": "Rotes Thai-Curry mit Garnelen",
+      "cat": "exotisch",
+      "source": "emmikochteinfach.de",
+      "link": "https://emmikochteinfach.de/rotes-thai-curry-rezept-ganz-einfach/",
       "ing": [
-        "Kürbis",
-        "Makkaroni",
-        "Kartoffeln",
-        "Sahne",
-        "Bergkäse",
-        "Zwiebel"
+        "800 ml Kokosmilch",
+        "500 g Garnelen",
+        "100 g Zuckerschoten",
+        "10 g Ingwer",
+        "1 Bund Frühlingszwiebeln",
+        "1 Stange Zitronengras",
+        "2 Möhren",
+        "1 rote Paprika",
+        "1-2 EL rote Currypaste",
+        "2 Knoblauchzehen",
+        "3 EL Pflanzenöl",
+        "2 EL Fischsauce",
+        "2 EL Sojasauce",
+        "Thai-Basilikum",
+        "300 g Jasminreis"
       ],
-      "note": "Schweizer Nudel-Kartoffel-Auflauf in der Herbstversion. Die Zutaten sind die Grundzutaten, genaue Mengen stehen im verlinkten Rezept."
+      "note": "Thailändisch in 35 Minuten, mit Reis. Die Garnelen kochen in der Soße durch; mit 1 EL Currypaste anfangen, damit es fürs Kind nicht zu scharf wird."
     }
   ]
 }
