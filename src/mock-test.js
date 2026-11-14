@@ -31,7 +31,7 @@ srv.listen(8765,async()=>{
   await A.waitForSelector('[data-task=bad][data-slot="0"].on.chk');
   await B.click('[data-task=einkaufen][data-slot="0"]');
   await A.waitForSelector('[data-task=einkaufen][data-slot="0"]:not(.on)');
-  await A.click('[data-go=plan]');await A.click('[data-act=swap]');await B.waitForTimeout(300);
+  await A.click('[data-go=alle]');await A.click('[data-go=plan]');await A.click('[data-act=swap]');await B.waitForTimeout(300);
   await A.click('[data-go=woche]');await A.click('[data-tab=essen]');await B.click('[data-tab=essen]');
   await A.fill('#shopinput','Milch');await A.press('#shopinput','Enter');await A.fill('#shopinput','Brot');await A.click('#shopform button');
   await B.waitForSelector(':nth-match(.shop li, 2)');await B.click(':nth-match(.shop li .item, 1)');

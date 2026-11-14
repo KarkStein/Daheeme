@@ -226,7 +226,6 @@ label.sm{font-size:.78rem;color:var(--muted);display:flex;align-items:center;gap
 </div>
 <nav class="tabs" role="tablist" id="tabs">
   <button role="tab" data-tab="woche" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18M8 15l2.5 2.5L16 13"/></svg>Woche</button>
-  <button role="tab" data-tab="alle" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.2"/><circle cx="4.5" cy="12" r="1.2"/><circle cx="4.5" cy="18" r="1.2"/></svg>Übersicht</button>
   <button role="tab" data-tab="essen" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v8M4 3v5a3 3 0 0 0 6 0V3M7 11v10"/><path d="M17 3c-2 1.5-3 4-3 7h3v11"/></svg>Essen</button>
   <button role="tab" data-tab="camp" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20 12 4l9 16H3z"/><path d="M12 12l3.5 8h-7z"/><path d="M10.5 2.5 12 4l1.5-1.5"/></svg>Zeltplatz</button>
 </nav>
@@ -681,8 +680,9 @@ function render(){
   if(S.timedOut&&S.mode==="db")h+=`<div class="notice">Die gemeinsamen Daten sind gerade nicht erreichbar. Angezeigtes kann veraltet sein.</div>`;
   if(!S.config&&!S.cfgConfirmed&&!S.timedOut){app.innerHTML=h+`<div class="empty">Plan wird geladen …</div>`;return}
   if(!S.config){h+=`<div class="empty"><h2>Noch kein Haushaltsplan hinterlegt</h2><div>Legt euren Plan aus der Vorlage an (eure Liste mit Müll, Saugen, Wäsche und Co.). Danach könnt ihr alles unter „Plan“ anpassen.</div><button class="primary" data-act="template">Plan aus Vorlage anlegen</button></div>`;app.innerHTML=h;return}
-  h+=S.tab==="plan"?`<div class="appbar"><button class="ghost" data-go="woche">‹ Zurück</button><span class="brand">Einstellungen</span></div>`
-    :`<div class="appbar"><span class="brand">🏕️🧹</span><button class="iconbtn" data-go="plan" aria-label="Plan und Einstellungen"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button></div>`;
+  const inSet=S.tab==="plan"||S.tab==="alle";
+  h+=inSet?`<div class="appbar"><button class="ghost" data-go="${S.prev||"woche"}">‹ Zurück</button><span class="brand">Euer Plan</span></div><div class="filters" role="group" aria-label="Ansicht"><button class="chipbtn neutral" data-go="alle" aria-pressed="${S.tab==="alle"}">Übersicht</button><button class="chipbtn neutral" data-go="plan" aria-pressed="${S.tab==="plan"}">Plan bearbeiten</button></div>`
+    :`<div class="appbar"><span class="brand">🏕️🧹</span><button class="iconbtn" data-go="alle" aria-label="Übersicht und Plan"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button></div>`;
   h+=S.tab==="woche"?renderWeek():S.tab==="alle"?renderAll():S.tab==="camp"?renderCamp():S.tab==="essen"?renderFood():renderPlan();
   const y=window.scrollY,ae=document.activeElement,fid=ae&&app.contains(ae)&&ae.id?ae.id:null,sel=fid&&ae.selectionStart!=null?[ae.selectionStart,ae.selectionEnd]:null;
   app.innerHTML=h;window.scrollTo(0,y);
@@ -693,7 +693,7 @@ function render(){
 document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("button[data-tab]");if(!b)return;S.tab=b.dataset.tab;if(S.tab!=="plan")S.draft=null;if(S.tab!=="camp")S.campDraft=null;render();window.scrollTo(0,0)});
 app.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;
-  if(b.dataset.go){S.tab=b.dataset.go;S.draft=null;S.campDraft=null;render();window.scrollTo(0,0);return}
+  if(b.dataset.go){if(S.tab!=="plan"&&S.tab!=="alle")S.prev=S.tab;S.tab=b.dataset.go;S.draft=null;S.campDraft=null;render();window.scrollTo(0,0);return}
   if(b.dataset.food){S.lunchDraft=null;S.lunchMapEdit=false;S.shopCatEdit=null;S.recDraft=null;S.planEdit=null;S.foodTab=b.dataset.food;try{localStorage.setItem("hq-foodtab",S.foodTab)}catch(_){}render();return}
   if(b.dataset.shop){const i=shopItems().find(x=>x.id===b.dataset.shop);if(i){const v={name:i.name,done:!i.done,at:i.at||Date.now(),by:i.by||""};if(i.cat)v.cat=i.cat;S.shopCatEdit=null;if(v.done)v.doneAt=Date.now();try{await S.store.setPath("food/shop/"+i.id,v)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}return}
   if(b.dataset.shoprm){try{await S.store.setPath("food/shop/"+b.dataset.shoprm,null)}catch(_){toast("Konnte nicht speichern.")}return}
