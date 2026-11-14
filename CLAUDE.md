@@ -17,7 +17,7 @@ Live: https://karkstein.github.io/Daheeme/ (GitHub Pages aus `main`, Wurzelverze
 
 - `config`: `persons`, `rotOffset`, `tasks[{id,name,owner:p0|p1|rot|both|ho,freq:day|week|month|half|year,times,pts,pack?:A|B}]`, `camp:{costs,extras[{id,emoji,name,cost}]}`
 - `weeks/<YYYY-Www>/ticks/<key>` = `{by,at}`; Schlüssel `<id>__<slot>`, `<id>__p` (Monat und länger), `<id>__<slot>_p0/_p1` (halbe Häkchen bei owner both)
-- `food/shop/<id>` `{name,done,at,by,doneAt,cat?,src?}` (`src` = Name des Rezepts, wenn die Zutat als Block von einem Rezept, einer Idee oder dem Wochenplan kam; so lässt sich der Block auf einmal entfernen), `food/fav/<hash>` `{name,n,cat?}`
+- `food/shop/<id>` `{name,done,at,by,doneAt,cat?,src?}` (`src` = Name des Rezepts, wenn die Zutat als Block von einem Rezept, einer Idee oder dem Wochenplan kam; so lässt sich der Block auf einmal entfernen), `food/fav/<hash>` `{name,n,cat?}`, `food/pantry` = Vorrat "Immer im Haus" als Zeilen-Text (fehlt er, gilt `PANTRY_DEF`); `shopAddMany` lässt Zutaten weg, die ein Vorrat-Wort als ganzes Wort enthalten (`isPantry`), im Rezept bleiben sie stehen
 - `food/rec/<id>` `{name,ing (Zeilen),note,link,at}`, `food/plan/<YYYY-Www>/d0..d6` `{text,rec?,at,by}`
 - `food/lunch/<id>` `{name,dishes,note,maps,at,r:{p0,p1}}`, `food/lunchmap` = Link zu Google Maps
 - Ausflüge (liegen unter `food`, damit der Abgleich nichts Neues braucht): `food/trip/<id>` `{name,note,link,kind,wx,dur,drive,kid,cost,season,pack,at,by,done,doneAt}` (`kid` und `season` sind Komma-Listen, `pack` ist die Id einer Packliste), `food/packlist/<id>` `{name,at}` (die Liste "Tagesausflug" mit Id `main` ist fest), `food/pack/<id>` `{name,done,at,list?}` (Packliste bleibt, "Alles wieder auspacken" setzt nur `done` zurück)
