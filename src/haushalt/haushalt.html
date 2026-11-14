@@ -317,7 +317,7 @@ function periodOf(freq,mon){const th=addDays(mon,3);const y=th.getFullYear(),m=t
 const fmt=(d,o)=>d.toLocaleDateString("de-DE",o);
 
 // ---------- Zustand ----------
-const S={playDraft:null,playSec:"spielplatz",projFilter:"",projText:"",tripTab:"ideen",tripDraft:null,tripFilter:"",packList:"main",packListNew:false,packText:"",ideas:null,shopCatEdit:null,lunchDraft:null,lunchOpen:null,lunchMapOpen:false,lunchMapEdit:false,lunchMapText:"",recDraft:null,recOpen:null,planEdit:null,planText:"",planRec:null,foodWeek:null,food:{},foodTab:"plan",shopText:"",store:null,mode:"loading",config:null,weeks:{},view:mondayOf(new Date()),tab:"camp",campDraft:null,filter:"alle",hideDone:false,groupBy:"freq",me:null,draft:null,timedOut:false};
+const S={playMapOpen:false,playMapEdit:false,playMapText:"",playDraft:null,playSec:"spielplatz",projFilter:"",projText:"",tripTab:"ideen",tripDraft:null,tripFilter:"",packList:"main",packListNew:false,packText:"",ideas:null,shopCatEdit:null,lunchDraft:null,lunchOpen:null,lunchMapOpen:false,lunchMapEdit:false,lunchMapText:"",recDraft:null,recOpen:null,planEdit:null,planText:"",planRec:null,foodWeek:null,food:{},foodTab:"plan",shopText:"",store:null,mode:"loading",config:null,weeks:{},view:mondayOf(new Date()),tab:"camp",campDraft:null,filter:"alle",hideDone:false,groupBy:"freq",me:null,draft:null,timedOut:false};
 try{const m=localStorage.getItem("hq-me");if(m==="p0"||m==="p1")S.me=m;const f=localStorage.getItem("hq-filter");if(f==="meine")S.filter="meine";S.hideDone=localStorage.getItem("hq-hidedone")==="1";if(localStorage.getItem("hq-groupby")==="art")S.groupBy="art";const ft=localStorage.getItem("hq-foodtab");if(ft&&ft!=="shop")S.foodTab=ft;}catch(e){}
 
 // ---------- Speicher-Adapter ----------
@@ -567,6 +567,9 @@ function houseScene(has,light,night,extras,sea,guests,dots){dots=dots||{};
   g+=`<g transform="rotate(-8 208 214)"><path d="M199 214 v-14 q0 -9 9 -9 q9 0 9 9 v14z" fill="#c7442f"/><path d="M199 202 q9 6 18 0 v-3 q-9 -6 -18 0z" fill="#9c3324"/><rect x="203" y="205" width="10" height="7" rx="2" fill="#9c3324"/><path d="M205 191 q3 -5 6 0" fill="none" stroke="#5b4a3a" stroke-width="1.6"/><circle cx="208" cy="203" r="1.2" fill="#ffd66b"/></g>`;
   // Besen an der Tür (Woche)
   g+=`<path d="M174 216 L184 178" stroke="#7a5230" stroke-width="3" stroke-linecap="round"/><path d="M166 214 L180 211 L182 224 L166 226Z" fill="#e0a030"/><path d="M169 216 l1 8 M173 215 l1 9 M177 214 l1 9" stroke="#b5771c" stroke-width="1.2"/>${dots.woche?dot(186,175):""}`;
+  // Lampe über der Tür (Einrichtung) und Werkzeugkoffer (Am Haus)
+  g+=`${night?'<circle cx="155" cy="172" r="16" fill="url(#hglow)" opacity=".8"/>':""}<path d="M155 162 v3" stroke="#2b2b2b" stroke-width="1.4"/><path d="M150.5 165 h9 l-1.5 9 h-6z" fill="${night?"#ffd66b":"#f6e7b0"}" stroke="#2b2b2b" stroke-width="1.2"/><path d="M149 165 h12 l-2 -2.5 h-8z" fill="#2b2b2b"/>`;
+  g+=`<path d="M195 226 h24 v12 h-24z" fill="#c7442f"/><path d="M195 226 h24 v3 h-24z" fill="#9c3324"/><path d="M202 226 v-4 h10 v4" fill="none" stroke="#5b4a3a" stroke-width="2"/><rect x="205" y="230" width="4" height="3" fill="#ffd66b"/>`;
   // Ball (Sport und Spiel)
   g+=`<g><circle cx="140" cy="236" r="8.5" fill="#f4f1ea"/><path d="M140 227.5 a8.5 8.5 0 0 1 8.5 8.5 h-8.5z" fill="#f25f5c"/><path d="M131.5 236 a8.5 8.5 0 0 0 8.5 8.5 v-8.5z" fill="#f25f5c"/><path d="M140 227.5 a8.5 8.5 0 0 0 -8.5 8.5 h8.5z" fill="#3f6fa8"/><path d="M148.5 236 a8.5 8.5 0 0 1 -8.5 8.5 v-8.5z" fill="#ffd66b"/><circle cx="140" cy="236" r="2" fill="#f4f1ea"/><ellipse cx="141" cy="245.5" rx="7" ry="1.6" fill="#000" opacity=".12"/></g>`;
   // Briefkasten (Plan), klein am linken Rand
@@ -642,9 +645,9 @@ function renderCamp(){
   const spot=(x,y,w,hh,go,label,ft)=>`<button class="spot" style="left:${(x/3.6).toFixed(1)}%;top:${(y/2.6).toFixed(1)}%;width:${(w/3.6).toFixed(1)}%;height:${(hh/2.6).toFixed(1)}%" data-go="${go}"${ft?` data-ft="${ft}"`:""} aria-label="${label}"></button>`;
   const G=haus?HOUSE_GUESTS:GUESTS,place=haus?"am Meer":"auf dem Zeltplatz";
   let h=`<div><div class="eyebrow">${SEASON_NAME[sea]} ${place}</div><h1>Hallo${S.me?" "+esc(pname(S.me)):""}</h1></div>${S.me?"":meChooser()}
-   <div class="camp">${haus?houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:openW>0,shop:openS>0})+spot(166,196,50,48,"woche","Woche: offene Aufträge")+spot(119,148,42,96,"essen","Essen",mealTxt?"plan":"")+spot(116,210,50,28,"einkauf","Einkaufsliste")+spot(208,203,24,30,"ausflug","Ausflüge")+spot(21,206,24,30,"alle","Übersicht und Plan")+spot(318,80,34,64,"projekte","Ideen und Projekte")+spot(140,236,26,26,"spiel","Sport und Spiel")
+   <div class="camp">${haus?houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:openW>0,shop:openS>0})+spot(166,196,50,48,"woche","Woche: offene Aufträge")+spot(119,148,42,96,"essen","Essen",mealTxt?"plan":"")+spot(116,210,50,28,"einkauf","Einkaufsliste")+spot(208,203,24,30,"ausflug","Ausflüge")+spot(21,206,24,30,"alle","Übersicht und Plan")+spot(318,80,34,64,"projekte","Ideen")+spot(207,230,30,20,"amhaus","Am Haus: Werkzeugkoffer")+`<button class="spot" style="left:${(155/3.6).toFixed(1)}%;top:${(169/2.6).toFixed(1)}%;width:${(16/3.6).toFixed(1)}%;height:${(16/2.6).toFixed(1)}%" data-go="amhaus" data-pf="wohnen" aria-label="Einrichtung"></button>`+spot(140,236,26,26,"spiel","Sport und Spiel")
        :campScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:openW>0,shop:openS>0})+spot(176,172,124,104,"woche","Woche: offene Aufträge")+spot(268,222,64,48,"essen","Essen",mealTxt?"plan":"")+spot(340,200,44,46,"einkauf","Einkaufsliste")+spot(208,244,46,36,"alle","Übersicht und Plan")}</div>
-   <div class="freq" style="text-align:center;margin-top:-6px">${haus?"Tippt ins Bild: Besen an der Tür, Schornstein, Fahrrad, Rucksack, Ball, Leuchtturm oder Briefkasten.":"Tippt ins Bild: Besen am Zelt, Lagerfeuer, Aushang oder das Holzschild am Rand."}</div>
+   <div class="freq" style="text-align:center;margin-top:-6px">${haus?"Tippt ins Bild: Besen, Schornstein, Fahrrad, Rucksack, Ball, Werkzeugkoffer, Lampe, Leuchtturm oder Briefkasten.":"Tippt ins Bild: Besen am Zelt, Lagerfeuer, Aushang oder das Holzschild am Rand."}</div>
    <section class="card today"><h2>Heute</h2>
      <button class="todayrow" data-go="woche"><span>🧹</span><span>${openW?"Offene Aufträge":"Alles erledigt, was gerade ansteht"}</span><i>›</i></button>
      <button class="todayrow" data-go="essen" data-ft="plan"><span>🍲</span><span>${mealTxt?"Es gibt "+esc(mealTxt):"Für heute ist noch kein Essen geplant"}</span><i>›</i></button>
@@ -851,27 +854,30 @@ async function packAdd(name){name=(name||"").trim().slice(0,60);if(!name)return;
 async function tripAddUnused(name){name=(name||"").trim().slice(0,80);if(!name)return;
   try{await S.store.setPath("food/trip/"+newId("t"),{name,done:false,at:Date.now(),by:S.me||""})}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}
 // ---------- Ideen und Projekte (Leuchtturm) ----------
-const PROJ_CATS=[["geschenk","🎁","Geschenke"],["spiel","🧸","Spielsachen"],["wohnen","🛋️","Einrichtung"],["ordnung","📦","Aufräumen"],["haus","🔨","Haus und Garten"],["sonst","💡","Sonstiges"]];
+const PROJ_CATS=[["geschenk","🎁","Geschenke"],["sonst","💡","Sonstiges"],["wohnen","🛋️","Einrichtung"],["ordnung","📦","Aufräumen"],["haus","🔨","Reparieren"],["garten","🌱","Garten"]];
+const PROJ_GROUPS={projekte:{cats:["geschenk","sonst"],eye:"Am Leuchtturm",title:"Ideen",quick:"sonst"},amhaus:{cats:["wohnen","ordnung","haus","garten"],eye:"Werkzeugkoffer",title:"Am Haus",quick:""}};
+const projCat=x=>{const c=x.cat||"sonst";return c==="spiel"?"sonst":c};
+const projGroup=()=>PROJ_GROUPS[S.tab]||PROJ_GROUPS.projekte;
 const PROJ_STATE=[["idee","Idee"],["geplant","Geplant"],["dran","Sind dran"]];
 const projs=()=>listOf(S.food&&S.food.idea);
 function renderProjects(){const d=S.projDraft;
-  let h=`<div><div class="eyebrow">Am Leuchtturm</div><h1>Ideen und Projekte</h1></div>`;
+  const G=projGroup();let h=`<div><div class="eyebrow">${G.eye}</div><h1>${G.title}</h1></div>`;
   if(d){const one=(f,L)=>`<div class="unl">${L.map(c=>`<button class="chipbtn" data-pset="${f}" data-v="${c[0]}" aria-pressed="${d[f]===c[0]}">${c.length===3?c[1]+" "+c[2]:c[1]}</button>`).join("")}</div>`;
     return h+`<section class="card tripform"><h2>${d.id?"Bearbeiten":"Neue Idee"}</h2>
     <label class="fld"><span>Was?</span><input type="text" id="pj-name" data-pf="name" value="${esc(d.name)}" maxlength="80" placeholder="Zum Beispiel Regal für den Flur" autocomplete="off"></label>
-    <div class="fld"><span>Bereich</span>${one("cat",PROJ_CATS)}</div>
+    <div class="fld"><span>Bereich</span>${one("cat",PROJ_CATS.filter(c=>G.cats.includes(c[0])))}</div>
     <div class="fld"><span>Stand</span>${one("state",PROJ_STATE)}</div>
     ${d.cat==="geschenk"?`<label class="fld"><span>Für wen, und zu welchem Anlass?</span><input type="text" id="pj-for" data-pf="for" value="${esc(d.for)}" maxlength="60" placeholder="Zum Beispiel Oma, Weihnachten" autocomplete="off"></label>`:""}
     <label class="fld"><span>Link (Shop, Anleitung, Bild)</span><input type="url" id="pj-link" data-pf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off"></label>
     <label class="fld"><span>Notiz</span><textarea id="pj-note" data-pf="note" rows="4" placeholder="Maße, Preis, nächste Schritte">${esc(d.note)}</textarea></label>
     <div class="btnrow"><button class="primary" data-act="projsave">Speichern</button><button class="ghost" data-act="projcancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="projdel">Löschen</button>`:""}</div></section>`}
   const all=projs(),F=S.projFilter||"";
-  if(!F){const cnt=k=>all.filter(x=>!x.done&&(x.cat||"sonst")===k).length;
-    h+=`<form class="addrow" id="projform"><input type="text" id="projinput" placeholder="Schnell notieren, sortieren später" value="${esc(S.projText)}" autocomplete="off" enterkeyhint="done" aria-label="Neue Idee"><button class="primary" type="submit">Merken</button></form>`;
-    h+=`<div class="tiles">${PROJ_CATS.map(k=>{const n=cnt(k[0]);return `<button class="tile" data-pfilter="${k[0]}"><span class="te">${k[1]}</span><span class="tn">${k[2]}</span><span class="tc">${n?n+" offen":"leer"}</span></button>`}).join("")}</div>`;
-    const dn=all.filter(x=>x.done).length;if(dn)h+=`<div class="freq" style="text-align:center">${dn} erledigt. Ihr findet sie in den Bereichen unten.</div>`;
+  if(!F){const cnt=k=>all.filter(x=>!x.done&&projCat(x)===k).length;
+    if(G.quick)h+=`<form class="addrow" id="projform"><input type="text" id="projinput" placeholder="Schnell notieren, sortieren später" value="${esc(S.projText)}" autocomplete="off" enterkeyhint="done" aria-label="Neue Idee"><button class="primary" type="submit">Merken</button></form>`;
+    h+=`<div class="tiles">${PROJ_CATS.filter(k=>G.cats.includes(k[0])).map(k=>{const n=cnt(k[0]);return `<button class="tile" data-pfilter="${k[0]}"><span class="te">${k[1]}</span><span class="tn">${k[2]}</span><span class="tc">${n?n+" offen":"leer"}</span></button>`}).join("")}</div>`;
+    const dn=all.filter(x=>x.done&&G.cats.includes(projCat(x))).length;if(dn)h+=`<div class="freq" style="text-align:center">${dn} erledigt. Ihr findet sie in den Bereichen unten.</div>`;
     return h}
-  const cat=PROJ_CATS.find(k=>k[0]===F)||PROJ_CATS[5],inCat=x=>(x.cat||"sonst")===F,open=all.filter(x=>!x.done&&inCat(x)),done=all.filter(x=>x.done&&inCat(x)).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0));
+  const cat=PROJ_CATS.find(k=>k[0]===F)||PROJ_CATS[1],inCat=x=>projCat(x)===F,open=all.filter(x=>!x.done&&inCat(x)),done=all.filter(x=>x.done&&inCat(x)).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0));
   const ord=x=>{const i=PROJ_STATE.findIndex(s=>s[0]===x.state);return i<0?0:-i};open.sort((a,b)=>ord(a)-ord(b)||(a.at||0)-(b.at||0));
   const card=x=>{const l=safeLink(x.link),st=PROJ_STATE.find(s=>s[0]===x.state)||PROJ_STATE[0];
     return `<li class="${x.done?"done":""}"><button class="item" data-projdone="${esc(x.id)}" aria-pressed="${!!x.done}" aria-label="${esc(x.name)}: ${x.done?"doch nicht erledigt":"erledigt"}"><span class="box">${x.done?"✓":""}</span><span class="nm">${esc(x.name)}${x.for?`<br><span class="freq">für ${esc(x.for)}</span>`:""}${x.note&&!x.done?`<br><span class="freq">${esc(x.note)}</span>`:""}</span></button>${x.done?"":`<button class="stbadge st-${st[0]}" data-projstate="${esc(x.id)}" aria-label="Stand: ${st[1]}, antippen zum Weiterschalten">${st[1]}</button>`}${l?`<a class="catbtn" href="${esc(l)}" target="_blank" rel="noopener" aria-label="Link öffnen">🔗</a>`:""}<button class="rm" data-projedit="${esc(x.id)}" aria-label="${esc(x.name)} bearbeiten">✎</button></li>`};
@@ -882,28 +888,38 @@ function renderProjects(){const d=S.projDraft;
   if(done.length)h+=`<section class="card"><div class="section-head"><h2>Erledigt</h2><span class="freq num">${done.length}</span></div><ul class="shop">${done.map(card).join("")}</ul></section>`;
   return h}
 // ---------- Sport und Spiel (Ball) ----------
-const PLAY_SECS=[["spielplatz","🛝","Spielplätze"],["zuhause","🧩","Spielideen zu Hause"],["sport","⚽","Sport und Kurse"],["links","🔗","Links"]];
-const PLAY_HINT={spielplatz:["Zum Beispiel Wasserspielplatz am Park","Was gibt es dort? Schatten, Sandkasten, Toilette …"],zuhause:["Zum Beispiel Höhle aus Decken bauen","Wie geht es?"],sport:["Zum Beispiel Kinderturnen","Wo, Kosten, Anmeldung"],links:["Zum Beispiel Bastelideen-Blog","Was findet man dort?"]};
+const PLAY_SECS=[["spielplatz","🛝","Spielplätze"],["zuhause","🧩","Spielideen zu Hause"],["sport","⚽","Sport und Kurse"],["sonst","✨","Sonstiges"]];
+const PLAY_HINT={spielplatz:["Zum Beispiel Wasserspielplatz am Park","Was gibt es dort? Schatten, Sandkasten, Toilette …"],zuhause:["Zum Beispiel Höhle aus Decken bauen","Wie geht es?"],sport:["Zum Beispiel Kinderturnen","Wo, Kosten, Anmeldung"],sonst:["Zum Beispiel Schwimmflügel kaufen","Worum geht es?"]};
 const PLAY_AGE=[["1","ab 1"],["2","ab 2"],["3","ab 3"],["4","ab 4"],["6","ab 6"]];
 const PLAY_WX=[["drinnen","🏠 Drinnen"],["draussen","🌳 Draußen"],["egal","Beides"]];
 const plays=()=>listOf(S.food&&S.food.play);
+function nameFromLink(u){try{const p=new URL(u).pathname.split("/").filter(Boolean);let s=p.reverse().find(x=>/[a-zäöüß]{3}/i.test(x)&&!/^\d+$/.test(x))||"";s=decodeURIComponent(s).replace(/\.(html?|php|aspx?)$/i,"").replace(/[-_+]+/g," ").replace(/\b\d{3,}\b/g,"").replace(/\s+/g," ").trim();return s?s.charAt(0).toUpperCase()+s.slice(1):""}catch(_){return ""}}
 function renderPlay(){const d=S.playDraft,sec=PLAY_SECS.find(s=>s[0]===S.playSec)||PLAY_SECS[0];
   let h=`<div><div class="eyebrow">Mit dem Ball</div><h1>Sport und Spiel</h1></div>
    <div class="unl">${PLAY_SECS.map(s=>`<button class="chipbtn" data-playsec="${s[0]}" aria-pressed="${s[0]===sec[0]}">${s[1]} ${s[2]}</button>`).join("")}</div>`;
   if(d){const one=(f,L)=>`<div class="unl">${L.map(c=>`<button class="chipbtn" data-plset="${f}" data-v="${c[0]}" aria-pressed="${d[f]===c[0]}">${c[1]}</button>`).join("")}</div>`,hint=PLAY_HINT[d.sec]||["",""];
     return h+`<section class="card tripform"><h2>${d.id?"Bearbeiten":"Neu bei "+esc(sec[2])}</h2>
-    <label class="fld"><span>${d.sec==="links"?"Titel":"Name"}</span><input type="text" id="pl-name" data-plf="name" value="${esc(d.name)}" maxlength="80" placeholder="${esc(hint[0])}" autocomplete="off"></label>
+    ${d.sec==="zuhause"&&!d.id?`<label class="fld"><span>Link zur Spielidee (füllt den Namen vor)</span><input type="url" id="pl-link0" data-plf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off"></label>`:""}
+    <label class="fld"><span>Name</span><input type="text" id="pl-name" data-plf="name" value="${esc(d.name)}" maxlength="80" placeholder="${esc(hint[0])}" autocomplete="off"></label>
     ${d.sec==="links"?"":d.sec==="spielplatz"?"":`<div class="fld"><span>Wo?</span>${one("wx",PLAY_WX)}</div>`}
     ${d.sec==="links"?"":`<div class="fld"><span>Alter</span>${one("age",PLAY_AGE)}</div>`}
     ${d.sec==="zuhause"?`<label class="fld"><span>Was braucht man?</span><input type="text" id="pl-mat" data-plf="mat" value="${esc(d.mat)}" maxlength="120" placeholder="Decken, Wäscheklammern" autocomplete="off"></label>`:""}
     ${d.sec==="sport"?`<label class="fld"><span>Wann?</span><input type="text" id="pl-when" data-plf="when" value="${esc(d.when)}" maxlength="60" placeholder="Zum Beispiel samstags 10 Uhr" autocomplete="off"></label>`:""}
-    <label class="fld"><span>${d.sec==="spielplatz"?"Link zur Karte":d.sec==="links"?"Adresse (Link)":"Link"}</span><input type="url" id="pl-link" data-plf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off"></label>
+    ${d.sec==="zuhause"&&!d.id?"":`<label class="fld"><span>${d.sec==="spielplatz"?"Link aus Google Maps (sonst sucht die App nach dem Namen)":"Link"}</span><input type="url" id="pl-link" data-plf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off"></label>`}
     <label class="fld"><span>Notiz</span><textarea id="pl-note" data-plf="note" rows="3" placeholder="${esc(hint[1])}">${esc(d.note)}</textarea></label>
     <div class="btnrow"><button class="primary" data-act="playsave">Speichern</button><button class="ghost" data-act="playcancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="playdel">Löschen</button>`:""}</div></section>`}
-  const l=plays().filter(x=>(x.sec||"spielplatz")===sec[0]).sort((a,b)=>(b.fav?1:0)-(a.fav?1:0)||(a.name||"").localeCompare(b.name||"","de"));
+  const psec=x=>{const s=x.sec||"spielplatz";return s==="links"?"sonst":s};const l=plays().filter(x=>psec(x)===sec[0]).sort((a,b)=>(b.fav?1:0)-(a.fav?1:0)||(a.name||"").localeCompare(b.name||"","de"));
   const card=x=>{const lk=safeLink(x.link),meta=[x.age?"ab "+x.age+(x.age==="1"?" Jahr":" Jahren"):"",x.wx==="drinnen"?"🏠 drinnen":x.wx==="draussen"?"🌳 draußen":"",x.when?"🕒 "+x.when:"",x.mat?"🧺 "+x.mat:""].filter(Boolean);
-    return `<li><button class="item" data-playfav="${esc(x.id)}" aria-pressed="${!!x.fav}" aria-label="${esc(x.name)}: ${x.fav?"kein Liebling mehr":"als Liebling markieren"}"><span class="box" style="border:none;font-size:1.2rem">${x.fav?"⭐":"☆"}</span><span class="nm">${esc(x.name)}${meta.length?`<br><span class="freq">${meta.map(m=>`<span style="white-space:nowrap">${esc(m)}</span>`).join(" · ")}</span>`:""}${x.note?`<br><span class="freq">${esc(x.note)}</span>`:""}</span></button>${lk?`<a class="catbtn" href="${esc(lk)}" target="_blank" rel="noopener" aria-label="Link öffnen">${sec[0]==="spielplatz"?"🗺️":"🔗"}</a>`:""}<button class="rm" data-playedit="${esc(x.id)}" aria-label="${esc(x.name)} bearbeiten">✎</button></li>`};
+    return `<li><button class="item" data-playfav="${esc(x.id)}" aria-pressed="${!!x.fav}" aria-label="${esc(x.name)}: ${x.fav?"kein Liebling mehr":"als Liebling markieren"}"><span class="box" style="border:none;font-size:1.2rem">${x.fav?"⭐":"☆"}</span><span class="nm">${esc(x.name)}${meta.length?`<br><span class="freq">${meta.map(m=>`<span style="white-space:nowrap">${esc(m)}</span>`).join(" · ")}</span>`:""}${x.note?`<br><span class="freq">${esc(x.note)}</span>`:""}</span></button>${lk||sec[0]==="spielplatz"?`<a class="catbtn" href="${esc(lk||"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(x.name))}" target="_blank" rel="noopener" aria-label="${sec[0]==="spielplatz"?"In Google Maps öffnen":"Link öffnen"}">${sec[0]==="spielplatz"?"🗺️":"🔗"}</a>`:""}<button class="rm" data-playedit="${esc(x.id)}" aria-label="${esc(x.name)} bearbeiten">✎</button></li>`};
   h+=`<div class="btnrow"><button class="primary" data-act="playnew">+ Neu bei ${esc(sec[2])}</button></div>`;
+  if(sec[0]==="spielplatz"){const mu=(S.food&&S.food.playmap)||"",emb=mapsEmbed(mu);
+    if(S.playMapEdit)h+=`<section class="card"><h2>Eure Spielplatz-Karte</h2><div class="freq">So geht es: In Google Maps eine eigene Karte anlegen (am Handy unter „Gespeichert“ eine Liste, am Computer unter „Meine Karten“), Spielplätze hinzufügen, dann „Teilen“ und den Link hier einfügen. Ein Link aus „Meine Karten“ wird direkt hier angezeigt, eine Liste öffnet sich in Google Maps.</div>
+      <input type="url" id="pl-mapurl" value="${esc(S.playMapText)}" placeholder="https://maps.app.goo.gl/…" autocomplete="off" aria-label="Link zur Karte">
+      <div class="btnrow"><button class="primary" data-act="plmapsave">Speichern</button><button class="ghost" data-act="plmapcancel">Abbrechen</button></div></section>`;
+    else h+=`<section class="card"><div class="section-head"><h2>🗺️ Karte</h2><button class="ghost" data-act="plmapedit">${mu?"Link ändern":"Karte verknüpfen"}</button></div>
+      ${emb?(S.playMapOpen?`<iframe class="mapframe" src="${esc(emb)}" title="Eure Spielplatz-Karte" loading="lazy" referrerpolicy="no-referrer"></iframe><div class="btnrow"><button class="ghost" data-act="plmaptoggle">Karte ausblenden</button><a class="ghost linkbtn" href="${esc(mu)}" target="_blank" rel="noopener noreferrer">In Google Maps öffnen</a></div>`:`<div class="btnrow"><button class="primary" data-act="plmaptoggle">Karte anzeigen</button></div>`)
+        :mu&&mapOk(mu)?`<div class="btnrow"><a class="primary linkbtn" href="${esc(mu)}" target="_blank" rel="noopener noreferrer">Eure Karte in Google Maps öffnen</a></div>`
+        :`<div class="freq">Noch keine Karte verknüpft. Jeder Spielplatz hat trotzdem ein 🗺️, das ihn in Google Maps sucht.</div>`}</section>`}
   h+=l.length?`<section class="card"><div class="section-head"><h2>${sec[1]} ${esc(sec[2])}</h2><span class="freq num">${l.length}</span></div><ul class="shop">${l.map(card).join("")}</ul><div class="freq">Mit dem Stern markiert ihr Lieblinge, sie stehen dann oben.</div></section>`
     :`<div class="empty"><h2>Noch nichts bei ${esc(sec[2])}</h2><div>Legt mit dem Knopf oben den ersten Eintrag an. Ihr seht beide dieselbe Liste.</div></div>`;
   return h}
@@ -942,7 +958,7 @@ function render(){
   const inSet=S.tab==="plan"||S.tab==="alle";
   h+=inSet?`<div class="appbar"><button class="ghost" data-go="${S.prev||"camp"}">‹ Zurück</button><span class="brand">Euer Plan</span></div><div class="filters" role="group" aria-label="Ansicht"><button class="chipbtn neutral" data-go="alle" aria-pressed="${S.tab==="alle"}">Übersicht</button><button class="chipbtn neutral" data-go="plan" aria-pressed="${S.tab==="plan"}">Plan bearbeiten</button></div>`
     :`<div class="appbar"><button class="brand brandbtn" data-go="camp" aria-label="Zur Startseite">🏕️🧹</button><button class="iconbtn" data-go="alle" aria-label="Übersicht und Plan"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button></div>`;
-  h+=S.tab==="woche"?renderWeek():S.tab==="alle"?renderAll():S.tab==="camp"?renderCamp():S.tab==="essen"||S.tab==="einkauf"?renderFood():S.tab==="ausflug"?renderTrips():S.tab==="projekte"?renderProjects():S.tab==="spiel"?renderPlay():renderPlan();
+  h+=S.tab==="woche"?renderWeek():S.tab==="alle"?renderAll():S.tab==="camp"?renderCamp():S.tab==="essen"||S.tab==="einkauf"?renderFood():S.tab==="ausflug"?renderTrips():S.tab==="projekte"||S.tab==="amhaus"?renderProjects():S.tab==="spiel"?renderPlay():renderPlan();
   const y=window.scrollY,ae=document.activeElement,fid=ae&&app.contains(ae)&&ae.id?ae.id:null,sel=fid&&ae.selectionStart!=null?[ae.selectionStart,ae.selectionEnd]:null;
   app.innerHTML=h;window.scrollTo(0,y);syncNav();
   if(fid){const el=document.getElementById(fid);if(el){el.focus({preventScroll:true});if(sel){try{el.setSelectionRange(sel[0],sel[1])}catch(_){}}}}
@@ -950,25 +966,30 @@ function render(){
 
 // ---------- Zurück-Taste ----------
 const NAV=[];let navBusy=false;
-function navKey(){return S.tab+"|"+(S.tab==="essen"?S.foodTab:S.tab==="ausflug"?S.tripTab:S.tab==="spiel"?S.playSec:S.tab==="projekte"?S.projFilter:"")+"|"+((S.recDraft||S.planEdit||S.lunchDraft||S.campDraft||S.lunchMapEdit||S.tripDraft||S.projDraft||S.playDraft)?"d":"")}
+function navKey(){return S.tab+"|"+(S.tab==="essen"?S.foodTab:S.tab==="ausflug"?S.tripTab:S.tab==="spiel"?S.playSec:S.tab==="projekte"||S.tab==="amhaus"?S.projFilter:"")+"|"+((S.recDraft||S.planEdit||S.lunchDraft||S.campDraft||S.lunchMapEdit||S.tripDraft||S.projDraft||S.playDraft)?"d":"")}
 function syncNav(){if(!S.config)return;const k=navKey();try{
   if(!NAV.length){NAV.push(k);history.replaceState({i:0,k},"");return}
   if(NAV[NAV.length-1]===k)return;
   if(NAV.length>1&&NAV[NAV.length-2]===k){NAV.pop();navBusy=true;history.back();return}
   NAV.push(k);history.pushState({i:NAV.length-1,k},"")}catch(_){}}
 window.addEventListener("popstate",e=>{if(navBusy){navBusy=false;return}const st=e.state;if(!st||typeof st.k!=="string")return;
-  const p=st.k.split("|");S.tab=p[0];if(S.tab==="projekte")S.projFilter=p[1]||"";else if(p[1]){if(S.tab==="ausflug")S.tripTab=p[1];else if(S.tab==="spiel")S.playSec=p[1];else S.foodTab=p[1]}S.tripDraft=null;S.projDraft=null;S.playDraft=null;S.recDraft=S.planEdit=S.lunchDraft=S.campDraft=null;S.lunchMapEdit=false;S.draft=null;
+  const p=st.k.split("|");S.tab=p[0];if(S.tab==="projekte"||S.tab==="amhaus")S.projFilter=p[1]||"";else if(p[1]){if(S.tab==="ausflug")S.tripTab=p[1];else if(S.tab==="spiel")S.playSec=p[1];else S.foodTab=p[1]}S.tripDraft=null;S.projDraft=null;S.playDraft=null;S.recDraft=S.planEdit=S.lunchDraft=S.campDraft=null;S.lunchMapEdit=false;S.draft=null;
   NAV.length=Math.min(NAV.length,st.i);NAV[st.i]=navKey();render();window.scrollTo(0,0)});
 // ---------- Events ----------
 document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("button[data-tab]");if(!b)return;S.tab=b.dataset.tab;if(S.tab!=="plan")S.draft=null;if(S.tab!=="camp")S.campDraft=null;render();window.scrollTo(0,0)});
 app.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;
-  if(b.dataset.go){if(S.tab!=="plan"&&S.tab!=="alle")S.prev=S.tab;S.tab=b.dataset.go;S.tripDraft=S.projDraft=S.playDraft=null;if(b.dataset.ft&&b.dataset.ft!=="shop"){S.foodTab=b.dataset.ft;try{localStorage.setItem("hq-foodtab",S.foodTab)}catch(_){}}S.draft=null;S.campDraft=null;render();window.scrollTo(0,0);return}
+  if(b.dataset.go){if(S.tab!=="plan"&&S.tab!=="alle")S.prev=S.tab;S.tab=b.dataset.go;S.tripDraft=S.projDraft=S.playDraft=null;if(S.tab==="projekte"||S.tab==="amhaus")S.projFilter=b.dataset.pf||"";if(b.dataset.ft&&b.dataset.ft!=="shop"){S.foodTab=b.dataset.ft;try{localStorage.setItem("hq-foodtab",S.foodTab)}catch(_){}}S.draft=null;S.campDraft=null;render();window.scrollTo(0,0);return}
+  if(b.dataset.act==="plmaptoggle"){S.playMapOpen=!S.playMapOpen;render();return}
+  if(b.dataset.act==="plmapedit"){S.playMapEdit=true;S.playMapText=(S.food&&S.food.playmap)||"";render();const el=document.getElementById("pl-mapurl");if(el)el.focus();return}
+  if(b.dataset.act==="plmapcancel"){S.playMapEdit=false;render();return}
+  if(b.dataset.act==="plmapsave"){const el=document.getElementById("pl-mapurl"),u=(el?el.value:S.playMapText).trim();if(u&&!mapOk(u)){toast("Das ist kein Link aus Google Maps.");return}
+    try{await S.store.setPath("food/playmap",u||null);S.playMapEdit=false;S.playMapOpen=!!mapsEmbed(u);render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.playsec){S.playDraft=null;S.playSec=b.dataset.playsec;render();return}
   if(b.dataset.plset){const d=S.playDraft;if(d){const f=b.dataset.plset;d[f]=d[f]===b.dataset.v?"":b.dataset.v;render()}return}
   if(b.dataset.playfav){const x=plays().find(y=>y.id===b.dataset.playfav);if(x){try{await S.store.setPath("food/play/"+x.id+"/fav",x.fav?null:true)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}return}
   if(b.dataset.act==="playnew"){S.playDraft={id:null,sec:S.playSec,name:"",note:"",link:"",age:"",wx:"",mat:"",when:""};render();window.scrollTo(0,0);const el=document.getElementById("pl-name");if(el)el.focus();return}
-  if(b.dataset.playedit){const x=plays().find(y=>y.id===b.dataset.playedit);if(x){S.playDraft={id:x.id,sec:x.sec||"spielplatz",name:x.name||"",note:x.note||"",link:x.link||"",age:x.age||"",wx:x.wx||"",mat:x.mat||"",when:x.when||""};render();window.scrollTo(0,0)}return}
+  if(b.dataset.playedit){const x=plays().find(y=>y.id===b.dataset.playedit);if(x){S.playDraft={id:x.id,sec:(x.sec==="links"?"sonst":x.sec)||"spielplatz",name:x.name||"",note:x.note||"",link:x.link||"",age:x.age||"",wx:x.wx||"",mat:x.mat||"",when:x.when||""};render();window.scrollTo(0,0)}return}
   if(b.dataset.act==="playcancel"){S.playDraft=null;render();return}
   if(b.dataset.act==="playsave"){const d=S.playDraft,name=(d.name||"").trim().slice(0,80);if(!name){toast("Bitte einen Namen eintragen");return}
     const id=d.id||newId("s"),base="food/play/"+id+"/";
@@ -1082,14 +1103,15 @@ app.addEventListener("click",async e=>{
 app.addEventListener("change",e=>{const row=e.target.closest(".editrow[data-i]");if(!row||!S.draft)return;const t=S.draft.tasks[+row.dataset.i];const f=e.target.dataset.f;if(!f)return;
   t[f]=(f==="times"||f==="pts")?(+e.target.value||0):e.target.value;if(f==="freq"&&t.freq==="week"&&!t.times)t.times=1;if(f==="freq"||f==="owner")render()});
 app.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="mealinput"){e.preventDefault();const b=app.querySelector("[data-act=mealsave]");if(b)b.click()}});
-app.addEventListener("submit",e=>{if(e.target.id==="projform"){e.preventDefault();const v=(S.projText||"").trim().slice(0,80);S.projText="";const el=document.getElementById("projinput");if(el)el.value="";if(!v)return;const cat=S.projFilter||"";S.store.setPath("food/idea/"+newId("p"),Object.assign({name:v,done:false,at:Date.now(),by:S.me||""},cat?{cat}:{})).catch(()=>toast("Konnte nicht speichern. Bitte Verbindung prüfen."));return}
+app.addEventListener("submit",e=>{if(e.target.id==="projform"){e.preventDefault();const v=(S.projText||"").trim().slice(0,80);S.projText="";const el=document.getElementById("projinput");if(el)el.value="";if(!v)return;const cat=S.projFilter||projGroup().quick||"";S.store.setPath("food/idea/"+newId("p"),Object.assign({name:v,done:false,at:Date.now(),by:S.me||""},cat?{cat}:{})).catch(()=>toast("Konnte nicht speichern. Bitte Verbindung prüfen."));return}
   if(e.target.id==="packlistform"){e.preventDefault();const el=document.getElementById("packlistinput"),n=(el&&el.value||"").trim().slice(0,40);if(!n)return;const id=newId("l");S.packList=id;S.packListNew=false;S.store.setPath("food/packlist/"+id,{name:n,at:Date.now()}).catch(()=>toast("Konnte nicht speichern."));render();return}
   if(e.target.id==="packform"){e.preventDefault();const v=S.packText;S.packText="";const el=document.getElementById("packinput");if(el)el.value="";packAdd(v);return}
   if(e.target.id!=="shopform")return;e.preventDefault();const v=S.shopText;S.shopText="";const el=document.getElementById("shopinput");if(el)el.value="";shopAdd(v)});
 app.addEventListener("input",e=>{if(e.target.id==="shopinput"){S.shopText=e.target.value;return}
   if(e.target.id==="packinput"){S.packText=e.target.value;return}
   if(e.target.id==="projinput"){S.projText=e.target.value;return}
-  if(S.playDraft&&e.target.dataset.plf){S.playDraft[e.target.dataset.plf]=e.target.value;return}
+  if(S.playDraft&&e.target.dataset.plf){S.playDraft[e.target.dataset.plf]=e.target.value;
+    if(e.target.dataset.plf==="link"&&!S.playDraft.name.trim()){const n=nameFromLink(e.target.value.trim());if(n){S.playDraft.name=n;const el=document.getElementById("pl-name");if(el)el.value=n}}return}
   if(S.projDraft&&e.target.dataset.pf){S.projDraft[e.target.dataset.pf]=e.target.value;return}
   if(S.tripDraft&&e.target.dataset.tf){S.tripDraft[e.target.dataset.tf]=e.target.value;return}
   if(e.target.id==="mealinput"){S.planText=e.target.value;return}
@@ -1105,7 +1127,7 @@ function start(store,mode){S.store=store;S.mode=mode;let gotCfg=false,gotWeeks=f
   store.listen((cfg,fromCache)=>{S.config=cfg;if(!fromCache){gotCfg=true;S.cfgConfirmed=true}if(gotCfg&&gotWeeks){clearTimeout(timer);S.timedOut=false}render()},
     (w,fromCache)=>{S.weeks=w;if(!fromCache)gotWeeks=true;if(gotCfg&&gotWeeks){clearTimeout(timer);S.timedOut=false}render()},
     err=>{clearTimeout(timer);toast("Verbindung zu den gemeinsamen Daten verloren. Seite neu öffnen.")},
-    food=>{S.food=food||{};if(S.tab==="essen"||S.tab==="einkauf"||S.tab==="camp"||S.tab==="ausflug"||S.tab==="projekte"||S.tab==="spiel")render()});
+    food=>{S.food=food||{};if(S.tab==="essen"||S.tab==="einkauf"||S.tab==="camp"||S.tab==="ausflug"||S.tab==="projekte"||S.tab==="amhaus"||S.tab==="spiel")render()});
   try{fetch("ideen.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.ideas=j;if(S.tab==="essen")render()}}).catch(()=>{})}catch(_){}
 }
 (async()=>{let db=null;try{if(window.claude&&window.claude.use)db=await window.claude.use("db")}catch(e){db=null}
