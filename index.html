@@ -761,7 +761,7 @@ function ideaList(){const have=new Set(recs().map(r=>(r.name||"").toLowerCase())
 function renderIdeas(){const l=ideaList();if(!l.length)return "";const u=S.ideas.updated?String(S.ideas.updated).split("-").reverse().join("."):"";
   return `<section class="card"><div class="section-head"><h2>Ideen aus der Recherche</h2>${u?`<span class="freq">Stand ${esc(u)}</span>`:""}</div>
     <ul class="shop">${l.map(x=>{const link=/^https?:\/\//i.test(x.link||"")?x.link:"";return `<li style="padding:10px 0;gap:12px"><div style="flex:1;min-width:0">${ideaCat(x)?`<div class="eyebrow" style="margin:0">${ideaCat(x)[1]} ${ideaCat(x)[2]}</div>`:""}<div style="font-weight:600;overflow-wrap:anywhere">${esc(x.name)}</div><div class="freq">${link?`<a href="${esc(link)}" target="_blank" rel="noopener noreferrer">${esc(x.source||"Zum Rezept")}</a>`:esc(x.source||"")}</div></div><button class="ghost" data-idea="${x.i}">Übernehmen</button>${Array.isArray(x.ing)&&x.ing.length?(shopBlocks()[x.name]?`<button class="ghost" data-shopblockrm="${esc(x.name)}" aria-label="Zutaten von ${esc(x.name)} wieder von der Liste nehmen">− Liste</button>`:`<button class="ghost" data-ideashop="${x.i}" aria-label="Zutaten von ${esc(x.name)} auf die Einkaufsliste">+ Liste</button>`):""}</li>`}).join("")}</ul></section>`}
-function renderMealPlan(){const mon=planWeek(),days=planDays(mon),rl=recs(),rmap={};rl.forEach(r=>rmap[r.id]=r);
+function renderMealPlan(){const mon=planWeek(),days=planDays(mon),kmw=kitaMeals(mon),rl=recs(),rmap={};rl.forEach(r=>rmap[r.id]=r);
   const cur=mondayOf(new Date()),isCur=+mon===+cur,today=startOfDay(new Date()),sun=addDays(mon,6);
   const dm=x=>x.getDate()+"."+(x.getMonth()+1)+".";
   let h=`<div class="section-head" style="align-items:center"><div><h2>KW ${isoWeek(mon).w}</h2><div class="freq">${dm(mon)} bis ${dm(sun)}</div></div>
@@ -772,7 +772,7 @@ function renderMealPlan(){const mon=planWeek(),days=planDays(mon),rl=recs(),rmap
       <input type="text" id="mealinput" value="${esc(S.planText)}" maxlength="80" placeholder="Was gibt es?" autocomplete="off" enterkeyhint="done" aria-label="Gericht am ${dn}">
       ${rl.length?`<div class="unl">${rl.map(x=>`<button class="chipbtn" data-mealrec="${esc(x.id)}" aria-pressed="${S.planRec===x.id}">${esc(x.name)}</button>`).join("")}</div>`:`<div class="freq">Tipp: Legt unter „Rezepte“ Gerichte an, dann könnt ihr sie hier antippen.</div>`}
       <div class="btnrow"><button class="primary" data-act="mealsave">Speichern</button><button class="ghost" data-act="mealcancel">Abbrechen</button>${m?`<button class="ghost danger" data-act="mealclear">Leeren</button>`:""}</div></li>`;
-    return `<li class="${isToday?"today":""}"><button class="mealrow" data-meal="${k}"><span class="day">${dn.slice(0,2)}<span class="freq"> ${dm(date)}</span></span><span class="dish ${m?"":"none"}">${m?esc(m.text||(r&&r.name)||""):"+ Gericht eintragen"}${r?` <span class="tag">Rezept</span>`:""}</span></button></li>`}).join("")}</ul></section>`;
+    return `<li class="${isToday?"today":""}"><button class="mealrow" data-meal="${k}"><span class="day">${dn.slice(0,2)}<span class="freq"> ${dm(date)}</span></span><span class="dish ${m?"":"none"}">${m?esc(m.text||(r&&r.name)||""):"+ Gericht eintragen"}${r?` <span class="tag">Rezept</span>`:""}${kmw[k]&&kmw[k].text?`<br><span class="freq">🎒 Kita: ${esc(kmw[k].text)}</span>`:""}</span></button></li>`}).join("")}</ul></section>`;
   if(any)h+=`<div><button class="ghost" data-act="mealshop">Zutaten der Woche auf die Einkaufsliste</button></div>`;
   return h}
 const CATS=[
@@ -974,7 +974,8 @@ function renderPlay(){const d=S.playDraft,sec=PLAY_SECS.find(s=>s[0]===S.playSec
     :`<div class="empty"><h2>Noch nichts bei ${esc(sec[2])}</h2><div>Legt mit dem Knopf oben den ersten Eintrag an. Ihr seht beide dieselbe Liste.</div></div>`;
   return h}
 // ---------- Kita (Rucksack) ----------
-const KITA_SECS=[["termine","📅","Termine"],["tasche","🎒","Kita-Tasche"],["infos","📝","Infos"]];
+const KITA_SECS=[["termine","📅","Termine"],["essen","🍽️","Essen"],["tasche","🎒","Kita-Tasche"],["infos","📝","Infos"]];
+const kitaMeals=mon=>((S.food&&S.food.kitaplan)||{})[wkKey(mon)]||{};
 const KITA_BAG=["Wechselkleidung","Windeln","Feuchttücher","Matschhose","Gummistiefel","Hausschuhe","Sonnenhut","Sonnencreme","Brotdose","Trinkflasche","Kuscheltier"];
 const kitas=()=>listOf(S.food&&S.food.kita);
 const ymd=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
@@ -995,6 +996,11 @@ function renderKita(){const d=S.kitaDraft,sec=KITA_SECS.find(s=>s[0]===S.kitaSec
     h+=up.length?`<section class="card"><div class="section-head"><h2>Kommt noch</h2><span class="freq num">${up.length}</span></div><ul class="shop">${up.map(li).join("")}</ul><div class="freq">Termine in den nächsten 7 Tagen stehen auch auf der Startseite unter „Heute“.</div></section>`
       :`<div class="empty"><h2>Keine Termine</h2><div>Tragt Feste, Schließtage und Elternabende ein. Ihr seht beide dieselbe Liste.</div></div>`;
     if(past.length)h+=`<section class="card"><div class="section-head"><h2>Vorbei</h2><span class="freq num">${past.length}</span></div><ul class="shop">${past.slice(0,10).map(li).join("")}</ul></section>`;
+    return h}
+  if(sec[0]==="essen"){const mon=planWeek(),km=kitaMeals(mon),isCur=+mon===+mondayOf(new Date()),dm=x=>x.getDate()+"."+(x.getMonth()+1)+".";
+    h+=`<div class="section-head" style="align-items:center"><div><h2>KW ${isoWeek(mon).w}</h2><div class="freq">${dm(mon)} bis ${dm(addDays(mon,4))}</div></div><div class="weeknav"><button class="iconbtn" data-fnav="-1" aria-label="Vorige Woche">‹</button>${isCur?"":`<button class="ghost" data-fnav="0">Heute</button>`}<button class="iconbtn" data-fnav="1" aria-label="Nächste Woche">›</button></div></div>`;
+    h+=`<section class="card tripform">${DAYN.slice(0,5).map((dn,i)=>`<label class="fld"><span>${dn} ${dm(addDays(mon,i))}</span><input type="text" id="ke-d${i}" data-ke="d${i}" value="${esc((km["d"+i]||{}).text||"")}" maxlength="80" placeholder="Was gibt es in der Kita?" autocomplete="off"></label>`).join("")}
+      <div class="btnrow"><button class="primary" data-act="kitamealsave">Speichern</button></div><div class="freq">Abschreiben aus dem Plan der Kita. Das Kita-Essen erscheint auch im Essensplan, damit ihr abends nicht dasselbe kocht.</div></section>`;
     return h}
   if(sec[0]==="tasche"){const items=all.sort((a,b)=>(a.at||0)-(b.at||0)),have=new Set(items.map(i=>i.name.toLowerCase())),sug=KITA_BAG.filter(n=>!have.has(n.toLowerCase())),ok=items.filter(i=>i.done).length;
     const li=i=>`<li class="${i.done?"done":""}"><button class="item" data-kitatick="${esc(i.id)}" aria-pressed="${!!i.done}"><span class="box">${i.done?"✓":""}</span><span class="nm">${esc(i.name)}</span></button><button class="rm" data-kitarm="${esc(i.id)}" aria-label="${esc(i.name)} entfernen">✕</button></li>`;
@@ -1080,6 +1086,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.kitaadd){kitaAdd(b.dataset.kitaadd);return}
   if(b.dataset.kitatick){const x=kitas().find(y=>y.id===b.dataset.kitatick);if(x){try{await S.store.setPath("food/kita/"+x.id+"/done",!x.done)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}return}
   if(b.dataset.kitarm){try{await S.store.setPath("food/kita/"+b.dataset.kitarm,null)}catch(_){toast("Konnte nicht speichern.")}return}
+  if(b.dataset.act==="kitamealsave"){const wk=wkKey(planWeek());const vals=[0,1,2,3,4].map(i=>{const el=document.getElementById("ke-d"+i);return (el?el.value:"").trim().slice(0,80)});try{for(let i=0;i<5;i++){const v=vals[i];await S.store.setPath("food/kitaplan/"+wk+"/d"+i,v?{text:v,at:Date.now()}:null)}toast("Kita-Essen gespeichert")}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.act==="kitareset"){for(const i of kitas().filter(x=>x.sec==="tasche"&&x.done)){try{await S.store.setPath("food/kita/"+i.id+"/done",false)}catch(_){}}return}
   if(b.dataset.act==="plmaptoggle"){S.playMapOpen=!S.playMapOpen;render();return}
   if(b.dataset.act==="plmapedit"){S.playMapEdit=true;S.playMapText=(S.food&&S.food.playmap)||"";render();const el=document.getElementById("pl-mapurl");if(el)el.focus();return}
