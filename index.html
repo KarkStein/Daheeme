@@ -245,7 +245,8 @@ a.catbtn{text-decoration:none;display:inline-flex;align-items:center}
 .bellbtn[aria-pressed=true]{opacity:1!important}
 .priohead i{font-style:normal;color:var(--muted);font-weight:400}
 .recbar{display:flex;align-items:center;gap:6px}
-.recbar .rechead{flex:1;min-width:0}
+.recbar .rechead{flex:1;min-width:0;align-items:center}
+.card.rec.compact{padding-top:10px;padding-bottom:10px}
 .prow{display:flex;align-items:center;gap:8px;border-top:1px solid var(--line);padding:8px 0}
 .bellnav{position:relative;font-size:1.05rem}
 .bellnav .badge{position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;border-radius:9px;background:#c7442f;color:#fff;font-size:.7rem;display:grid;place-items:center;padding:0 4px}
@@ -764,16 +765,22 @@ function recIng(r){return ((r&&r.ing)||"").split("\n").map(x=>x.trim()).filter(B
 const PANTRY_DEF=["Salz","Pfeffer","Öl","Olivenöl","Rapsöl","Sonnenblumenöl","Zucker","Mehl","Essig","Gemüsebrühe","Paprikapulver","Currypulver","Kreuzkümmel","Zimt","Muskat","Muskatnuss","Oregano","Chiliflocken","Lorbeerblatt","Lorbeerblätter","Backpulver","Natron","Speisestärke","Wasser","Gewürze"];
 function pantry(){const v=S.food&&S.food.pantry;return typeof v==="string"?v.split("\n").map(x=>x.trim()).filter(Boolean):PANTRY_DEF}
 function isPantry(line,list){const l=" "+String(line||"").toLowerCase()+" ";return (list||pantry()).some(t=>{t=t.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g,"\\$&");return new RegExp("(^|[^a-zäöüß])"+t+"($|[^a-zäöüß])").test(l)})}
-async function shopAddMany(list,src){src=(src||"").trim().slice(0,80);let n=0,skip=0;const pl=pantry();const have=new Set(shopItems().filter(i=>!i.done).map(i=>i.name.toLowerCase()));
-  for(const raw of list){const name=raw.trim().slice(0,80);if(!name||have.has(name.toLowerCase()))continue;if(isPantry(name,pl)){skip++;continue}have.add(name.toLowerCase());
+const hasQty=l=>/\d|[½¼¾⅓]|\b(eine?n?|Prise|Msp|Bund|Zehen?|Stück|Stiele?|Zweige?|Dosen?|Packung|Handvoll|etwas)\b/i.test(l);
+// Ältere Rezepte und Plantage haben Zutaten ohne Mengen. Gibt es das Gericht in der aktuellen Recherche mit Mengen, nimm diese Zeilen.
+function withQty(name,lines){const miss=lines.filter(l=>!hasQty(l)).length;if(!miss||!name)return lines;const nm=name.trim().toLowerCase();
+  const x=[...((S.wideas&&S.wideas.items)||[]),...((S.ideas&&S.ideas.items)||[])].find(y=>y&&y.name&&y.name.trim().toLowerCase()===nm&&Array.isArray(y.ing));
+  if(!x)return lines;const ing=x.ing.map(String);return ing.filter(l=>!hasQty(l)).length<miss?ing:lines}
+async function shopAddMany(list,src){src=(src||"").trim().slice(0,80);list=withQty(src,list);let n=0,skip=0,noq=0;const pl=pantry();const have=new Set(shopItems().filter(i=>!i.done).map(i=>i.name.toLowerCase()));
+  for(const raw of list){const name=raw.trim().slice(0,80);if(!name||have.has(name.toLowerCase()))continue;if(isPantry(name,pl)){skip++;continue}have.add(name.toLowerCase());if(!hasQty(name))noq++;
     const id="i"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
     try{const v={name,done:false,at:Date.now()+n,by:S.me||""};if(src)v.src=src;await S.store.setPath("food/shop/"+id,v);n++}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.");return}}
-  toast((n?n+(n===1?" Zutat":" Zutaten")+" auf der Einkaufsliste":"Steht alles schon auf der Liste")+(skip?". "+skip+" aus dem Vorrat weggelassen":""))}
+  toast((n?n+(n===1?" Zutat":" Zutaten")+" auf der Einkaufsliste":"Steht alles schon auf der Liste")+(skip?". "+skip+" aus dem Vorrat weggelassen":"")+(noq?". "+noq+" ohne Menge (älteres Rezept)":""))}
 const shopBlocks=()=>{const m={};shopItems().filter(i=>!i.done&&i.src).forEach(i=>{m[i.src]=(m[i.src]||0)+1});return m};
 async function shopRemoveBlock(src){const l=shopItems().filter(i=>!i.done&&i.src===src);for(const i of l){try{await S.store.setPath("food/shop/"+i.id,null)}catch(_){toast("Konnte nicht speichern.");return}}
   toast(l.length?l.length+(l.length===1?" Zutat":" Zutaten")+" für „"+src+"“ entfernt":"Nichts mehr auf der Liste")}
 function planWeek(){return S.foodWeek||mondayOf(new Date())}
 function planDays(mon){return ((S.food&&S.food.plan)||{})[wkKey(mon)]||{}}
+function recMeta(r,ing,link){const m=[];if(link){try{m.push(new URL(link).hostname.replace(/^www\./,""))}catch(_){}}m.push(ing.length+" "+(ing.length===1?"Zutat":"Zutaten"));if(ing.length&&ing.filter(l=>!hasQty(l)).length*2>ing.length)m.push("ohne Mengen");const mon=mondayOf(new Date()),days=planDays(mon),d=Object.keys(days).filter(k=>days[k]&&(days[k].rec===r.id||days[k].text===r.name)).map(k=>DAYN[+k.slice(1)].slice(0,2));if(d.length)m.push("📅 "+d.join(", "));if(shopBlocks()[r.name])m.push("🛒 auf der Liste");return m}
 function renderRecipes(){const list=recs(),d=S.recDraft;
   if(d)return `<section class="card"><h2>${d.id?"Rezept bearbeiten":"Neues Rezept"}</h2>
     <label class="fld"><span>Name</span><input type="text" id="rec-name" data-rf="name" value="${esc(d.name)}" maxlength="80" placeholder="Zum Beispiel Linsensuppe" autocomplete="off"></label>
@@ -783,8 +790,9 @@ function renderRecipes(){const list=recs(),d=S.recDraft;
     <div class="btnrow"><button class="primary" data-act="recsave">Speichern</button><button class="ghost" data-act="reccancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="recdel">Löschen</button>`:""}</div></section>`;
   let h=`<div><button class="primary" data-act="recnew">+ Neues Rezept</button></div>`;
   if(!list.length)return h+`<div class="empty"><h2>Noch keine Rezepte</h2><div>Sammelt hier eure Lieblingsgerichte. Die Zutaten wandern mit einem Tipp auf die Einkaufsliste, und im Essensplan könnt ihr die Rezepte auf Tage legen.</div></div>`;
-  h+=list.map(r=>{const open=S.recOpen===r.id,ing=recIng(r),link=/^https?:\/\//i.test(r.link||"")?r.link:"";
-    return `<section class="card rec"><div class="recbar"><button class="rechead" data-rec="${esc(r.id)}" aria-expanded="${open}"><span class="nm">${esc(r.name)}</span><span class="freq">${ing.length} ${ing.length===1?"Zutat":"Zutaten"} ${open?"▴":"▾"}</span></button>${bell("rezepte",r)}<button class="catbtn" data-recrm="${esc(r.id)}" aria-label="${esc(r.name)} entfernen" style="background:none;border:none;opacity:.6;padding:8px 4px">✕</button></div>
+  h+=list.map(r=>{const open=S.recOpen===r.id,ing=withQty(r.name,recIng(r)),link=/^https?:\/\//i.test(r.link||"")?r.link:"";
+    const meta=recMeta(r,ing,link),onList=!!shopBlocks()[r.name];
+    return `<section class="card rec${open?"":" compact"}"><div class="recbar"><button class="rechead" data-rec="${esc(r.id)}" aria-expanded="${open}"><span style="min-width:0"><span class="nm">${esc(r.name)}</span>${meta.length?`<br><span class="freq">${meta.map(esc).join(" · ")}</span>`:""}</span><span class="freq">${open?"▴":"▾"}</span></button>${ing.length?`<button class="catbtn" ${onList?`data-shopblockrm="${esc(r.name)}" aria-label="Zutaten von ${esc(r.name)} wieder von der Liste nehmen" style="background:none;border:none;padding:8px 4px"`:`data-recshop="${esc(r.id)}" aria-label="Zutaten von ${esc(r.name)} auf die Einkaufsliste" style="background:none;border:none;padding:8px 4px;filter:grayscale(1);opacity:.6"`}>🛒</button>`:""}${bell("rezepte",r)}<button class="catbtn" data-recrm="${esc(r.id)}" aria-label="${esc(r.name)} entfernen" style="background:none;border:none;opacity:.6;padding:8px 4px">✕</button></div>
       ${open?`${ing.length?`<ul class="ing">${ing.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}${r.note?`<div class="recnote">${esc(r.note)}</div>`:""}${link?`<div><a href="${esc(link)}" target="_blank" rel="noopener noreferrer">Rezept im Netz öffnen</a></div>`:""}
       <div class="btnrow">${ing.length?(shopBlocks()[r.name]?`<button class="ghost" data-shopblockrm="${esc(r.name)}">Zutaten wieder von der Liste nehmen</button>`:`<button class="primary" data-recshop="${esc(r.id)}">Zutaten auf die Einkaufsliste</button>`):""}<button class="ghost" data-recedit="${esc(r.id)}">Bearbeiten</button><button class="ghost danger" data-recrm="${esc(r.id)}">Entfernen</button></div>`:""}</section>`}).join("");
   return h}
@@ -1195,13 +1203,18 @@ function render(){
 // ---------- Zurück-Taste ----------
 const NAV=[];let navBusy=false;
 function navKey(){return S.tab+"|"+(S.tab==="essen"?S.foodTab:S.tab==="ausflug"?S.tripTab:S.tab==="spiel"?S.playSec:S.tab==="kita"?S.kitaSec:S.tab==="projekte"||S.tab==="amhaus"?S.projFilter:S.tab==="woche"&&S.weekPage?String(S.weekPage):"")+"|"+((S.recDraft||S.planEdit||S.lunchDraft||S.campDraft||S.lunchMapEdit||S.tripDraft||S.projDraft||S.playDraft||S.kitaDraft)?"d":"")}
-function syncNav(){if(!S.config)return;const k=navKey();try{
+function applyNav(k){const p=k.split("|");S.tab=p[0];if(S.tab==="projekte"||S.tab==="amhaus")S.projFilter=p[1]||"";else if(p[1]){if(S.tab==="ausflug")S.tripTab=p[1];else if(S.tab==="spiel")S.playSec=p[1];else if(S.tab==="kita")S.kitaSec=p[1];else if(S.tab==="woche")S.weekPage=+p[1]||0;else S.foodTab=p[1]}if(S.tab==="woche"&&!p[1])S.weekPage=0}
+// Neu laden (am Handy herunterziehen): im selben Bereich bleiben. history.state überlebt das Neuladen, sessionStorage als Rückfall.
+function restoreNav(){let st=null;try{st=history.state}catch(_){}let k=st&&typeof st.k==="string"?st.k:"";if(!k){try{k=sessionStorage.getItem("hq-nav")||""}catch(_){}}
+  const t=k.split("|")[0];if(!t||((t==="ausflug"||t==="wichtig")&&!prioOn()))return false;applyNav(k);
+  const i=st&&typeof st.k==="string"&&st.i>0?st.i:0;for(let j=0;j<i;j++)NAV.push("");const nk=navKey();NAV.push(nk);try{history.replaceState({i,k:nk},"")}catch(_){}return true}
+function syncNav(){if(!S.config)return;if(!NAV.length&&!S.navRestored){S.navRestored=true;if(restoreNav()){render();window.scrollTo(0,0);return}}const k=navKey();try{sessionStorage.setItem("hq-nav",k)}catch(_){}try{
   if(!NAV.length){NAV.push(k);history.replaceState({i:0,k},"");return}
   if(NAV[NAV.length-1]===k)return;
   if(NAV.length>1&&NAV[NAV.length-2]===k){NAV.pop();navBusy=true;history.back();return}
   NAV.push(k);history.pushState({i:NAV.length-1,k},"")}catch(_){}}
 window.addEventListener("popstate",e=>{if(navBusy){navBusy=false;return}const st=e.state;if(!st||typeof st.k!=="string")return;
-  const p=st.k.split("|");S.tab=p[0];if(S.tab==="projekte"||S.tab==="amhaus")S.projFilter=p[1]||"";else if(p[1]){if(S.tab==="ausflug")S.tripTab=p[1];else if(S.tab==="spiel")S.playSec=p[1];else if(S.tab==="kita")S.kitaSec=p[1];else if(S.tab==="woche")S.weekPage=+p[1]||0;else S.foodTab=p[1]}if(S.tab==="woche"&&!p[1])S.weekPage=0;S.tripDraft=null;S.projDraft=null;S.playDraft=null;S.kitaDraft=null;S.recDraft=S.planEdit=S.lunchDraft=S.campDraft=null;S.lunchMapEdit=false;S.draft=null;
+  applyNav(st.k);S.tripDraft=null;S.projDraft=null;S.playDraft=null;S.kitaDraft=null;S.recDraft=S.planEdit=S.lunchDraft=S.campDraft=null;S.lunchMapEdit=false;S.draft=null;
   NAV.length=Math.min(NAV.length,st.i);NAV[st.i]=navKey();render();window.scrollTo(0,0)});
 // ---------- Events ----------
 {let sx=null,sy=0;app.addEventListener("touchstart",e=>{const t=e.target;if(S.tab!=="woche"||!prioOn()||e.touches.length!==1||t.closest("input,textarea,select,.camp")){sx=null;return}sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
@@ -1330,7 +1343,7 @@ app.addEventListener("click",async e=>{
     try{await S.store.setPath("food/lunchmap",u||null);S.lunchMapEdit=false;S.lunchMapOpen=!!mapsEmbed(u);render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.idea){const x=((S.ideas&&S.ideas.items)||[])[+b.dataset.idea];if(!x)return;const id="r"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
     const v={name:String(x.name).slice(0,80),ing:(Array.isArray(x.ing)?x.ing:[]).map(y=>String(y).trim().slice(0,80)).filter(Boolean).slice(0,60).join("\n"),note:String(x.note||"").slice(0,4000),link:String(x.link||"").slice(0,500),at:Date.now()};
-    try{await S.store.setPath("food/rec/"+id,v);S.recOpen=id;toast("Als Rezept übernommen");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
+    try{await S.store.setPath("food/rec/"+id,v);toast("Als Rezept übernommen");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.rec){S.recOpen=S.recOpen===b.dataset.rec?null:b.dataset.rec;render();return}
   if(b.dataset.recshop){const r=recs().find(x=>x.id===b.dataset.recshop);if(r)shopAddMany(recIng(r),r.name);return}
   if(b.dataset.shopblockrm){shopRemoveBlock(b.dataset.shopblockrm);return}
