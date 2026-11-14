@@ -49,6 +49,7 @@ git add -A && git commit && git push origin main
 - Ideen und Projekte: eigener Bereich, erreichbar nur über den Leuchtturm im Haus-Bild (kein Reiter, unten bleiben 4). Für geistige Planung: Geschenke, Spielsachen, Einrichtung, Aufräumen, Haus und Garten. Sport und Spiel hat einen eigenen Bereich hinter dem bunten Ball auf der Wiese: Spielplätze, Spielideen zu Hause, Sport und Kurse, Links; Sterne für Lieblinge.
 - Haus am Meer: Antippbar sind Besen an der Tür (Woche), Schornstein (Essen), Fahrrad (Einkauf), Rucksack (Ausflüge), Leuchtturm (Ideen und Projekte), Ball (Sport und Spiel), kleiner Briefkasten am linken Rand (Plan); Fahrrad unter dem linken Fenster an die Wand gelehnt, Rucksack rechts an die Hauswand gelehnt. Der Leuchtturm strahlt heller mit dem Wochenfortschritt. Erst nach ausdrücklichem Okay für beide einschalten.
 - Rezept-Recherche: ein Rezept pro Kategorie (`cat` in `ideen.json`: gesund, schnell, vegetarisch, saisonal, exotisch; Liste `IDEA_CATS`). Quellen kuratiert der Besitzer selbst in `quellen.txt`. Eine geplante Aufgabe in claude.ai ("Tägliche Rezept-Recherche Daheeme", täglich 5:43 Uhr Berlin) erneuert `ideen.json` direkt auf main.
+- Das Symbol oben links (🏕️🧹) führt aus jedem Bereich zur Startseite.
 - Die Zurück-Taste geht in der App schrittweise zurück (History-Einträge je Bereich, siehe `syncNav`).
 
 ## Offene Liste

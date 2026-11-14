@@ -190,6 +190,7 @@ a.catbtn{text-decoration:none;display:inline-flex;align-items:center}
 .fld input,.fld textarea{font-size:1rem;font-weight:400;padding:10px 12px;width:100%;box-sizing:border-box}
 .fld textarea{resize:vertical;line-height:1.45}
 .btnrow{display:flex;gap:8px;flex-wrap:wrap}
+.brandbtn{background:none;border:none;padding:6px 8px 6px 0;margin:0;cursor:pointer;color:inherit;-webkit-tap-highlight-color:rgba(0,0,0,.08)}
 .tripform{display:flex;flex-direction:column;gap:14px}
 .tripform .unl{margin-top:2px}
 .tripform .chipbtn{font-size:.85rem;padding:6px 12px}
@@ -931,7 +932,7 @@ function render(){
   if(!S.config){h+=`<div class="empty"><h2>Noch kein Haushaltsplan hinterlegt</h2><div>Legt euren Plan aus der Vorlage an (eure Liste mit Müll, Saugen, Wäsche und Co.). Danach könnt ihr alles unter „Plan“ anpassen.</div><button class="primary" data-act="template">Plan aus Vorlage anlegen</button></div>`;app.innerHTML=h;return}
   const inSet=S.tab==="plan"||S.tab==="alle";
   h+=inSet?`<div class="appbar"><button class="ghost" data-go="${S.prev||"camp"}">‹ Zurück</button><span class="brand">Euer Plan</span></div><div class="filters" role="group" aria-label="Ansicht"><button class="chipbtn neutral" data-go="alle" aria-pressed="${S.tab==="alle"}">Übersicht</button><button class="chipbtn neutral" data-go="plan" aria-pressed="${S.tab==="plan"}">Plan bearbeiten</button></div>`
-    :`<div class="appbar"><span class="brand">🏕️🧹</span><button class="iconbtn" data-go="alle" aria-label="Übersicht und Plan"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button></div>`;
+    :`<div class="appbar"><button class="brand brandbtn" data-go="camp" aria-label="Zur Startseite">🏕️🧹</button><button class="iconbtn" data-go="alle" aria-label="Übersicht und Plan"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button></div>`;
   h+=S.tab==="woche"?renderWeek():S.tab==="alle"?renderAll():S.tab==="camp"?renderCamp():S.tab==="essen"||S.tab==="einkauf"?renderFood():S.tab==="ausflug"?renderTrips():S.tab==="projekte"?renderProjects():S.tab==="spiel"?renderPlay():renderPlan();
   const y=window.scrollY,ae=document.activeElement,fid=ae&&app.contains(ae)&&ae.id?ae.id:null,sel=fid&&ae.selectionStart!=null?[ae.selectionStart,ae.selectionEnd]:null;
   app.innerHTML=h;window.scrollTo(0,y);syncNav();
@@ -953,7 +954,7 @@ window.addEventListener("popstate",e=>{if(navBusy){navBusy=false;return}const st
 document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("button[data-tab]");if(!b)return;S.tab=b.dataset.tab;if(S.tab!=="plan")S.draft=null;if(S.tab!=="camp")S.campDraft=null;render();window.scrollTo(0,0)});
 app.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;
-  if(b.dataset.go){if(S.tab!=="plan"&&S.tab!=="alle")S.prev=S.tab;S.tab=b.dataset.go;if(b.dataset.ft&&b.dataset.ft!=="shop"){S.foodTab=b.dataset.ft;try{localStorage.setItem("hq-foodtab",S.foodTab)}catch(_){}}S.draft=null;S.campDraft=null;render();window.scrollTo(0,0);return}
+  if(b.dataset.go){if(S.tab!=="plan"&&S.tab!=="alle")S.prev=S.tab;S.tab=b.dataset.go;S.tripDraft=S.projDraft=S.playDraft=null;if(b.dataset.ft&&b.dataset.ft!=="shop"){S.foodTab=b.dataset.ft;try{localStorage.setItem("hq-foodtab",S.foodTab)}catch(_){}}S.draft=null;S.campDraft=null;render();window.scrollTo(0,0);return}
   if(b.dataset.playsec){S.playDraft=null;S.playSec=b.dataset.playsec;render();return}
   if(b.dataset.plset){const d=S.playDraft;if(d){const f=b.dataset.plset;d[f]=d[f]===b.dataset.v?"":b.dataset.v;render()}return}
   if(b.dataset.playfav){const x=plays().find(y=>y.id===b.dataset.playfav);if(x){try{await S.store.setPath("food/play/"+x.id+"/fav",x.fav?null:true)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}return}
