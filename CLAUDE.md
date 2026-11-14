@@ -11,7 +11,7 @@ Live: https://karkstein.github.io/Daheeme/ (GitHub Pages aus `main`, Wurzelverze
 - Abgleich: Firebase Realtime Database über REST und EventSource, ohne SDK. Basis `https://haushalt-32464-default-rtdb.europe-west1.firebasedatabase.app/haushalt/<geheimer Schlüssel>`. Der Schlüssel steht nur im Link (`#k=…`) und im localStorage `hq-key`, nie im Repo.
 - Firebase-Regeln: `{"rules":{"haushalt":{"$key":{".read":true,".write":true}}}}`
 - `manifest.json` hat absichtlich kein `start_url`, damit `#k=` erhalten bleibt. Icons: `src/icon.svg` über `src/make-icons.js`.
-- `ideen.json` (Wurzel): Rezeptideen der Recherche, Format `{updated, items:[{name, cat, source, link, ing[], note}]}`. `quellen.txt`: Webseiten für die Recherche, eine pro Zeile.
+- `ideen.json` (Wurzel): Rezeptideen der Recherche, Format `{updated, items:[{name, cat, source, link, ing[], note}]}`. `quellen.txt`: Webseiten für die Recherche, eine pro Zeile, nach Kategorie gruppiert. `vorlieben.txt`: Besonderheiten, die die Recherche in jeder Kategorie beachtet.
 
 ## Datenmodell (unter dem Schlüssel)
 
@@ -49,7 +49,7 @@ git add -A && git commit && git push origin main
 ## Offene Liste
 
 - Haus am Meer freischalten, wenn der Besitzer es sagt; dann App-Name und Symbol (bisher 🏕️🧹, Zelt im Start-Tab) und Farben anpassen (Plan: https://claude.ai/artifact/MzunYyXEYMKWLFxg56qyNr).
-- Tägliche Rezept-Recherche, die `ideen.json` erneuert; Webseiten in `quellen.txt` fehlen noch.
+- Tägliche Rezept-Recherche einrichten, die `ideen.json` erneuert (ein Rezept pro Kategorie). Quellen stehen in `quellen.txt`, `vorlieben.txt` füllt der Besitzer noch.
 - Test mit zwei echten Handys.
 - Schriften selbst ausliefern statt von Google Fonts laden.
 - Pausiert: Minispiele "Laub fegen" und "Wer macht's?".

@@ -1,0 +1,2 @@
+# Besonderheiten, die die Rezept-Recherche bei jeder Kategorie beachtet. Eine pro Zeile.
+# Zeilen mit # am Anfang werden ignoriert. Beispiele: "Kein Koriander", "Für zwei Personen", "Höchstens 45 Minuten unter der Woche".

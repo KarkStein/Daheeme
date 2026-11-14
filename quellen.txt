@@ -1,2 +1,27 @@
 # Webseiten, aus denen die Recherche Rezeptideen holt. Eine Adresse pro Zeile.
-# Zeilen mit # am Anfang werden ignoriert.
+# Zeilen mit # am Anfang werden ignoriert. Die Überschriften sagen, für welche Kategorie die Seite vor allem gedacht ist.
+# Die Recherche bringt jeden Tag ein Rezept pro Kategorie und beachtet dabei immer vorlieben.txt.
+
+# Gesund
+https://eatsmarter.de
+https://www.ndr.de/ratgeber/kochen/rezepte/ernaehrungsdocs
+
+# Schnell
+https://www.lecker.de
+https://www.kitchenstories.com/de
+
+# Vegetarisch
+https://www.zuckerundjagdwurst.com
+https://www.eat-this.org
+
+# Saisonal
+https://www.essen-und-trinken.de
+https://www.bzfe.de/lebensmittel/einkauf/saisonkalender
+
+# Exotisch
+https://www.chiliundciabatta.de
+
+# Für alle Kategorien
+https://www.chefkoch.de
+https://emmikochteinfach.de
+https://www.kptncook.com
