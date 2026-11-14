@@ -4,3 +4,6 @@ Mengen für 4 Personen.
 Ein Kleinkind isst mit. Salz und Gewürze sind kein Problem.
 Nichts Rohes oder Halbgares, das ein Kleinkind nicht essen sollte: kein rohes oder rosa Fleisch, kein roher Fisch (Sushi, Tatar), keine rohen Eier (Tiramisu, Mayonnaise selbst gemacht), keine Rohmilchkäse.
 Wenn ein Rezept solche Zutaten hat, nur nehmen, wenn sich der Teil für das Kind leicht durchgaren oder weglassen lässt, und das in der Notiz sagen.
+
+# Zutaten
+Zutaten immer mit Mengen für 4 Personen angeben, z. B. "500 g Hokkaido-Kürbis", "2 Zwiebeln", "1 EL Olivenöl". Ist das Originalrezept für eine andere Personenzahl, auf 4 Personen umrechnen.

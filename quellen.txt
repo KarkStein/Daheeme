@@ -24,4 +24,5 @@ https://www.chiliundciabatta.de
 # Für alle Kategorien
 https://www.chefkoch.de
 https://emmikochteinfach.de
+# Emmikocht: Die Startseite zeigt Robotern nur eine Warteseite. Diese Wege funktionieren: Suche https://emmikochteinfach.de/?s=<Zutat>, neueste Rezepte https://emmikochteinfach.de/rezepte/ oder https://emmikochteinfach.de/feed/, alle Rezepte https://emmikochteinfach.de/post-sitemap.xml
 https://www.kptncook.com
