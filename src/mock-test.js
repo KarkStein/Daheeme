@@ -39,7 +39,7 @@ srv.listen(8765,async()=>{
   await A.click('[data-tab=essen]');await B.click('[data-tab=essen]');await A.click('[data-food=rezepte]');await A.click('[data-act=recnew]');await A.fill('#rec-name','Linsensuppe');await A.fill('#rec-ing','250 g Linsen\n1 Zwiebel');await A.fill('#rec-note','Alles kochen.');await A.click('[data-act=recsave]');
   await B.click('[data-food=plan]');await B.click('[data-meal=d0]');await B.click('[data-mealrec]');await B.click('[data-act=mealsave]');
   await A.click('[data-food=plan]');await A.waitForSelector('.mealrow .tag');await A.click('[data-meal=d2]');await A.fill('#mealinput','Reste');await A.press('#mealinput','Enter');
-  await B.waitForSelector('text=Reste');await B.click('[data-act=mealshop]');await A.click('[data-tab=einkauf]');await A.waitForSelector(':nth-match(.shop li, 2)');
+  await B.waitForSelector('text=Reste');await B.click('[data-act=mealshop]');await B.click('[data-pickmode=alle]');await A.click('[data-tab=einkauf]');await A.waitForSelector(':nth-match(.shop li, 2)');
   await A.click(':nth-match(.shop .catbtn, 1)');await A.click('[data-setcat=tk]');await B.click('[data-tab=einkauf]');await B.waitForSelector('text=Tiefkühl');
   await A.click('[data-tab=essen]');await B.click('[data-tab=essen]');await A.click('[data-food=mittag]');await A.click('[data-act=lunew]');await A.fill('#lu-name','Trattoria');await A.fill('#lu-dishes','Pizza\nPasta');await A.click('[data-act=lusave]');
   await B.click('[data-food=mittag]');await B.click('[data-lunch]');await B.click('button.star:nth-child(4)');await A.waitForSelector('.star.on');
