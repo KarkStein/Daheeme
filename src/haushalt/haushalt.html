@@ -167,6 +167,29 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .shop li.done .box{background:var(--done);border-color:var(--done)}
 .shop li.done .nm{color:var(--muted);text-decoration:line-through}
 .shop .nm{min-width:0;overflow-wrap:anywhere}
+.fld{display:flex;flex-direction:column;gap:4px;font-size:.8rem;color:var(--muted);font-weight:600}
+.fld input,.fld textarea{font-size:1rem;font-weight:400;padding:10px 12px;width:100%;box-sizing:border-box}
+.fld textarea{resize:vertical;line-height:1.45}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+.danger{color:#b3402a}
+.rechead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;width:100%;background:none;border:none;padding:0;text-align:left}
+.rechead .nm{font-family:var(--f-display);font-weight:700;font-size:1.05rem;min-width:0;overflow-wrap:anywhere}
+.rechead .freq{white-space:nowrap}
+.ing{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:3px}
+.recnote{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--muted);font-size:.93rem}
+.meals{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.meals li{border-bottom:1px solid var(--line)}
+.meals li:last-child{border-bottom:none}
+.meals li.edit{display:flex;flex-direction:column;gap:10px;padding:12px 0}
+.meals li.edit input{font-size:1rem;padding:10px 12px}
+.meals li.edit .day{font-weight:700}
+.mealrow{display:flex;align-items:baseline;gap:12px;width:100%;background:none;border:none;text-align:left;padding:12px 0;font-size:1rem}
+.mealrow .day{flex:none;width:4.6em;font-weight:700}
+.meals li.today .mealrow .day{color:var(--accent-ink,var(--done))}
+.mealrow .dish{min-width:0;overflow-wrap:anywhere}
+.mealrow .dish.none{color:var(--muted);font-size:.9rem}
+.tag{font-size:.7rem;font-weight:700;border-radius:999px;padding:2px 8px;background:var(--done-soft);color:var(--done);white-space:nowrap}
+.chipbtn[data-mealrec][aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .shop .rm{background:none;border:none;color:var(--muted);padding:8px;font-size:1rem}
 /* Plan tab */
 .rotlist{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -176,7 +199,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .editrow{display:grid;grid-template-columns:1fr;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px}
 .editrow .line{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .editrow input[type=text]{flex:1 1 200px;min-width:0}
-input,select{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 9px}
+input,select,textarea{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 9px}
 input[type=number]{width:64px}
 label.sm{font-size:.78rem;color:var(--muted);display:flex;align-items:center;gap:4px}
 .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:.88rem;font-weight:600;z-index:9;max-width:calc(100% - 32px)}
@@ -249,7 +272,7 @@ function periodOf(freq,mon){const th=addDays(mon,3);const y=th.getFullYear(),m=t
 const fmt=(d,o)=>d.toLocaleDateString("de-DE",o);
 
 // ---------- Zustand ----------
-const S={food:{},foodTab:"shop",shopText:"",store:null,mode:"loading",config:null,weeks:{},view:mondayOf(new Date()),tab:"woche",campDraft:null,filter:"alle",hideDone:false,groupBy:"freq",me:null,draft:null,timedOut:false};
+const S={recDraft:null,recOpen:null,planEdit:null,planText:"",planRec:null,foodWeek:null,food:{},foodTab:"shop",shopText:"",store:null,mode:"loading",config:null,weeks:{},view:mondayOf(new Date()),tab:"woche",campDraft:null,filter:"alle",hideDone:false,groupBy:"freq",me:null,draft:null,timedOut:false};
 try{const m=localStorage.getItem("hq-me");if(m==="p0"||m==="p1")S.me=m;const f=localStorage.getItem("hq-filter");if(f==="meine")S.filter="meine";S.hideDone=localStorage.getItem("hq-hidedone")==="1";if(localStorage.getItem("hq-groupby")==="art")S.groupBy="art";const ft=localStorage.getItem("hq-foodtab");if(ft)S.foodTab=ft;}catch(e){}
 
 // ---------- Speicher-Adapter ----------
@@ -517,10 +540,50 @@ async function shopAdd(name){name=(name||"").trim().slice(0,80);if(!name)return;
   try{await S.store.setPath("food/shop/"+id,{name,done:false,at:Date.now(),by:S.me||""});
     const fk=favKey(name),cur=((S.food.fav||{})[fk]||{}).n||0;await S.store.setPath("food/fav/"+fk,{name,n:cur+1})}
   catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}
+const DAYN=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"];
+function recs(){const m=(S.food&&S.food.rec)||{};return Object.keys(m).filter(k=>m[k]).map(k=>Object.assign({id:k},m[k])).sort((a,b)=>(a.name||"").localeCompare(b.name||"","de"))}
+function recIng(r){return ((r&&r.ing)||"").split("\n").map(x=>x.trim()).filter(Boolean)}
+async function shopAddMany(list){let n=0;const have=new Set(shopItems().filter(i=>!i.done).map(i=>i.name.toLowerCase()));
+  for(const raw of list){const name=raw.trim().slice(0,80);if(!name||have.has(name.toLowerCase()))continue;have.add(name.toLowerCase());
+    const id="i"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    try{await S.store.setPath("food/shop/"+id,{name,done:false,at:Date.now()+n,by:S.me||""});n++}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.");return}}
+  toast(n?n+(n===1?" Zutat":" Zutaten")+" auf der Einkaufsliste":"Steht alles schon auf der Liste")}
+function planWeek(){return S.foodWeek||mondayOf(new Date())}
+function planDays(mon){return ((S.food&&S.food.plan)||{})[wkKey(mon)]||{}}
+function renderRecipes(){const list=recs(),d=S.recDraft;
+  if(d)return `<section class="card"><h2>${d.id?"Rezept bearbeiten":"Neues Rezept"}</h2>
+    <label class="fld"><span>Name</span><input type="text" id="rec-name" data-rf="name" value="${esc(d.name)}" maxlength="80" placeholder="Zum Beispiel Linsensuppe" autocomplete="off"></label>
+    <label class="fld"><span>Zutaten, eine pro Zeile</span><textarea id="rec-ing" data-rf="ing" rows="6" placeholder="250 g rote Linsen">${esc(d.ing)}</textarea></label>
+    <label class="fld"><span>Zubereitung oder Notiz</span><textarea id="rec-note" data-rf="note" rows="5">${esc(d.note)}</textarea></label>
+    <label class="fld"><span>Link zum Rezept (optional)</span><input type="url" id="rec-link" data-rf="link" value="${esc(d.link)}" placeholder="https://" autocomplete="off"></label>
+    <div class="btnrow"><button class="primary" data-act="recsave">Speichern</button><button class="ghost" data-act="reccancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="recdel">Löschen</button>`:""}</div></section>`;
+  let h=`<div><button class="primary" data-act="recnew">+ Neues Rezept</button></div>`;
+  if(!list.length)return h+`<div class="empty"><h2>Noch keine Rezepte</h2><div>Sammelt hier eure Lieblingsgerichte. Die Zutaten wandern mit einem Tipp auf die Einkaufsliste, und im Essensplan könnt ihr die Rezepte auf Tage legen.</div></div>`;
+  h+=list.map(r=>{const open=S.recOpen===r.id,ing=recIng(r),link=/^https?:\/\//i.test(r.link||"")?r.link:"";
+    return `<section class="card rec"><button class="rechead" data-rec="${esc(r.id)}" aria-expanded="${open}"><span class="nm">${esc(r.name)}</span><span class="freq">${ing.length} ${ing.length===1?"Zutat":"Zutaten"} ${open?"▴":"▾"}</span></button>
+      ${open?`${ing.length?`<ul class="ing">${ing.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}${r.note?`<div class="recnote">${esc(r.note)}</div>`:""}${link?`<div><a href="${esc(link)}" target="_blank" rel="noopener noreferrer">Rezept im Netz öffnen</a></div>`:""}
+      <div class="btnrow">${ing.length?`<button class="primary" data-recshop="${esc(r.id)}">Zutaten auf die Einkaufsliste</button>`:""}<button class="ghost" data-recedit="${esc(r.id)}">Bearbeiten</button></div>`:""}</section>`}).join("");
+  return h}
+function renderMealPlan(){const mon=planWeek(),days=planDays(mon),rl=recs(),rmap={};rl.forEach(r=>rmap[r.id]=r);
+  const cur=mondayOf(new Date()),isCur=+mon===+cur,today=startOfDay(new Date()),sun=addDays(mon,6);
+  const dm=x=>x.getDate()+"."+(x.getMonth()+1)+".";
+  let h=`<div class="section-head" style="align-items:center"><div><h2>KW ${isoWeek(mon).w}</h2><div class="freq">${dm(mon)} bis ${dm(sun)}</div></div>
+    <div class="weeknav"><button class="iconbtn" data-fnav="-1" aria-label="Vorige Woche">‹</button>${isCur?"":`<button class="ghost" data-fnav="0">Heute</button>`}<button class="iconbtn" data-fnav="1" aria-label="Nächste Woche">›</button></div></div>`;
+  let any=false;
+  h+=`<section class="card"><ul class="meals">${DAYN.map((dn,i)=>{const k="d"+i,m=days[k],date=addDays(mon,i),isToday=+date===+today,r=m&&m.rec?rmap[m.rec]:null;if(r&&recIng(r).length)any=true;
+    if(S.planEdit===k)return `<li class="edit"><div class="day">${dn}<span class="freq"> ${dm(date)}</span></div>
+      <input type="text" id="mealinput" value="${esc(S.planText)}" maxlength="80" placeholder="Was gibt es?" autocomplete="off" enterkeyhint="done" aria-label="Gericht am ${dn}">
+      ${rl.length?`<div class="unl">${rl.map(x=>`<button class="chipbtn" data-mealrec="${esc(x.id)}" aria-pressed="${S.planRec===x.id}">${esc(x.name)}</button>`).join("")}</div>`:`<div class="freq">Tipp: Legt unter „Rezepte“ Gerichte an, dann könnt ihr sie hier antippen.</div>`}
+      <div class="btnrow"><button class="primary" data-act="mealsave">Speichern</button><button class="ghost" data-act="mealcancel">Abbrechen</button>${m?`<button class="ghost danger" data-act="mealclear">Leeren</button>`:""}</div></li>`;
+    return `<li class="${isToday?"today":""}"><button class="mealrow" data-meal="${k}"><span class="day">${dn.slice(0,2)}<span class="freq"> ${dm(date)}</span></span><span class="dish ${m?"":"none"}">${m?esc(m.text||(r&&r.name)||""):"+ Gericht eintragen"}${r?` <span class="tag">Rezept</span>`:""}</span></button></li>`}).join("")}</ul></section>`;
+  if(any)h+=`<div><button class="ghost" data-act="mealshop">Zutaten der Woche auf die Einkaufsliste</button></div>`;
+  return h}
 function renderFood(){
   let h=`<div><div class="eyebrow">Gemeinsam planen</div><h1>Essen</h1></div>
    <div class="filters" role="group" aria-label="Bereich">${FOODTABS.map(t=>`<button class="chipbtn neutral" data-food="${t[0]}" aria-pressed="${S.foodTab===t[0]}">${t[1]}</button>`).join("")}</div>`;
-  if(S.foodTab!=="shop"){const txt={plan:"Hier plant ihr bald für jeden Tag der Woche ein Gericht.",rezepte:"Hier entsteht eure Rezeptsammlung. Zutaten wandern von dort mit einem Tipp auf die Einkaufsliste.",mittag:"Hier haltet ihr bald eure gemeinsamen Mittagessen fest, mit Ort und kurzer Bewertung von euch beiden."}[S.foodTab];
+  if(S.foodTab==="plan")return h+renderMealPlan();
+  if(S.foodTab==="rezepte")return h+renderRecipes();
+  if(S.foodTab!=="shop"){const txt={mittag:"Hier haltet ihr bald eure gemeinsamen Mittagessen fest, mit Ort und kurzer Bewertung von euch beiden."}[S.foodTab];
     return h+`<div class="empty"><h2>Kommt als Nächstes</h2><div>${txt}</div></div>`}
   const items=shopItems(),open=items.filter(i=>!i.done),done=items.filter(i=>i.done).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0)),favs=shopFavs();
   const li=i=>`<li class="${i.done?"done":""}"><button class="item" data-shop="${esc(i.id)}" aria-pressed="${!!i.done}"><span class="box">${i.done?"✓":""}</span><span class="nm">${esc(i.name)}</span></button><button class="rm" data-shoprm="${esc(i.id)}" aria-label="${esc(i.name)} entfernen">✕</button></li>`;
@@ -575,10 +638,30 @@ document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.cl
 app.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;
   if(b.dataset.go){S.tab=b.dataset.go;S.draft=null;S.campDraft=null;render();window.scrollTo(0,0);return}
-  if(b.dataset.food){S.foodTab=b.dataset.food;try{localStorage.setItem("hq-foodtab",S.foodTab)}catch(_){}render();return}
+  if(b.dataset.food){S.recDraft=null;S.planEdit=null;S.foodTab=b.dataset.food;try{localStorage.setItem("hq-foodtab",S.foodTab)}catch(_){}render();return}
   if(b.dataset.shop){const i=shopItems().find(x=>x.id===b.dataset.shop);if(i){const v={name:i.name,done:!i.done,at:i.at||Date.now(),by:i.by||""};if(v.done)v.doneAt=Date.now();try{await S.store.setPath("food/shop/"+i.id,v)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}return}
   if(b.dataset.shoprm){try{await S.store.setPath("food/shop/"+b.dataset.shoprm,null)}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.shopfav){shopAdd(b.dataset.shopfav);return}
+  if(b.dataset.rec){S.recOpen=S.recOpen===b.dataset.rec?null:b.dataset.rec;render();return}
+  if(b.dataset.recshop){const r=recs().find(x=>x.id===b.dataset.recshop);if(r)shopAddMany(recIng(r));return}
+  if(b.dataset.recedit){const r=recs().find(x=>x.id===b.dataset.recedit);if(r){S.recDraft={id:r.id,name:r.name||"",ing:r.ing||"",note:r.note||"",link:r.link||"",at:r.at||Date.now()};render();window.scrollTo(0,0)}return}
+  if(b.dataset.act==="recnew"){S.recDraft={id:null,name:"",ing:"",note:"",link:""};render();const el=document.getElementById("rec-name");if(el)el.focus();return}
+  if(b.dataset.act==="reccancel"){S.recDraft=null;render();return}
+  if(b.dataset.act==="recsave"){const d=S.recDraft;if(!d)return;const name=(d.name||"").trim().slice(0,80);if(!name){toast("Bitte einen Namen eintragen.");return}
+    const id=d.id||("r"+Date.now().toString(36)+Math.random().toString(36).slice(2,5));
+    const v={name,ing:recIng(d).map(x=>x.slice(0,80)).slice(0,60).join("\n"),note:(d.note||"").trim().slice(0,4000),link:(d.link||"").trim().slice(0,500),at:d.at||Date.now()};
+    try{await S.store.setPath("food/rec/"+id,v);S.recDraft=null;S.recOpen=id;toast("Rezept gespeichert");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
+  if(b.dataset.act==="recdel"){const d=S.recDraft;if(!d||!d.id)return;if(!d.sure){d.sure=true;b.textContent="Wirklich löschen?";return}
+    try{await S.store.setPath("food/rec/"+d.id,null);S.recDraft=null;toast("Rezept gelöscht");render()}catch(_){toast("Konnte nicht speichern.")}return}
+  if(b.dataset.fnav){const n=+b.dataset.fnav;S.foodWeek=n===0?null:addDays(planWeek(),7*n);S.planEdit=null;render();return}
+  if(b.dataset.meal){const m=planDays(planWeek())[b.dataset.meal]||{};S.planEdit=b.dataset.meal;S.planText=m.text||"";S.planRec=m.rec||null;render();const el=document.getElementById("mealinput");if(el&&!S.planText)el.focus();return}
+  if(b.dataset.mealrec){const id=b.dataset.mealrec,r=recs().find(x=>x.id===id);const old=recs().find(x=>x.id===S.planRec);
+    if(S.planRec===id){S.planRec=null}else{S.planRec=id;if(r&&(!S.planText.trim()||(old&&S.planText===old.name)))S.planText=r.name}render();return}
+  if(b.dataset.act==="mealcancel"){S.planEdit=null;render();return}
+  if(b.dataset.act==="mealsave"||b.dataset.act==="mealclear"){const k=S.planEdit;if(!k)return;const text=S.planText.trim().slice(0,80);
+    const v=(b.dataset.act==="mealclear"||(!text&&!S.planRec))?null:Object.assign({text,at:Date.now(),by:S.me||""},S.planRec?{rec:S.planRec}:{});
+    try{await S.store.setPath("food/plan/"+wkKey(planWeek())+"/"+k,v);S.planEdit=null;render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
+  if(b.dataset.act==="mealshop"){const days=planDays(planWeek()),all=[];const rl=recs();Object.keys(days).forEach(k=>{const r=days[k]&&days[k].rec&&rl.find(x=>x.id===days[k].rec);if(r)all.push(...recIng(r))});shopAddMany(all);return}
   if(b.dataset.act==="shopclear"){for(const i of shopItems().filter(x=>x.done)){try{await S.store.setPath("food/shop/"+i.id,null)}catch(_){}}return}
   if(b.dataset.me){S.me=b.dataset.me;try{localStorage.setItem("hq-me",S.me)}catch(_){}render();return}
   if(b.dataset.act==="groupby"||b.dataset.jump){const j=b.dataset.jump;S.groupBy=j?"art":(S.groupBy==="art"?"freq":"art");try{localStorage.setItem("hq-groupby",S.groupBy)}catch(_){}render();
@@ -607,8 +690,11 @@ app.addEventListener("click",async e=>{
 });
 app.addEventListener("change",e=>{const row=e.target.closest(".editrow[data-i]");if(!row||!S.draft)return;const t=S.draft.tasks[+row.dataset.i];const f=e.target.dataset.f;if(!f)return;
   t[f]=(f==="times"||f==="pts")?(+e.target.value||0):e.target.value;if(f==="freq"&&t.freq==="week"&&!t.times)t.times=1;if(f==="freq"||f==="owner")render()});
+app.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="mealinput"){e.preventDefault();const b=app.querySelector("[data-act=mealsave]");if(b)b.click()}});
 app.addEventListener("submit",e=>{if(e.target.id!=="shopform")return;e.preventDefault();const v=S.shopText;S.shopText="";const el=document.getElementById("shopinput");if(el)el.value="";shopAdd(v)});
 app.addEventListener("input",e=>{if(e.target.id==="shopinput"){S.shopText=e.target.value;return}
+  if(e.target.id==="mealinput"){S.planText=e.target.value;return}
+  if(S.recDraft&&e.target.dataset.rf){S.recDraft[e.target.dataset.rf]=e.target.value;return}
   if(S.campDraft){const el=e.target;if(el.dataset.ck){S.campDraft.costs[el.dataset.ck]=+el.value||0;return}const r=el.closest("[data-cx]");if(r&&el.dataset.f){const x=S.campDraft.extras[+r.dataset.cx];x[el.dataset.f]=el.dataset.f==="cost"?(+el.value||0):el.value;return}}
   const row=e.target.closest(".editrow[data-i]");if(!row||!S.draft)return;if(e.target.dataset.f==="name")S.draft.tasks[+row.dataset.i].name=e.target.value});
 

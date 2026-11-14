@@ -36,6 +36,10 @@ srv.listen(8765,async()=>{
   await A.fill('#shopinput','Milch');await A.press('#shopinput','Enter');await A.fill('#shopinput','Brot');await A.click('#shopform button');
   await B.waitForSelector('.shop li:nth-child(2)');await B.click('.shop li:first-child .item');
   await A.waitForSelector('.shop li.done');await A.click('[data-act=shopclear]');await B.waitForSelector('.shop li.done',{state:'detached'});
+  await A.click('[data-food=rezepte]');await A.click('[data-act=recnew]');await A.fill('#rec-name','Linsensuppe');await A.fill('#rec-ing','250 g Linsen\n1 Zwiebel');await A.fill('#rec-note','Alles kochen.');await A.click('[data-act=recsave]');
+  await B.click('[data-food=plan]');await B.click('[data-meal=d0]');await B.click('[data-mealrec]');await B.click('[data-act=mealsave]');
+  await A.click('[data-food=plan]');await A.waitForSelector('.mealrow .tag');await A.click('[data-meal=d2]');await A.fill('#mealinput','Reste');await A.press('#mealinput','Enter');
+  await B.waitForSelector('text=Reste');await B.click('[data-act=mealshop]');await A.click('[data-food=shop]');await A.waitForSelector('.shop li:nth-child(2)');
   console.log('shop',JSON.stringify(Object.values(tree.haushalt)[0].food));
   console.log('rotOffset',tree.haushalt[Object.keys(tree.haushalt)[0]].config.rotOffset,'ticks',JSON.stringify(Object.values(tree.haushalt)[0].weeks));
   await A.evaluate(()=>scrollTo(0,9999));await A.screenshot({path:path.join(__dirname,'web-plan.png')});
