@@ -66,7 +66,9 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 /* Scoreboard */
 .board{background:linear-gradient(135deg,var(--board-a),var(--board-b));color:#fff;box-shadow:var(--shadow);border-radius:20px;padding:16px;display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;position:relative;overflow:hidden}
 .board .who{display:flex;flex-direction:column;gap:2px;min-width:0}
-.board .who.right{text-align:right}
+.board .who.right{text-align:right;align-items:flex-end}
+.board button.who{background:none;border:none;color:inherit;font:inherit;text-align:left;padding:0;align-items:flex-start}
+.board button.who.right{text-align:right;align-items:flex-end}
 .board .name{font-weight:700;font-size:.9rem;opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .board .pts{font-family:var(--f-display);font-weight:800;font-size:2rem;line-height:1}.board .pts small{font-size:1rem;opacity:.75;font-weight:600}
 .board .sub{font-size:.75rem;opacity:.75}
@@ -108,6 +110,10 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .slot.on{border-style:solid;color:#fff;font-size:.8rem}
 .slot.on.p0{background:var(--p0);border-color:var(--p0)}
 .slot.on.p1{background:var(--p1);border-color:var(--p1)}
+.slot.split{border-style:solid;color:var(--fg);background:linear-gradient(90deg,var(--L,transparent) 50%,var(--R,transparent) 50%)}
+.slot.split.h0{--L:var(--p0)}
+.slot.split.h1{--R:var(--p1)}
+.slot.split.h0.h1{color:var(--surface);border-color:transparent;font-size:1.05rem}
 .slot.on.chk{background:var(--done);border-color:var(--done);font-size:1.05rem}
 :root[data-theme="dark"] .slot.on{color:#0d1514}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .slot.on{color:#0d1514}}
@@ -244,8 +250,8 @@ function periodOf(freq,mon){const th=addDays(mon,3);const y=th.getFullYear(),m=t
 const fmt=(d,o)=>d.toLocaleDateString("de-DE",o);
 
 // ---------- Zustand ----------
-const S={key:null,store:null,mode:"loading",config:null,weeks:{},view:mondayOf(new Date()),tab:"woche",filter:"alle",hideDone:false,me:null,draft:null,timedOut:false};
-try{const m=localStorage.getItem("hq-me");if(m==="p0"||m==="p1")S.me=m;const f=localStorage.getItem("hq-filter");if(f==="meine")S.filter="meine";S.hideDone=localStorage.getItem("hq-hidedone")==="1";}catch(e){}
+const S={key:null,store:null,mode:"loading",config:null,weeks:{},view:mondayOf(new Date()),tab:"woche",filter:"alle",hideDone:false,groupBy:"freq",me:null,draft:null,timedOut:false};
+try{const m=localStorage.getItem("hq-me");if(m==="p0"||m==="p1")S.me=m;const f=localStorage.getItem("hq-filter");if(f==="meine")S.filter="meine";S.hideDone=localStorage.getItem("hq-hidedone")==="1";if(localStorage.getItem("hq-groupby")==="art")S.groupBy="art";}catch(e){}
 
 // ---------- Speicher-Adapter ----------
 function dbStore(db){
@@ -355,6 +361,8 @@ async function toggle(btn){
   const t=tasks().find(x=>x.id===btn.dataset.task);if(!t)return;
   let wk=wkKey(S.view),key,cur;
   if(btn.dataset.slot==="p"){const pt=periodTick(t,S.view);key=t.id+"__p";if(pt){wk=pt.wk;cur=pt.v}}
+  else if(btn.dataset.split){const base=t.id+"__"+btn.dataset.slot,tk=ticksOf(wk),leg=tk[base];
+    if(leg&&leg.by===S.me&&!tk[base+"_"+S.me]){key=base;cur=leg}else{key=base+"_"+S.me;cur=tk[key]}}
   else{key=t.id+"__"+btn.dataset.slot;cur=ticksOf(wk)[key]}
   const val=cur?null:{by:S.me,at:Date.now()};
   try{await S.store.tick(wk,key,val)}catch(e){toast(e&&e.code==="invalid_argument"?"Speichern wurde abgelehnt. Bitte den Einladungs-Link prüfen.":"Keine Verbindung. Bitte nochmal tippen, sobald du online bist.")}
@@ -390,42 +398,44 @@ function renderWeek(){
       const n=slotsOf(t);for(let i=0;i<n;i++){m[k][0]+=tk[t.id+"__"+i]?1:0;m[k][1]++}});
     const d=m.rot[0]+m.fix[0],n=m.rot[1]+m.fix[1];
     h+=`<section class="board" aria-label="Mein Wochenstand">
-    <div class="who"><span class="name">Im Wechsel</span><span class="pts num">${m.rot[0]}<small>/${m.rot[1]}</small></span><span class="sub">diese Woche erledigt</span></div>
+    <button class="who" data-jump="rot" aria-label="Wechsel-Aufgaben gebündelt anzeigen"><span class="name">Im Wechsel ›</span><span class="pts num">${m.rot[0]}<small>/${m.rot[1]}</small></span><span class="sub">diese Woche erledigt</span></button>
     <div class="ring">${ring(n?d/n:0)}<div class="lbl num">${d}/${n}<small>${esc(pname(S.me))}</small></div></div>
-    <div class="who right"><span class="name">Feste Aufgaben</span><span class="pts num">${m.fix[0]}<small>/${m.fix[1]}</small></span><span class="sub">diese Woche erledigt</span></div>
+    <button class="who right" data-jump="fix" aria-label="Feste Aufgaben gebündelt anzeigen"><span class="name">Feste Aufgaben ›</span><span class="pts num">${m.fix[0]}<small>/${m.fix[1]}</small></span><span class="sub">diese Woche erledigt</span></button>
   </section>`;
     if(n&&d>=n)h+=`<div class="celebrate">Du hast alle deine Aufgaben für diese Woche erledigt.</div>`;
   }else{
   h+=`<section class="board" aria-label="Wochenstand">
-    <div class="who"><span class="name">${esc(pname("p0"))}</span><span class="pts num">${cnt.p0[0]}<small>/${cnt.p0[1]}</small></span><span class="sub">Wechsel-Aufgaben erledigt</span></div>
+    <button class="who" data-jump="rot" aria-label="Wechsel-Aufgaben gebündelt anzeigen"><span class="name">${esc(pname("p0"))}</span><span class="pts num">${cnt.p0[0]}<small>/${cnt.p0[1]}</small></span><span class="sub">Wechsel-Aufgaben ›</span></button>
     <div class="ring">${ring(pct)}<div class="lbl num">${cnt.all[0]}/${cnt.all[1]}<small>im Wechsel</small></div></div>
-    <div class="who right"><span class="name">${esc(pname("p1"))}</span><span class="pts num">${cnt.p1[0]}<small>/${cnt.p1[1]}</small></span><span class="sub">Wechsel-Aufgaben erledigt</span></div>
+    <button class="who right" data-jump="rot" aria-label="Wechsel-Aufgaben gebündelt anzeigen"><span class="name">${esc(pname("p1"))}</span><span class="pts num">${cnt.p1[0]}<small>/${cnt.p1[1]}</small></span><span class="sub">Wechsel-Aufgaben ›</span></button>
   </section>`;
   if(cnt.all[1]&&cnt.all[0]>=cnt.all[1])h+=`<div class="celebrate">Alle Wechsel-Aufgaben dieser Woche sind erledigt.</div>`;}
-  h+=scopeSwitch(`<button class="chipbtn neutral" data-act="hidedone" aria-pressed="${S.hideDone}">Erledigte ausblenden</button>`);
+  h+=scopeSwitch(`<button class="chipbtn neutral" data-act="hidedone" aria-pressed="${S.hideDone}">Erledigte ausblenden</button><button class="chipbtn neutral" data-act="groupby" aria-pressed="${S.groupBy==="art"}">Fest und Wechsel bündeln</button>`);
 
-  const show=(t,o,isDone)=>{if(S.filter==="meine"&&S.me&&!(o===S.me||o==="both"||o==="ho"))return false;if(S.hideDone&&isDone)return false;return true};
-  const sections=[["day","Täglich"],["week","Diese Woche"],["month","Diesen Monat"],["half","Dieses Halbjahr"],["year","Dieses Jahr"]];
-  sections.forEach(([f,title])=>{
-    const list=tasks().filter(t=>t.freq===f);if(!list.length)return;
-    let cnt=0;const op=[],dn=[];
-    list.forEach(t=>{const o=ownerFor(t,mon,split);const isRot=t.owner==="rot";let slots="",doneAll;
-      if(f==="day"||f==="week"){const n=slotsOf(t);let c=0;
-        for(let i=0;i<n;i++){const v=tk[t.id+"__"+i];if(v)c++;
-          const isHO=t.owner==="ho";const cls=["slot"];if(v)cls.push("on",isHO?v.by:"chk");if(f==="day"){if(i===today)cls.push("today");if(i>today)cls.push("future")}
-          const lbl=v?(isHO?esc(pname(v.by).charAt(0)):"✓"):(f==="day"?DAYS[i]:"");
-          slots+=`<button class="${cls.join(" ")}" data-task="${esc(t.id)}" data-slot="${i}" ${f==="day"&&i>today?"disabled":""} aria-pressed="${!!v}" aria-label="${esc(t.name)} ${f==="day"?DAYS[i]:(i+1)+". Mal"}${v?" erledigt von "+esc(pname(v.by)):""}">${lbl}</button>`}
-        doneAll=c>=n;
-        const extra=f==="week"?` · ${c}/${n}`:"";
-        if(!show(t,o,doneAll))return;cnt++;
-        (doneAll?dn:op).push(`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${f==="day"?"täglich":n+"× pro Woche"}${extra}</span></div></div></div><div class="slots">${slots}</div></article>`);
-      }else{const pt=periodTick(t,mon);doneAll=!!pt;if(!show(t,o,doneAll))return;cnt++;
-        const lbl=pt?`✓ Erledigt von ${esc(pname(pt.v.by))} am ${fmt(new Date(pt.v.at),{day:"numeric",month:"short"})}`:"○ Als erledigt markieren";
-        (doneAll?dn:op).push(`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${FREQ_LABEL[f]}</span></div></div></div><div><button class="bigcheck${pt?" on chk":""}" data-task="${esc(t.id)}" data-slot="p" aria-pressed="${doneAll}">${lbl}</button></div></article>`);}
-    });
-    const body=op.join("")+(dn.length?`<div class="donesep">Erledigt</div>`+dn.join(""):"");
-    if(cnt)h+=`<section class="section"><div class="section-head"><h2>${title}</h2>${f==="day"?`<span class="freq">„Homeoffice“ = wer an dem Tag zu Hause ist</span>`:""}</div>${body}</section>`;
-  });
+  const FO={day:0,week:1,month:2,half:3,year:4};
+  const card=t=>{const f=t.freq,o=ownerFor(t,mon,split),isRot=t.owner==="rot";let html,doneAll,pct;
+    if(f==="day"||f==="week"){const n=slotsOf(t),isHO=t.owner==="ho",isBoth=t.owner==="both";let c=0,slots="";
+      for(let i=0;i<n;i++){const k=t.id+"__"+i;const cls=["slot"];let lbl=f==="day"?DAYS[i]:"",aria="",on=false;
+        if(isBoth){const leg=tk[k],a=tk[k+"_p0"]||(leg&&leg.by==="p0"?leg:null),b=tk[k+"_p1"]||(leg&&leg.by==="p1"?leg:null);
+          c+=(a?0.5:0)+(b?0.5:0);cls.push("split");if(a)cls.push("h0");if(b)cls.push("h1");if(a&&b)lbl="✓";on=!!(a&&b);
+          aria=(a?" "+esc(pname("p0"))+" erledigt":"")+(b?" "+esc(pname("p1"))+" erledigt":"")}
+        else{const v=tk[k];if(v){c++;on=true;cls.push("on",isHO?v.by:"chk");lbl=isHO?esc(pname(v.by).charAt(0)):"✓";aria=" erledigt von "+esc(pname(v.by))}}
+        if(f==="day"){if(i===today)cls.push("today");if(i>today)cls.push("future")}
+        slots+=`<button class="${cls.join(" ")}" data-task="${esc(t.id)}" data-slot="${i}" ${isBoth?'data-split="1"':""} ${f==="day"&&i>today?"disabled":""} aria-pressed="${on}" aria-label="${esc(t.name)} ${f==="day"?DAYS[i]:(i+1)+". Mal"}${aria}">${lbl}</button>`}
+      doneAll=c>=n;pct=n?c/n:0;const cs=(c%1?String(c).replace(".",","):c);
+      html=`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${f==="day"?"täglich":n+"× pro Woche"} · ${cs}/${n}</span></div></div></div><div class="slots">${slots}</div>${isBoth?`<div class="freq">Jeder hakt seine Hälfte ab: links ${esc(pname("p0"))}, rechts ${esc(pname("p1"))}.</div>`:""}</article>`;
+    }else{const pt=periodTick(t,mon);doneAll=!!pt;pct=doneAll?1:0;
+      const lbl=pt?`✓ Erledigt von ${esc(pname(pt.v.by))} am ${fmt(new Date(pt.v.at),{day:"numeric",month:"short"})}`:"○ Als erledigt markieren";
+      html=`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${FREQ_LABEL[f]}</span></div></div></div><div><button class="bigcheck${pt?" on chk":""}" data-task="${esc(t.id)}" data-slot="p" aria-pressed="${doneAll}">${lbl}</button></div></article>`}
+    return {t,o,html,done:doneAll,pct,times:slotsOf(t)}};
+  const vis=x=>!(S.filter==="meine"&&S.me&&!(x.o===S.me||x.o==="both"||x.o==="ho"))&&!(S.hideDone&&x.done);
+  const order=(a,b)=>FO[a.t.freq]-FO[b.t.freq]||b.times-a.times||a.pct-b.pct;
+  const secs=S.groupBy==="art"
+    ?[["rot","Wechsel-Aufgaben",t=>t.owner==="rot"],["fix","Feste Aufgaben",t=>t.owner==="p0"||t.owner==="p1"],["gem","Gemeinsam und Homeoffice",t=>t.owner==="both"||t.owner==="ho"]]
+    :[["day","Täglich",t=>t.freq==="day"],["week","Diese Woche",t=>t.freq==="week"],["month","Diesen Monat",t=>t.freq==="month"],["half","Dieses Halbjahr",t=>t.freq==="half"],["year","Dieses Jahr",t=>t.freq==="year"]];
+  secs.forEach(([id,title,fn])=>{const xs=tasks().filter(fn).map(card).filter(vis).sort(order);if(!xs.length)return;
+    const op=xs.filter(x=>!x.done),dn=xs.filter(x=>x.done);
+    h+=`<section class="section" id="sec-${id}"><div class="section-head"><h2>${title}</h2>${id==="day"||id==="gem"?`<span class="freq">„Homeoffice“ = wer an dem Tag zu Hause ist</span>`:""}</div>${op.map(x=>x.html).join("")}${dn.length?`<div class="donesep">Erledigt</div>`+dn.map(x=>x.html).join(""):""}</section>`});
   return h}
 
 function renderScore(){
@@ -556,6 +566,8 @@ document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.cl
 app.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;
   if(b.dataset.me){S.me=b.dataset.me;try{localStorage.setItem("hq-me",S.me)}catch(_){}render();return}
+  if(b.dataset.act==="groupby"||b.dataset.jump){const j=b.dataset.jump;S.groupBy=j?"art":(S.groupBy==="art"?"freq":"art");try{localStorage.setItem("hq-groupby",S.groupBy)}catch(_){}render();
+    if(j){const el=document.getElementById("sec-"+j);if(el)el.scrollIntoView({behavior:"smooth",block:"start"})}return}
   if(b.dataset.act==="hidedone"){S.hideDone=!S.hideDone;try{localStorage.setItem("hq-hidedone",S.hideDone?"1":"0")}catch(_){}render();return}
   if(b.dataset.filter){S.filter=b.dataset.filter;try{localStorage.setItem("hq-filter",S.filter)}catch(_){}render();return}
   if(b.dataset.nav){const n=+b.dataset.nav;S.view=n===0?mondayOf(new Date()):addDays(S.view,7*n);render();return}
