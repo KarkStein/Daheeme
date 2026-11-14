@@ -1055,7 +1055,7 @@ function renderLunch(){const d=S.lunchDraft,mapUrl=(S.food&&S.food.lunchmap)||""
   const stars=(l,p)=>{const cur=+((l.r||{})[p])||0,mine=!S.me||S.me===p;return `<div class="starrow"><span class="who">${esc(pname(p))}</span><span class="stars">${[1,2,3,4,5].map(n=>mine?`<button class="star ${n<=cur?"on":""}" data-star="${esc(l.id)}|${p}|${n}" aria-label="${n} von 5 Sternen">★</button>`:`<span class="star ${n<=cur?"on":""}">★</span>`).join("")}</span></div>`};
   h+=list.map(l=>{const open=S.lunchOpen===l.id,avg=lunchAvg(l),dishes=(l.dishes||"").split("\n").map(x=>x.trim()).filter(Boolean);
     const link=/^https?:\/\//i.test(l.maps||"")?l.maps:"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(l.name);
-    return `<section class="card rec"><div class="recbar"><button class="rechead" data-lunch="${esc(l.id)}" aria-expanded="${open}"><span class="nm">${esc(l.name)}</span><span class="freq">${avg?"★ "+avg.toFixed(1).replace(".",","):"noch ohne Sterne"} ${open?"▴":"▾"}</span></button>${bell("mittag",l)}</div>
+    return `<section class="card rec"><div class="recbar"><button class="rechead" data-lunch="${esc(l.id)}" aria-expanded="${open}"><span class="nm">${esc(l.name)}</span><span class="freq">${avg?"★ "+avg.toFixed(1).replace(".",","):"noch ohne Sterne"} ${open?"▴":"▾"}</span></button></div>
       ${!open&&dishes.length?`<div class="freq">${esc(dishes.slice(0,3).join(", "))}</div>`:""}
       ${open?`${dishes.length?`<div><div class="eyebrow" style="margin-bottom:4px">Lieblingsgerichte</div><ul class="ing">${dishes.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`:""}
       ${stars(l,"p0")}${stars(l,"p1")}${l.note?`<div class="recnote">${esc(l.note)}</div>`:""}
@@ -1108,7 +1108,7 @@ function renderFoodToday(){const now=new Date(),di=(now.getDay()+6)%7,mon=monday
 // ---------- Privat: Themen zu zweit ----------
 const briefe=()=>listOf(S.food&&S.food.brief).sort((a,b)=>(a.at||0)-(b.at||0));
 function renderPrivat(){const sec=S.privSec==="briefe"?"briefe":"lunch";
-  let h=`<div><div class="eyebrow">Nur ihr zwei</div><h1>Partner</h1></div>${bellRow("mittag")}<div class="unl privtabs" style="margin:4px 0 12px">${[["lunch","🍽️ Mittagessen"],["briefe","✉️ Briefe"+(briefe().length?" ("+briefe().length+")":"")]].map(x=>`<button class="chipbtn${sec===x[0]?"":" neutral"}" data-priv="${x[0]}" aria-pressed="${sec===x[0]}">${x[1]}</button>`).join("")}</div>`;
+  let h=`<div><div class="eyebrow">Nur ihr zwei</div><h1>Partner</h1></div><div class="unl privtabs" style="margin:4px 0 12px">${[["lunch","🍽️ Mittagessen"],["briefe","✉️ Briefe"+(briefe().length?" ("+briefe().length+")":"")]].map(x=>`<button class="chipbtn${sec===x[0]?"":" neutral"}" data-priv="${x[0]}" aria-pressed="${sec===x[0]}">${x[1]}</button>`).join("")}</div>`;
   h+=sec==="briefe"?briefCard():`<div class="section-head"><h2>🍽️ Mittagessen</h2></div>`+renderLunch();
   return h+contactCard()}
 // ---------- Briefkasten: WhatsApp zum anderen und Briefe ----------
@@ -1398,7 +1398,7 @@ const kitas=()=>listOf(S.food&&S.food.kita);
 const PRIO_FROM={essen:["🍲","Essen"],woche:["🧹","Woche"],kita:["🎒","Kita"],projekte:["💡","Ideen"],amhaus:["🏠","Am Haus"],ausflug:["🚌","Ausflüge"],spiel:["⚽","Sport und Spiel"],einkauf:["🛒","Einkauf"],rezepte:["📖","Rezepte"],mittag:["🫶","Partner"],frei:["📌",""]};
 const PRIO_AREAS=[["frei","📌","Allgemein"],["woche","🧹","Woche"],["essen","🍲","Essen"],["einkauf","🛒","Einkauf"],["kita","🎒","Kita"],["ausflug","🚌","Ausflüge"],["reisen","🏝️","Reisen"],["projekte","💡","Ideen"],["amhaus","🏠","Am Haus"],["spiel","⚽","Sport und Spiel"]];
 const PRIO_TPL={frei:["Anrufen","Termin ausmachen","Rechnung bezahlen","Geburtstag"],woche:["Bettwäsche wechseln","Fenster putzen","Müll rausstellen"],essen:["Fleisch auftauen","Für Rezept einkaufen","Brot backen","Essen vorkochen"],einkauf:["Wocheneinkauf","Pfand wegbringen","Drogerie"],kita:["Wechselkleidung mitgeben","Beitrag zahlen","Foto mitbringen","Abholung klären"],ausflug:["Tickets buchen","Wetter prüfen","Packliste durchgehen"],reisen:["Pässe prüfen","Auto checken lassen","Kita abmelden","Unterkunft bestätigen"],projekte:["Geschenk besorgen","Idee besprechen"],amhaus:["Handwerker anrufen","Filter wechseln","Pflanzen gießen"],spiel:["Kurs anmelden","Schwimmsachen packen"]};
-const TAB_FROM={reisen:"reisen",privat:"mittag",essen:"essen",einkauf:"einkauf",kita:"kita",ausflug:"ausflug",projekte:"projekte",amhaus:"amhaus",spiel:"spiel",woche:"woche"};
+const TAB_FROM={reisen:"reisen",essen:"essen",einkauf:"einkauf",kita:"kita",ausflug:"ausflug",projekte:"projekte",amhaus:"amhaus",spiel:"spiel",woche:"woche"};
 const prios=()=>listOf(S.food&&S.food.prio).sort((a,b)=>((a.due||"")+(a.time||"")+(a.at||0))<((b.due||"")+(b.time||"")+(b.at||0))?-1:1);
 const prioOn=()=>scene()==="haus";
 const prioOf=(from,id)=>prios().find(p=>p.from===from&&p.ref===id);
