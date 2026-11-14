@@ -24,7 +24,7 @@ srv.listen(8765,async()=>{
   await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');
   const link=A.url();console.log('link',link);
   const B=await mk();await B.goto(link);await B.waitForSelector('[data-me=p1]');
-  await A.click('[data-me=p0]');await B.click('[data-me=p1]');
+  await A.click('[data-me=p0]');await B.click('[data-me=p1]');await A.click('[data-tab=woche]');await B.click('[data-tab=woche]');
   await A.click('[data-task=einkaufen][data-slot="0"]');
   await B.waitForSelector('[data-task=einkaufen][data-slot="0"].on.chk');
   await B.click('[data-task=bad][data-slot="0"]');
@@ -32,7 +32,7 @@ srv.listen(8765,async()=>{
   await B.click('[data-task=einkaufen][data-slot="0"]');
   await A.waitForSelector('[data-task=einkaufen][data-slot="0"]:not(.on)');
   await A.click('[data-go=alle]');await A.click('[data-go=plan]');await A.click('[data-act=swap]');await B.waitForTimeout(300);
-  await A.click('[data-go=woche]');await A.click('[data-tab=essen]');await B.click('[data-tab=essen]');
+  await A.click('.appbar [data-go]');await A.click('[data-tab=essen]');await B.click('[data-tab=essen]');
   await A.fill('#shopinput','Milch');await A.press('#shopinput','Enter');await A.fill('#shopinput','Brot');await A.click('#shopform button');
   await B.waitForSelector(':nth-match(.shop li, 2)');await B.click(':nth-match(.shop li .item, 1)');
   await A.waitForSelector('.shop li.done');await A.click('[data-act=shopclear]');await B.waitForSelector('.shop li.done',{state:'detached'});
