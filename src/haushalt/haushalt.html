@@ -165,12 +165,14 @@ a.catbtn{text-decoration:none;display:inline-flex;align-items:center}
 .twinkle{animation:tw 2.4s ease-in-out infinite alternate}
 @keyframes tw{to{opacity:.35}}
 .beam{transform-box:view-box;transform-origin:314px 60px;animation:beam 4s ease-in-out infinite alternate}
+@keyframes rainfall{from{transform:translate(0,-12px)}to{transform:translate(-4px,12px)}}@keyframes snowfall{from{transform:translate(0,-10px)}to{transform:translate(3px,10px)}}@keyframes boltflash{0%,92%,100%{opacity:0}94%,97%{opacity:1}}
+.rain{animation:rainfall .6s linear infinite}.snow{animation:snowfall 3s linear infinite alternate}.bolt{animation:boltflash 6s infinite}
 @keyframes beam{from{transform:rotate(-5deg)}to{transform:rotate(6deg)}}
 .bob{animation:bob 3s ease-in-out infinite alternate}
 @keyframes bob{to{transform:translateY(2px)}}
 .smoke{animation:smoke 3.5s ease-in-out infinite alternate}
 @keyframes smoke{to{transform:translate(3px,-3px);opacity:.45}}
-@media (prefers-reduced-motion: reduce){.flame,.twinkle,.beam,.bob,.smoke{animation:none}}
+@media (prefers-reduced-motion: reduce){.flame,.twinkle,.beam,.bob,.smoke,.rain,.snow{animation:none}.bolt{animation:none;opacity:0}}
 .unl{display:flex;flex-wrap:wrap;gap:6px}
 .unl span{font-size:.8rem;font-weight:600;border-radius:999px;padding:4px 11px;background:var(--done-soft);color:var(--done);border:1px solid transparent}
 .unl span.lock{background:transparent;color:var(--muted);border:1px dashed var(--line)}
@@ -565,17 +567,36 @@ const HOUSE=[["haus","Haus",0],["leucht","Leuchtturm",0],["hortensia","Hortensie
 const HOUSE_GUESTS={spring:["🦋","🐌","🐚"],summer:["🦀","🐚","🦋"],autumn:["🦀","🍄","🦔"],winter:["🦭","🐚","🦉"]};
 function scene(){const q=/[?&]bild=(haus|zelt)/.exec(location.search);if(q){try{localStorage.setItem("hq-bild",q[1])}catch(_){}return q[1]}try{return localStorage.getItem("hq-bild")==="haus"?"haus":"zelt"}catch(_){return "zelt"}}
 const SC=()=>scene()==="haus"?HOUSE:CAMP;
-function houseScene(has,light,night,extras,sea,guests,dots){dots=dots||{};
+// ---------- Himmel: echte Sonnenzeiten, Mondphase, Wetter ----------
+function sunTimes(d,lat,lon){const r=Math.PI/180,start=new Date(d.getFullYear(),0,0),n=Math.floor((d-start)/864e5),dec=23.44*Math.sin(2*Math.PI*(284+n)/365)*r,B=2*Math.PI*(n-81)/364,eot=9.87*Math.sin(2*B)-7.53*Math.cos(B)-1.5*Math.sin(B);
+  const cosH=(Math.sin(-0.833*r)-Math.sin(lat*r)*Math.sin(dec))/(Math.cos(lat*r)*Math.cos(dec));const H=Math.acos(Math.max(-1,Math.min(1,cosH)))/r;
+  const noon=720-4*lon-eot-d.getTimezoneOffset();return {rise:noon-4*H,set:noon+4*H}}
+function skyPhase(now){now=now||new Date();const pl=(S.food&&S.food.wxplace)||{};const lat=pl.lat!=null?+pl.lat:51.0,lon=pl.lon!=null?+pl.lon:10.4;const t=sunTimes(now,lat,lon),m=now.getHours()*60+now.getMinutes();
+  if(m<t.rise-40||m>t.set+40)return "night";if(m<=t.rise+40)return "dawn";if(m>=t.set-50)return "dusk";return "day"}
+// Mondphase 0..1 (0 Neumond, 0.5 Vollmond), Bezug Neumond 6.1.2000 18:14 UTC
+function moonPhase(d){const p=((d.getTime()-Date.UTC(2000,0,6,18,14))/864e5)/29.530588853;return p-Math.floor(p)}
+function moonSvg(cx,cy,r,p,col,dark){const lit=(1-Math.cos(2*Math.PI*p))/2;let g=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${dark}" opacity=".55"/>`;if(lit<0.03)return g+`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-opacity=".35" stroke-width=".8"/>`;
+  if(lit>0.97)return g+`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${col}"/>`;const wax=p<0.5,rx=(r*Math.abs(Math.cos(2*Math.PI*p))).toFixed(2),gib=lit>0.5;
+  const s1=wax?1:0,s2=wax?(gib?1:0):(gib?0:1);return g+`<path d="M${cx} ${cy-r} A${r} ${r} 0 0 ${s1} ${cx} ${cy+r} A${rx} ${r} 0 0 ${s2} ${cx} ${cy-r}Z" fill="${col}"/>`}
+// Open-Meteo Wettercode zu Bild-Wetter
+function wxKind(code){if(code==null||code==="")return "";code=+code;if(isNaN(code))return "";if(code>=95)return "gewitter";if(code>=71&&code<=77||code===85||code===86)return "schnee";if(code>=51&&code<=67||code>=80&&code<=82)return "regen";if(code===45||code===48)return "nebel";if(code===3)return "bedeckt";if(code===2)return "wolkig";return ""}
+function houseScene(has,light,night,extras,sea,guests,dots,amb){dots=dots||{};amb=amb||{};const ph=amb.ph||(night?"night":"day"),wk=amb.wx||"";const grey=/regen|gewitter|schnee|bedeckt|nebel/.test(wk);
   const C=night?{sky1:"#0e1d30",sky2:"#2a4560",sea1:"#1d3d5c",sea2:"#16314b",land:"#2d5040",land2:"#254436",sand:"#6f6a55",wall:"#7d7d7c",stone:"#666868",roof:"#283340",head:"#3a4a4a"}
                :{sky1:"#b8dcec",sky2:"#f3efe0",sea1:"#4f8fb8",sea2:"#2f6c97",land:"#8fbf7f",land2:"#7aae6c",sand:"#e8d8ac",wall:"#bdb8ad",stone:"#a39e93",roof:"#4b5866",head:"#8aa38b"};
   Object.assign(C,(night?{winter:{land:"#55675f",land2:"#4a5b53"},autumn:{land:"#4a4f33",land2:"#3d422a"}}
     :{spring:{land:"#9ccf8a",land2:"#86c07a"},autumn:{sky2:"#f6e3c4",land:"#b9b06a",land2:"#a39a57",head:"#9c9a78"},winter:{sky1:"#cbd9e3",sky2:"#eef1f2",land:"#b7c8b5",land2:"#a5b8a3",sea1:"#5d8aa6",sea2:"#406f8e",head:"#9fb0a6"}})[sea]||{});
-  const lit=night?"#ffd66b":"#f6e7b0",dot=(x,y)=>`<circle cx="${x}" cy="${y}" r="5.5" fill="#f25f5c" stroke="#fff" stroke-width="2"/>`;
+  if(ph==="dusk"||ph==="dawn")Object.assign(C,ph==="dusk"?{sky1:"#7d8fb8",sky2:"#f2b48a",sea1:"#6f86a8",sea2:"#4b6688"}:{sky1:"#a9c4e0",sky2:"#f6d2b0",sea1:"#6c97b8",sea2:"#4a7898"});
+  if(grey&&!night)Object.assign(C,{sky1:wk==="schnee"?"#d5dde3":"#a9b6bf",sky2:wk==="schnee"?"#eef1f3":"#d9dcd8",sea1:"#5f8197",sea2:"#45677d"});
+  if(grey&&night)Object.assign(C,{sky1:"#1b2633",sky2:"#334253"});
+  const lit=night||ph==="dusk"?"#ffd66b":"#f6e7b0",dot=(x,y)=>`<circle cx="${x}" cy="${y}" r="5.5" fill="#f25f5c" stroke="#fff" stroke-width="2"/>`;
   let g=`<defs><linearGradient id="hsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${C.sky1}"/><stop offset="1" stop-color="${C.sky2}"/></linearGradient><linearGradient id="hsea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${C.sea1}"/><stop offset="1" stop-color="${C.sea2}"/></linearGradient><radialGradient id="hglow"><stop offset="0" stop-color="#ffe08a" stop-opacity=".9"/><stop offset="1" stop-color="#ffe08a" stop-opacity="0"/></radialGradient><linearGradient id="hbeam" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#fff3b0" stop-opacity=".85"/><stop offset="1" stop-color="#fff3b0" stop-opacity="0"/></linearGradient></defs>
   <rect width="360" height="260" fill="url(#hsky)"/>`;
-  if(night){g+=`<circle cx="52" cy="40" r="15" fill="#f3ecd2"/><circle cx="59" cy="36" r="13" fill="${C.sky1}"/>`;
+  if(night){if(!grey)g+=moonSvg(52,40,13,amb.moon!=null?amb.moon:moonPhase(new Date()),"#f3ecd2",C.sky1);
     [[110,24],[150,52],[196,18],[236,44],[22,78],[88,70],[180,84],[268,22]].forEach((p,i)=>{g+=`<circle class="twinkle" style="animation-delay:${i*0.3}s" cx="${p[0]}" cy="${p[1]}" r="1.5" fill="#fff"/>`})}
-  else g+=`<circle cx="56" cy="44" r="17" fill="#ffd66b"/><path d="M120 46h44a12 12 0 0 0-22-8 10 10 0 0 0-22 8z M214 30h36a10 10 0 0 0-18-6 8 8 0 0 0-18 6z" fill="#fff" opacity=".85"/>`;
+  else{const low=ph==="dusk"||ph==="dawn";if(!grey||wk==="nebel")g+=low?`<circle cx="56" cy="98" r="24" fill="#ffb27a" opacity=".35"/><circle cx="56" cy="98" r="15" fill="#f4895a"/>`:`<circle cx="56" cy="44" r="17" fill="#ffd66b"${wk==="nebel"?' opacity=".45"':""}/>`;
+    g+=`<path d="M120 46h44a12 12 0 0 0-22-8 10 10 0 0 0-22 8z M214 30h36a10 10 0 0 0-18-6 8 8 0 0 0-18 6z" fill="${grey&&wk!=="nebel"?"#c9cfd4":low?"#ffe1cc":"#fff"}" opacity=".85"/>`}
+  if(wk==="wolkig"||grey&&wk!=="nebel"){const cc=grey?(night?"#3d4957":"#c9cfd4"):"#fff";g+=`<path d="M30 40h60a16 16 0 0 0-30-10 13 13 0 0 0-30 10z M160 26h70a18 18 0 0 0-34-12 14 14 0 0 0-36 12z" fill="${cc}" opacity="${grey?.95:.9}"/>`;
+    if(grey)g+=`<path d="M0 22h90a20 20 0 0 0-40-14 16 16 0 0 0-50 14z M250 18h110v-18h-60a20 20 0 0 0-50 18z M90 58h60a14 14 0 0 0-28-9 11 11 0 0 0-32 9z" fill="${night?"#2f3a46":"#b9c0c6"}"/>`}
   if(!night)g+=`<path d="M176 70 q5 -5 10 0 q5 -5 10 0 M222 86 q4 -4 8 0 q4 -4 8 0" fill="none" stroke="#4b5866" stroke-width="1.6" stroke-linecap="round"/>`;
   if(has.kite)g+=`<path d="M246 52 L256 40 L266 52 L256 70Z" fill="#f25f5c"/><path d="M256 40 V70 M246 52 H266" stroke="#fff" stroke-width="1"/><path d="M256 70 Q262 120 248 176" fill="none" stroke="#5b4a3a" stroke-width=".8"/><path d="M256 70 q-4 6 2 10 q-6 4 0 10" fill="none" stroke="#ffd66b" stroke-width="2"/>`;
   g+=`<rect x="0" y="118" width="360" height="142" fill="url(#hsea)"/><path d="M180 132h22M262 150h26M300 196h30M206 170h18M320 228h24" stroke="#fff" stroke-opacity=".45" stroke-width="2" stroke-linecap="round"/>`;
@@ -630,6 +651,10 @@ function houseScene(has,light,night,extras,sea,guests,dots){dots=dots||{};
   [[84,240],[48,250],[112,250]].slice(0,guests|0).forEach((p,i)=>{g+=`<text x="${p[0]}" y="${p[1]}" font-size="20" text-anchor="middle">${HOUSE_GUESTS[sea][i]}</text>`});
   const SPOTS=[[14,252],[110,242],[200,252],[60,226],[40,176],[170,238],[78,180],[226,252]];
   (extras||[]).forEach((e,i)=>{const sp=SPOTS[i%SPOTS.length];g+=`<text x="${sp[0]}" y="${sp[1]}" font-size="20" text-anchor="middle">${esc(e.emoji)}</text>`});
+  if(wk==="nebel")g+=`<rect x="0" y="96" width="360" height="70" fill="#eef1f2" opacity=".55"/><rect x="0" y="0" width="360" height="260" fill="#eef1f2" opacity=".18"/>`;
+  if(wk==="regen"||wk==="gewitter"){let r="";for(let i=0;i<46;i++){const x=(i*97+i*i*13+5)%360,y=(i*61+i*i*29+3)%240;r+=`M${x} ${y}l-3 9`}g+=`<path class="rain" d="${r}" stroke="${night?"#9fb3c6":"#6f8aa0"}" stroke-width="1.1" stroke-linecap="round" opacity=".7"/>`}
+  if(wk==="gewitter")g+=`<path class="bolt" d="M232 30 l-10 22 h8 l-8 20 l18 -26 h-8 l8 -16z" fill="#ffe27a"/>`;
+  if(wk==="schnee"){let r="";for(let i=0;i<40;i++){const x=(i*97+i*i*13+11)%360,y=(i*61+i*i*29+7)%250;r+=`<circle cx="${x}" cy="${y}" r="${1.2+(i%3)*.5}"/>`}g+=`<g class="snow" fill="#fff" opacity=".9">${r}</g>`}
   return `<svg viewBox="0 0 360 260" role="img" aria-label="Euer Haus am Meer">${g}</svg>`}
 function campTotal(){let n=0;for(const wk in S.weeks){const tk=ticksOf(wk);for(const k in tk)if(tk[k])n++}return n}
 const SEASON_NAME={spring:"Frühling",summer:"Sommer",autumn:"Herbst",winter:"Winter"};
@@ -682,10 +707,10 @@ function campScene(has,fire,night,extras,sea,guests,dots){dots=dots||{};
 const CAMP_IDEAS=["🦔","🦉","🐿️","🦌","🐇","🐸","🦆","🐕","🐈","🦋","🍄","🌻","🎸","🔭","⛄","🚲"];
 function campCfg(){const c=(S.config&&S.config.camp)||{};const ex=c.extras?(Array.isArray(c.extras)?c.extras:Object.values(c.extras)):[];return {costs:c.costs||{},extras:ex.filter(Boolean)}}
 function campItems(cc){cc=cc||campCfg();return SC().map(c=>({id:c[0],name:c[1],cost:c[2]===0||c[0]==="tent"||c[0]==="pit"?0:cc.costs[c[0]]!=null?(cc.costs[c[0]]|0):c[2]})).concat(cc.extras.map(e=>({id:e.id,name:e.name||e.emoji,cost:e.cost|0,emoji:e.emoji}))).sort((a,b)=>a.cost-b.cost)}
-function renderCamp(){
+function renderCamp(){if(scene()==="haus")loadWx();
   const total=campTotal(),mon=mondayOf(new Date()),tk=ticksOf(wkKey(mon));
   let d=0,n=0;tasks().forEach(t=>{if(group(t.freq)!=="week"||t.owner!=="rot")return;const m=slotsOf(t);for(let i=0;i<m;i++){n++;if(tk[t.id+"__"+i])d++}});
-  const fire=n?d/n:0,hr=new Date().getHours(),night=hr>=18||hr<7;
+  const fire=n?d/n:0,skyPh=skyPhase(),night=skyPh==="night";
   const items=campItems(),has={};items.forEach(c=>{has[c.id]=total>=c.cost});const haus=scene()==="haus";if(haus)has.haus=has.leucht=true;else has.tent=has.pit=true;
   const next=items.find(c=>total<c.cost),prev=Math.max(0,...items.filter(c=>total>=c.cost).map(c=>c.cost));
   const sea=season(),guests=fire>=1?3:fire>=2/3?2:fire>=1/3?1:0,now=new Date(),di=(now.getDay()+6)%7,split=rotSplit();
@@ -696,7 +721,7 @@ function renderCamp(){
   const spot=(x,y,w,hh,go,label,ft)=>`<button class="spot" style="left:${(x/3.6).toFixed(1)}%;top:${(y/2.6).toFixed(1)}%;width:${(w/3.6).toFixed(1)}%;height:${(hh/2.6).toFixed(1)}%" data-go="${go}"${ft?` data-ft="${ft}"`:""} aria-label="${label}"></button>`;
   const G=haus?HOUSE_GUESTS:GUESTS,place=haus?"am Meer":"auf dem Zeltplatz";
   let h=`<div><div class="eyebrow">${SEASON_NAME[sea]} ${place}</div><h1>Hallo${S.me?" "+esc(pname(S.me)):""}</h1></div>${S.me?"":meChooser()}
-   <div class="camp">${haus?houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:openW>0,shop:openS>0})+spot(166,196,50,48,"woche","Woche: offene Aufträge")+spot(119,148,42,96,"essen","Essen",mealTxt?"plan":"")+spot(116,210,50,28,"einkauf","Einkaufsliste")+spot(208,203,24,30,"kita","Kita")+spot(31,212,54,34,"ausflug","Ausflüge mit dem Bus")+spot(318,80,34,64,"projekte","Ideen")+spot(38,122,70,42,"privat","Privat: Klippen")+spot(155,168,22,20,"amhaus","Am Haus: Lampe")+spot(240,238,26,26,"spiel","Sport und Spiel")
+   <div class="camp">${haus?houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:openW>0,shop:openS>0},{ph:skyPh,wx:S.wx&&S.wx.cur!=null&&Date.now()-S.wx.at<3*3600e3?wxKind(S.wx.cur):""})+spot(166,196,50,48,"woche","Woche: offene Aufträge")+spot(119,148,42,96,"essen","Essen",mealTxt?"plan":"")+spot(116,210,50,28,"einkauf","Einkaufsliste")+spot(208,203,24,30,"kita","Kita")+spot(31,212,54,34,"ausflug","Ausflüge mit dem Bus")+spot(318,80,34,64,"projekte","Ideen")+spot(38,122,70,42,"privat","Privat: Klippen")+spot(155,168,22,20,"amhaus","Am Haus: Lampe")+spot(240,238,26,26,"spiel","Sport und Spiel")
        :campScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:openW>0,shop:openS>0})+spot(176,172,124,104,"woche","Woche: offene Aufträge")+spot(268,222,64,48,"essen","Essen",mealTxt?"plan":"")+spot(340,200,44,46,"einkauf","Einkaufsliste")+spot(208,244,46,36,"alle","Übersicht und Plan")}</div>
    <div class="freq" style="text-align:center;margin-top:-6px">${haus?"Tippt ins Bild: Besen, Schornstein, Fahrrad, Rucksack, Bus, Ball, Lampe oder Leuchtturm. Den Plan findet ihr oben rechts.":"Tippt ins Bild: Besen am Zelt, Lagerfeuer, Aushang oder das Holzschild am Rand."}</div>
    <section class="card today"><h2>Heute</h2>
@@ -831,8 +856,8 @@ function dayStress(date,k,px){const d=ymd(date),why=[];if(px[k]&&px[k].stress)wh
 const planX=mon=>(((S.food&&S.food.planx)||{})[wkKey(mon)])||{};
 const WX_FMT=w=>w?`${w.r>=4?"🌧️":w.t<=8?"🥶":w.t>=22?"☀️":"⛅"} ${Math.round(w.t)}°${w.r>=1?", "+String(Math.round(w.r*10)/10).replace(".",",")+" mm":""}`:"";
 function wxFor(date){const w=S.wx&&S.wx.days&&S.wx.days[ymd(date)];return w||null}
-function loadWx(force){const pl=S.food&&S.food.wxplace;if(!pl||pl.lat==null)return;if(!force&&S.wx&&S.wx.key===pl.lat+","+pl.lon&&Date.now()-S.wx.at<3*3600e3)return;if(S.wxBusy)return;S.wxBusy=true;
-  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pl.lat}&longitude=${pl.lon}&daily=temperature_2m_max,precipitation_sum&timezone=Europe%2FBerlin&forecast_days=16`).then(r=>r.ok?r.json():null).then(j=>{S.wxBusy=false;if(!j||!j.daily)return;const days={};j.daily.time.forEach((d,i)=>days[d]={t:j.daily.temperature_2m_max[i],r:j.daily.precipitation_sum[i]||0});S.wx={key:pl.lat+","+pl.lon,at:Date.now(),days};if(S.tab==="essen")render()}).catch(()=>{S.wxBusy=false})}
+function loadWx(force){const pl=S.food&&S.food.wxplace;if(!pl||pl.lat==null)return;if(!force&&S.wx&&S.wx.key===pl.lat+","+pl.lon&&Date.now()-S.wx.at<(S.tab==="camp"?45*60e3:3*3600e3))return;if(S.wxBusy)return;S.wxBusy=true;
+  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pl.lat}&longitude=${pl.lon}&current=weather_code&daily=temperature_2m_max,precipitation_sum&timezone=Europe%2FBerlin&forecast_days=16`).then(r=>r.ok?r.json():null).then(j=>{S.wxBusy=false;if(!j||!j.daily)return;const days={};j.daily.time.forEach((d,i)=>days[d]={t:j.daily.temperature_2m_max[i],r:j.daily.precipitation_sum[i]||0});S.wx={key:pl.lat+","+pl.lon,at:Date.now(),days,cur:j.current&&j.current.weather_code!=null?j.current.weather_code:null};if(S.tab==="essen"||S.tab==="camp")render()}).catch(()=>{S.wxBusy=false})}
 function suggestWeek(mon,keep){const days=planDays(mon),kmw=kitaMeals(mon),px=planX(mon),pool=weekPool(),used=new Set(Object.keys(days).filter(k=>/^d\d$/.test(k)&&days[k]).map(k=>String(days[k].text||"").toLowerCase())),res={},skip=S.suggSkip||{};
   const today=startOfDay(new Date());let prevH=[];
   for(let i=0;i<7;i++){const k="d"+i,date=addDays(mon,i);if(days[k]&&days[k].text){prevH=hauptOf(days[k].text);continue}if(date<today)continue;
