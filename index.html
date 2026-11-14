@@ -716,7 +716,7 @@ function renderCamp(){
       <div class="card">${SC().filter(c=>c[2]).map(c=>`<label class="sm" style="justify-content:space-between"><span style="color:var(--fg);font-size:.95rem">${c[1]}</span><span><input type="number" min="0" max="9999" id="ck-${c[0]}" data-ck="${c[0]}" value="${dr.costs[c[0]]|0}"> Häkchen</span></label>`).join("")}</div>
       <div class="line" style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" data-act="campsave">Speichern</button><button class="ghost" data-act="campcancel">Abbrechen</button></div></section>`}
   return h}
-const FOODTABS=[["plan","Essensplan"],["rezepte","Rezepte"],["mittag","Mittagessen"]];
+const FOODTABS=[["plan","Essensplan"],["rezepte","Rezepte"],["mittag","Mittagessen"],["kita","🎒 Kita"]];
 function shopItems(){const m=(S.food&&S.food.shop)||{};return Object.keys(m).filter(k=>m[k]).map(k=>Object.assign({id:k},m[k])).sort((a,b)=>(a.at||0)-(b.at||0))}
 function shopFavs(){const f=(S.food&&S.food.fav)||{};const open=new Set(shopItems().filter(i=>!i.done).map(i=>i.name.toLowerCase()));
   return Object.keys(f).filter(k=>f[k]&&f[k].n>0&&!open.has((f[k].name||"").toLowerCase())).sort((a,b)=>f[b].n-f[a].n).slice(0,14).map(k=>f[k].name)}
@@ -824,6 +824,7 @@ function renderFood(){
   if(S.foodTab==="plan")return h+renderMealPlan();
   if(S.foodTab==="rezepte")return h+renderRecipes()+(S.recDraft?"":renderIdeas());
   if(S.foodTab==="mittag")return h+renderLunch();
+  if(S.foodTab==="kita")return h+renderKitaMeals();
   return h+renderMealPlan()}
 function renderShop(){let h=`<div><div class="eyebrow">Gemeinsam</div><h1>Einkaufsliste</h1></div>${scene()==="haus"?foodChips():""}`;
   const items=shopItems(),open=items.filter(i=>!i.done),done=items.filter(i=>i.done).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0)),favs=shopFavs();
@@ -988,6 +989,13 @@ const kitas=()=>listOf(S.food&&S.food.kita);
 const ymd=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 const dLabel=s=>{const d=new Date(s+"T12:00:00");return isNaN(d)?s:d.toLocaleDateString("de-DE",{weekday:"short",day:"numeric",month:"numeric"})};
 function kitaNext(days){const today=ymd(new Date()),lim=ymd(addDays(new Date(),days));return kitas().filter(x=>x.sec==="termine"&&x.date&&x.date>=today&&x.date<=lim).sort((a,b)=>a.date<b.date?-1:1)[0]}
+function renderKitaMeals(){let h="";const mon=planWeek(),km=kitaMeals(mon),isCur=+mon===+mondayOf(new Date()),dm=x=>x.getDate()+"."+(x.getMonth()+1)+".";
+    h+=`<div class="section-head" style="align-items:center"><div><h2>KW ${isoWeek(mon).w}</h2><div class="freq">${dm(mon)} bis ${dm(addDays(mon,4))}</div></div><div class="weeknav"><button class="iconbtn" data-fnav="-1" aria-label="Vorige Woche">‹</button>${isCur?"":`<button class="ghost" data-fnav="0">Heute</button>`}<button class="iconbtn" data-fnav="1" aria-label="Nächste Woche">›</button></div></div>`;
+    h+=`<section class="card"><h2>Speiseplan einfügen</h2><div class="freq">Den Plan aus der Kita-App kopieren und hier einfügen. Die App erkennt Woche, Tage, Frühstück, Mittag, Nachspeise und Brotzeit und lässt die Kürzel in Klammern weg.</div><textarea id="kitaplantext" rows="4" placeholder="Speiseplan 16.11. - 20.11. …" aria-label="Speiseplan einfügen"></textarea><div class="btnrow"><button class="primary" data-act="kitaplanimport">Übernehmen</button></div></section>`;
+    const sub=x=>[x.fr?"Frühstück: "+x.fr:"",x.na?"Nachspeise: "+x.na:"",x.bz?"Brotzeit: "+x.bz:""].filter(Boolean);
+    h+=`<section class="card tripform">${DAYN.slice(0,5).map((dn,i)=>{const x=km["d"+i]||{};return `<label class="fld"><span>${dn} ${dm(addDays(mon,i))}, Mittag</span><input type="text" id="ke-d${i}" data-ke="d${i}" value="${esc(x.text||"")}" maxlength="120" placeholder="Was gibt es in der Kita?" autocomplete="off"></label>${sub(x).length?`<div class="freq" style="margin-top:-8px">${sub(x).map(esc).join("<br>")}</div>`:""}`}).join("")}
+      <div class="btnrow"><button class="primary" data-act="kitamealsave">Speichern</button></div><div class="freq">Hier könnt ihr das Mittagessen von Hand ändern. Es erscheint auch im Essensplan, damit ihr abends nicht dasselbe kocht.</div></section>`;
+    return h}
 function renderKita(){const d=S.kitaDraft,sec=KITA_SECS.find(s=>s[0]===S.kitaSec)||KITA_SECS[0];
   let h=`<div><div class="eyebrow">Mit dem Rucksack</div><h1>Kita</h1></div><div class="unl">${KITA_SECS.map(s=>`<button class="chipbtn" data-kitasec="${s[0]}" aria-pressed="${s[0]===sec[0]}">${s[1]} ${s[2]}</button>`).join("")}</div>`;
   if(d)return h+`<section class="card tripform"><h2>${d.id?"Bearbeiten":sec[0]==="termine"?"Neuer Termin":"Neue Info"}</h2>
@@ -1004,13 +1012,7 @@ function renderKita(){const d=S.kitaDraft,sec=KITA_SECS.find(s=>s[0]===S.kitaSec
       :`<div class="empty"><h2>Keine Termine</h2><div>Tragt Feste, Schließtage und Elternabende ein. Ihr seht beide dieselbe Liste.</div></div>`;
     if(past.length)h+=`<section class="card"><div class="section-head"><h2>Vorbei</h2><span class="freq num">${past.length}</span></div><ul class="shop">${past.slice(0,10).map(li).join("")}</ul></section>`;
     return h}
-  if(sec[0]==="essen"){const mon=planWeek(),km=kitaMeals(mon),isCur=+mon===+mondayOf(new Date()),dm=x=>x.getDate()+"."+(x.getMonth()+1)+".";
-    h+=`<div class="section-head" style="align-items:center"><div><h2>KW ${isoWeek(mon).w}</h2><div class="freq">${dm(mon)} bis ${dm(addDays(mon,4))}</div></div><div class="weeknav"><button class="iconbtn" data-fnav="-1" aria-label="Vorige Woche">‹</button>${isCur?"":`<button class="ghost" data-fnav="0">Heute</button>`}<button class="iconbtn" data-fnav="1" aria-label="Nächste Woche">›</button></div></div>`;
-    h+=`<section class="card"><h2>Speiseplan einfügen</h2><div class="freq">Den Plan aus der Kita-App kopieren und hier einfügen. Die App erkennt Woche, Tage, Frühstück, Mittag, Nachspeise und Brotzeit und lässt die Kürzel in Klammern weg.</div><textarea id="kitaplantext" rows="4" placeholder="Speiseplan 16.11. - 20.11. …" aria-label="Speiseplan einfügen"></textarea><div class="btnrow"><button class="primary" data-act="kitaplanimport">Übernehmen</button></div></section>`;
-    const sub=x=>[x.fr?"Frühstück: "+x.fr:"",x.na?"Nachspeise: "+x.na:"",x.bz?"Brotzeit: "+x.bz:""].filter(Boolean);
-    h+=`<section class="card tripform">${DAYN.slice(0,5).map((dn,i)=>{const x=km["d"+i]||{};return `<label class="fld"><span>${dn} ${dm(addDays(mon,i))}, Mittag</span><input type="text" id="ke-d${i}" data-ke="d${i}" value="${esc(x.text||"")}" maxlength="120" placeholder="Was gibt es in der Kita?" autocomplete="off"></label>${sub(x).length?`<div class="freq" style="margin-top:-8px">${sub(x).map(esc).join("<br>")}</div>`:""}`}).join("")}
-      <div class="btnrow"><button class="primary" data-act="kitamealsave">Speichern</button></div><div class="freq">Hier könnt ihr das Mittagessen von Hand ändern. Es erscheint auch im Essensplan, damit ihr abends nicht dasselbe kocht.</div></section>`;
-    return h}
+  if(sec[0]==="essen")return h+renderKitaMeals();
   if(sec[0]==="tasche"){const items=all.sort((a,b)=>(a.at||0)-(b.at||0)),have=new Set(items.map(i=>i.name.toLowerCase())),sug=KITA_BAG.filter(n=>!have.has(n.toLowerCase())),ok=items.filter(i=>i.done).length;
     const li=i=>`<li class="${i.done?"done":""}"><button class="item" data-kitatick="${esc(i.id)}" aria-pressed="${!!i.done}"><span class="box">${i.done?"✓":""}</span><span class="nm">${esc(i.name)}</span></button><button class="rm" data-kitarm="${esc(i.id)}" aria-label="${esc(i.name)} entfernen">✕</button></li>`;
     h+=`<form class="addrow" id="kitaform"><input type="text" id="kitainput" placeholder="Was gehört in die Kita-Tasche?" value="${esc(S.kitaText)}" autocomplete="off" enterkeyhint="done" aria-label="Gegenstand"><button class="primary" type="submit">Hinzufügen</button></form>`;
