@@ -1,2 +1,6 @@
 # Besonderheiten, die die Rezept-Recherche bei jeder Kategorie beachtet. Eine pro Zeile.
-# Zeilen mit # am Anfang werden ignoriert. Beispiele: "Kein Koriander", "Für zwei Personen", "Höchstens 45 Minuten unter der Woche".
+# Zeilen mit # am Anfang werden ignoriert.
+Mengen für 4 Personen.
+Ein Kleinkind isst mit. Salz und Gewürze sind kein Problem.
+Nichts Rohes oder Halbgares, das ein Kleinkind nicht essen sollte: kein rohes oder rosa Fleisch, kein roher Fisch (Sushi, Tatar), keine rohen Eier (Tiramisu, Mayonnaise selbst gemacht), keine Rohmilchkäse.
+Wenn ein Rezept solche Zutaten hat, nur nehmen, wenn sich der Teil für das Kind leicht durchgaren oder weglassen lässt, und das in der Notiz sagen.

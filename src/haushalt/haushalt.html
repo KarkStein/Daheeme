@@ -190,6 +190,10 @@ a.catbtn{text-decoration:none;display:inline-flex;align-items:center}
 .fld input,.fld textarea{font-size:1rem;font-weight:400;padding:10px 12px;width:100%;box-sizing:border-box}
 .fld textarea{resize:vertical;line-height:1.45}
 .btnrow{display:flex;gap:8px;flex-wrap:wrap}
+.tripform{display:flex;flex-direction:column;gap:14px}
+.tripform .unl{margin-top:2px}
+.tripform .chipbtn{font-size:.85rem;padding:6px 12px}
+.tripform .chipbtn[aria-pressed=true],.chipbtn[data-packlist][aria-pressed=true],.chipbtn[data-tfilter][aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .danger{color:#b3402a}
 .rechead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;width:100%;background:none;border:none;padding:0;text-align:left}
 .rechead .nm{font-family:var(--f-display);font-weight:700;font-size:1.05rem;min-width:0;overflow-wrap:anywhere}
@@ -307,7 +311,7 @@ function periodOf(freq,mon){const th=addDays(mon,3);const y=th.getFullYear(),m=t
 const fmt=(d,o)=>d.toLocaleDateString("de-DE",o);
 
 // ---------- Zustand ----------
-const S={tripTab:"ideen",tripDraft:null,tripText:"",packText:"",ideas:null,shopCatEdit:null,lunchDraft:null,lunchOpen:null,lunchMapOpen:false,lunchMapEdit:false,lunchMapText:"",recDraft:null,recOpen:null,planEdit:null,planText:"",planRec:null,foodWeek:null,food:{},foodTab:"plan",shopText:"",store:null,mode:"loading",config:null,weeks:{},view:mondayOf(new Date()),tab:"camp",campDraft:null,filter:"alle",hideDone:false,groupBy:"freq",me:null,draft:null,timedOut:false};
+const S={tripTab:"ideen",tripDraft:null,tripFilter:"",packList:"main",packListNew:false,packText:"",ideas:null,shopCatEdit:null,lunchDraft:null,lunchOpen:null,lunchMapOpen:false,lunchMapEdit:false,lunchMapText:"",recDraft:null,recOpen:null,planEdit:null,planText:"",planRec:null,foodWeek:null,food:{},foodTab:"plan",shopText:"",store:null,mode:"loading",config:null,weeks:{},view:mondayOf(new Date()),tab:"camp",campDraft:null,filter:"alle",hideDone:false,groupBy:"freq",me:null,draft:null,timedOut:false};
 try{const m=localStorage.getItem("hq-me");if(m==="p0"||m==="p1")S.me=m;const f=localStorage.getItem("hq-filter");if(f==="meine")S.filter="meine";S.hideDone=localStorage.getItem("hq-hidedone")==="1";if(localStorage.getItem("hq-groupby")==="art")S.groupBy="art";const ft=localStorage.getItem("hq-foodtab");if(ft&&ft!=="shop")S.foodTab=ft;}catch(e){}
 
 // ---------- Speicher-Adapter ----------
@@ -754,15 +758,16 @@ function renderLunch(){const d=S.lunchDraft,mapUrl=(S.food&&S.food.lunchmap)||""
       <input type="url" id="lu-mapurl" value="${esc(S.lunchMapText)}" placeholder="https://maps.app.goo.gl/…" autocomplete="off"><div class="btnrow"><button class="primary" data-act="lumapsave">Speichern</button><button class="ghost" data-act="lumapcancel">Abbrechen</button></div></section>`
     :`<div><button class="ghost" data-act="lumapedit">${mapOk(mapUrl)?"Google-Karte ändern":"Google-Karte verbinden"}</button></div>`;
   return h}
+function foodChips(){const shop=S.tab==="einkauf";return `<div class="filters" role="group" aria-label="Bereich">${FOODTABS.map(t=>`<button class="chipbtn neutral" data-food="${t[0]}" aria-pressed="${!shop&&S.foodTab===t[0]}">${t[1]}</button>`).join("")}${scene()==="haus"?`<button class="chipbtn neutral" data-go="einkauf" aria-pressed="${shop}">🛒 Einkauf</button>`:""}</div>`}
 function renderFood(){
   if(S.tab==="einkauf")return renderShop();
   let h=`<div><div class="eyebrow">Gemeinsam planen</div><h1>Essen</h1></div>
-   <div class="filters" role="group" aria-label="Bereich">${FOODTABS.map(t=>`<button class="chipbtn neutral" data-food="${t[0]}" aria-pressed="${S.foodTab===t[0]}">${t[1]}</button>`).join("")}</div>`;
+   ${foodChips()}`;
   if(S.foodTab==="plan")return h+renderMealPlan();
   if(S.foodTab==="rezepte")return h+renderRecipes()+(S.recDraft?"":renderIdeas());
   if(S.foodTab==="mittag")return h+renderLunch();
   return h+renderMealPlan()}
-function renderShop(){let h=`<div><div class="eyebrow">Gemeinsam</div><h1>Einkaufsliste</h1></div>`;
+function renderShop(){let h=`<div><div class="eyebrow">Gemeinsam</div><h1>Einkaufsliste</h1></div>${scene()==="haus"?foodChips():""}`;
   const items=shopItems(),open=items.filter(i=>!i.done),done=items.filter(i=>i.done).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0)),favs=shopFavs();
   const li=i=>`<li class="${i.done?"done":""}"><button class="item" data-shop="${esc(i.id)}" aria-pressed="${!!i.done}"><span class="box">${i.done?"✓":""}</span><span class="nm">${esc(i.name)}${i.src&&!i.done?`<br><span class="freq">für ${esc(i.src)}</span>`:""}</span></button>${i.done?"":`<button class="catbtn" data-shopcat="${esc(i.id)}" aria-label="Gruppe ändern" aria-expanded="${S.shopCatEdit===i.id}">${CATS.find(c=>c[0]===itemCat(i))[1]}</button>`}<button class="rm" data-shoprm="${esc(i.id)}" aria-label="${esc(i.name)} entfernen">✕</button></li>${!i.done&&S.shopCatEdit===i.id?`<li class="catpick"><div class="unl">${CATS.map(c=>`<button class="chipbtn" data-setcat="${c[0]}" aria-pressed="${itemCat(i)===c[0]}">${c[1]} ${c[2]}</button>`).join("")}</div></li>`:""}`;
   const grp=CATS.map(c=>[c,open.filter(i=>itemCat(i)===c[0])]).filter(g=>g[1].length);
@@ -784,29 +789,58 @@ function renderTrips(){
   let h=`<div><div class="eyebrow">Gemeinsam unterwegs</div><h1>Ausflüge</h1></div>
    <div class="filters" role="group" aria-label="Bereich"><button class="chipbtn neutral" data-trip="ideen" aria-pressed="${S.tripTab==="ideen"}">Ideen</button><button class="chipbtn neutral" data-trip="pack" aria-pressed="${S.tripTab==="pack"}">Packliste</button></div>`;
   return h+(S.tripTab==="pack"?renderPack():renderTripIdeas())}
+const TRIP_KIND=[["wandern","🥾","Wandern"],["wasser","🏖️","Baden und Strand"],["stadt","🏛️","Stadt und Museum"],["tiere","🐐","Tiere"],["spiel","🛝","Spielplatz"],["rad","🚲","Radtour"],["essen","🍽️","Einkehren"],["sonst","✨","Sonstiges"]];
+const TRIP_WX=[["sonne","☀️","Nur bei schönem Wetter"],["egal","🌧️","Geht auch bei Regen"]];
+const TRIP_DUR=[["kurz","Ein paar Stunden"],["halb","Halber Tag"],["ganz","Ganzer Tag"],["nacht","Mit Übernachtung"]];
+const TRIP_KID=[["wagen","Kinderwagen geht"],["wickeln","Wickeln möglich"],["spiel","Spielplatz da"],["einkehr","Einkehr in der Nähe"]];
+const TRIP_COST=[["0","Kostenlos"],["1","€"],["2","€€"],["3","€€€"]];
+const TRIP_SEA=[["spring","Frühling"],["summer","Sommer"],["autumn","Herbst"],["winter","Winter"]];
+const csv=v=>(v||"").split(",").filter(Boolean);
+const lab=(L,k)=>(L.find(x=>x[0]===k)||[])[L[0].length===3?2:1]||"";
+function tripTags(x){const k=TRIP_KIND.find(c=>c[0]===x.kind),out=[];if(k)out.push(k[1]+" "+k[2]);if(x.wx==="egal")out.push("🌧️ auch bei Regen");if(x.dur)out.push("⏱️ "+lab(TRIP_DUR,x.dur));if(x.drive)out.push("🚗 "+x.drive+" min");if(x.cost)out.push(lab(TRIP_COST,x.cost));
+  csv(x.kid).forEach(c=>out.push("👶 "+lab(TRIP_KID,c)));const se=csv(x.season);if(se.length&&se.length<4)out.push("📅 "+se.map(c=>lab(TRIP_SEA,c)).join(", "));return out}
 function renderTripIdeas(){const d=S.tripDraft;
-  if(d)return `<section class="card"><h2>${d.id?"Ausflug bearbeiten":"Neuer Ausflug"}</h2>
-    <label class="sm" for="tr-name">Wohin?</label><input type="text" id="tr-name" data-tf="name" value="${esc(d.name)}" placeholder="Zum Beispiel Wasserfall im Wald" autocomplete="off">
-    <label class="sm" for="tr-note">Notiz</label><textarea id="tr-note" data-tf="note" rows="3" placeholder="Anfahrt, Dauer, was man dort macht">${esc(d.note)}</textarea>
-    <label class="sm" for="tr-link">Link (Karte oder Webseite)</label><input type="url" id="tr-link" data-tf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off">
-    <div class="line" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="primary" data-act="tripsave">Speichern</button><button class="ghost" data-act="tripcancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="tripdel">Löschen</button>`:""}</div></section>`;
-  const all=trips(),open=all.filter(x=>!x.done).sort((a,b)=>(a.at||0)-(b.at||0)),done=all.filter(x=>x.done).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0));
-  const card=x=>{const l=safeLink(x.link);return `<li class="${x.done?"done":""}"><button class="item" data-tripdone="${esc(x.id)}" aria-pressed="${!!x.done}" aria-label="${esc(x.name)}: ${x.done?"doch noch nicht gemacht":"waren wir"}"><span class="box">${x.done?"✓":""}</span><span class="nm">${esc(x.name)}${x.note?`<br><span class="freq">${esc(x.note)}</span>`:""}${x.done&&x.doneAt?`<br><span class="freq">Gemacht am ${new Date(x.doneAt).toLocaleDateString("de-DE")}</span>`:""}</span></button>${l?`<a class="catbtn" href="${esc(l)}" target="_blank" rel="noopener" aria-label="Link öffnen">🗺️</a>`:""}<button class="rm" data-tripedit="${esc(x.id)}" aria-label="${esc(x.name)} bearbeiten">✎</button></li>`};
-  let h=`<form class="addrow" id="tripform"><input type="text" id="tripinput" placeholder="Wohin wollt ihr mal?" value="${esc(S.tripText)}" autocomplete="off" enterkeyhint="done" aria-label="Ausflugsziel"><button class="primary" type="submit">Hinzufügen</button></form>`;
-  h+=open.length?`<section class="card"><div class="section-head"><h2>Wollen wir mal hin</h2><span class="freq num">${open.length}</span></div><ul class="shop">${open.map(card).join("")}</ul><div class="freq">Tippt auf ein Ziel, wenn ihr dort wart. Mit ✎ ergänzt ihr Notiz und Link.</div></section>`
-    :`<div class="empty"><h2>Noch keine Ideen</h2><div>Schreibt oben auf, wohin ihr mal wollt. Ihr seht beide dieselbe Liste.</div></div>`;
+  if(d){const one=(f,L)=>`<div class="unl">${L.map(c=>`<button class="chipbtn" data-tset="${f}" data-v="${c[0]}" aria-pressed="${d[f]===c[0]}">${c.length===3?c[1]+" "+c[2]:c[1]}</button>`).join("")}</div>`;
+    const many=(f,L)=>`<div class="unl">${L.map(c=>`<button class="chipbtn" data-ttog="${f}" data-v="${c[0]}" aria-pressed="${csv(d[f]).includes(c[0])}">${c[1]}</button>`).join("")}</div>`;
+    const lists=packLists();
+    return `<section class="card tripform"><h2>${d.id?"Ausflug bearbeiten":"Neue Ausflugsidee"}</h2>
+    <label class="fld"><span>Wohin?</span><input type="text" id="tr-name" data-tf="name" value="${esc(d.name)}" maxlength="80" placeholder="Zum Beispiel Wasserfall im Wald" autocomplete="off"></label>
+    <div class="fld"><span>Was macht man dort?</span>${one("kind",TRIP_KIND)}</div>
+    <div class="fld"><span>Wetter</span>${one("wx",TRIP_WX)}</div>
+    <div class="fld"><span>Wie lange?</span>${one("dur",TRIP_DUR)}</div>
+    <label class="fld"><span>Fahrzeit in Minuten</span><input type="number" min="0" max="999" id="tr-drive" data-tf="drive" value="${esc(d.drive)}" placeholder="30" style="width:110px"></label>
+    <div class="fld"><span>Mit Kleinkind</span>${many("kid",TRIP_KID)}</div>
+    <div class="fld"><span>Kosten</span>${one("cost",TRIP_COST)}</div>
+    <div class="fld"><span>Beste Jahreszeit (nichts gewählt heißt ganzjährig)</span>${many("season",TRIP_SEA)}</div>
+    <div class="fld"><span>Welche Packliste?</span><div class="unl">${lists.map(l=>`<button class="chipbtn" data-tset="pack" data-v="${esc(l.id)}" aria-pressed="${d.pack===l.id}">🎒 ${esc(l.name)}</button>`).join("")}</div></div>
+    <label class="fld"><span>Link (Karte oder Webseite)</span><input type="url" id="tr-link" data-tf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off"></label>
+    <label class="fld"><span>Notiz</span><textarea id="tr-note" data-tf="note" rows="3" placeholder="Parkplatz, Eintritt, was man nicht vergessen darf">${esc(d.note)}</textarea></label>
+    <div class="btnrow"><button class="primary" data-act="tripsave">Speichern</button><button class="ghost" data-act="tripcancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="tripdel">Löschen</button>`:""}</div></section>`}
+  const all=trips(),F=S.tripFilter||"",match=x=>!F||(F==="regen"?x.wx==="egal":x.kind===F);
+  const open=all.filter(x=>!x.done&&match(x)).sort((a,b)=>(a.at||0)-(b.at||0)),done=all.filter(x=>x.done).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0));
+  const card=x=>{const l=safeLink(x.link),tg=tripTags(x),pl=x.pack&&packLists().find(p=>p.id===x.pack);return `<li class="${x.done?"done":""}"><button class="item" data-tripdone="${esc(x.id)}" aria-pressed="${!!x.done}" aria-label="${esc(x.name)}: ${x.done?"doch noch nicht gemacht":"waren wir"}"><span class="box">${x.done?"✓":""}</span><span class="nm">${esc(x.name)}${!x.done&&tg.length?`<br><span class="freq">${tg.map(x=>`<span style="white-space:nowrap">${esc(x)}</span>`).join(" · ")}</span>`:""}${x.note&&!x.done?`<br><span class="freq">${esc(x.note)}</span>`:""}${x.done&&x.doneAt?`<br><span class="freq">Gemacht am ${new Date(x.doneAt).toLocaleDateString("de-DE")}</span>`:""}</span></button>${pl&&!x.done?`<button class="catbtn" data-gopack="${esc(pl.id)}" aria-label="Packliste ${esc(pl.name)} öffnen">🎒</button>`:""}${l?`<a class="catbtn" href="${esc(l)}" target="_blank" rel="noopener" aria-label="Link öffnen">🗺️</a>`:""}<button class="rm" data-tripedit="${esc(x.id)}" aria-label="${esc(x.name)} bearbeiten">✎</button></li>`};
+  const kinds=TRIP_KIND.filter(k=>all.some(x=>!x.done&&x.kind===k[0]));
+  let h=`<div class="btnrow"><button class="primary" data-act="tripnew">+ Neue Ausflugsidee</button></div>`;
+  if(kinds.length||all.some(x=>!x.done&&x.wx==="egal"))h+=`<div class="unl"><button class="chipbtn" data-tfilter="" aria-pressed="${!F}">Alle</button>${all.some(x=>!x.done&&x.wx==="egal")?`<button class="chipbtn" data-tfilter="regen" aria-pressed="${F==="regen"}">🌧️ Bei Regen</button>`:""}${kinds.map(k=>`<button class="chipbtn" data-tfilter="${k[0]}" aria-pressed="${F===k[0]}">${k[1]} ${k[2]}</button>`).join("")}</div>`;
+  h+=open.length?`<section class="card"><div class="section-head"><h2>Wollen wir mal hin</h2><span class="freq num">${open.length}</span></div><ul class="shop">${open.map(card).join("")}</ul><div class="freq">Tippt auf ein Ziel, wenn ihr dort wart. Mit ✎ bearbeitet ihr es.</div></section>`
+    :`<div class="empty"><h2>${F?"Nichts Passendes":"Noch keine Ideen"}</h2><div>${F?"Für diesen Filter gibt es noch kein Ziel.":"Legt mit dem Knopf oben eure erste Ausflugsidee an. Ihr seht beide dieselbe Liste."}</div></div>`;
   if(done.length)h+=`<section class="card"><div class="section-head"><h2>Schon gemacht</h2><span class="freq num">${done.length}</span></div><ul class="shop">${done.map(card).join("")}</ul></section>`;
   return h}
-function renderPack(){const items=packs(),have=new Set(items.map(i=>i.name.toLowerCase())),sug=PACK_IDEAS.filter(n=>!have.has(n.toLowerCase())),packed=items.filter(i=>i.done).length;
+function packLists(){const m=(S.food&&S.food.packlist)||{};const l=Object.keys(m).filter(k=>m[k]&&m[k].name).map(k=>({id:k,name:m[k].name,at:m[k].at||0})).sort((a,b)=>a.at-b.at);return [{id:"main",name:"Tagesausflug",at:0}].concat(l)}
+const curPack=()=>{const l=packLists();return l.find(x=>x.id===S.packList)||l[0]};
+function renderPack(){const L=curPack(),items=packs().filter(i=>(i.list||"main")===L.id),have=new Set(items.map(i=>i.name.toLowerCase())),sug=PACK_IDEAS.filter(n=>!have.has(n.toLowerCase())),packed=items.filter(i=>i.done).length;
   const li=i=>`<li class="${i.done?"done":""}"><button class="item" data-pack="${esc(i.id)}" aria-pressed="${!!i.done}"><span class="box">${i.done?"✓":""}</span><span class="nm">${esc(i.name)}</span></button><button class="rm" data-packrm="${esc(i.id)}" aria-label="${esc(i.name)} entfernen">✕</button></li>`;
-  let h=`<form class="addrow" id="packform"><input type="text" id="packinput" placeholder="Was kommt in den Rucksack?" value="${esc(S.packText)}" autocomplete="off" enterkeyhint="done" aria-label="Gegenstand"><button class="primary" type="submit">Hinzufügen</button></form>`;
+  let h=`<div class="unl">${packLists().map(l=>`<button class="chipbtn" data-packlist="${esc(l.id)}" aria-pressed="${l.id===L.id}">🎒 ${esc(l.name)}</button>`).join("")}<button class="chipbtn" data-act="packlistnew">+ Neue Liste</button></div>`;
+  if(S.packListNew)h+=`<form class="addrow" id="packlistform"><input type="text" id="packlistinput" placeholder="Zum Beispiel Strand oder Übernachtung" maxlength="40" autocomplete="off" enterkeyhint="done" aria-label="Name der Liste"><button class="primary" type="submit">Anlegen</button></form>`;
+  h+=`<form class="addrow" id="packform"><input type="text" id="packinput" placeholder="Was kommt in den Rucksack?" value="${esc(S.packText)}" autocomplete="off" enterkeyhint="done" aria-label="Gegenstand"><button class="primary" type="submit">Hinzufügen</button></form>`;
   if(sug.length)h+=`<div><div class="eyebrow" style="margin-bottom:6px">Vorschläge</div><div class="unl">${sug.map(n=>`<button class="chipbtn" data-packadd="${esc(n)}">+ ${esc(n)}</button>`).join("")}</div></div>`;
-  h+=items.length?`<section class="card"><div class="section-head"><h2>Im Rucksack</h2><span class="freq num">${packed} von ${items.length}</span></div><ul class="shop">${items.map(li).join("")}</ul>${packed?`<div><button class="ghost" data-act="packreset">Alles wieder auspacken</button></div>`:""}<div class="freq">Die Liste bleibt für den nächsten Ausflug. Beim Packen abhaken, danach wieder auspacken.</div></section>`
-    :`<div class="empty"><h2>Die Packliste ist leer</h2><div>Tippt Vorschläge an oder schreibt eigene Dinge dazu. Die Liste bleibt für jeden Ausflug.</div></div>`;
+  h+=items.length?`<section class="card"><div class="section-head"><h2>${esc(L.name)}</h2><span class="freq num">${packed} von ${items.length} eingepackt</span></div><ul class="shop">${items.map(li).join("")}</ul>${packed?`<div><button class="ghost" data-act="packreset">Alles wieder auspacken</button></div>`:""}<div class="freq">Die Liste bleibt für den nächsten Ausflug. Beim Packen abhaken, danach wieder auspacken.</div></section>`
+    :`<div class="empty"><h2>Die Liste „${esc(L.name)}“ ist leer</h2><div>Tippt Vorschläge an oder schreibt eigene Dinge dazu. Die Liste bleibt für jeden Ausflug.</div></div>`;
+  if(L.id!=="main")h+=`<div><button class="ghost danger" data-act="packlistdel">Liste „${esc(L.name)}“ löschen</button></div>`;
   return h}
-async function packAdd(name){name=(name||"").trim().slice(0,60);if(!name)return;if(packs().some(i=>i.name.toLowerCase()===name.toLowerCase())){toast("Steht schon auf der Packliste");return}
-  try{await S.store.setPath("food/pack/"+newId("k"),{name,done:false,at:Date.now()})}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}
-async function tripAdd(name){name=(name||"").trim().slice(0,80);if(!name)return;
+async function packAdd(name){name=(name||"").trim().slice(0,60);if(!name)return;if(packs().some(i=>(i.list||"main")===curPack().id&&i.name.toLowerCase()===name.toLowerCase())){toast("Steht schon auf der Packliste");return}
+  try{const L=curPack(),v={name,done:false,at:Date.now()};if(L.id!=="main")v.list=L.id;await S.store.setPath("food/pack/"+newId("k"),v)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}
+async function tripAddUnused(name){name=(name||"").trim().slice(0,80);if(!name)return;
   try{await S.store.setPath("food/trip/"+newId("t"),{name,done:false,at:Date.now(),by:S.me||""})}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}
 function renderPlan(){
   const d=S.draft||(S.draft=JSON.parse(JSON.stringify(S.config)));
@@ -834,7 +868,7 @@ function renderPlan(){
 
 function render(){
   if(S.mode==="loading")return;
-  document.querySelectorAll("#tabs button").forEach(b=>{b.setAttribute("aria-selected",b.dataset.tab===S.tab);if(b.dataset.tab==="ausflug")b.hidden=scene()!=="haus"});
+  document.querySelectorAll("#tabs button").forEach(b=>{const hs=scene()==="haus";b.setAttribute("aria-selected",b.dataset.tab===S.tab||(hs&&b.dataset.tab==="essen"&&S.tab==="einkauf"));if(b.dataset.tab==="ausflug")b.hidden=!hs;if(b.dataset.tab==="einkauf")b.hidden=hs});
   let h="";
   if(S.mode==="local")h+=`<div class="notice">Offline-Modus: Die Daten bleiben nur auf diesem Gerät. Öffnet die App über den claude.ai-Link und meldet euch an, damit ihr beide dieselben Daten seht.</div>`;
   if(S.timedOut&&S.mode==="db")h+=`<div class="notice">Die gemeinsamen Daten sind gerade nicht erreichbar. Angezeigtes kann veraltet sein.</div>`;
@@ -866,18 +900,26 @@ app.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;
   if(b.dataset.go){if(S.tab!=="plan"&&S.tab!=="alle")S.prev=S.tab;S.tab=b.dataset.go;if(b.dataset.ft&&b.dataset.ft!=="shop"){S.foodTab=b.dataset.ft;try{localStorage.setItem("hq-foodtab",S.foodTab)}catch(_){}}S.draft=null;S.campDraft=null;render();window.scrollTo(0,0);return}
   if(b.dataset.trip){S.tripDraft=null;S.tripTab=b.dataset.trip;render();return}
+  if(b.dataset.tset){const d=S.tripDraft;if(d){const f=b.dataset.tset;d[f]=d[f]===b.dataset.v?"":b.dataset.v;render()}return}
+  if(b.dataset.ttog){const d=S.tripDraft;if(d){const f=b.dataset.ttog,a=csv(d[f]),v=b.dataset.v;d[f]=(a.includes(v)?a.filter(x=>x!==v):a.concat(v)).join(",");render()}return}
+  if(b.dataset.tfilter!=null){S.tripFilter=b.dataset.tfilter;render();return}
+  if(b.dataset.gopack){S.packList=b.dataset.gopack;S.tripTab="pack";render();window.scrollTo(0,0);return}
+  if(b.dataset.packlist){S.packList=b.dataset.packlist;S.packListNew=false;render();return}
+  if(b.dataset.act==="packlistnew"){S.packListNew=!S.packListNew;render();const el=document.getElementById("packlistinput");if(el)el.focus();return}
+  if(b.dataset.act==="packlistdel"){const L=curPack();if(L.id==="main")return;try{for(const i of packs().filter(x=>x.list===L.id))await S.store.setPath("food/pack/"+i.id,null);await S.store.setPath("food/packlist/"+L.id,null);S.packList="main";toast("Liste gelöscht")}catch(_){toast("Konnte nicht speichern.")}return}
+  if(b.dataset.act==="tripnew"){S.tripDraft={id:null,name:"",note:"",link:"",kind:"",wx:"",dur:"",drive:"",kid:"",cost:"",season:"",pack:""};render();window.scrollTo(0,0);const el=document.getElementById("tr-name");if(el)el.focus();return}
   if(b.dataset.packadd){packAdd(b.dataset.packadd);return}
   if(b.dataset.pack){const i=packs().find(x=>x.id===b.dataset.pack);if(i){try{await S.store.setPath("food/pack/"+i.id+"/done",!i.done)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}return}
   if(b.dataset.packrm){try{await S.store.setPath("food/pack/"+b.dataset.packrm,null)}catch(_){toast("Konnte nicht speichern.")}return}
-  if(b.dataset.act==="packreset"){for(const i of packs().filter(x=>x.done)){try{await S.store.setPath("food/pack/"+i.id+"/done",false)}catch(_){}}return}
+  if(b.dataset.act==="packreset"){for(const i of packs().filter(x=>x.done&&(x.list||"main")===curPack().id)){try{await S.store.setPath("food/pack/"+i.id+"/done",false)}catch(_){}}return}
   if(b.dataset.tripdone){const x=trips().find(y=>y.id===b.dataset.tripdone);if(x){try{await S.store.setPath("food/trip/"+x.id+"/done",!x.done);await S.store.setPath("food/trip/"+x.id+"/doneAt",x.done?null:Date.now())}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}return}
-  if(b.dataset.tripedit){const x=trips().find(y=>y.id===b.dataset.tripedit);if(x){S.tripDraft={id:x.id,name:x.name||"",note:x.note||"",link:x.link||""};render();window.scrollTo(0,0)}return}
+  if(b.dataset.tripedit){const x=trips().find(y=>y.id===b.dataset.tripedit);if(x){S.tripDraft={id:x.id,name:x.name||"",note:x.note||"",link:x.link||"",kind:x.kind||"",wx:x.wx||"",dur:x.dur||"",drive:x.drive?String(x.drive):"",kid:x.kid||"",cost:x.cost||"",season:x.season||"",pack:x.pack||""};render();window.scrollTo(0,0)}return}
   if(b.dataset.act==="tripcancel"){S.tripDraft=null;render();return}
   if(b.dataset.act==="tripsave"){const d=S.tripDraft,name=(d.name||"").trim().slice(0,80);if(!name){toast("Bitte ein Ziel eintragen");return}
     const id=d.id||newId("t"),base="food/trip/"+id+"/";
-    try{await S.store.setPath(base+"name",name);await S.store.setPath(base+"note",(d.note||"").trim().slice(0,500)||null);await S.store.setPath(base+"link",safeLink(d.link)||null);if(!d.id){await S.store.setPath(base+"at",Date.now());await S.store.setPath(base+"done",false)}S.tripDraft=null;toast("Gespeichert");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
+    try{await S.store.setPath(base+"name",name);await S.store.setPath(base+"note",(d.note||"").trim().slice(0,500)||null);await S.store.setPath(base+"link",safeLink(d.link)||null);for(const k of ["kind","wx","dur","kid","cost","season","pack"])await S.store.setPath(base+k,d[k]||null);await S.store.setPath(base+"drive",Math.max(0,Math.min(999,parseInt(d.drive,10)||0))||null);await S.store.setPath(base+"by",S.me||"");if(!d.id){await S.store.setPath(base+"at",Date.now());await S.store.setPath(base+"done",false)}S.tripDraft=null;toast("Gespeichert");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.act==="tripdel"){try{await S.store.setPath("food/trip/"+S.tripDraft.id,null);S.tripDraft=null;toast("Gelöscht");render()}catch(_){toast("Konnte nicht speichern.")}return}
-  if(b.dataset.food){S.lunchDraft=null;S.lunchMapEdit=false;S.shopCatEdit=null;S.recDraft=null;S.planEdit=null;S.foodTab=b.dataset.food;try{localStorage.setItem("hq-foodtab",S.foodTab)}catch(_){}render();return}
+  if(b.dataset.food){S.tab="essen";S.lunchDraft=null;S.lunchMapEdit=false;S.shopCatEdit=null;S.recDraft=null;S.planEdit=null;S.foodTab=b.dataset.food;try{localStorage.setItem("hq-foodtab",S.foodTab)}catch(_){}render();return}
   if(b.dataset.shop){const i=shopItems().find(x=>x.id===b.dataset.shop);if(i){const v={name:i.name,done:!i.done,at:i.at||Date.now(),by:i.by||""};if(i.cat)v.cat=i.cat;S.shopCatEdit=null;if(v.done)v.doneAt=Date.now();try{await S.store.setPath("food/shop/"+i.id,v)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}return}
   if(b.dataset.shoprm){try{await S.store.setPath("food/shop/"+b.dataset.shoprm,null)}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.shopfav){shopAdd(b.dataset.shopfav);return}
@@ -955,11 +997,10 @@ app.addEventListener("click",async e=>{
 app.addEventListener("change",e=>{const row=e.target.closest(".editrow[data-i]");if(!row||!S.draft)return;const t=S.draft.tasks[+row.dataset.i];const f=e.target.dataset.f;if(!f)return;
   t[f]=(f==="times"||f==="pts")?(+e.target.value||0):e.target.value;if(f==="freq"&&t.freq==="week"&&!t.times)t.times=1;if(f==="freq"||f==="owner")render()});
 app.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="mealinput"){e.preventDefault();const b=app.querySelector("[data-act=mealsave]");if(b)b.click()}});
-app.addEventListener("submit",e=>{if(e.target.id==="tripform"){e.preventDefault();const v=S.tripText;S.tripText="";const el=document.getElementById("tripinput");if(el)el.value="";tripAdd(v);return}
+app.addEventListener("submit",e=>{if(e.target.id==="packlistform"){e.preventDefault();const el=document.getElementById("packlistinput"),n=(el&&el.value||"").trim().slice(0,40);if(!n)return;const id=newId("l");S.packList=id;S.packListNew=false;S.store.setPath("food/packlist/"+id,{name:n,at:Date.now()}).catch(()=>toast("Konnte nicht speichern."));render();return}
   if(e.target.id==="packform"){e.preventDefault();const v=S.packText;S.packText="";const el=document.getElementById("packinput");if(el)el.value="";packAdd(v);return}
   if(e.target.id!=="shopform")return;e.preventDefault();const v=S.shopText;S.shopText="";const el=document.getElementById("shopinput");if(el)el.value="";shopAdd(v)});
 app.addEventListener("input",e=>{if(e.target.id==="shopinput"){S.shopText=e.target.value;return}
-  if(e.target.id==="tripinput"){S.tripText=e.target.value;return}
   if(e.target.id==="packinput"){S.packText=e.target.value;return}
   if(S.tripDraft&&e.target.dataset.tf){S.tripDraft[e.target.dataset.tf]=e.target.value;return}
   if(e.target.id==="mealinput"){S.planText=e.target.value;return}

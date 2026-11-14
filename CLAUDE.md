@@ -20,7 +20,7 @@ Live: https://karkstein.github.io/Daheeme/ (GitHub Pages aus `main`, Wurzelverze
 - `food/shop/<id>` `{name,done,at,by,doneAt,cat?,src?}` (`src` = Name des Rezepts, wenn die Zutat als Block von einem Rezept, einer Idee oder dem Wochenplan kam; so lässt sich der Block auf einmal entfernen), `food/fav/<hash>` `{name,n,cat?}`
 - `food/rec/<id>` `{name,ing (Zeilen),note,link,at}`, `food/plan/<YYYY-Www>/d0..d6` `{text,rec?,at,by}`
 - `food/lunch/<id>` `{name,dishes,note,maps,at,r:{p0,p1}}`, `food/lunchmap` = Link zu Google Maps
-- Ausflüge (liegen unter `food`, damit der Abgleich nichts Neues braucht): `food/trip/<id>` `{name,note,link,at,by,done,doneAt}`, `food/pack/<id>` `{name,done,at}` (Packliste bleibt, "Alles wieder auspacken" setzt nur `done` zurück)
+- Ausflüge (liegen unter `food`, damit der Abgleich nichts Neues braucht): `food/trip/<id>` `{name,note,link,kind,wx,dur,drive,kid,cost,season,pack,at,by,done,doneAt}` (`kid` und `season` sind Komma-Listen, `pack` ist die Id einer Packliste), `food/packlist/<id>` `{name,at}` (die Liste "Tagesausflug" mit Id `main` ist fest), `food/pack/<id>` `{name,done,at,list?}` (Packliste bleibt, "Alles wieder auspacken" setzt nur `done` zurück)
 
 ## Testen und Veröffentlichen
 
@@ -30,7 +30,7 @@ node src/build-web.js https://haushalt-32464-default-rtdb.europe-west1.firebased
 git add -A && git commit && git push origin main
 ```
 
-`src/mock-test.js` ist ein Firebase-Ersatz plus Test mit zwei Geräten (Playwright). Aus der Cloud-Sitzung sind firebasedatabase.app und github.io nicht erreichbar; die echte Datenbank wurde nur vom Besitzer am Handy geprüft. Vorschau der Jahreszeiten: `?saison=winter|spring|summer|autumn`. Startbild Haus am Meer (Entwurf, noch nicht freigeschaltet): `?bild=haus` schaltet um und merkt es sich im localStorage `hq-bild`, `?bild=zelt` schaltet zurück. Funktionen `houseScene`, Liste `HOUSE`. Der Tab Ausflüge ist nur in diesem Entwurf sichtbar.
+`src/mock-test.js` ist ein Firebase-Ersatz plus Test mit zwei Geräten (Playwright). Aus der Cloud-Sitzung sind firebasedatabase.app und github.io nicht erreichbar; die echte Datenbank wurde nur vom Besitzer am Handy geprüft. Vorschau der Jahreszeiten: `?saison=winter|spring|summer|autumn`. Startbild Haus am Meer (Entwurf, noch nicht freigeschaltet): `?bild=haus` schaltet um und merkt es sich im localStorage `hq-bild`, `?bild=zelt` schaltet zurück. Funktionen `houseScene`, Liste `HOUSE`. Im Entwurf hat die untere Leiste Start, Woche, Essen, Ausflüge; die Einkaufsliste steckt dann als Knopf "🛒 Einkauf" im Bereich Essen (Fahrrad im Bild führt weiter direkt hin).
 
 ## Entscheidungen
 
@@ -42,15 +42,15 @@ git add -A && git commit && git push origin main
 - Startbild: keine Wörter im Bild, antippbare Dinge; keine Zahl offener Aufgaben ("Offene Aufträge" reicht).
 - Einkaufsliste ist ein eigener Bereich, nicht Teil von "Essen".
 - Rezepte, Ideen und Einkaufsliste sind verbunden: Zutaten kommen als Block auf die Liste (Rezept, Idee "+ Liste", Wochenplan) und gehen als Block wieder runter (Leiste "Für Rezepte" auf der Einkaufsliste oder Knopf am Rezept). Zutaten, die schon offen auf der Liste standen, werden nicht doppelt angelegt und gehören keinem Block.
-- Ausflüge werden ein eigener Bereich (fünfter Tab, Rucksack im Startbild). Erster Entwurf: Ideen-Liste mit "Schon gemacht" und bleibende Packliste. Den Inhalt legt der Besitzer später fest.
+- Unten immer genau 4 Reiter. Mit Ausflügen: Start, Woche, Essen (mit Einkauf darin), Ausflüge. Essen und Einkauf behalten im Startbild ihr eigenes Symbol.
+- Ausflüge: Eingabemaske mit Art, Wetter, Dauer, Fahrzeit, Kleinkind, Kosten, Jahreszeit, Packliste, Link, Notiz; Filter nach Art und "Bei Regen". Mehrere Packlisten, jede bleibt bestehen. Noch Entwurf.
 - Haus am Meer: Antippbar sind Besen an der Tür (Woche), Schornstein (Essen), Fahrrad (Einkauf), Rucksack (Ausflüge), gelber Briefkasten (Plan). Der Leuchtturm strahlt heller mit dem Wochenfortschritt. Erst nach ausdrücklichem Okay für beide einschalten.
-- Rezept-Recherche: ein Rezept pro Kategorie (`cat` in `ideen.json`: gesund, schnell, vegetarisch, saisonal, exotisch; Liste `IDEA_CATS`). Quellen kuratiert der Besitzer selbst in `quellen.txt`.
+- Rezept-Recherche: ein Rezept pro Kategorie (`cat` in `ideen.json`: gesund, schnell, vegetarisch, saisonal, exotisch; Liste `IDEA_CATS`). Quellen kuratiert der Besitzer selbst in `quellen.txt`. Eine geplante Aufgabe in claude.ai ("Tägliche Rezept-Recherche Daheeme", täglich 5:43 Uhr Berlin) erneuert `ideen.json` direkt auf main.
 - Die Zurück-Taste geht in der App schrittweise zurück (History-Einträge je Bereich, siehe `syncNav`).
 
 ## Offene Liste
 
 - Haus am Meer freischalten, wenn der Besitzer es sagt; dann App-Name und Symbol (bisher 🏕️🧹, Zelt im Start-Tab) und Farben anpassen (Plan: https://claude.ai/artifact/MzunYyXEYMKWLFxg56qyNr).
-- Tägliche Rezept-Recherche einrichten, die `ideen.json` erneuert (ein Rezept pro Kategorie). Quellen stehen in `quellen.txt`, `vorlieben.txt` füllt der Besitzer noch.
 - Test mit zwei echten Handys.
 - Schriften selbst ausliefern statt von Google Fonts laden.
 - Pausiert: Minispiele "Laub fegen" und "Wer macht's?".
