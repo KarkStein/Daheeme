@@ -37,7 +37,7 @@ function houseKey(){let k=null;const m=location.hash.match(/k=([A-Za-z0-9_-]{12,
   if(k&&!m){try{history.replaceState(null,"","#k="+k)}catch(e){}}return k}
 function newKey(){const a=new Uint8Array(18);crypto.getRandomValues(a);return Array.from(a,x=>"abcdefghijkmnopqrstuvwxyz23456789"[x%32]).join("")}
 function inviteLink(){return location.href.split("#")[0]+"#k="+S.key}
-function renderSetup(){return \`<div><div class="eyebrow">Willkommen</div><h1>Daheeme</h1></div>
+function renderSetup(){return \`<div><div class="eyebrow">Willkommen</div><h1>🏕️🧹</h1></div>
   <section class="card"><h2>Neuen Haushalt starten</h2><div>Du bekommst einen geheimen Link. Wer den Link hat, sieht und bearbeitet denselben Plan. Ein Konto braucht niemand.</div><div><button class="primary" data-act="newhouse">Haushalt starten</button></div></section>
   <section class="card"><h2>Schon eingeladen?</h2><div>Öffne den Link, den du bekommen hast, oder füge ihn hier ein.</div><div class="line" style="display:flex;gap:8px;flex-wrap:wrap"><input type="text" id="joinlink" placeholder="Link einfügen" style="flex:1 1 200px;min-width:0"><button class="ghost" data-act="join">Beitreten</button></div></section>\`}
 `;
@@ -74,6 +74,8 @@ const head=`<!doctype html>
 <meta name="theme-color" content="#1f4a40">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="🏕️🧹">
+<meta name="application-name" content="🏕️🧹">
 <link rel="icon" href="${icon}">
 <style>html{color-scheme:light}body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head><body>
