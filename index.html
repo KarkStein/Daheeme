@@ -8,7 +8,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%230e5a52%22%2F%3E%3Cpath%20d%3D%22M18%2033l9%209%2019-21%22%20fill%3D%22none%22%20stroke%3D%22%23f3c623%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 <style>html{color-scheme:light}body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head><body>
-<title>Haushalts-Quest</title>
+<title>Daheeme</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
@@ -63,11 +63,11 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .board .who{display:flex;flex-direction:column;gap:2px;min-width:0}
 .board .who.right{text-align:right}
 .board .name{font-weight:700;font-size:.9rem;opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.board .pts{font-family:var(--f-display);font-weight:800;font-size:2.2rem;line-height:1}
+.board .pts{font-family:var(--f-display);font-weight:800;font-size:2rem;line-height:1}.board .pts small{font-size:1rem;opacity:.75;font-weight:600}
 .board .sub{font-size:.75rem;opacity:.75}
 .ring{width:84px;height:84px;position:relative}
 .ring svg{width:100%;height:100%;transform:rotate(-90deg)}
-.ring .lbl{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font-weight:800;font-family:var(--f-display);font-size:1.15rem;line-height:1}
+.ring .lbl{position:absolute;inset:0;display:grid;place-content:center;text-align:center;font-weight:800;font-family:var(--f-display);font-size:1.05rem;line-height:1}
 .ring .lbl small{display:block;font-family:var(--f-body);font-weight:600;font-size:.62rem;opacity:.8;margin-top:2px}
 .balance{grid-column:1/-1;display:flex;flex-direction:column;gap:5px}
 .balbar{height:8px;border-radius:99px;background:rgba(255,255,255,.22);overflow:hidden;display:flex}
@@ -153,11 +153,10 @@ label.sm{font-size:.78rem;color:var(--muted);display:flex;align-items:center;gap
 </style>
 
 <div class="app" id="app">
-  <div class="empty" id="boot">Haushalts-Quest wird geladen …</div>
+  <div class="empty" id="boot">Daheeme wird geladen …</div>
 </div>
 <nav class="tabs" role="tablist" id="tabs">
   <button role="tab" data-tab="woche" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18M8 15l2.5 2.5L16 13"/></svg>Woche</button>
-  <button role="tab" data-tab="punkte" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>Punkte</button>
   <button role="tab" data-tab="plan" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/><path d="M18 16l2 2-2 2"/></svg>Plan</button>
 </nav>
 <div class="toast" id="toast" hidden></div>
@@ -263,7 +262,7 @@ function houseKey(){let k=null;const m=location.hash.match(/k=([A-Za-z0-9_-]{12,
   if(k&&!m){try{history.replaceState(null,"","#k="+k)}catch(e){}}return k}
 function newKey(){const a=new Uint8Array(18);crypto.getRandomValues(a);return Array.from(a,x=>"abcdefghijkmnopqrstuvwxyz23456789"[x%32]).join("")}
 function inviteLink(){return location.href.split("#")[0]+"#k="+S.key}
-function renderSetup(){return `<div><div class="eyebrow">Willkommen</div><h1>Haushalts-Quest</h1></div>
+function renderSetup(){return `<div><div class="eyebrow">Willkommen</div><h1>Daheeme</h1></div>
   <section class="card"><h2>Neuen Haushalt starten</h2><div>Du bekommst einen geheimen Link. Wer den Link hat, sieht und bearbeitet denselben Plan. Ein Konto braucht niemand.</div><div><button class="primary" data-act="newhouse">Haushalt starten</button></div></section>
   <section class="card"><h2>Schon eingeladen?</h2><div>Öffne den Link, den du bekommen hast, oder füge ihn hier ein.</div><div class="line" style="display:flex;gap:8px;flex-wrap:wrap"><input type="text" id="joinlink" placeholder="Link einfügen" style="flex:1 1 200px;min-width:0"><button class="ghost" data-act="join">Beitreten</button></div></section>`}
 function localStore(){
@@ -330,7 +329,6 @@ async function toggle(btn){
   if(btn.dataset.slot==="p"){const pt=periodTick(t,S.view);key=t.id+"__p";if(pt){wk=pt.wk;cur=pt.v}}
   else{key=t.id+"__"+btn.dataset.slot;cur=ticksOf(wk)[key]}
   const val=cur?null:{by:S.me,at:Date.now()};
-  if(val)floatAt(btn,"+"+(t.pts||0));
   try{await S.store.tick(wk,key,val)}catch(e){toast(e&&e.code==="invalid_argument"?"Speichern wurde abgelehnt. Bitte den Einladungs-Link prüfen.":"Keine Verbindung. Bitte nochmal tippen, sobald du online bist.")}
 }
 
@@ -350,21 +348,19 @@ function renderWeek(){
   const today=isCur?(new Date().getDay()+6)%7:(mon<cur?7:-1);
   const sc=weekScore(wk),split=rotSplit(),tk=ticksOf(wk);
   const {w}=isoWeek(mon);
-  const st=streak();
   let h=`<div class="top"><div><div class="eyebrow">KW ${w} · ${fmt(mon,{day:"numeric",month:"short"})} – ${fmt(addDays(mon,6),{day:"numeric",month:"short"})}</div><h1>${isCur?"Diese Woche":(mon<cur?"Rückblick":"Vorschau")}</h1></div>
    <div class="weeknav"><button class="iconbtn" data-nav="-1" aria-label="Vorige Woche">‹</button>${isCur?"":`<button class="ghost" data-nav="0">Heute</button>`}<button class="iconbtn" data-nav="1" aria-label="Nächste Woche" ${isCur?"disabled":""}>›</button></div></div>`;
   h+=meChooser();
-  const tot=sc.assigned.p0+sc.assigned.p1||1;const ptot=sc.pts.p0+sc.pts.p1||1;
+  const cnt={all:[0,0],p0:[0,0],p1:[0,0]};
+  tasks().forEach(t=>{if(group(t.freq)!=="week")return;const o=ownerFor(t,mon,split);const n=slotsOf(t);
+    for(let i=0;i<n;i++){const d=tk[t.id+"__"+i]?1:0;cnt.all[0]+=d;cnt.all[1]++;if(o==="p0"||o==="p1"){cnt[o][0]+=d;cnt[o][1]++}}});
+  const pct=cnt.all[1]?cnt.all[0]/cnt.all[1]:0;
   h+=`<section class="board" aria-label="Wochenstand">
-    <div class="who"><span class="name">${esc(pname("p0"))}</span><span class="pts num">${sc.pts.p0}</span><span class="sub">Punkte</span></div>
-    <div class="ring">${ring(sc.pct)}<div class="lbl num">${Math.round(sc.pct*100)}%<small>der Woche</small></div></div>
-    <div class="who right"><span class="name">${esc(pname("p1"))}</span><span class="pts num">${sc.pts.p1}</span><span class="sub">Punkte</span></div>
-    <div class="balance"><div class="balrow"><span>Tatsächlich erledigt</span><span class="num">${Math.round(sc.pts.p0/ptot*100)} : ${Math.round(sc.pts.p1/ptot*100)}</span></div>
-      <div class="balbar"><i style="width:${sc.pts.p0/ptot*100}%;background:var(--p0)"></i><i style="width:${sc.pts.p1/ptot*100}%;background:var(--p1)"></i></div>
-      <div class="balrow"><span>Laut Plan zugeteilt</span><span class="num">${sc.assigned.p0} : ${sc.assigned.p1} Punkte</span></div></div>
+    <div class="who"><span class="name">${esc(pname("p0"))}</span><span class="pts num">${cnt.p0[0]}<small>/${cnt.p0[1]}</small></span><span class="sub">eigene Aufgaben erledigt</span></div>
+    <div class="ring">${ring(pct)}<div class="lbl num">${cnt.all[0]}/${cnt.all[1]}<small>gesamt</small></div></div>
+    <div class="who right"><span class="name">${esc(pname("p1"))}</span><span class="pts num">${cnt.p1[0]}<small>/${cnt.p1[1]}</small></span><span class="sub">eigene Aufgaben erledigt</span></div>
   </section>`;
-  h+=`<div class="streak"><span class="pill lemon">🔥 ${st} ${st===1?"Woche":"Wochen"} Serie</span><span class="pill">Ziel: ${Math.round(GOAL*100)} % der Wochenpunkte gemeinsam</span></div>`;
-  if(sc.pct>=GOAL)h+=`<div class="celebrate">★ Wochenziel geschafft! Diese Woche zählt für eure Serie.</div>`;
+  if(cnt.all[1]&&cnt.all[0]>=cnt.all[1])h+=`<div class="celebrate">Alles erledigt für diese Woche. Schönes Wochenende!</div>`;
   h+=`<div class="filters" role="group" aria-label="Filter"><button class="chipbtn neutral" data-filter="alle" aria-pressed="${S.filter==="alle"}">Alle Aufgaben</button><button class="chipbtn neutral" data-filter="meine" aria-pressed="${S.filter==="meine"}">Nur meine</button><button class="chipbtn neutral" data-filter="offen" aria-pressed="${S.filter==="offen"}">Nur offene</button></div>`;
   if(S.filter==="meine"&&!S.me)h+=`<div class="notice">Wähle oben aus, wer du bist, damit „Nur meine“ funktioniert.</div>`;
 
@@ -382,10 +378,10 @@ function renderWeek(){
         doneAll=c>=n;
         const extra=f==="week"?` · ${c}/${n}`:"";
         if(!show(t,o,doneAll))return;cnt++;
-        body+=`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${f==="day"?"täglich":n+"× pro Woche"}${extra}</span></div></div><span class="xp">+${t.pts||0}</span></div><div class="slots">${slots}</div></article>`;
+        body+=`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${f==="day"?"täglich":n+"× pro Woche"}${extra}</span></div></div></div><div class="slots">${slots}</div></article>`;
       }else{const pt=periodTick(t,mon);doneAll=!!pt;if(!show(t,o,doneAll))return;cnt++;
         const lbl=pt?`✓ Erledigt von ${esc(pname(pt.v.by))} am ${fmt(new Date(pt.v.at),{day:"numeric",month:"short"})}`:"○ Als erledigt markieren";
-        body+=`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${FREQ_LABEL[f]}</span></div></div><span class="xp">+${t.pts||0}</span></div><div><button class="bigcheck${pt?" on "+pt.v.by:""}" data-task="${esc(t.id)}" data-slot="p" aria-pressed="${doneAll}">${lbl}</button></div></article>`;}
+        body+=`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${FREQ_LABEL[f]}</span></div></div></div><div><button class="bigcheck${pt?" on "+pt.v.by:""}" data-task="${esc(t.id)}" data-slot="p" aria-pressed="${doneAll}">${lbl}</button></div></article>`;}
     });
     if(cnt)h+=`<section class="section"><div class="section-head"><h2>${title}</h2>${f==="day"?`<span class="freq">„Homeoffice“ = wer an dem Tag zu Hause ist</span>`:""}</div>${body}</section>`;
   });
@@ -430,7 +426,7 @@ function renderPlan(){
       <div class="line"><select id="to-${esc(t.id)}" data-f="owner" aria-label="Wer">${ownOpts}</select><select id="tf-${esc(t.id)}" data-f="freq" aria-label="Rhythmus">${fOpts}</select>
       ${t.freq==="week"?`<label class="sm"><input type="number" min="1" max="14" id="tt-${esc(t.id)}" data-f="times" value="${t.times||1}">× </label>`:""}
       ${t.owner==="rot"&&t.freq!=="month"&&t.freq!=="year"?`<select id="tk-${esc(t.id)}" data-f="pack" aria-label="Paket"><option value="" ${!t.pack?"selected":""}>Paket automatisch</option><option value="A" ${t.pack==="A"?"selected":""}>Paket A</option><option value="B" ${t.pack==="B"?"selected":""}>Paket B</option></select>`:""}
-      <label class="sm"><input type="number" min="0" max="50" id="tp-${esc(t.id)}" data-f="pts" value="${t.pts||0}"> Punkte</label></div></div>`});
+      <label class="sm"><input type="number" min="0" max="50" id="tp-${esc(t.id)}" data-f="pts" value="${t.pts||0}"> Aufwand</label></div></div>`});
   h+=`<div class="line" style="display:flex;gap:8px;flex-wrap:wrap"><button class="ghost" data-act="add">+ Aufgabe</button><button class="primary" data-act="save">Plan speichern</button><button class="ghost" data-act="reset">Änderungen verwerfen</button></div></section>`;
   return h}
 
@@ -445,7 +441,7 @@ function render(){
   if(S.timedOut&&S.mode==="web")h+=`<div class="notice">Die gemeinsamen Daten sind gerade nicht erreichbar. Angezeigtes kann veraltet sein.</div>`;
   if(!S.config&&!S.cfgConfirmed&&!S.timedOut){app.innerHTML=h+`<div class="empty">Plan wird geladen …</div>`;return}
   if(!S.config){h+=`<div class="empty"><h2>Noch kein Haushaltsplan hinterlegt</h2><div>Legt euren Plan aus der Vorlage an (eure Liste mit Müll, Saugen, Wäsche und Co.). Danach könnt ihr alles unter „Plan“ anpassen.</div><button class="primary" data-act="template">Plan aus Vorlage anlegen</button></div>`;app.innerHTML=h;return}
-  h+=S.tab==="woche"?renderWeek():S.tab==="punkte"?renderScore():renderPlan();
+  h+=S.tab==="woche"?renderWeek():renderPlan();
   const y=window.scrollY;app.innerHTML=h;window.scrollTo(0,y);
 }
 

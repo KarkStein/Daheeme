@@ -1,6 +1,6 @@
 # Daheeme
 
-Haushalts-Quest: Haushaltsplan für zwei mit Wochenrotation, Abhaken und Punkten.
+Haushaltsplan für zwei mit Wochenrotation und Abhaken.
 
 - `index.html` ist die fertige Seite (GitHub Pages).
 - `src/haushalt/haushalt.html` ist die Quelle. `node src/build-web.js <Firebase-Datenbank-URL>` baut `src/web/index.html`, die dann nach `index.html` kopiert wird.
