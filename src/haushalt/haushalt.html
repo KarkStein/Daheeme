@@ -927,6 +927,14 @@ function renderPlay(){const d=S.playDraft,sec=PLAY_SECS.find(s=>s[0]===S.playSec
   return h}
 // ---------- Kita (Rucksack) ----------
 const KITA_SECS=[["termine","📅","Termine"],["essen","🍽️","Essen"],["tasche","🎒","Kita-Tasche"],["infos","📝","Infos"]];
+function parseKitaPlan(txt){const m=/(\d{1,2})\.(\d{1,2})\./.exec(txt||"");if(!m)return null;const now=new Date();let y=now.getFullYear();const mo=+m[2]-1;if(mo-now.getMonth()>6)y--;if(now.getMonth()-mo>6)y++;
+  const mon=mondayOf(new Date(y,mo,+m[1],12)),days={},clean=s=>s.replace(/\s*\([^)]*\)/g,"").replace(/\s+/g," ").replace(/[\s,;]+$/,"").trim();
+  const DN=["montag","dienstag","mittwoch","donnerstag","freitag"],KEY={"frühstück":"fr","mittag":"text","mittagessen":"text","nachspeise":"na","nachtisch":"na","brotzeit":"bz","vesper":"bz"};let cur=-1;
+  for(const raw of txt.split(/\n/)){const line=raw.trim();if(!line)continue;const di=DN.indexOf(line.toLowerCase().replace(/[:\s]+$/,""));if(di>=0){cur=di;days["d"+di]=days["d"+di]||{};continue}
+    if(cur<0)continue;const lm=/^([A-Za-zÄÖÜäöüß]+)\s*:\s*(.*)$/.exec(line);if(!lm)continue;const k=KEY[lm[1].toLowerCase()];if(!k)continue;let v=lm[2];
+    if(k==="text"){const p=v.split(/[,;]?\s*Nachspeise:?\s*/i);v=p[0];if(p[1])days["d"+cur].na=clean(p[1])}
+    const c=clean(v);if(c)days["d"+cur][k]=c}
+  return Object.keys(days).length?{mon,days}:null}
 const kitaMeals=mon=>((S.food&&S.food.kitaplan)||{})[wkKey(mon)]||{};
 const KITA_BAG=["Wechselkleidung","Windeln","Feuchttücher","Matschhose","Gummistiefel","Hausschuhe","Sonnenhut","Sonnencreme","Brotdose","Trinkflasche","Kuscheltier"];
 const kitas=()=>listOf(S.food&&S.food.kita);
@@ -951,8 +959,10 @@ function renderKita(){const d=S.kitaDraft,sec=KITA_SECS.find(s=>s[0]===S.kitaSec
     return h}
   if(sec[0]==="essen"){const mon=planWeek(),km=kitaMeals(mon),isCur=+mon===+mondayOf(new Date()),dm=x=>x.getDate()+"."+(x.getMonth()+1)+".";
     h+=`<div class="section-head" style="align-items:center"><div><h2>KW ${isoWeek(mon).w}</h2><div class="freq">${dm(mon)} bis ${dm(addDays(mon,4))}</div></div><div class="weeknav"><button class="iconbtn" data-fnav="-1" aria-label="Vorige Woche">‹</button>${isCur?"":`<button class="ghost" data-fnav="0">Heute</button>`}<button class="iconbtn" data-fnav="1" aria-label="Nächste Woche">›</button></div></div>`;
-    h+=`<section class="card tripform">${DAYN.slice(0,5).map((dn,i)=>`<label class="fld"><span>${dn} ${dm(addDays(mon,i))}</span><input type="text" id="ke-d${i}" data-ke="d${i}" value="${esc((km["d"+i]||{}).text||"")}" maxlength="80" placeholder="Was gibt es in der Kita?" autocomplete="off"></label>`).join("")}
-      <div class="btnrow"><button class="primary" data-act="kitamealsave">Speichern</button></div><div class="freq">Abschreiben aus dem Plan der Kita. Das Kita-Essen erscheint auch im Essensplan, damit ihr abends nicht dasselbe kocht.</div></section>`;
+    h+=`<section class="card"><h2>Speiseplan einfügen</h2><div class="freq">Den Plan aus der Kita-App kopieren und hier einfügen. Die App erkennt Woche, Tage, Frühstück, Mittag, Nachspeise und Brotzeit und lässt die Kürzel in Klammern weg.</div><textarea id="kitaplantext" rows="4" placeholder="Speiseplan 16.11. - 20.11. …" aria-label="Speiseplan einfügen"></textarea><div class="btnrow"><button class="primary" data-act="kitaplanimport">Übernehmen</button></div></section>`;
+    const sub=x=>[x.fr?"Frühstück: "+x.fr:"",x.na?"Nachspeise: "+x.na:"",x.bz?"Brotzeit: "+x.bz:""].filter(Boolean);
+    h+=`<section class="card tripform">${DAYN.slice(0,5).map((dn,i)=>{const x=km["d"+i]||{};return `<label class="fld"><span>${dn} ${dm(addDays(mon,i))}, Mittag</span><input type="text" id="ke-d${i}" data-ke="d${i}" value="${esc(x.text||"")}" maxlength="120" placeholder="Was gibt es in der Kita?" autocomplete="off"></label>${sub(x).length?`<div class="freq" style="margin-top:-8px">${sub(x).map(esc).join("<br>")}</div>`:""}`}).join("")}
+      <div class="btnrow"><button class="primary" data-act="kitamealsave">Speichern</button></div><div class="freq">Hier könnt ihr das Mittagessen von Hand ändern. Es erscheint auch im Essensplan, damit ihr abends nicht dasselbe kocht.</div></section>`;
     return h}
   if(sec[0]==="tasche"){const items=all.sort((a,b)=>(a.at||0)-(b.at||0)),have=new Set(items.map(i=>i.name.toLowerCase())),sug=KITA_BAG.filter(n=>!have.has(n.toLowerCase())),ok=items.filter(i=>i.done).length;
     const li=i=>`<li class="${i.done?"done":""}"><button class="item" data-kitatick="${esc(i.id)}" aria-pressed="${!!i.done}"><span class="box">${i.done?"✓":""}</span><span class="nm">${esc(i.name)}</span></button><button class="rm" data-kitarm="${esc(i.id)}" aria-label="${esc(i.name)} entfernen">✕</button></li>`;
@@ -1034,7 +1044,9 @@ app.addEventListener("click",async e=>{
   if(b.dataset.kitaadd){kitaAdd(b.dataset.kitaadd);return}
   if(b.dataset.kitatick){const x=kitas().find(y=>y.id===b.dataset.kitatick);if(x){try{await S.store.setPath("food/kita/"+x.id+"/done",!x.done)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}return}
   if(b.dataset.kitarm){try{await S.store.setPath("food/kita/"+b.dataset.kitarm,null)}catch(_){toast("Konnte nicht speichern.")}return}
-  if(b.dataset.act==="kitamealsave"){const wk=wkKey(planWeek());const vals=[0,1,2,3,4].map(i=>{const el=document.getElementById("ke-d"+i);return (el?el.value:"").trim().slice(0,80)});try{for(let i=0;i<5;i++){const v=vals[i];await S.store.setPath("food/kitaplan/"+wk+"/d"+i,v?{text:v,at:Date.now()}:null)}toast("Kita-Essen gespeichert")}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
+  if(b.dataset.act==="kitamealsave"){const wk=wkKey(planWeek());const vals=[0,1,2,3,4].map(i=>{const el=document.getElementById("ke-d"+i);return (el?el.value:"").trim().slice(0,120)});try{for(let i=0;i<5;i++){const v=vals[i];await S.store.setPath("food/kitaplan/"+wk+"/d"+i+"/text",v||null);await S.store.setPath("food/kitaplan/"+wk+"/d"+i+"/at",Date.now())}toast("Kita-Essen gespeichert")}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
+  if(b.dataset.act==="kitaplanimport"){const el=document.getElementById("kitaplantext"),p=parseKitaPlan(el?el.value:"");if(!p){toast("Kein Speiseplan erkannt. Steht ein Datum wie 16.11. und Montag bis Freitag drin?");return}
+    const wk=wkKey(p.mon);try{for(const k of Object.keys(p.days))await S.store.setPath("food/kitaplan/"+wk+"/"+k,Object.assign({at:Date.now()},p.days[k]));S.foodWeek=+p.mon===+mondayOf(new Date())?null:p.mon;toast("Speiseplan für KW "+isoWeek(p.mon).w+" übernommen");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.act==="kitareset"){for(const i of kitas().filter(x=>x.sec==="tasche"&&x.done)){try{await S.store.setPath("food/kita/"+i.id+"/done",false)}catch(_){}}return}
   if(b.dataset.act==="plmaptoggle"){S.playMapOpen=!S.playMapOpen;render();return}
   if(b.dataset.act==="plmapedit"){S.playMapEdit=true;S.playMapText=(S.food&&S.food.playmap)||"";render();const el=document.getElementById("pl-mapurl");if(el)el.focus();return}
