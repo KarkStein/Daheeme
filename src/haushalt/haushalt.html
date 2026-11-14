@@ -432,9 +432,9 @@ function ring(p){const r=36,c=2*Math.PI*r;const off=c*(1-Math.min(1,p));
   return `<svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="${r}" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="8"/><circle cx="42" cy="42" r="${r}" fill="none" stroke="var(--lemon)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}"/></svg>`}
 
 function scopeSwitch(extra){return `<div class="filters" role="group" aria-label="Ansicht"><button class="chipbtn neutral" data-filter="alle" aria-pressed="${S.filter==="alle"}">Alle</button><button class="chipbtn neutral" data-filter="meine" aria-pressed="${S.filter==="meine"}">Mein Bereich</button>${extra||""}</div>${S.filter==="meine"&&!S.me?`<div class="notice">Wähle oben aus, wer du bist, damit „Mein Bereich“ funktioniert.</div>`:""}`}
-const WEEK_PAGES=["Diese Woche","Übersicht","Plan"];
+const WEEK_PAGES=["Diese Woche","Wer macht was","Übersicht"];
 function weekPager(){const p=S.weekPage|0;return `<div class="pager" role="group" aria-label="Seiten in Woche"><button class="iconbtn" data-wpage="${(p+2)%3}" aria-label="Vorige Seite">‹</button><div class="pdots">${WEEK_PAGES.map((n,i)=>`<button class="pdot" data-wpage="${i}" aria-pressed="${i===p}" aria-label="${n}"><b>${n}</b></button>`).join("")}</div><button class="iconbtn" data-wpage="${(p+1)%3}" aria-label="Nächste Seite">›</button></div>`}
-function setWeekPage(n){n=((n%3)+3)%3;if(n===(S.weekPage|0))return;if((S.weekPage|0)===2)S.draft=null;S.weekPage=n;render();window.scrollTo(0,0)}
+function setWeekPage(n){n=((n%3)+3)%3;if(n===(S.weekPage|0))return;if((S.weekPage|0)===1)S.draft=null;S.weekPage=n;render();window.scrollTo(0,0)}
 function renderWeek(){
   const mon=S.view,wk=wkKey(mon),cur=mondayOf(new Date()),isCur=+mon===+cur;
   const today=isCur?(new Date().getDay()+6)%7:(mon<cur?7:-1);
@@ -1040,7 +1040,7 @@ function render(){
   const inSet=S.tab==="plan"||S.tab==="alle";
   h+=inSet?`<div class="appbar"><button class="ghost" data-go="${S.prev||"camp"}">‹ Zurück</button><span class="brand">Euer Plan</span></div><div class="filters" role="group" aria-label="Ansicht"><button class="chipbtn neutral" data-go="alle" aria-pressed="${S.tab==="alle"}">Übersicht</button><button class="chipbtn neutral" data-go="plan" aria-pressed="${S.tab==="plan"}">Plan bearbeiten</button></div>`
     :`<div class="appbar"><button class="brand brandbtn" data-go="camp" aria-label="Zur Startseite">🏕️🧹</button><button class="iconbtn" data-go="alle" aria-label="Übersicht und Plan"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button></div>`;
-  h+=S.tab==="woche"?(prioOn()?weekPager()+[renderWeek,renderAll,renderPlan][S.weekPage|0]():renderWeek()):S.tab==="alle"?renderAll():S.tab==="camp"?renderCamp():S.tab==="essen"||S.tab==="einkauf"?renderFood():S.tab==="ausflug"?renderTrips():S.tab==="projekte"||S.tab==="amhaus"?renderProjects():S.tab==="spiel"?renderPlay():S.tab==="kita"?renderKita():renderPlan();
+  h+=S.tab==="woche"?(prioOn()?weekPager()+[renderWeek,renderPlan,renderAll][S.weekPage|0]():renderWeek()):S.tab==="alle"?renderAll():S.tab==="camp"?renderCamp():S.tab==="essen"||S.tab==="einkauf"?renderFood():S.tab==="ausflug"?renderTrips():S.tab==="projekte"||S.tab==="amhaus"?renderProjects():S.tab==="spiel"?renderPlay():S.tab==="kita"?renderKita():renderPlan();
   const y=window.scrollY,ae=document.activeElement,fid=ae&&app.contains(ae)&&ae.id?ae.id:null,sel=fid&&ae.selectionStart!=null?[ae.selectionStart,ae.selectionEnd]:null;
   app.innerHTML=h;window.scrollTo(0,y);syncNav();
   if(fid){const el=document.getElementById(fid);if(el){el.focus({preventScroll:true});if(sel){try{el.setSelectionRange(sel[0],sel[1])}catch(_){}}}}
