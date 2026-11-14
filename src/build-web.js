@@ -17,10 +17,10 @@ function fbStore(base){
     let o=tree;for(let i=0;i<parts.length-1;i++){if(typeof o[parts[i]]!=="object"||o[parts[i]]===null)o[parts[i]]={};o=o[parts[i]]}
     const last=parts[parts.length-1];if(data===null||data===undefined)delete o[last];else o[last]=data};
   const emit=()=>{if(!cbs)return;const c=tree.config||null;if(c&&c.tasks&&!Array.isArray(c.tasks))c.tasks=Object.values(c.tasks);
-    cbs[0](c?JSON.parse(JSON.stringify(c)):null,!opened);cbs[1](JSON.parse(JSON.stringify(tree.weeks||{})),!opened)};
+    cbs[0](c?JSON.parse(JSON.stringify(c)):null,!opened);cbs[1](JSON.parse(JSON.stringify(tree.weeks||{})),!opened);if(cbs[3])cbs[3](JSON.parse(JSON.stringify(tree.food||{})))};
   const send=async(method,p,body)=>{const r=await fetch(base+p+".json",{method,body:JSON.stringify(body)});if(!r.ok)throw {code:r.status===401||r.status===403?"invalid_argument":"unavailable"}};
   return {
-    listen(a,b,onErr){cbs=[a,b];const es=new EventSource(base+".json");
+    listen(a,b,onErr,d){cbs=[a,b,onErr,d];const es=new EventSource(base+".json");
       es.addEventListener("put",e=>{const d=JSON.parse(e.data);opened=true;setAt(d.path,d.data);S.timedOut=false;emit()});
       es.addEventListener("patch",e=>{const d=JSON.parse(e.data);Object.keys(d.data||{}).forEach(k=>setAt(d.path+"/"+k,d.data[k]));emit()});
       es.addEventListener("cancel",()=>onErr({code:"revoked"}));
@@ -29,7 +29,9 @@ function fbStore(base){
     async tick(wk,key,val){const prev=(tree.weeks&&tree.weeks[wk]&&tree.weeks[wk].ticks||{})[key];
       setAt("weeks/"+wk+"/ticks/"+key,val);emit();
       try{await send("PATCH","/weeks/"+wk+"/ticks",{[key]:val})}catch(e){setAt("weeks/"+wk+"/ticks/"+key,prev===undefined?null:prev);emit();throw e}},
-    saveConfig(cfg){return send("PUT","/config",cfg)}
+    saveConfig(cfg){return send("PUT","/config",cfg)},
+    async setPath(p,val){let prev=tree;p.split("/").forEach(k=>{prev=prev==null?undefined:prev[k]});prev=prev===undefined?null:JSON.parse(JSON.stringify(prev));
+      setAt(p,val);emit();try{await send("PUT","/"+p,val)}catch(e){setAt(p,prev);emit();throw e}}
   }
 }
 function houseKey(){let k=null;const m=location.hash.match(/k=([A-Za-z0-9_-]{12,64})/);if(m)k=m[1];
@@ -43,7 +45,7 @@ function renderSetup(){return \`<div><div class="eyebrow">Willkommen</div><h1>�
 `;
 rep('function localStore(){',fb+'function localStore(){');
 
-rep('const S={store:null,','const S={key:null,store:null,');
+rep('const S={','const S={key:null,');
 rep(`if(S.mode==="local")h+=\`<div class="notice">Offline-Modus: Die Daten bleiben nur auf diesem Gerät. Öffnet die App über den claude.ai-Link und meldet euch an, damit ihr beide dieselben Daten seht.</div>\`;`,
     `if(S.mode==="setup"){app.innerHTML=renderSetup();return}
   if(S.mode==="web"&&S.dbError==="rules"&&!S.cfgConfirmed){app.innerHTML=\`<section class="card"><h2>Die Datenbank lehnt den Zugriff ab</h2><div>In Firebase sind die Regeln noch nicht veröffentlicht. Öffne dort „Realtime Database“, Reiter „Regeln“, ersetze den gesamten Text durch die folgende Zeile und tippe auf „Veröffentlichen“.</div><input type="text" readonly id="rulesline" value='{"rules":{"haushalt":{"$key":{".read":true,".write":true}}}}'><div><button class="primary" data-act="reload">Erneut versuchen</button></div></section>\`;return}

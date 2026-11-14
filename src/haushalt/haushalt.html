@@ -155,6 +155,19 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .unl{display:flex;flex-wrap:wrap;gap:6px}
 .unl span{font-size:.8rem;font-weight:600;border-radius:999px;padding:4px 11px;background:var(--done-soft);color:var(--done);border:1px solid transparent}
 .unl span.lock{background:transparent;color:var(--muted);border:1px dashed var(--line)}
+.appbar{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.appbar .brand{font-family:var(--f-display);font-weight:800;font-size:1.05rem}
+.addrow{display:flex;gap:8px}
+.addrow input{flex:1;min-width:0;padding:11px 12px;font-size:1rem}
+.shop{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.shop li{display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line)}
+.shop li:last-child{border-bottom:none}
+.shop .item{flex:1;min-width:0;display:flex;align-items:center;gap:12px;background:none;border:none;text-align:left;padding:11px 0;font-size:1rem}
+.shop .box{width:24px;height:24px;border-radius:8px;border:2px solid var(--line);display:grid;place-items:center;flex:none;font-size:.9rem;color:var(--surface)}
+.shop li.done .box{background:var(--done);border-color:var(--done)}
+.shop li.done .nm{color:var(--muted);text-decoration:line-through}
+.shop .nm{min-width:0;overflow-wrap:anywhere}
+.shop .rm{background:none;border:none;color:var(--muted);padding:8px;font-size:1rem}
 /* Plan tab */
 .rotlist{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .rotlist > div{border-radius:12px;padding:10px 12px;min-width:0}
@@ -176,8 +189,8 @@ label.sm{font-size:.78rem;color:var(--muted);display:flex;align-items:center;gap
 <nav class="tabs" role="tablist" id="tabs">
   <button role="tab" data-tab="woche" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18M8 15l2.5 2.5L16 13"/></svg>Woche</button>
   <button role="tab" data-tab="alle" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.2"/><circle cx="4.5" cy="12" r="1.2"/><circle cx="4.5" cy="18" r="1.2"/></svg>Übersicht</button>
+  <button role="tab" data-tab="essen" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v8M4 3v5a3 3 0 0 0 6 0V3M7 11v10"/><path d="M17 3c-2 1.5-3 4-3 7h3v11"/></svg>Essen</button>
   <button role="tab" data-tab="camp" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20 12 4l9 16H3z"/><path d="M12 12l3.5 8h-7z"/><path d="M10.5 2.5 12 4l1.5-1.5"/></svg>Zeltplatz</button>
-  <button role="tab" data-tab="plan" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/><path d="M18 16l2 2-2 2"/></svg>Plan</button>
 </nav>
 <div class="toast" id="toast" hidden></div>
 
@@ -236,8 +249,8 @@ function periodOf(freq,mon){const th=addDays(mon,3);const y=th.getFullYear(),m=t
 const fmt=(d,o)=>d.toLocaleDateString("de-DE",o);
 
 // ---------- Zustand ----------
-const S={store:null,mode:"loading",config:null,weeks:{},view:mondayOf(new Date()),tab:"woche",campDraft:null,filter:"alle",hideDone:false,groupBy:"freq",me:null,draft:null,timedOut:false};
-try{const m=localStorage.getItem("hq-me");if(m==="p0"||m==="p1")S.me=m;const f=localStorage.getItem("hq-filter");if(f==="meine")S.filter="meine";S.hideDone=localStorage.getItem("hq-hidedone")==="1";if(localStorage.getItem("hq-groupby")==="art")S.groupBy="art";}catch(e){}
+const S={food:{},foodTab:"shop",shopText:"",store:null,mode:"loading",config:null,weeks:{},view:mondayOf(new Date()),tab:"woche",campDraft:null,filter:"alle",hideDone:false,groupBy:"freq",me:null,draft:null,timedOut:false};
+try{const m=localStorage.getItem("hq-me");if(m==="p0"||m==="p1")S.me=m;const f=localStorage.getItem("hq-filter");if(f==="meine")S.filter="meine";S.hideDone=localStorage.getItem("hq-hidedone")==="1";if(localStorage.getItem("hq-groupby")==="art")S.groupBy="art";const ft=localStorage.getItem("hq-foodtab");if(ft)S.foodTab=ft;}catch(e){}
 
 // ---------- Speicher-Adapter ----------
 function dbStore(db){
@@ -257,11 +270,13 @@ function localStore(){
   const K="hq-local-v1";let data={config:null,weeks:{}};
   try{const raw=localStorage.getItem(K);if(raw)data=JSON.parse(raw)}catch(e){}
   let cbs=null;const save=()=>{try{localStorage.setItem(K,JSON.stringify(data))}catch(e){}};
-  const emit=()=>{if(cbs){cbs[0](data.config,false);cbs[1](JSON.parse(JSON.stringify(data.weeks)),false)}};
+  const emit=()=>{if(cbs){cbs[0](data.config,false);cbs[1](JSON.parse(JSON.stringify(data.weeks)),false);if(cbs[3])cbs[3](JSON.parse(JSON.stringify(data.food||{})))}};
   return {
-    listen(a,b){cbs=[a,b];emit()},
+    listen(a,b,c,d){cbs=[a,b,c,d];emit()},
     async tick(wk,key,val){data.weeks[wk]=data.weeks[wk]||{wk,ticks:{}};data.weeks[wk].ticks[key]=val;save();emit()},
-    async saveConfig(cfg){data.config=cfg;save();emit()}
+    async saveConfig(cfg){data.config=cfg;save();emit()},
+    async setPath(p,val){const parts=p.split("/");let o=data;for(let i=0;i<parts.length-1;i++){if(typeof o[parts[i]]!=="object"||o[parts[i]]===null)o[parts[i]]={};o=o[parts[i]]}
+      if(val===null)delete o[parts[parts.length-1]];else o[parts[parts.length-1]]=val;save();emit()}
   }
 }
 
@@ -491,6 +506,30 @@ function renderCamp(){
       <div class="card">${CAMP.map(c=>`<label class="sm" style="justify-content:space-between"><span style="color:var(--fg);font-size:.95rem">${c[1]}</span><span><input type="number" min="0" max="9999" id="ck-${c[0]}" data-ck="${c[0]}" value="${dr.costs[c[0]]|0}"> Häkchen</span></label>`).join("")}</div>
       <div class="line" style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" data-act="campsave">Speichern</button><button class="ghost" data-act="campcancel">Abbrechen</button></div></section>`}
   return h}
+const FOODTABS=[["shop","Einkaufsliste"],["plan","Essensplan"],["rezepte","Rezepte"],["mittag","Mittagessen"]];
+function shopItems(){const m=(S.food&&S.food.shop)||{};return Object.keys(m).filter(k=>m[k]).map(k=>Object.assign({id:k},m[k])).sort((a,b)=>(a.at||0)-(b.at||0))}
+function shopFavs(){const f=(S.food&&S.food.fav)||{};const open=new Set(shopItems().filter(i=>!i.done).map(i=>i.name.toLowerCase()));
+  return Object.keys(f).filter(k=>f[k]&&f[k].n>0&&!open.has((f[k].name||"").toLowerCase())).sort((a,b)=>f[b].n-f[a].n).slice(0,14).map(k=>f[k].name)}
+function favKey(name){let h=0;const s=name.toLowerCase();for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return "f"+h.toString(36)}
+async function shopAdd(name){name=(name||"").trim().slice(0,80);if(!name)return;
+  const dup=shopItems().find(i=>!i.done&&i.name.toLowerCase()===name.toLowerCase());if(dup){toast("Steht schon auf der Liste");return}
+  const id="i"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+  try{await S.store.setPath("food/shop/"+id,{name,done:false,at:Date.now(),by:S.me||""});
+    const fk=favKey(name),cur=((S.food.fav||{})[fk]||{}).n||0;await S.store.setPath("food/fav/"+fk,{name,n:cur+1})}
+  catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}
+function renderFood(){
+  let h=`<div><div class="eyebrow">Gemeinsam planen</div><h1>Essen</h1></div>
+   <div class="filters" role="group" aria-label="Bereich">${FOODTABS.map(t=>`<button class="chipbtn neutral" data-food="${t[0]}" aria-pressed="${S.foodTab===t[0]}">${t[1]}</button>`).join("")}</div>`;
+  if(S.foodTab!=="shop"){const txt={plan:"Hier plant ihr bald für jeden Tag der Woche ein Gericht.",rezepte:"Hier entsteht eure Rezeptsammlung. Zutaten wandern von dort mit einem Tipp auf die Einkaufsliste.",mittag:"Hier haltet ihr bald eure gemeinsamen Mittagessen fest, mit Ort und kurzer Bewertung von euch beiden."}[S.foodTab];
+    return h+`<div class="empty"><h2>Kommt als Nächstes</h2><div>${txt}</div></div>`}
+  const items=shopItems(),open=items.filter(i=>!i.done),done=items.filter(i=>i.done).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0)),favs=shopFavs();
+  const li=i=>`<li class="${i.done?"done":""}"><button class="item" data-shop="${esc(i.id)}" aria-pressed="${!!i.done}"><span class="box">${i.done?"✓":""}</span><span class="nm">${esc(i.name)}</span></button><button class="rm" data-shoprm="${esc(i.id)}" aria-label="${esc(i.name)} entfernen">✕</button></li>`;
+  h+=`<form class="addrow" id="shopform"><input type="text" id="shopinput" placeholder="Was fehlt? Zum Beispiel Milch" value="${esc(S.shopText)}" autocomplete="off" enterkeyhint="done" aria-label="Artikel"><button class="primary" type="submit">Hinzufügen</button></form>`;
+  if(favs.length)h+=`<div><div class="eyebrow" style="margin-bottom:6px">Oft gekauft</div><div class="unl">${favs.map(n=>`<button class="chipbtn" data-shopfav="${esc(n)}">+ ${esc(n)}</button>`).join("")}</div></div>`;
+  h+=open.length?`<section class="card"><div class="section-head"><h2>Noch zu kaufen</h2><span class="freq num">${open.length}</span></div><ul class="shop">${open.map(li).join("")}</ul></section>`
+    :`<div class="empty"><h2>${items.length?"Alles eingekauft":"Die Liste ist leer"}</h2><div>Schreib oben auf, was fehlt. Ihr seht beide dieselbe Liste und hakt im Laden ab.</div></div>`;
+  if(done.length)h+=`<section class="card"><div class="section-head"><h2>Im Wagen</h2><button class="ghost" data-act="shopclear">Erledigte entfernen</button></div><ul class="shop">${done.map(li).join("")}</ul></section>`;
+  return h}
 function renderPlan(){
   const d=S.draft||(S.draft=JSON.parse(JSON.stringify(S.config)));
   const mon=mondayOf(new Date()),split=rotSplit();
@@ -523,14 +562,24 @@ function render(){
   if(S.timedOut&&S.mode==="db")h+=`<div class="notice">Die gemeinsamen Daten sind gerade nicht erreichbar. Angezeigtes kann veraltet sein.</div>`;
   if(!S.config&&!S.cfgConfirmed&&!S.timedOut){app.innerHTML=h+`<div class="empty">Plan wird geladen …</div>`;return}
   if(!S.config){h+=`<div class="empty"><h2>Noch kein Haushaltsplan hinterlegt</h2><div>Legt euren Plan aus der Vorlage an (eure Liste mit Müll, Saugen, Wäsche und Co.). Danach könnt ihr alles unter „Plan“ anpassen.</div><button class="primary" data-act="template">Plan aus Vorlage anlegen</button></div>`;app.innerHTML=h;return}
-  h+=S.tab==="woche"?renderWeek():S.tab==="alle"?renderAll():S.tab==="camp"?renderCamp():renderPlan();
-  const y=window.scrollY;app.innerHTML=h;window.scrollTo(0,y);
+  h+=S.tab==="plan"?`<div class="appbar"><button class="ghost" data-go="woche">‹ Zurück</button><span class="brand">Einstellungen</span></div>`
+    :`<div class="appbar"><span class="brand">🏕️🧹</span><button class="iconbtn" data-go="plan" aria-label="Plan und Einstellungen"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button></div>`;
+  h+=S.tab==="woche"?renderWeek():S.tab==="alle"?renderAll():S.tab==="camp"?renderCamp():S.tab==="essen"?renderFood():renderPlan();
+  const y=window.scrollY,ae=document.activeElement,fid=ae&&app.contains(ae)&&ae.id?ae.id:null,sel=fid&&ae.selectionStart!=null?[ae.selectionStart,ae.selectionEnd]:null;
+  app.innerHTML=h;window.scrollTo(0,y);
+  if(fid){const el=document.getElementById(fid);if(el){el.focus({preventScroll:true});if(sel){try{el.setSelectionRange(sel[0],sel[1])}catch(_){}}}}
 }
 
 // ---------- Events ----------
 document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("button[data-tab]");if(!b)return;S.tab=b.dataset.tab;if(S.tab!=="plan")S.draft=null;if(S.tab!=="camp")S.campDraft=null;render();window.scrollTo(0,0)});
 app.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.go){S.tab=b.dataset.go;S.draft=null;S.campDraft=null;render();window.scrollTo(0,0);return}
+  if(b.dataset.food){S.foodTab=b.dataset.food;try{localStorage.setItem("hq-foodtab",S.foodTab)}catch(_){}render();return}
+  if(b.dataset.shop){const i=shopItems().find(x=>x.id===b.dataset.shop);if(i){const v={name:i.name,done:!i.done,at:i.at||Date.now(),by:i.by||""};if(v.done)v.doneAt=Date.now();try{await S.store.setPath("food/shop/"+i.id,v)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}return}
+  if(b.dataset.shoprm){try{await S.store.setPath("food/shop/"+b.dataset.shoprm,null)}catch(_){toast("Konnte nicht speichern.")}return}
+  if(b.dataset.shopfav){shopAdd(b.dataset.shopfav);return}
+  if(b.dataset.act==="shopclear"){for(const i of shopItems().filter(x=>x.done)){try{await S.store.setPath("food/shop/"+i.id,null)}catch(_){}}return}
   if(b.dataset.me){S.me=b.dataset.me;try{localStorage.setItem("hq-me",S.me)}catch(_){}render();return}
   if(b.dataset.act==="groupby"||b.dataset.jump){const j=b.dataset.jump;S.groupBy=j?"art":(S.groupBy==="art"?"freq":"art");try{localStorage.setItem("hq-groupby",S.groupBy)}catch(_){}render();
     if(j){const el=document.getElementById("sec-"+j);if(el)el.scrollIntoView({behavior:"smooth",block:"start"})}return}
@@ -558,7 +607,9 @@ app.addEventListener("click",async e=>{
 });
 app.addEventListener("change",e=>{const row=e.target.closest(".editrow[data-i]");if(!row||!S.draft)return;const t=S.draft.tasks[+row.dataset.i];const f=e.target.dataset.f;if(!f)return;
   t[f]=(f==="times"||f==="pts")?(+e.target.value||0):e.target.value;if(f==="freq"&&t.freq==="week"&&!t.times)t.times=1;if(f==="freq"||f==="owner")render()});
-app.addEventListener("input",e=>{if(S.campDraft){const el=e.target;if(el.dataset.ck){S.campDraft.costs[el.dataset.ck]=+el.value||0;return}const r=el.closest("[data-cx]");if(r&&el.dataset.f){const x=S.campDraft.extras[+r.dataset.cx];x[el.dataset.f]=el.dataset.f==="cost"?(+el.value||0):el.value;return}}
+app.addEventListener("submit",e=>{if(e.target.id!=="shopform")return;e.preventDefault();const v=S.shopText;S.shopText="";const el=document.getElementById("shopinput");if(el)el.value="";shopAdd(v)});
+app.addEventListener("input",e=>{if(e.target.id==="shopinput"){S.shopText=e.target.value;return}
+  if(S.campDraft){const el=e.target;if(el.dataset.ck){S.campDraft.costs[el.dataset.ck]=+el.value||0;return}const r=el.closest("[data-cx]");if(r&&el.dataset.f){const x=S.campDraft.extras[+r.dataset.cx];x[el.dataset.f]=el.dataset.f==="cost"?(+el.value||0):el.value;return}}
   const row=e.target.closest(".editrow[data-i]");if(!row||!S.draft)return;if(e.target.dataset.f==="name")S.draft.tasks[+row.dataset.i].name=e.target.value});
 
 // ---------- Start ----------
@@ -566,7 +617,8 @@ function start(store,mode){S.store=store;S.mode=mode;let gotCfg=false,gotWeeks=f
   const timer=setTimeout(()=>{S.timedOut=true;if(!gotCfg)S.config=S.config||null;render()},10000);
   store.listen((cfg,fromCache)=>{S.config=cfg;if(!fromCache){gotCfg=true;S.cfgConfirmed=true}if(gotCfg&&gotWeeks){clearTimeout(timer);S.timedOut=false}render()},
     (w,fromCache)=>{S.weeks=w;if(!fromCache)gotWeeks=true;if(gotCfg&&gotWeeks){clearTimeout(timer);S.timedOut=false}render()},
-    err=>{clearTimeout(timer);toast("Verbindung zu den gemeinsamen Daten verloren. Seite neu öffnen.")});
+    err=>{clearTimeout(timer);toast("Verbindung zu den gemeinsamen Daten verloren. Seite neu öffnen.")},
+    food=>{S.food=food||{};if(S.tab==="essen")render()});
 }
 (async()=>{let db=null;try{if(window.claude&&window.claude.use)db=await window.claude.use("db")}catch(e){db=null}
   if(db)start(dbStore(db),"db");else start(localStore(),"local")})();

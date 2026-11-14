@@ -31,7 +31,12 @@ srv.listen(8765,async()=>{
   await A.waitForSelector('[data-task=bad][data-slot="0"].on.chk');
   await B.click('[data-task=einkaufen][data-slot="0"]');
   await A.waitForSelector('[data-task=einkaufen][data-slot="0"]:not(.on)');
-  await A.click('[data-tab=plan]');await A.click('[data-act=swap]');await B.waitForTimeout(300);
+  await A.click('[data-go=plan]');await A.click('[data-act=swap]');await B.waitForTimeout(300);
+  await A.click('[data-go=woche]');await A.click('[data-tab=essen]');await B.click('[data-tab=essen]');
+  await A.fill('#shopinput','Milch');await A.press('#shopinput','Enter');await A.fill('#shopinput','Brot');await A.click('#shopform button');
+  await B.waitForSelector('.shop li:nth-child(2)');await B.click('.shop li:first-child .item');
+  await A.waitForSelector('.shop li.done');await A.click('[data-act=shopclear]');await B.waitForSelector('.shop li.done',{state:'detached'});
+  console.log('shop',JSON.stringify(Object.values(tree.haushalt)[0].food));
   console.log('rotOffset',tree.haushalt[Object.keys(tree.haushalt)[0]].config.rotOffset,'ticks',JSON.stringify(Object.values(tree.haushalt)[0].weeks));
   await A.evaluate(()=>scrollTo(0,9999));await A.screenshot({path:path.join(__dirname,'web-plan.png')});
   const C=await mk();await C.goto('http://localhost:8765/');await C.screenshot({path:path.join(__dirname,'web-setup.png')});
