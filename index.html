@@ -352,15 +352,15 @@ function renderWeek(){
    <div class="weeknav"><button class="iconbtn" data-nav="-1" aria-label="Vorige Woche">‹</button>${isCur?"":`<button class="ghost" data-nav="0">Heute</button>`}<button class="iconbtn" data-nav="1" aria-label="Nächste Woche" ${isCur?"disabled":""}>›</button></div></div>`;
   h+=meChooser();
   const cnt={all:[0,0],p0:[0,0],p1:[0,0]};
-  tasks().forEach(t=>{if(group(t.freq)!=="week")return;const o=ownerFor(t,mon,split);const n=slotsOf(t);
+  tasks().forEach(t=>{if(group(t.freq)!=="week"||t.owner!=="rot")return;const o=ownerFor(t,mon,split);const n=slotsOf(t);
     for(let i=0;i<n;i++){const d=tk[t.id+"__"+i]?1:0;cnt.all[0]+=d;cnt.all[1]++;if(o==="p0"||o==="p1"){cnt[o][0]+=d;cnt[o][1]++}}});
   const pct=cnt.all[1]?cnt.all[0]/cnt.all[1]:0;
   h+=`<section class="board" aria-label="Wochenstand">
-    <div class="who"><span class="name">${esc(pname("p0"))}</span><span class="pts num">${cnt.p0[0]}<small>/${cnt.p0[1]}</small></span><span class="sub">eigene Aufgaben erledigt</span></div>
-    <div class="ring">${ring(pct)}<div class="lbl num">${cnt.all[0]}/${cnt.all[1]}<small>gesamt</small></div></div>
-    <div class="who right"><span class="name">${esc(pname("p1"))}</span><span class="pts num">${cnt.p1[0]}<small>/${cnt.p1[1]}</small></span><span class="sub">eigene Aufgaben erledigt</span></div>
+    <div class="who"><span class="name">${esc(pname("p0"))}</span><span class="pts num">${cnt.p0[0]}<small>/${cnt.p0[1]}</small></span><span class="sub">Wechsel-Aufgaben erledigt</span></div>
+    <div class="ring">${ring(pct)}<div class="lbl num">${cnt.all[0]}/${cnt.all[1]}<small>im Wechsel</small></div></div>
+    <div class="who right"><span class="name">${esc(pname("p1"))}</span><span class="pts num">${cnt.p1[0]}<small>/${cnt.p1[1]}</small></span><span class="sub">Wechsel-Aufgaben erledigt</span></div>
   </section>`;
-  if(cnt.all[1]&&cnt.all[0]>=cnt.all[1])h+=`<div class="celebrate">Alles erledigt für diese Woche. Schönes Wochenende!</div>`;
+  if(cnt.all[1]&&cnt.all[0]>=cnt.all[1])h+=`<div class="celebrate">Alle Wechsel-Aufgaben dieser Woche sind erledigt.</div>`;
   h+=`<div class="filters" role="group" aria-label="Filter"><button class="chipbtn neutral" data-filter="alle" aria-pressed="${S.filter==="alle"}">Alle Aufgaben</button><button class="chipbtn neutral" data-filter="meine" aria-pressed="${S.filter==="meine"}">Nur meine</button><button class="chipbtn neutral" data-filter="offen" aria-pressed="${S.filter==="offen"}">Nur offene</button></div>`;
   if(S.filter==="meine"&&!S.me)h+=`<div class="notice">Wähle oben aus, wer du bist, damit „Nur meine“ funktioniert.</div>`;
 
@@ -426,7 +426,7 @@ function renderPlan(){
       <div class="line"><select id="to-${esc(t.id)}" data-f="owner" aria-label="Wer">${ownOpts}</select><select id="tf-${esc(t.id)}" data-f="freq" aria-label="Rhythmus">${fOpts}</select>
       ${t.freq==="week"?`<label class="sm"><input type="number" min="1" max="14" id="tt-${esc(t.id)}" data-f="times" value="${t.times||1}">× </label>`:""}
       ${t.owner==="rot"&&t.freq!=="month"&&t.freq!=="year"?`<select id="tk-${esc(t.id)}" data-f="pack" aria-label="Paket"><option value="" ${!t.pack?"selected":""}>Paket automatisch</option><option value="A" ${t.pack==="A"?"selected":""}>Paket A</option><option value="B" ${t.pack==="B"?"selected":""}>Paket B</option></select>`:""}
-      <label class="sm"><input type="number" min="0" max="50" id="tp-${esc(t.id)}" data-f="pts" value="${t.pts||0}"> Aufwand</label></div></div>`});
+      ${t.owner==="rot"&&group(t.freq)==="week"?`<label class="sm"><input type="number" min="0" max="50" id="tp-${esc(t.id)}" data-f="pts" value="${t.pts||0}"> Aufwand</label>`:""}</div></div>`});
   h+=`<div class="line" style="display:flex;gap:8px;flex-wrap:wrap"><button class="ghost" data-act="add">+ Aufgabe</button><button class="primary" data-act="save">Plan speichern</button><button class="ghost" data-act="reset">Änderungen verwerfen</button></div></section>`;
   return h}
 
