@@ -1,1 +1,558 @@
-{"updated":"","region":"","items":[]}
+{
+ "updated": "2026-11-15",
+ "region": "München",
+ "items": [
+  {
+   "name": "Der verschwundene Wunschzettel (Marionetten)",
+   "where": "stadt",
+   "io": "drinnen",
+   "cat": "kinder",
+   "wx": [
+    "regen"
+   ],
+   "from": "2026-11-21",
+   "to": "2026-11-22",
+   "time": "15 Uhr, ca. 90 Min. mit Pause",
+   "place": "Münchner Marionettentheater, Blumenstraße",
+   "travel": "🚇 Sendlinger Tor",
+   "price": "ab 12 €",
+   "kid": "ab 4 Jahren",
+   "link": "https://www.muema-theater.de/stuecke/der-verschwundene-wunschzettel/",
+   "note": "Weihnachtliches Marionettenstück am Wochenende, eher für die Großen unter den Kita-Kindern.",
+   "run": "woche"
+  },
+  {
+   "name": "Kasperls Abenteuer im Winterwald",
+   "where": "stadt",
+   "io": "drinnen",
+   "cat": "kinder",
+   "wx": [
+    "regen"
+   ],
+   "from": "2026-11-22",
+   "to": "2026-11-25",
+   "time": "So 22.11. 11 und 15 Uhr, Mi 25.11. 15 Uhr",
+   "place": "Kleines Theater im Pförtnerhaus, Bogenhausen",
+   "price": "10 €",
+   "kid": "ab 4 Jahren, besser telefonisch vorbuchen",
+   "link": "https://www.kindaling.de/kindertheater-shows/kasperls-abenteuer-im-winterwald-kleines-theater-im-pfoertnerhaus/muenchen-bogenhausen",
+   "note": "Klassisches Kasperltheater in kleinem Saal, ideal für einen grauen Sonntag.",
+   "run": "woche"
+  },
+  {
+   "name": "Pulcinella und das Meer der Wünsche",
+   "where": "stadt",
+   "io": "drinnen",
+   "cat": "kinder",
+   "wx": [
+    "regen"
+   ],
+   "date": "2026-11-15",
+   "time": "15 Uhr",
+   "place": "Fraunhofer Theater, Isarvorstadt",
+   "travel": "🚇 U1/U2 Fraunhoferstraße",
+   "kid": "ab 3 Jahren",
+   "link": "https://www.in-muenchen.de/events/pulcinella-und-das-meer-der-wunche.html",
+   "note": "Papier- und Objekttheater nach Grimm, schon ab 3 Jahren.",
+   "run": "woche"
+  },
+  {
+   "name": "Pettersson feiert Weihnachten",
+   "where": "stadt",
+   "io": "drinnen",
+   "cat": "kinder",
+   "wx": [
+    "regen"
+   ],
+   "date": "2026-11-18",
+   "time": "10 und 13 Uhr",
+   "place": "Münchner Theater für Kinder, Maxvorstadt",
+   "travel": "🚇 U1 Stiglmaierplatz",
+   "price": "ab 13 €",
+   "kid": "ab 4 Jahren, ca. 1 Std. 45 Min.",
+   "link": "https://www.in-muenchen.de/events/pettersson-feiert-weihnachten.html",
+   "note": "Pettersson und Findus als Weihnachtsstück, unter der Woche vormittags.",
+   "run": "woche"
+  },
+  {
+   "name": "mini.musik: Matze taucht ab (Jazz-Kinderkonzert)",
+   "where": "stadt",
+   "io": "drinnen",
+   "cat": "kinder",
+   "wx": [
+    "regen"
+   ],
+   "date": "2026-11-15",
+   "time": "14 und 16 Uhr",
+   "place": "Gasteig HP8, Saal X, Sendling",
+   "travel": "🚇 U3 Brudermühlstraße (U3 bis 28.11. zwischen Sendlinger Tor und Implerstraße Ersatzbus)",
+   "kid": "Familienkonzert für Kleine",
+   "link": "https://www.in-muenchen.de/events/minimusik-kinderkonzert-reihe-2026-matze-taucht-ab.html",
+   "note": "Kurzes Mitmach-Konzert der beliebten mini.musik-Reihe.",
+   "run": "woche"
+  },
+  {
+   "name": "Frau Holle (Mitmachtheater)",
+   "where": "stadt",
+   "io": "drinnen",
+   "cat": "kinder",
+   "wx": [
+    "regen"
+   ],
+   "date": "2026-11-23",
+   "time": "16 Uhr, ca. 30 Min.",
+   "place": "Stadtbibliothek Schwabing",
+   "travel": "🚇 U2 Hohenzollernplatz",
+   "price": "frei",
+   "free": true,
+   "kid": "ab 4 Jahren, ohne Anmeldung",
+   "link": "https://www.in-muenchen.de/events/frau-holle-stadtbibliothek-schwabing.html",
+   "note": "Kurzes Mitmachtheater nach der Kita, kostenlos.",
+   "run": "woche"
+  },
+  {
+   "name": "Die Kasperl (Puppentheater)",
+   "where": "stadt",
+   "io": "drinnen",
+   "cat": "kinder",
+   "wx": [
+    "regen"
+   ],
+   "date": "2026-11-16",
+   "time": "16 Uhr",
+   "place": "Stadtbibliothek Sendling",
+   "travel": "🚇 U6 Harras",
+   "price": "frei",
+   "free": true,
+   "kid": "Anmeldung nötig (vor Ort, telefonisch oder per Mail)",
+   "link": "https://www.muenchner-stadtbibliothek.de/veranstaltungen/details/die-kasperl-45451",
+   "note": "Kostenloses Kasperltheater in der Bibliothek, gut nach der Kita.",
+   "run": "woche"
+  },
+  {
+   "name": "Bilderbuchkino: Vom Gespenst, das nicht schlafen konnte",
+   "where": "stadt",
+   "io": "drinnen",
+   "cat": "kinder",
+   "wx": [
+    "regen"
+   ],
+   "date": "2026-11-17",
+   "time": "15:30 und 16:30 Uhr",
+   "place": "Stadtbibliothek Bogenhausen",
+   "kid": "Bilderbuchkino ab 3 Jahren",
+   "link": "https://www.muenchner-stadtbibliothek.de/veranstaltungen/details/bilderbuchkino-43996",
+   "note": "Bilderbuch auf großer Leinwand vorgelesen, kurz und ruhig.",
+   "run": "woche"
+  },
+  {
+   "name": "Bilderbuchkino: Jim will nur spielen",
+   "where": "stadt",
+   "io": "drinnen",
+   "cat": "kinder",
+   "wx": [
+    "regen"
+   ],
+   "date": "2026-11-18",
+   "time": "15:30 Uhr",
+   "place": "Stadtbibliothek Hadern",
+   "kid": "Bilderbuchkino ab 3 Jahren",
+   "link": "https://www.muenchner-stadtbibliothek.de/veranstaltungen/details/bilderbuchkino-45660",
+   "note": "Lustige Affengeschichte als Bilderbuchkino.",
+   "run": "woche"
+  },
+  {
+   "name": "Bilderbuchkino: Die kleine Qualle auf der Suche nach dem Poch",
+   "where": "stadt",
+   "io": "drinnen",
+   "cat": "kinder",
+   "wx": [
+    "regen"
+   ],
+   "date": "2026-11-25",
+   "time": "15 Uhr",
+   "place": "Stadtbibliothek Fürstenried",
+   "kid": "Bilderbuchkino ab 3 Jahren",
+   "link": "https://www.muenchner-stadtbibliothek.de/veranstaltungen/details/bilderbuchkino-46169",
+   "note": "Meeresgeschichte zum Zuhören und Schauen.",
+   "run": "woche"
+  },
+  {
+   "name": "Bilderbuchkino: Vorlesen für Kinder",
+   "where": "stadt",
+   "io": "drinnen",
+   "cat": "kinder",
+   "wx": [
+    "regen"
+   ],
+   "date": "2026-11-25",
+   "time": "16 Uhr",
+   "place": "Stadtbibliothek Maxvorstadt",
+   "kid": "Bilderbuchkino ab 3 Jahren",
+   "link": "https://www.muenchner-stadtbibliothek.de/veranstaltungen/details/bilderbuchkino-44792",
+   "note": "Vorlesestunde mit Bildern, danach Bücher ausleihen.",
+   "run": "woche"
+  },
+  {
+   "name": "KiKolino und KiKilina entdecken den Schatz der Oper",
+   "where": "umland",
+   "io": "drinnen",
+   "cat": "kinder",
+   "wx": [
+    "regen"
+   ],
+   "date": "2026-11-21",
+   "time": "16 Uhr, ca. 50 Min.",
+   "place": "Bürgersaal beim Forstner, Oberhaching",
+   "kid": "ab 3 Jahren",
+   "link": "https://www.in-muenchen.de/events/kammermusikfestival-fur-kinder-kikolino-und-kikilina-entdecken-den-schatz-der-oper-kinderkonzert-mit-anne-schatz-und-lydia-teuscher.html",
+   "note": "Kurzes Kinderkonzert mit Opernmusik, knapp südlich der Stadt.",
+   "run": "woche"
+  },
+  {
+   "name": "Museum Mensch und Natur: kostenlose Familienführung",
+   "where": "stadt",
+   "io": "drinnen",
+   "cat": "kultur",
+   "wx": [
+    "regen"
+   ],
+   "date": "2026-11-20",
+   "time": "15–16 Uhr",
+   "place": "Schloss Nymphenburg",
+   "travel": "🚋 Tram 17 Schloss Nymphenburg",
+   "price": "Führung frei, Kinder frei",
+   "kid": "ohne Anmeldung",
+   "link": "https://www.muenchen.de/sehenswuerdigkeiten/museen/mit-kindern-ins-museum-tipps-fuer-familien-muenchen",
+   "note": "Jeden Freitag gibt es dort eine kostenlose Familienführung zu Tieren und Natur.",
+   "run": "woche"
+  },
+  {
+   "name": "1-Euro-Sonntag im Museum Mensch und Natur",
+   "where": "stadt",
+   "io": "drinnen",
+   "cat": "kultur",
+   "wx": [
+    "regen"
+   ],
+   "date": "2026-11-22",
+   "place": "Schloss Nymphenburg",
+   "travel": "🚋 Tram 17 Schloss Nymphenburg",
+   "price": "1 € Erw., Kinder frei",
+   "kid": "Tiere, Steine und Mitmachstationen",
+   "link": "https://muenchen.de/sehenswuerdigkeiten/museen/guenstige-und-kostenlose-museen-muenchen",
+   "note": "Sonntags kostet der Eintritt in vielen staatlichen Museen nur 1 Euro, unter 18 frei.",
+   "run": "woche"
+  },
+  {
+   "name": "Wichtel-Werk (Indoor-Spielplatz)",
+   "where": "stadt",
+   "io": "drinnen",
+   "cat": "spiel",
+   "wx": [
+    "regen",
+    "schnee"
+   ],
+   "top": true,
+   "from": "2026-11-15",
+   "to": "2026-11-25",
+   "time": "Mi–So 15–19 Uhr, Sa/So auch 10–14 Uhr",
+   "place": "Freiham",
+   "travel": "🚆 S8 Neuaubing, dann Bus 143",
+   "price": "unter 1 frei, 1–2 J. 9,50 €, Erw. 9 €",
+   "kid": "für 0 bis 10 Jahre",
+   "link": "https://www.in-muenchen.de/stadtleben/indoorspielplatz.html",
+   "note": "Spielplatz der Woche: drinnen toben, wenn es draußen nass und kalt ist.",
+   "run": "woche"
+  },
+  {
+   "name": "KIM Familienzentrum: Indoor-Spielen",
+   "where": "stadt",
+   "io": "drinnen",
+   "cat": "spiel",
+   "wx": [
+    "regen",
+    "schnee"
+   ],
+   "from": "2026-11-17",
+   "to": "2026-11-25",
+   "time": "Di und Mi 10–12 und 14:30–16:30 Uhr",
+   "place": "Moosach",
+   "travel": "🚇 U1/U3 Olympia-Einkaufszentrum",
+   "price": "3 € pro Kind, mit Heißgetränk",
+   "kid": "für Kleinkinder, November bis März",
+   "link": "https://www.in-muenchen.de/stadtleben/indoorspielplatz.html",
+   "note": "Günstiger Spielraum für die Kleinsten unter der Woche.",
+   "run": "woche"
+  },
+  {
+   "name": "Christkindlmarkt am Luise-Kiesselbach-Platz",
+   "where": "stadt",
+   "io": "draussen",
+   "cat": "fest",
+   "wx": [
+    "schnee",
+    "sonne"
+   ],
+   "from": "2026-11-20",
+   "to": "2026-12-23",
+   "time": "Mo–Fr 14–21:30 Uhr, Sa/So ab 11 Uhr",
+   "place": "Sendling-Westpark",
+   "travel": "🚇 U6 Westpark",
+   "kid": "kleine Eisbahn mit Laufhilfen für Anfänger",
+   "link": "https://www.in-muenchen.de/stadtleben/schlittschuhlaufen-eisflaechen-eislauf-bahnen-hallen.html",
+   "note": "Kleiner Stadtteil-Christkindlmarkt, öffnet schon am Freitag vor dem Wochenende.",
+   "run": "woche"
+  },
+  {
+   "name": "Weihnachtsmarkt am Flughafen mit Eisbahn",
+   "where": "umland",
+   "io": "draussen",
+   "cat": "fest",
+   "wx": [
+    "schnee",
+    "sonne"
+   ],
+   "from": "2026-11-13",
+   "to": "2026-12-27",
+   "time": "11–21 Uhr",
+   "place": "Flughafen München",
+   "travel": "🚆 S8 oder S1, ca. 40 Min.",
+   "price": "Eislaufen 5 €, Leihschuhe 5 €",
+   "kid": "Schuhe ab Größe 24",
+   "link": "https://www.in-muenchen.de/stadtleben/schlittschuhlaufen-eisflaechen-eislauf-bahnen-hallen.html",
+   "note": "Großer Weihnachtsmarkt mit zwei Eisbahnen, schon geöffnet.",
+   "run": "woche"
+  },
+  {
+   "name": "Münchner Eiszauber am Stachus",
+   "where": "stadt",
+   "io": "draussen",
+   "cat": "natur",
+   "wx": [
+    "schnee",
+    "sonne"
+   ],
+   "from": "2026-11-13",
+   "to": "2027-01-10",
+   "time": "10:30–22 Uhr",
+   "place": "Karlsplatz (Stachus)",
+   "travel": "🚇 Karlsplatz (S-Bahn, U4/U5, Tram)",
+   "price": "Kinder unter 11 im ersten Block (10:30–13 Uhr) 6 €",
+   "kid": "vormittags am ruhigsten",
+   "link": "https://www.muenchen.de/veranstaltungen/freizeit/weihnachtsmarkt-christkindlmarkt/muenchner-eiszauber",
+   "note": "Eislaufen mitten in der Stadt, vormittags günstig und leer.",
+   "run": "woche"
+  },
+  {
+   "name": "Eislaufen im Prinzregentenstadion",
+   "where": "stadt",
+   "io": "draussen",
+   "cat": "natur",
+   "wx": [
+    "schnee",
+    "sonne"
+   ],
+   "from": "2026-11-15",
+   "to": "2026-11-25",
+   "time": "Di/Mi 9:30–16:30, Fr–So 9:30–21:30 Uhr, Mo/Do kein Publikumslauf",
+   "place": "Bogenhausen",
+   "travel": "🚇 U4 Prinzregentenplatz",
+   "price": "7,20 € Erw., Familienkarte 20,50 €, unter 6 frei",
+   "kid": "Kinder unter 6 mit Erwachsenem frei",
+   "link": "https://www.in-muenchen.de/stadtleben/schlittschuhlaufen-eisflaechen-eislauf-bahnen-hallen.html",
+   "note": "Große Freiluftbahn, Saison läuft seit Ende Oktober.",
+   "run": "woche"
+  },
+  {
+   "name": "Eislaufen im Eis- und Funsportzentrum Ost",
+   "where": "stadt",
+   "io": "draussen",
+   "cat": "natur",
+   "wx": [
+    "schnee",
+    "sonne"
+   ],
+   "from": "2026-10-24",
+   "to": "2027-03-07",
+   "place": "Ostpark",
+   "travel": "🚇 U5 Michaelibad",
+   "price": "3 € Erw., unter 6 frei",
+   "kid": "Kinder unter 6 mit Erwachsenem frei",
+   "link": "https://www.in-muenchen.de/stadtleben/schlittschuhlaufen-eisflaechen-eislauf-bahnen-hallen.html",
+   "note": "Günstigste Eisbahn der Stadt, neben dem Ostpark zum Spazieren.",
+   "run": "woche"
+  },
+  {
+   "name": "Tierpark Hellabrunn im Winter",
+   "where": "stadt",
+   "io": "beides",
+   "cat": "tiere",
+   "wx": [
+    "sonne"
+   ],
+   "from": "2026-11-15",
+   "to": "2026-11-25",
+   "time": "täglich 9–17 Uhr",
+   "place": "Thalkirchen",
+   "travel": "🚌 Bus 52 oder 🚋 Tram 25 Tiroler Platz (U3 bis 28.11. teils Ersatzbus)",
+   "price": "24 € Erw., Kinder 4–14 J. 10 €",
+   "kid": "kinderwagentauglich, viele Tierhäuser zum Aufwärmen",
+   "link": "https://www.hellabrunn.de/en/park-visit/general-information/opening-hours-and-directions",
+   "note": "Im Winter leerer, mit warmen Tierhäusern für zwischendurch.",
+   "run": "woche"
+  },
+  {
+   "name": "Wildpark Poing",
+   "where": "umland",
+   "io": "draussen",
+   "cat": "tiere",
+   "wx": [
+    "sonne",
+    "schnee"
+   ],
+   "from": "2026-11-15",
+   "to": "2026-11-25",
+   "time": "täglich 9–16 Uhr (Winter)",
+   "place": "Poing",
+   "travel": "🚆 S2 Poing",
+   "price": "Kinder ab 3 J. 7,50 €",
+   "kid": "Streichelzoo, Spielplatz, Rehe füttern",
+   "link": "https://www.muenchen.de/freizeit/wildpark-poing",
+   "note": "Rehe aus der Hand füttern, Rundweg gut mit Trage oder Buggy.",
+   "run": "woche"
+  },
+  {
+   "name": "BergTierPark Blindham",
+   "where": "umland",
+   "io": "beides",
+   "cat": "tiere",
+   "wx": [
+    "sonne",
+    "regen"
+   ],
+   "from": "2026-11-15",
+   "to": "2026-11-25",
+   "time": "Winter 10–16 Uhr",
+   "place": "Aying",
+   "travel": "🚗 ca. 35 Min",
+   "price": "Kinder ab 1 J. 10 €, nur bar",
+   "kid": "überdachte Spielscheune",
+   "link": "https://www.in-muenchen.de/kids/outdoor-kinder-muenchen-winter.html",
+   "note": "Kleiner Tierpark mit überdachter Spielscheune, auch bei Schmuddelwetter.",
+   "run": "woche"
+  },
+  {
+   "name": "Kinderreich im Deutschen Museum",
+   "run": "woche",
+   "dauer": true,
+   "where": "stadt",
+   "io": "drinnen",
+   "cat": "kultur",
+   "wx": [
+    "regen",
+    "schnee"
+   ],
+   "time": "täglich 9–16:30 Uhr",
+   "place": "Museumsinsel",
+   "travel": "🚋 Tram 16/17/18 Deutsches Museum",
+   "price": "Kinder bis 5 frei, Erw. 18 €",
+   "kid": "für 3 bis 8 Jahre, Erwachsene nur mit Kind",
+   "link": "https://www.deutsches-museum.de/museumsinsel/besuch",
+   "note": "Riesiger Spielbereich zum Bauen und Ausprobieren, perfekt bei Regen."
+  },
+  {
+   "name": "Eisgaudi im Hirschgarten",
+   "run": "woche",
+   "dauer": true,
+   "where": "stadt",
+   "io": "draussen",
+   "cat": "natur",
+   "wx": [
+    "schnee",
+    "sonne"
+   ],
+   "time": "im Winter Mo–Do 14–17:30, Fr–So 11–17:30 Uhr",
+   "place": "Königlicher Hirschgarten",
+   "travel": "🚆 S Hirschgarten",
+   "price": "unter 4 J. 5 € inkl. Schuhe und Eisrutscherl",
+   "kid": "Eisrutscherl für die Kleinsten, Reservierung per Mail empfohlen",
+   "link": "https://www.in-muenchen.de/stadtleben/schlittschuhlaufen-eisflaechen-eislauf-bahnen-hallen.html",
+   "note": "Kleine Eisbahn im Biergarten, mit Rutscherl ideal für erste Versuche."
+  },
+  {
+   "name": "Walderlebniszentrum Grünwald (Sauschütt)",
+   "run": "woche",
+   "dauer": true,
+   "where": "umland",
+   "io": "draussen",
+   "cat": "tiere",
+   "wx": [
+    "sonne",
+    "schnee"
+   ],
+   "time": "ganzjährig, Fütterung 16 Uhr",
+   "place": "Grünwald",
+   "travel": "🚋 Tram 25 Grünwald",
+   "price": "frei",
+   "free": true,
+   "kid": "barrierefreier Sinnespfad",
+   "link": "https://www.in-muenchen.de/kids/outdoor-kinder-muenchen-winter.html",
+   "note": "Wildschweine im Wald beobachten, kostenlos und direkt an der Stadtgrenze."
+  },
+  {
+   "name": "Rodelhang am Monopteros",
+   "run": "woche",
+   "dauer": true,
+   "where": "stadt",
+   "io": "draussen",
+   "cat": "natur",
+   "wx": [
+    "schnee"
+   ],
+   "place": "Englischer Garten",
+   "travel": "🚇 U3/U6 Universität",
+   "price": "frei",
+   "free": true,
+   "kid": "die flacheren Hänge weiter unten sind für Kleine geeignet",
+   "link": "https://www.muenchen.de/freizeit/rodeln-schlittenfahren",
+   "note": "Klassiker zum Schlittenfahren, wenn Schnee liegt."
+  },
+  {
+   "name": "Rodelhügel in der Aubinger Lohe",
+   "run": "woche",
+   "dauer": true,
+   "where": "stadt",
+   "io": "draussen",
+   "cat": "natur",
+   "wx": [
+    "schnee"
+   ],
+   "place": "Aubing",
+   "price": "frei",
+   "free": true,
+   "kid": "mehrere kleine Hügel, ruhiger als die Innenstadt",
+   "link": "https://www.muenchen.de/freizeit/rodeln-schlittenfahren",
+   "note": "Kleine, wenig volle Hügel, gut für erste Schlittenfahrten."
+  },
+  {
+   "name": "Drachenwiese im Riemer Park",
+   "run": "woche",
+   "dauer": true,
+   "where": "stadt",
+   "io": "draussen",
+   "cat": "natur",
+   "wx": [
+    "wind",
+    "schnee"
+   ],
+   "place": "Riemer Park, neben dem Rodelhügel",
+   "travel": "🚇 U2 Messestadt Ost",
+   "price": "frei",
+   "free": true,
+   "kid": "weite Wiese, im Winter Rodelhügel daneben",
+   "link": "https://www.muenchen.de/veranstaltungen/familie-kinder/drachenfest-im-riemer-park",
+   "note": "Große offene Wiese, auf der sogar das Drachenfest stattfindet."
+  }
+ ]
+}
