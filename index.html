@@ -107,6 +107,24 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .slot:active{transform:scale(.9)}
 .slot.today{border-style:solid;border-color:var(--ink);color:var(--ink)}
 .slot.future{opacity:.35}
+.kmweek{display:grid;gap:10px}
+.kmday{padding:12px 14px}
+.kmday.today{border:2px solid var(--ink)}
+.kmday.past{opacity:.8}
+.kmhead{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
+.kmhead b{font-family:var(--f-display);font-size:1.05rem}
+.kmtoday{margin-left:auto;font-size:.75rem;font-weight:700;color:var(--surface);background:var(--ink);border-radius:999px;padding:2px 9px}
+.kmgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kmrow{display:flex;flex-direction:column;gap:4px;background:var(--surface-2);border-radius:12px;padding:8px}
+.kmic{font-size:1.25rem;line-height:1}
+.kml{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+.kmlink{text-transform:none;letter-spacing:0;font-weight:500;color:var(--ink);white-space:nowrap}
+.kmv{font-size:.9rem;line-height:1.3;overflow-wrap:anywhere}
+.kmna{font-size:.8rem;color:var(--muted);margin-top:3px}
+.kmedit{border-top:1px solid var(--line);padding-top:8px;margin-top:4px}
+.kmedit h3{margin:4px 0 6px;font-size:1rem}
+@media (max-width:360px){.kmgrid{grid-template-columns:1fr}}
+
 .slot.future.hoslot{opacity:.85;border-style:dashed}
 .slot.on{border-style:solid;color:#fff;font-size:.8rem}
 .slot.on.p0{background:var(--p0);border-color:var(--p0)}
@@ -1798,9 +1816,15 @@ const dLabel=s=>{const d=new Date(s+"T12:00:00");return isNaN(d)?s:d.toLocaleDat
 function kitaNext(days){const today=ymd(new Date()),lim=ymd(addDays(new Date(),days));return kitas().filter(x=>x.sec==="termine"&&x.date&&x.date>=today&&x.date<=lim).sort((a,b)=>a.date<b.date?-1:1)[0]}
 function renderKitaMeals(){let h="";const mon=planWeek(),km=kitaMeals(mon),isCur=+mon===+mondayOf(new Date()),dm=x=>x.getDate()+"."+(x.getMonth()+1)+".";
     h+=`<div class="section-head" style="align-items:center"><div><h2>KW ${isoWeek(mon).w}</h2><div class="freq">${dm(mon)} bis ${dm(addDays(mon,4))}</div></div><div class="weeknav"><button class="iconbtn" data-fnav="-1" aria-label="Vorige Woche">‹</button>${isCur?"":`<button class="ghost" data-fnav="0">Heute</button>`}<button class="iconbtn" data-fnav="1" aria-label="Nächste Woche">›</button></div></div>`;
-    const sub=x=>[x.fr?"Frühstück: "+x.fr:"",x.na?"Nachspeise: "+x.na:"",x.bz?"Brotzeit: "+x.bz:""].filter(Boolean);
-    h+=`<section class="card tripform">${DAYN.slice(0,5).map((dn,i)=>{const x=km["d"+i]||{};return `<label class="fld"><span>${dn} ${dm(addDays(mon,i))}, Mittag</span><input type="text" id="ke-d${i}" data-ke="d${i}" value="${esc(x.text||"")}" maxlength="120" placeholder="Was gibt es in der Kita?" autocomplete="off"></label>${sub(x).length?`<div class="freq" style="margin-top:-8px">${sub(x).map(esc).join("<br>")}</div>`:""}`}).join("")}
-      <div class="btnrow"><button class="primary" data-act="kitamealsave">Speichern</button></div><div class="freq">Hier könnt ihr das Mittagessen von Hand ändern. Es erscheint auch im Wochenplan, damit ihr abends nicht dasselbe kocht.</div></section>`;
+    const KM=[["fr","🥣","Frühstück"],["text","🍽️","Mittag"],["bz","🥨","Brotzeit"]],todayI=isCur?(new Date().getDay()+6)%7:-1,any=[0,1,2,3,4].some(i=>{const x=km["d"+i]||{};return x.text||x.fr||x.bz||x.na});
+    if(S.kitaEdit){h+=`<section class="card tripform"><h2>✏️ Kita-Essen bearbeiten</h2>${DAYN.slice(0,5).map((dn,i)=>{const x=km["d"+i]||{},f=(k,id,l,ph)=>`<label class="fld"><span>${l}</span><input type="text" id="${id}${i}" value="${esc(x[k]||"")}" maxlength="120" placeholder="${ph}" autocomplete="off"></label>`;
+        return `<div class="kmedit"><h3>${dn} ${dm(addDays(mon,i))}</h3>${f("fr","ke-fr","🥣 Frühstück","")}${f("text","ke-d","🍽️ Mittag","Was gibt es in der Kita?")}${f("na","ke-na","🍮 Nachspeise","")}${f("bz","ke-bz","🥨 Brotzeit","")}</div>`}).join("")}
+      <div class="btnrow"><button class="primary" data-act="kitamealsave">Speichern</button><button class="ghost" data-act="kitamealedit">Abbrechen</button></div></section>`}
+    else if(any){h+=`<div class="kmweek">${DAYN.slice(0,5).map((dn,i)=>{const x=km["d"+i]||{},past=isCur&&i<todayI||+mon<+mondayOf(new Date());
+        const row=([k,e,l])=>`<div class="kmrow"><span class="kmic" aria-hidden="true">${e}</span><div><div class="kml">${l}${k==="text"&&x.text?` <span class="kmlink" title="Erscheint auch im Wochenplan">↔ Wochenplan</span>`:""}</div><div class="kmv">${x[k]?esc(x[k]):`<span class="freq">–</span>`}${k==="text"&&x.na?`<div class="kmna">🍮 ${esc(x.na)}</div>`:""}</div></div></div>`;
+        return `<section class="card kmday${i===todayI?" today":""}${past?" past":""}"><div class="kmhead"><b>${dn}</b><span class="freq">${dm(addDays(mon,i))}</span>${i===todayI?`<span class="kmtoday">Heute</span>`:""}</div><div class="kmgrid">${KM.map(row).join("")}</div></section>`}).join("")}</div>
+      <div class="btnrow"><button class="ghost" data-act="kitamealedit">✏️ Bearbeiten</button></div><div class="freq">Das Mittagessen erscheint auch im Wochenplan, damit ihr abends nicht dasselbe kocht.</div>`}
+    else h+=`<div class="empty"><h2>Noch kein Kita-Essen für diese Woche</h2><div>Speiseplan unten einfügen oder <button class="ghost" data-act="kitamealedit">✏️ von Hand eintragen</button></div></div>`;
     h+=`<section class="card"><h2>Speiseplan einfügen</h2><div class="freq">Den Plan aus der Kita-App kopieren und hier einfügen. Die App erkennt Woche, Tage, Frühstück, Mittag, Nachspeise und Brotzeit und lässt die Kürzel in Klammern weg.</div><textarea id="kitaplantext" rows="4" placeholder="Speiseplan 16.11. - 20.11. …" aria-label="Speiseplan einfügen"></textarea><div class="btnrow"><button class="primary" data-act="kitaplanimport">Übernehmen</button></div></section>`;
     return h}
 function renderKita(){const d=S.kitaDraft,sec=KITA_SECS.find(s=>s[0]===S.kitaSec)||KITA_SECS[0];
@@ -2200,7 +2224,8 @@ app.addEventListener("click",async e=>{
   if(b.dataset.kitaadd){kitaAdd(b.dataset.kitaadd);return}
   if(b.dataset.kitatick){const x=kitas().find(y=>y.id===b.dataset.kitatick);if(x){try{await S.store.setPath("food/kita/"+x.id+"/done",!x.done)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}return}
   if(b.dataset.kitarm){try{await S.store.setPath("food/kita/"+b.dataset.kitarm,null)}catch(_){toast("Konnte nicht speichern.")}return}
-  if(b.dataset.act==="kitamealsave"){const wk=wkKey(planWeek());const vals=[0,1,2,3,4].map(i=>{const el=document.getElementById("ke-d"+i);return (el?el.value:"").trim().slice(0,120)});try{for(let i=0;i<5;i++){const v=vals[i];await S.store.setPath("food/kitaplan/"+wk+"/d"+i+"/text",v||null);await S.store.setPath("food/kitaplan/"+wk+"/d"+i+"/at",Date.now())}toast("Kita-Essen gespeichert")}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
+  if(b.dataset.act==="kitamealedit"){S.kitaEdit=!S.kitaEdit;render();return}
+  if(b.dataset.act==="kitamealsave"){const wk=wkKey(planWeek());const gv=id=>{const el=document.getElementById(id);return (el?el.value:"").trim().slice(0,120)};const F=[["text","ke-d"],["fr","ke-fr"],["na","ke-na"],["bz","ke-bz"]];const vals=[0,1,2,3,4].map(i=>F.map(([k,id])=>[k,gv(id+i)]));try{for(let i=0;i<5;i++){for(const [k,v] of vals[i])await S.store.setPath("food/kitaplan/"+wk+"/d"+i+"/"+k,v||null);await S.store.setPath("food/kitaplan/"+wk+"/d"+i+"/at",Date.now())}S.kitaEdit=false;render();toast("Kita-Essen gespeichert")}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.act==="kitaplanimport"){const el=document.getElementById("kitaplantext"),p=parseKitaPlan(el?el.value:"");if(!p){toast("Kein Speiseplan erkannt. Steht ein Datum wie 16.11. und Montag bis Freitag drin?");return}
     const wk=wkKey(p.mon);try{for(const k of Object.keys(p.days))await S.store.setPath("food/kitaplan/"+wk+"/"+k,Object.assign({at:Date.now()},p.days[k]));S.foodWeek=+p.mon===+mondayOf(new Date())?null:p.mon;toast("Speiseplan für KW "+isoWeek(p.mon).w+" übernommen");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.act==="kitareset"){for(const i of kitas().filter(x=>x.sec==="tasche"&&x.done)){try{await S.store.setPath("food/kita/"+i.id+"/done",false)}catch(_){}}return}
