@@ -419,6 +419,7 @@ label.sm{font-size:.78rem;color:var(--muted);display:flex;align-items:center;gap
 .tiles.books .te{font-size:1.4rem}.tiles.books .tn{font-weight:600;line-height:1.2}.tiles.books .add{border-style:dashed;opacity:.8}
 details.paste{margin:6px 0 12px;border:1px dashed var(--line);border-radius:12px;padding:8px 10px}details.paste summary{cursor:pointer;font-weight:600}
 details.paste textarea{width:100%;box-sizing:border-box}
+.kidopt{display:flex;gap:6px}.kidopt>.quickbtn{width:auto;min-width:0}.kidopt>.quickbtn:first-child{flex:1}.kidopt .kidall{flex:0 0 auto;font-size:.82rem;white-space:nowrap}.kidhoh{margin-top:6px}.hohalf.kidho{grid-template-columns:1fr 1fr 1fr}
 #mbox{position:fixed;inset:0;z-index:60}#mbox .mboxbg{position:absolute;inset:0;background:rgba(10,20,25,.45)}#mbox .mboxcard{position:absolute;left:16px;right:16px;bottom:96px;max-width:440px;margin:0 auto;background:var(--surface);color:var(--ink);border-radius:18px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,.3)}#mbox .mboxc{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px}#mbox .mboxc span{flex:1 1 100%;font-weight:600}#mbox a.chipbtn{text-decoration:none;color:var(--ink)}.postcard .contact{border-top:1px solid var(--line,rgba(0,0,0,.08));padding:10px 0;display:grid;gap:8px}.postcard .contacthead{display:flex;justify-content:space-between;align-items:center}.postcard .contact input{width:100%}#contactaddform input{min-width:0}
 .postcard .callrow{display:flex;gap:8px}.postcard .callrow .wabtn{flex:1}.postcard .telbtn{background:var(--ink)!important}
 .postcard .wabtn{display:flex;justify-content:center;align-items:center;font-size:1.1rem;padding:16px;border-radius:14px;text-decoration:none;background:#25a35a;color:#fff}
@@ -642,7 +643,7 @@ async function toggle(btn){
     if(leg&&leg.by===S.me&&!tk[base+"_"+S.me]){key=base;cur=leg}else{key=base+"_"+S.me;cur=tk[key]}}
   else{key=t.id+"__"+btn.dataset.slot;cur=ticksOf(wk)[key]}
   const val=cur?null:{by:S.me,at:Date.now()};
-  try{await S.store.tick(wk,key,val)}catch(e){toast(e&&e.code==="invalid_argument"?"Speichern wurde abgelehnt. Bitte den Einladungs-Link prüfen.":"Keine Verbindung. Bitte nochmal tippen, sobald du online bist.")}
+  try{await S.store.tick(wk,key,val);if(t.owner==="ho")await hoKidSync(wk,key)}catch(e){toast(e&&e.code==="invalid_argument"?"Speichern wurde abgelehnt. Bitte den Einladungs-Link prüfen.":"Keine Verbindung. Bitte nochmal tippen, sobald du online bist.")}
 }
 
 // ---------- Rendering ----------
@@ -1415,12 +1416,33 @@ const kidRule=()=>{const r=S.food&&S.food.kid&&S.food.kid.rule;return {br:(r&&r.
 const kitaZu=d=>kitas().find(x=>x.sec==="termine"&&x.kind==="zu"&&x.date===d)||null;
 function bhDay(mon,i){const wk=wkKey(mon),d=addDays(mon,i),k=ymd(d),ov=(((S.food&&S.food.kid&&S.food.kid.bh)||{})[wk]||{})["d"+i]||{},hoT=tasks().find(t=>t.owner==="ho"),ho=hoT?ticksOf(wk)[hoT.id+"__"+i]:null,hp=ho&&(ho.by==="p0"||ho.by==="p1")?ho.by:null,rl=kidRule();
   const off=kitaZu(k)?"zu":inUrlaub(d)?"urlaub":"";
-  const pick=(f,hoOk)=>ov[f]?{p:ov[f],src:"hand"}:hp&&hoOk?{p:hp,src:"ho"}:{p:rl[f][i]||"p0",src:"regel"};
-  return {i,k,d,off,br:pick("br",!ho||!ho.part||ho.part==="br"),ab:pick("ab",!ho||!ho.part||ho.part==="ab")}}
+  const pick=(f,hoOk)=>{const base=hp&&hoOk?{p:hp,src:"ho"}:{p:rl[f][i]||"p0",src:"regel"};return ov[f]&&ov[f]!==base.p?{p:ov[f],src:"hand",base}:Object.assign({base},base)};
+  return {i,k,d,off,ho,hoT,br:pick("br",!ho||!ho.part||ho.part==="br"),ab:pick("ab",!ho||!ho.part||ho.part==="ab")}}
+// Auswahl je Feld (Florian 15.11.2026: jedes Feld direkt wählen, mit Optionen): Person nur diese Woche, 📌 jede Woche, wie geplant, Homeoffice des Tages
+function kidPick(wk,i,f){S.mboxAt=Date.now();if(document.getElementById("mbox"))return;const mon=addDays(mondayOf(new Date()),7*(S.kidWk|0));if(wkKey(mon)!==wk)return;const x=bhDay(mon,i),y=x[f],DN=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag"],P=S.me==="p1"?["p1","p0"]:["p0","p1"],rl=kidRule();
+  const srcTxt=b=>b.src==="ho"?"🏠 Homeoffice":"feste Woche";
+  const hoOn=(p,part)=>x.ho&&x.ho.by===p&&(x.ho.part||"")===part?' aria-pressed="true"':"";
+  const el=document.createElement("div");el.id="mbox";el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="Bringen und Abholen"><div class="section-head"><h2>🚸 ${DN[i]} ${x.d.getDate()}.${x.d.getMonth()+1}.: wer ${f==="br"?"bringt":"holt ab"}?</h2></div><div class="quicklist">
+    ${P.map(p=>`<div class="kidopt"><button class="quickbtn" data-kp="${p}"${y.p===p?' aria-pressed="true"':""}><span class="qi">${esc(pname(p).charAt(0))}</span><span>${esc(pname(p))}${p===y.base.p?` <small>(${srcTxt(y.base)})</small>`:""}</span></button><button class="quickbtn kidall" data-kp="${p}|rule"${rl[f][i]===p?' aria-pressed="true"':""} aria-label="${esc(pname(p))} jeden ${DN[i]}">📌 jeden ${DN[i].slice(0,2)}</button></div>`).join("")}
+    ${y.src==="hand"?`<button class="quickbtn" data-kp="reset"><span class="qi">↺</span><span>Wie geplant: ${esc(pname(y.base.p))} (${srcTxt(y.base)})</span></button>`:""}
+    ${x.hoT?`<div class="freq kidhoh">🏠 Homeoffice an diesem Tag (gilt auch für die Woche):</div>${P.map(p=>{const c=esc(pname(p).charAt(0));return `<div class="hohalf kidho"><button class="quickbtn" data-kh="${p}"${hoOn(p,"")}><span class="qi">${c}</span><span>ganzer Tag</span></button><button class="quickbtn" data-kh="${p}|br"${hoOn(p,"br")}><span class="qi">${c}<sup>2</sup></span><span>bringt</span></button><button class="quickbtn" data-kh="${p}|ab"${hoOn(p,"ab")}><span class="qi">${c}<sup>1</sup></span><span>holt ab</span></button></div>`}).join("")}${x.ho?`<button class="quickbtn" data-kh="clear"><span class="qi">✕</span><span>Kein Homeoffice</span></button>`:""}`:""}
+    </div></div>`;
+  document.body.appendChild(el);
+  const ovp="food/kid/bh/"+wk+"/d"+i;
+  el.addEventListener("click",async e=>{const kp=e.target.closest("[data-kp]"),kh=e.target.closest("[data-kh]");
+    if(kp){mboxClose();const [p,m]=kp.dataset.kp.split("|");try{
+      if(p==="reset")await S.store.setPath(ovp+"/"+f,null);
+      else if(m==="rule"){const r={br:rl.br.slice(),ab:rl.ab.slice()};r[f][i]=p;await S.store.setPath("food/kid/rule",r);await S.store.setPath(ovp+"/"+f,null);toast(pname(p)+" "+(f==="br"?"bringt":"holt")+" jetzt jeden "+DN[i])}
+      else await S.store.setPath(ovp+"/"+f,p===y.base.p?null:p)}catch(_){toast("Konnte nicht speichern.")}return}
+    if(kh){mboxClose();const [p,part]=kh.dataset.kh.split("|");try{await S.store.tick(wk,x.hoT.id+"__"+i,p==="clear"?null:Object.assign({by:p,at:Date.now()},part?{part}:{}));await S.store.setPath(ovp,null)}catch(_){toast("Konnte nicht speichern.")}return}
+    if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose()})}
+// Homeoffice geändert (Woche): Hand-Änderungen bei Bringen und Abholen an diesem Tag fallen weg, das Homeoffice ist die neuere Angabe
+async function hoKidSync(wk,key){const hoT=tasks().find(t=>t.owner==="ho");if(!hoT||!key.startsWith(hoT.id+"__"))return;const i=+key.slice(hoT.id.length+2);if(!(i>=0&&i<5))return;
+  if(((((S.food&&S.food.kid&&S.food.kid.bh)||{})[wk])||{})["d"+i])try{await S.store.setPath("food/kid/bh/"+wk+"/d"+i,null)}catch(_){}}
 const bringTasks=()=>tasks().filter(t=>/^bringen/i.test(t.name)&&t.freq==="week");
 function bringDone(wk,i){const tk=ticksOf(wk);for(const t of bringTasks())for(let j=0;j<slotsOf(t);j++){const v=tk[t.id+"__"+j];if(v&&v.day===i)return {key:t.id+"__"+j,v}}return null}
 function kidBhRows(mon,cur){const today=ymd(new Date()),wk=wkKey(mon);return [0,1,2,3,4].map(i=>{const x=bhDay(mon,i),isT=x.k===today,DN=["Mo","Di","Mi","Do","Fr"];
-  const who=f=>{const y=x[f];return `<button class="chipbtn neutral kidwho" data-kidset="${wk}|${i}|${f}" aria-label="${f==="br"?"Bringt":"Holt"} am ${DN[i]}: ${esc(pname(y.p))}, tippen zum Tauschen">${esc(pname(y.p))}${y.src==="ho"?" 🏠":y.src==="hand"?" ✋":""}</button>`};
+  const who=f=>{const y=x[f];return `<button class="chipbtn neutral kidwho" data-kidset="${wk}|${i}|${f}" aria-label="${f==="br"?"Bringt":"Holt"} am ${DN[i]}: ${esc(pname(y.p))}, tippen zum Auswählen">${esc(pname(y.p))}${y.src==="ho"?" 🏠":y.src==="hand"?" ✋":""}</button>`};
   const dn=cur&&x.k<=today&&!x.off?bringDone(wk,i):null;
   return `<li class="kidrow${isT?" today":""}${x.off?" off":""}"><span class="kidday"><b>${DN[i]}</b><small>${x.d.getDate()}.${x.d.getMonth()+1}.</small></span>${x.off?`<span class="freq">${x.off==="zu"?"🚪 Kita zu":"⛵ Urlaub"}</span>`:`<span class="kidcol"><small>bringt</small>${who("br")}</span><span class="kidcol"><small>holt</small>${who("ab")}</span>${cur&&x.k<=today?`<button class="iconbtn kidchk" data-kidbrought="${i}" aria-pressed="${!!dn}" aria-label="${dn?"Gebracht, zurücknehmen":"Als gebracht abhaken"}">${dn?"✅":"⬜"}</button>`:""}`}</li>`}).join("")}
 function renderKind(){const now=new Date(),cm=mondayOf(now),off=S.kidWk|0,mon=addDays(cm,7*off),{w}=isoWeek(mon),today=ymd(now),di=(now.getDay()+6)%7,nm=kidName();
@@ -1428,7 +1450,7 @@ function renderKind(){const now=new Date(),cm=mondayOf(now),off=S.kidWk|0,mon=ad
   if(nm==="Kind")h+=`<div class="freq">Den Namen tragt ihr unter <button class="linkbtn" data-go="settings">Einstellungen › Wir</button> ein. Er bleibt nur bei euch.</div>`;
   h+=`<section class="card kidbh"><div class="section-head"><h2>🚸 Bringen und Abholen</h2><span class="weeknav"><button class="iconbtn" data-kidwk="${off-1}" aria-label="Vorige Woche"${off<=-1?" disabled":""}>‹</button><span class="freq">KW ${w}</span><button class="iconbtn" data-kidwk="${off+1}" aria-label="Nächste Woche"${off>=2?" disabled":""}>›</button></span></div>
     <ul class="kidlist">${kidBhRows(mon,off===0)}</ul>
-    <div class="freq">Tippen tauscht die Person. 🏠 = aus dem Homeoffice (ganzer Tag: bringt und holt, „2 von 2“: bringt, „1 von 2“: holt ab), ✋ = von Hand geändert, sonst die feste Woche. ⬜ hakt die Aufgabe Bringen ab.</div>
+    <div class="freq">Tippen auf eine Person öffnet die Auswahl: nur diese Woche, 📌 jede Woche, wie geplant oder Homeoffice. 🏠 = aus dem Homeoffice (ganzer Tag: bringt und holt, „2 von 2“: bringt, „1 von 2“: holt ab), ✋ = von Hand geändert, sonst die feste Woche. ⬜ hakt die Aufgabe Bringen ab.</div>
     <div class="btnrow"><button class="ghost" data-kidrule="${off}">📌 Als feste Woche speichern</button>${Object.keys((((S.food&&S.food.kid&&S.food.kid.bh)||{})[wkKey(mon)])||{}).length?`<button class="ghost" data-kidreset="${off}">↺ Änderungen dieser Woche zurücknehmen</button>`:""}<button class="ghost" data-nav="woche|wp:0">🏠 Homeoffice ›</button></div></section>`;
   // Kita kurz
   const km=di<5?(kitaMeals(cm)["d"+di]||{}):{},kb=kitaBring(),nx=kitas().filter(x=>x.sec==="termine"&&x.date&&x.date>=today).sort((a,b)=>a.date<b.date?-1:1)[0];
@@ -1486,7 +1508,7 @@ function homeOpen(){if(!S.homeOpen){try{S.homeOpen=JSON.parse(localStorage.getIt
 // Homeoffice: lange auf einen Tag drücken = Auswahl, wer (Florian 15.11.2026)
 function hoCanEdit(){const cm=mondayOf(new Date());if(+S.view<+cm&&S.wkEdit!==wkKey(S.view)){toast("Archiv: erst „✏️ Nachtragen“ antippen.");return false}return true}
 function hoPick(btn){if(!hoCanEdit())return;S.mboxAt=Date.now();if(document.getElementById("mbox"))return;const t=tasks().find(x=>x.id===btn.dataset.task);if(!t)return;const wk=wkKey(S.view),key=t.id+"__"+btn.dataset.slot,cur=ticksOf(wk)[key];
-  const set=async v=>{mboxClose();try{await S.store.tick(wk,key,v)}catch(_){toast("Konnte nicht speichern. Bitte nochmal tippen.")}};
+  const set=async v=>{mboxClose();try{await S.store.tick(wk,key,v);await hoKidSync(wk,key)}catch(_){toast("Konnte nicht speichern. Bitte nochmal tippen.")}};
   const el=document.createElement("div");el.id="mbox";el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="Homeoffice"><div class="section-head"><h2>🏠 ${esc(DAYS[+btn.dataset.slot]||"")}: wer ist im Homeoffice?</h2></div><div class="quicklist">
     ${(S.me==="p1"?["p1","p0"]:["p0","p1"]).map(p=>{const i=esc(pname(p).charAt(0)),on=x=>cur&&cur.by===p&&(cur.part||"")===x?" aria-pressed=\"true\"":"";return `<div class="hogrp"><button class="quickbtn" data-hop="${p}"${on("")}><span class="qi">${i}</span><span>${esc(pname(p))}, ganzer Tag</span></button><div class="hohalf"><button class="quickbtn" data-hop="${p}|ab"${on("ab")}><span class="qi">${i}<sup>1</sup></span><span>1 von 2: holt nachmittags ab</span></button><button class="quickbtn" data-hop="${p}|br"${on("br")}><span class="qi">${i}<sup>2</sup></span><span>2 von 2: bringt morgens</span></button></div></div>`}).join("")}
     ${cur?`<button class="quickbtn" data-hop="clear"><span class="qi">✕</span><span>Leeren</span></button>`:""}</div></div>`;
@@ -2729,8 +2751,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="projdel"){try{await S.store.setPath("food/idea/"+S.projDraft.id,null);S.projDraft=null;toast("Gelöscht");render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.priv){S.privSec=b.dataset.priv;S.lunchDraft=null;render();return}
   if(b.dataset.kidwk!=null){S.kidWk=Math.max(-1,Math.min(2,+b.dataset.kidwk));render();return}
-  if(b.dataset.kidset){const [wk,i,f]=b.dataset.kidset.split("|"),mon=addDays(mondayOf(new Date()),7*(S.kidWk|0)),x=bhDay(mon,+i),np=x[f].p==="p0"?"p1":"p0";
-    try{await S.store.setPath("food/kid/bh/"+wk+"/d"+i+"/"+f,np)}catch(_){toast("Konnte nicht speichern.")}return}
+  if(b.dataset.kidset){const [wk,i,f]=b.dataset.kidset.split("|");kidPick(wk,+i,f);return}
   if(b.dataset.kidbrought!=null){const i=+b.dataset.kidbrought,cm=mondayOf(new Date()),wk=wkKey(cm),dn=bringDone(wk,i);
     try{if(dn){await S.store.tick(wk,dn.key,null);return}const who=bhDay(cm,i).br.p,tk=ticksOf(wk),L=bringTasks().sort((a,b)=>(a.owner===who?0:1)-(b.owner===who?0:1));let key=null;
       for(const t of L){for(let j=0;j<slotsOf(t);j++)if(!tk[t.id+"__"+j]){key=t.id+"__"+j;break}if(key)break}

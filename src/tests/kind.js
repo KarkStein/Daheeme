@@ -15,7 +15,17 @@ srv.listen(8765,async()=>{
   await nav('kind|');r.pager=await A.$eval('.pager',e=>e.innerText.replace(/\n/g,' '));r.h1=await A.$eval('#app h1',e=>e.innerText);
   const rows=async()=>A.$$eval('.kidrow',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));r.rows=await rows();
   // Montag bringt tauschen
-  await A.click('[data-kidset="'+wk+'|0|br"]');await A.waitForTimeout(400);r.mo=(await rows())[0];r.ov=JSON.stringify(((db().food.kid||{}).bh||{})[wk]);
+  const kp=async(fld,sel)=>{await A.click('[data-kidset="'+wk+'|'+fld+'"]');await A.waitForTimeout(300);await A.click('#mbox '+sel);await A.waitForTimeout(400)};
+  await kp('0|br','[data-kp="p1"]');r.mo=(await rows())[0];r.ov=JSON.stringify(((db().food.kid||{}).bh||{})[wk]);
+  // zurück auf die geplante Person (darf nicht hängen), dann wieder anders
+  await kp('0|br','[data-kp="p0"]');r.back=JSON.stringify(((db().food.kid||{}).bh||{})[wk]||null);r.mo2=(await rows())[0];
+  await kp('0|br','[data-kp="p1"]');await kp('0|br','[data-kp="reset"]');r.reset=JSON.stringify(((db().food.kid||{}).bh||{})[wk]||null);
+  await kp('0|br','[data-kp="p1"]');
+  // Homeoffice aus der Auswahl: setzt die Aufgabe und nimmt die Hand-Änderung weg
+  await kp('0|ab','[data-kh="p0|ab"]');const t0=((db().weeks[wk]||{}).ticks||{}).essen__0;r.ho=t0&&t0.by+':'+t0.part;r.hoov=JSON.stringify((((db().food.kid||{}).bh||{})[wk]||{}).d0||null);r.mo3=(await rows())[0];
+  // jede Woche
+  await kp('1|ab','[data-kp="p1|rule"]');r.rule1=JSON.stringify((db().food.kid||{}).rule);
+  await kp('0|br','[data-kp="p1"]');
   // Heute (Mi) gebracht
   await A.click('[data-kidbrought="2"]');await A.waitForTimeout(400);const tk=(db().weeks[wk]||{}).ticks||{};r.tick=Object.entries(tk).filter(([k,v])=>/^bringen/.test(k)).map(([k,v])=>k+':'+v.by+':'+v.day);
   await A.addStyleTag({content:'#tabs{display:none!important}'});await A.screenshot({path:out+'/wir-kind.png',fullPage:true});await A.addStyleTag({content:'#tabs{display:flex!important}'});
@@ -25,10 +35,10 @@ srv.listen(8765,async()=>{
   // Dashboard
   await nav('camp|sp:tag');r.dash=await A.$eval('.campback.dash .bline',e=>e.innerText.replace(/\n/g,' '));
   // Schaukel im Bild
-  await A.click('#tabs [data-tab=camp]');await A.waitForTimeout(500);await A.click('.spot[data-go=kind]');await A.waitForTimeout(400);r.swing=await A.$eval('#app h1',e=>e.innerText);
+  await A.clock.setFixedTime(new Date('2026-11-18T10:05:00+01:00'));await A.click('#tabs [data-tab=camp]');await A.waitForTimeout(500);await A.click('.spot[data-go=kind]');await A.waitForTimeout(400);r.swing=await A.$eval('#app h1',e=>e.innerText);
   await nav('camp|');await A.waitForTimeout(600);await (await A.$('.camp')).screenshot({path:out+'/haus-schaukel.png'});
   // Partner hat den Umschalter
   await nav('privat|');r.ppager=!!(await A.$('.pager [data-go=kind]'));
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&r.name==='Testkind'&&/Partner/.test(r.pager)&&/Testkind/.test(r.pager)&&r.h1==='Testkind'&&r.rows.length===5&&/🏠/.test(r.rows[1])&&/Kita zu/.test(r.rows[4])&&/✋/.test(r.mo)&&/"br"/.test(r.ov)&&r.tick.length===1&&/:2$/.test(r.tick[0])&&r.untick===0&&/"br"/.test(r.rule)&&/bringt/.test(r.dash)&&/holt ab/.test(r.dash)&&r.swing==='Testkind'&&r.ppager;
+  const ok=!errs.length&&r.name==='Testkind'&&/Partner/.test(r.pager)&&/Testkind/.test(r.pager)&&r.h1==='Testkind'&&r.rows.length===5&&/🏠/.test(r.rows[1])&&/Kita zu/.test(r.rows[4])&&/✋/.test(r.mo)&&!/br/.test(r.back)&&!/✋/.test(r.mo2)&&!/br/.test(r.reset)&&r.ho==='p0:ab'&&r.hoov==='null'&&/🏠/.test(r.mo3)&&/"ab":\["p1","p1"/.test(r.rule1)&&/"br"/.test(r.ov)&&r.tick.length===1&&/:2$/.test(r.tick[0])&&r.untick===0&&/"br"/.test(r.rule)&&/bringt/.test(r.dash)&&/holt ab/.test(r.dash)&&r.swing==='Testkind'&&r.ppager;
   console.error(ok?'KIND OK':'KIND FAIL');await b.close();srv.close();process.exit(0)});
