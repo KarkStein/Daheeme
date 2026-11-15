@@ -107,6 +107,12 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .slot:active{transform:scale(.9)}
 .slot.today{border-style:solid;border-color:var(--ink);color:var(--ink)}
 .slot.future{opacity:.35}
+.subgrp{display:flex;flex-wrap:wrap;align-items:center;gap:6px;width:100%}
+.subn{font-size:.72rem;color:var(--muted);font-weight:700;min-width:22px}
+.subbtn{border:2px dashed var(--line);background:transparent;border-radius:999px;padding:6px 12px;font:inherit;font-size:.85rem;font-weight:600;color:var(--fg)}
+.subbtn.on{border-style:solid;border-color:var(--done);background:var(--done-soft);color:var(--fg)}
+.subgrp.all .subbtn{border-color:var(--done)}
+
 .quicklist{display:grid;gap:8px;margin-top:6px}
 .quickbtn{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;font:inherit;font-weight:600;color:var(--fg)}
 .quickbtn .qi{font-size:1.3rem;width:28px;text-align:center}
@@ -434,9 +440,9 @@ const TEMPLATE={persons:["Florian","Judith"],rotOffset:0,tasks:[
  {id:"muell",name:"Müll rausbringen",owner:"rot",pack:"A",freq:"week",times:3,pts:1},
  {id:"plastik",name:"Plastikmüll rausbringen",owner:"rot",pack:"A",freq:"week",times:1,pts:1},
  {id:"waesche",name:"Wäsche waschen, auf- und abhängen",owner:"rot",pack:"B",freq:"week",times:3,pts:3},
- {id:"saugen",name:"Saugen (Wohnbereich)",owner:"rot",pack:"B",freq:"week",times:2,pts:3},
+ {id:"saugen",name:"Saugen (nach Bedarf)",owner:"rot",pack:"B",freq:"week",times:2,pts:3},
  {id:"kueche-putzen",name:"Küche putzen",owner:"rot",pack:"B",freq:"week",times:1,pts:5},
- {id:"treppe",name:"Treppe saugen/wischen (Roboter starten, leeren)",owner:"rot",pack:"B",freq:"week",times:1,pts:1},
+ {id:"treppe",name:"Saugen komplett",subs:["Treppe","🤖","Oben"],owner:"rot",pack:"B",freq:"week",times:1,pts:1},
  {id:"bringen-0",name:"Bringen",owner:"p0",freq:"week",times:3,pts:2},
  {id:"bringen-1",name:"Bringen",owner:"p1",freq:"week",times:2,pts:2},
  {id:"mittag",name:"Gemeinsames Mittagessen",owner:"both",freq:"week",times:1,pts:2},
@@ -587,11 +593,16 @@ function streak(){const cur=mondayOf(new Date());let s=0;let m=addDays(cur,-7);
 function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2600)}
 function floatAt(btn,txt){const card=btn.closest(".task");if(!card)return;const f=document.createElement("span");f.className="float";f.textContent=txt;
   const r=btn.getBoundingClientRect(),c=card.getBoundingClientRect();f.style.left=(r.left-c.left+4)+"px";f.style.top=(r.top-c.top-6)+"px";card.appendChild(f);setTimeout(()=>f.remove(),950)}
+// Florian 15.11.2026: "Saugen" heißt "Saugen (nach Bedarf)", das Paket mit der Treppe wird "Saugen komplett" mit Teilbereichen. Einmalig.
+function migSaugen(cfg){const c=JSON.parse(JSON.stringify(cfg));let ch=false;c.tasks.forEach(t=>{if(t.id==="saugen"&&/^Saugen \(Wohnbereich\)$/.test(t.name||"")){t.name="Saugen (nach Bedarf)";ch=true}if(t.id==="treppe"&&!hasSubs(t)){t.name="Saugen komplett";t.subs=["Treppe","🤖","Oben"];ch=true}});c.mig=Object.assign({},c.mig,{saug1:Date.now()});S.store.saveConfig(c).catch(()=>{})}
+const hasSubs=t=>Array.isArray(t.subs)&&t.subs.length>0;
 async function toggle(btn){
   if(!S.me){toast("Wähle oben zuerst, wer du bist.");return}
   if(prioOn()){const cm=mondayOf(new Date());const isHO=(tasks().find(x=>x.id===btn.dataset.task)||{}).owner==="ho";if(+S.view>+cm&&!isHO){toast("Vorschau: abhaken geht erst in der Woche selbst. Homeoffice kannst du schon eintragen.");return}if(+S.view<+cm&&S.wkEdit!==wkKey(S.view)){toast("Archiv: erst „✏️ Nachtragen“ antippen.");return}}
   const t=tasks().find(x=>x.id===btn.dataset.task);if(!t)return;
   let wk=wkKey(S.view),key,cur;
+  if(btn.dataset.sub!=null&&hasSubs(t)){const base=t.id+"__"+btn.dataset.slot,sk=base+"_s"+btn.dataset.sub,tk=ticksOf(wk),nv=tk[sk]?null:{by:S.me,at:Date.now()};
+    try{await S.store.tick(wk,sk,nv);const all=t.subs.every((_,j)=>j===+btn.dataset.sub?!!nv:!!tk[base+"_s"+j]);if(all&&!tk[base])await S.store.tick(wk,base,{by:S.me,at:Date.now()});if(!all&&tk[base])await S.store.tick(wk,base,null)}catch(e){toast("Konnte nicht speichern. Bitte nochmal tippen.")}return}
   if(btn.dataset.slot==="p"){const pt=periodTick(t,S.view);key=t.id+"__p";if(pt){wk=pt.wk;cur=pt.v}}
   else if(btn.dataset.split){const base=t.id+"__"+btn.dataset.slot,tk=ticksOf(wk),leg=tk[base];
     if(leg&&leg.by===S.me&&!tk[base+"_"+S.me]){key=base;cur=leg}else{key=base+"_"+S.me;cur=tk[key]}}
@@ -722,6 +733,7 @@ function renderWeek(){
           aria=(a?" "+esc(pname("p0"))+" erledigt":"")+(b?" "+esc(pname("p1"))+" erledigt":"")}
         else{const v=tk[k];if(v){c++;on=true;cls.push("on",isHO?(v.by==="x"?"x":v.by):"chk");lbl=isHO?`<span>${esc(v.by==="x"?(v.lbl||"X").slice(0,2):pname(v.by).charAt(0))}${v.part?`<sup>${v.part==="ab"?1:2}</sup>`:""}</span>`:"✓";aria=" erledigt von "+esc(v.by==="x"?(v.lbl||"X"):pname(v.by))+(v.part==="ab"?", holt nachmittags ab":v.part==="br"?", bringt morgens":"")}}
         if(f==="day"){if(i===today)cls.push("today");if(i>today)cls.push("future");if(isHO)cls.push("hoslot")}
+        if(hasSubs(t)&&!isBoth&&!isHO){slots+=`<div class="subgrp${on?" all":""}" role="group" aria-label="${esc(t.name)} ${f==="day"?DAYS[i]:(i+1)+". Mal"}">${n>1?`<span class="subn">${f==="day"?DAYS[i]:(i+1)+"."}</span>`:""}${t.subs.map((sn,j)=>{const sv=tk[k+"_s"+j];return `<button class="subbtn${sv?" on":""}" data-task="${esc(t.id)}" data-slot="${i}" data-sub="${j}" aria-pressed="${!!sv}" aria-label="${esc(sn)}${sv?" erledigt von "+esc(pname(sv.by)):""}">${sv?"✓ ":""}${esc(sn)}</button>`}).join("")}</div>`;continue}
         slots+=`<button class="${cls.join(" ")}" data-task="${esc(t.id)}" data-slot="${i}" ${isBoth?'data-split="1"':""} ${f==="day"&&i>today&&!isHO?"disabled":""} aria-pressed="${on}" aria-label="${esc(t.name)} ${f==="day"?DAYS[i]:(i+1)+". Mal"}${aria}">${lbl}</button>`}
       doneAll=c>=n;pct=n?c/n:0;const cs=(c%1?String(c).replace(".",","):c);
       html=`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${f==="day"?"täglich":n+"× pro Woche"} · ${cs}/${n}</span></div></div></div><div class="slots">${slots}</div>${isBoth?`<div class="freq">Jeder hakt seine Hälfte ab: links ${esc(pname("p0"))}, rechts ${esc(pname("p1"))}.</div>`:""}</article>`;
@@ -1977,7 +1989,8 @@ function renderWmw(){const d=S.draft||(S.draft=JSON.parse(JSON.stringify(S.confi
       <div class="line"><select id="to-${esc(t.id)}" data-f="owner" aria-label="Wer">${ownOpts}</select><select id="tf-${esc(t.id)}" data-f="freq" aria-label="Rhythmus">${fOpts}</select>
       ${t.freq==="week"?`<label class="sm"><input type="number" min="1" max="14" id="tt-${esc(t.id)}" data-f="times" value="${t.times||1}">× </label>`:""}
       ${t.owner==="rot"&&t.freq!=="month"&&t.freq!=="year"?`<select id="tk-${esc(t.id)}" data-f="pack" aria-label="Paket"><option value="" ${!t.pack?"selected":""}>Paket automatisch</option><option value="A" ${t.pack==="A"?"selected":""}>Paket A</option><option value="B" ${t.pack==="B"?"selected":""}>Paket B</option></select>`:""}
-      ${t.owner==="rot"&&group(t.freq)==="week"?`<label class="sm"><input type="number" min="0" max="50" id="tp-${esc(t.id)}" data-f="pts" value="${t.pts||0}"> Aufwand</label>`:""}</div></div>`});
+      ${t.owner==="rot"&&group(t.freq)==="week"?`<label class="sm"><input type="number" min="0" max="50" id="tp-${esc(t.id)}" data-f="pts" value="${t.pts||0}"> Aufwand</label>`:""}</div>
+      ${t.owner!=="ho"&&t.owner!=="both"&&group(t.freq)==="week"?`<div class="line"><input type="text" id="ts-${esc(t.id)}" data-f="subs" value="${esc((t.subs||[]).join(", "))}" placeholder="Teilbereiche, mit Komma (optional)" aria-label="Teilbereiche"></div>`:""}</div>`});
   h+=sec("edit","✏️ Aufgaben bearbeiten",d.tasks.length,ed+`<div class="line" style="display:flex;gap:8px;flex-wrap:wrap"><button class="ghost" data-act="add">+ Aufgabe</button><button class="primary" data-act="save">Plan speichern</button><button class="ghost" data-act="reset">Änderungen verwerfen</button></div><div class="freq" style="margin-top:6px">Namen ändert ihr in den Einstellungen unter Wir.</div>`);
   return h}
 async function wmwTick(id,p){if(!S.me){toast("Wähle zuerst in den Einstellungen, wer du bist.");return}const t=tasks().find(x=>x.id===id);if(!t)return;const mon=mondayOf(new Date()),wk=wkKey(mon),tk=ticksOf(wk);let key=null;
@@ -2472,7 +2485,7 @@ app.addEventListener("click",async e=>{
   if(act==="reset"){S.draft=null;render()}
   if(act==="swap"){const c=JSON.parse(JSON.stringify(S.config));c.rotOffset=((c.rotOffset|0)+1)%2;try{await S.store.saveConfig(c);S.draft=null;toast("Pakete getauscht")}catch(_){toast("Konnte nicht speichern.")}}
   if(act==="save"){const d=S.draft;const n0=document.getElementById("pn0"),n1=document.getElementById("pn1");if(n0&&n1)d.persons=[n0.value.trim()||"Person 1",n1.value.trim()||"Person 2"];
-    d.tasks.forEach(t=>{t.name=(t.name||"").trim()||"Aufgabe";t.pts=Math.max(0,Math.min(50,t.pts|0));if(t.freq==="week")t.times=Math.max(1,Math.min(14,t.times|0||1));else delete t.times;if(t.owner!=="rot"||(t.pack!=="A"&&t.pack!=="B"))delete t.pack});
+    d.tasks.forEach(t=>{t.name=(t.name||"").trim()||"Aufgabe";t.pts=Math.max(0,Math.min(50,t.pts|0));if(t.freq==="week")t.times=Math.max(1,Math.min(14,t.times|0||1));else delete t.times;if(t.owner!=="rot"||(t.pack!=="A"&&t.pack!=="B"))delete t.pack;if(!hasSubs(t)||t.owner==="ho"||t.owner==="both")delete t.subs});
     try{await S.store.saveConfig(JSON.parse(JSON.stringify(d)));S.draft=null;toast("Plan gespeichert")}catch(_){toast("Speichern nicht möglich. Bitte Verbindung prüfen.")}}
 });
 app.addEventListener("change",async e=>{const t=e.target;if(t.id==="restorefile"&&t.files&&t.files[0]){try{const d=JSON.parse(await t.files[0].text());if(!d||d.app!=="Daheeme"||!d.food)throw 0;S.restore={d,date:new Date(d.at).toLocaleDateString("de-DE")};render()}catch(_){toast("Das ist keine Sicherung von Daheeme.")}return}
@@ -2483,7 +2496,7 @@ app.addEventListener("change",e=>{const d=e.target.dataset||{};if(d.fundpr){cons
   if(S.recDraft&&/^(name|ing|link)$/.test(d.rf||"")){const tb=document.querySelector(".tagbox");if(tb){const o=tb.open;tb.outerHTML=recTagForm(S.recDraft);const n=document.querySelector(".tagbox");if(n)n.open=o}}});
 app.addEventListener("change",e=>{const ft=e.target.dataset&&e.target.dataset.fundto;if(ft!=null){S.store.setPath("food/fund/"+ft+"/"+FAREA[e.target.dataset.ar||"reise"].key,e.target.value||null).catch(()=>toast("Konnte nicht speichern."));return}const cn=e.target.dataset&&e.target.dataset.contactnum;if(cn){const v=e.target.value.trim().slice(0,30);if(v&&!waNum(v)){toast("Bitte eine gültige Handynummer eintragen.");return}S.store.setPath("food/contacts/"+cn+"/num",v||"").then(()=>toast("Nummer gespeichert")).catch(()=>toast("Konnte nicht speichern."));return}const c=e.target.dataset&&e.target.dataset.contact;if(c){const v=e.target.value.trim().slice(0,30);if(!v)return;if(!waNum(v)){toast("Bitte eine gültige Handynummer eintragen.");return}e.target.value="";S.store.setPath("food/contact/"+c,v).then(()=>toast("Nummer gespeichert")).catch(()=>toast("Konnte nicht speichern."));}});
 app.addEventListener("change",e=>{const row=e.target.closest(".editrow[data-i]");if(!row||!S.draft)return;const t=S.draft.tasks[+row.dataset.i];const f=e.target.dataset.f;if(!f)return;
-  t[f]=(f==="times"||f==="pts")?(+e.target.value||0):e.target.value;if(f==="freq"&&t.freq==="week"&&!t.times)t.times=1;if(f==="freq"||f==="owner")render()});
+  t[f]=(f==="times"||f==="pts")?(+e.target.value||0):f==="subs"?e.target.value.split(",").map(x=>x.trim()).filter(Boolean).slice(0,6):e.target.value;if(f==="freq"&&t.freq==="week"&&!t.times)t.times=1;if(f==="freq"||f==="owner")render()});
 app.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="mealinput"){e.preventDefault();const b=app.querySelector("[data-act=mealsave]");if(b)b.click()}});
 app.addEventListener("change",e=>{const t=e.target;if(!t.dataset||!t.dataset.suggold)return;suggRename(t.dataset.sugglist,t.dataset.suggold,t.value)});
 app.addEventListener("submit",async e=>{if(e.target.dataset&&e.target.dataset.suggform){e.preventDefault();const l=e.target.dataset.suggform,i=e.target.querySelector("input"),v=(i&&i.value||"").trim().slice(0,60);if(!v)return;i.value="";const k=favKey(v),cur=suggRaw(l)[k]||{};try{await S.store.setPath("food/sugg/"+l+"/"+k,{name:v,n:cur.hide?0:(cur.n||0),at:Date.now()})}catch(_){toast("Konnte nicht speichern.")}return}if(e.target.id==="kitaform"){e.preventDefault();const v=S.kitaText;S.kitaText="";const el=document.getElementById("kitainput");if(el)el.value="";kitaAdd(v);return}
@@ -2544,7 +2557,7 @@ app.addEventListener("input",e=>{if(e.target.id==="shopinput"){S.shopText=e.targ
 // ---------- Start ----------
 function start(store,mode){S.store=store;S.mode=mode;let gotCfg=false,gotWeeks=false;
   const timer=setTimeout(()=>{S.timedOut=true;if(!gotCfg)S.config=S.config||null;render()},10000);
-  store.listen((cfg,fromCache)=>{S.config=cfg;if(!fromCache){gotCfg=true;S.cfgConfirmed=true}if(gotCfg&&gotWeeks){clearTimeout(timer);S.timedOut=false}render()},
+  store.listen((cfg,fromCache)=>{S.config=cfg;if(cfg&&!fromCache&&Array.isArray(cfg.tasks)&&!(cfg.mig&&cfg.mig.saug1))migSaugen(cfg);if(!fromCache){gotCfg=true;S.cfgConfirmed=true}if(gotCfg&&gotWeeks){clearTimeout(timer);S.timedOut=false}render()},
     (w,fromCache)=>{S.weeks=w;if(!fromCache)gotWeeks=true;if(gotCfg&&gotWeeks){clearTimeout(timer);S.timedOut=false}render()},
     err=>{clearTimeout(timer);toast("Verbindung zu den gemeinsamen Daten verloren. Seite neu öffnen.")},
     food=>{S.food=food||{};if(S.tab==="essen"||S.tab==="privat"||S.tab==="post"||S.tab==="settings"||S.tab==="einkauf"||S.tab==="camp"||S.tab==="ausflug"||S.tab==="projekte"||S.tab==="amhaus"||S.tab==="spiel"||S.tab==="kita"||S.tab==="musik"||S.tab==="recherchen"||S.tab==="wichtig")render()});
