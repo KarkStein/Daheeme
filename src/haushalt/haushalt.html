@@ -93,6 +93,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .slot:active{transform:scale(.9)}
 .slot.today{border-style:solid;border-color:var(--ink);color:var(--ink)}
 .slot.future{opacity:.35}
+.tasklink{margin-top:10px;font-size:.85rem;display:inline-flex;width:auto;padding:6px 12px}
+.tlink{border:none;background:none;padding:0 4px;font:inherit;font-size:.85rem;color:var(--ink)}
 .subgrp{display:flex;flex-wrap:wrap;align-items:center;gap:6px;width:100%}
 .subn{font-size:.72rem;color:var(--muted);font-weight:700;min-width:22px}
 .subbtn{border:2px dashed var(--line);background:transparent;border-radius:999px;padding:6px 12px;font:inherit;font-size:.85rem;font-weight:600;color:var(--fg)}
@@ -547,6 +549,9 @@ function floatAt(btn,txt){const card=btn.closest(".task");if(!card)return;const 
   const r=btn.getBoundingClientRect(),c=card.getBoundingClientRect();f.style.left=(r.left-c.left+4)+"px";f.style.top=(r.top-c.top-6)+"px";card.appendChild(f);setTimeout(()=>f.remove(),950)}
 // Florian 15.11.2026: "Saugen" heißt "Saugen (nach Bedarf)", das Paket mit der Treppe wird "Saugen komplett" mit Teilbereichen. Einmalig.
 function migSaugen(cfg){const c=JSON.parse(JSON.stringify(cfg));let ch=false;c.tasks.forEach(t=>{if(t.id==="saugen"&&/^Saugen \(Wohnbereich\)$/.test(t.name||"")){t.name="Saugen (nach Bedarf)";ch=true}if(t.id==="treppe"&&!hasSubs(t)){t.name="Saugen komplett";t.subs=["Treppe","🤖","Oben"];ch=true}});c.mig=Object.assign({},c.mig,{saug1:Date.now()});S.store.saveConfig(c).catch(()=>{})}
+// Verlinkung aus Aufgaben in andere Bereiche (Florian 15.11.2026): Einkaufen → Einkaufsliste. Weitere Zeilen möglich.
+const TASK_LINKS=[[/einkauf|supermarkt|drogerie|wocheneinkauf/i,()=>{const n=shopItems().filter(i=>!i.done).length;return `<button class="chipbtn tasklink" data-go="einkauf">🧺 Einkaufsliste${n?": "+n+" offen":""} ›</button>`},()=>`<button class="tlink" data-go="einkauf" aria-label="Zur Einkaufsliste">🧺›</button>`]];
+function taskLink(t,small){if(!prioOn())return "";const m=TASK_LINKS.find(x=>x[0].test((t&&t.name)||""));return m?m[small?2:1]():""}
 const hasSubs=t=>Array.isArray(t.subs)&&t.subs.length>0;
 async function toggle(btn){
   if(!S.me){toast("Wähle oben zuerst, wer du bist.");return}
@@ -688,10 +693,10 @@ function renderWeek(){
         if(hasSubs(t)&&!isBoth&&!isHO){slots+=`<div class="subgrp${on?" all":""}" role="group" aria-label="${esc(t.name)} ${f==="day"?DAYS[i]:(i+1)+". Mal"}">${n>1?`<span class="subn">${f==="day"?DAYS[i]:(i+1)+"."}</span>`:""}${t.subs.map((sn,j)=>{const sv=tk[k+"_s"+j];return `<button class="subbtn${sv?" on":""}" data-task="${esc(t.id)}" data-slot="${i}" data-sub="${j}" aria-pressed="${!!sv}" aria-label="${esc(sn)}${sv?" erledigt von "+esc(pname(sv.by)):""}">${sv?"✓ ":""}${esc(sn)}</button>`}).join("")}</div>`;continue}
         slots+=`<button class="${cls.join(" ")}" data-task="${esc(t.id)}" data-slot="${i}" ${isBoth?'data-split="1"':""} ${f==="day"&&i>today&&!isHO?"disabled":""} aria-pressed="${on}" aria-label="${esc(t.name)} ${f==="day"?DAYS[i]:(i+1)+". Mal"}${aria}">${lbl}</button>`}
       doneAll=c>=n;pct=n?c/n:0;const cs=(c%1?String(c).replace(".",","):c);
-      html=`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${f==="day"?"täglich":n+"× pro Woche"} · ${cs}/${n}</span></div></div></div><div class="slots">${slots}</div>${isBoth?`<div class="freq">Jeder hakt seine Hälfte ab: links ${esc(pname("p0"))}, rechts ${esc(pname("p1"))}.</div>`:""}</article>`;
+      html=`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${f==="day"?"täglich":n+"× pro Woche"} · ${cs}/${n}</span></div></div></div><div class="slots">${slots}</div>${taskLink(t)}${isBoth?`<div class="freq">Jeder hakt seine Hälfte ab: links ${esc(pname("p0"))}, rechts ${esc(pname("p1"))}.</div>`:""}</article>`;
     }else{const pt=periodTick(t,mon);doneAll=!!pt;pct=doneAll?1:0;
       const lbl=pt?`✓ Erledigt von ${esc(pname(pt.v.by))} am ${fmt(new Date(pt.v.at),{day:"numeric",month:"short"})}`:"○ Als erledigt markieren";
-      html=`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${FREQ_LABEL[f]}</span></div></div></div><div><button class="bigcheck${pt?" on chk":""}" data-task="${esc(t.id)}" data-slot="p" aria-pressed="${doneAll}">${lbl}</button></div></article>`}
+      html=`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${FREQ_LABEL[f]}</span></div></div></div><div><button class="bigcheck${pt?" on chk":""}" data-task="${esc(t.id)}" data-slot="p" aria-pressed="${doneAll}">${lbl}</button></div>${taskLink(t)}</article>`}
     return {t,o,html,done:doneAll,pct,times:slotsOf(t)}};
   const vis=x=>!(S.filter==="meine"&&S.me&&!(x.o===S.me||x.o==="both"||x.o==="ho"))&&!(S.hideDone&&x.done);
   const order=(a,b)=>FO[a.t.freq]-FO[b.t.freq]||b.times-a.times||a.pct-b.pct;
@@ -1912,7 +1917,7 @@ function wmwList(who){const mon=mondayOf(new Date()),split=rotSplit(),tk=ticksOf
   tasks().forEach(t=>{const o=ownerFor(t,mon,split);const ps=o==="both"?P:P.includes(o)?[o]:who==="alle"&&o==="ho"?["ho"]:[];
     ps.forEach(p=>{const st=p==="ho"?wmwState(t,"p0",mon,tk):wmwState(t,p,mon,tk);L.push({t,p,o,...st,done:st.c>=st.n})})});return L}
 function wmwRow(x,showP){const per=WMW_PER[x.t.freq],who=x.p==="ho"?"Homeoffice":pname(x.p);
-  return `<li class="wmwrow${x.done?" done":""}">${x.done?`<span class="wmwchk" aria-label="Erledigt">✅</span>`:`<button class="wmwchk" data-wtick="${esc(x.t.id)}" data-who="${x.p}" aria-label="${esc(x.t.name)} abhaken">⬜</button>`}<span class="ev"><b>${esc(x.t.name)}</b><span class="freq"> · ${WMW_FL(x.t)}${per?" · "+per:""}${x.o==="rot"?" · im Wechsel":x.o==="both"?" · zu zweit":""}</span></span>${showP?`<span class="wmwp ${x.p}">${esc(who)}</span>`:""}${group(x.t.freq)==="week"&&x.n>1?`<span class="freq num">${x.c}/${x.n}</span>`:""}</li>`}
+  return `<li class="wmwrow${x.done?" done":""}">${x.done?`<span class="wmwchk" aria-label="Erledigt">✅</span>`:`<button class="wmwchk" data-wtick="${esc(x.t.id)}" data-who="${x.p}" aria-label="${esc(x.t.name)} abhaken">⬜</button>`}<span class="ev"><b>${esc(x.t.name)}</b>${taskLink(x.t,1)}<span class="freq"> · ${WMW_FL(x.t)}${per?" · "+per:""}${x.o==="rot"?" · im Wechsel":x.o==="both"?" · zu zweit":""}</span></span>${showP?`<span class="wmwp ${x.p}">${esc(who)}</span>`:""}${group(x.t.freq)==="week"&&x.n>1?`<span class="freq num">${x.c}/${x.n}</span>`:""}</li>`}
 function renderWmw(){const d=S.draft||(S.draft=JSON.parse(JSON.stringify(S.config)));const me=S.me||"p0",who=S.wmwWho||me,O=S.wmwOpen||(S.wmwOpen={offen:true}),view=S.wmwView||"zeit";
   const mon=mondayOf(new Date()),next=addDays(mon,7),split=rotSplit(),L=wmwList(who),open=L.filter(x=>!x.done),done=L.filter(x=>x.done),showP=who==="alle";
   const sc=weekScore(wkKey(mon)),a0=sc.assigned.p0,a1=sc.assigned.p1,tot=a0+a1||1;
