@@ -466,6 +466,17 @@ h2{font-weight:700}
 .card.today{padding-top:var(--sp3);padding-bottom:var(--sp2)}.card.today h2{margin:0 0 var(--sp1);font-size:var(--fs-l)}
 .card.today .todayrow{padding-top:var(--sp2);padding-bottom:var(--sp2)}
 @media (max-height:720px){.starthead{display:none}.card.today h2{font-size:var(--fs-m)}.card.today .todayrow{padding-top:6px;padding-bottom:6px}}
+/* Kalender (Florian 15.11.2026): Farbe nur je Person, Ferien und Feiertage als Hintergrund, Heute-Streifen oben */
+.wdot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:var(--sp1);vertical-align:middle;flex:0 0 auto}
+.calwho{margin:0 0 var(--sp2)}
+.cal button.fe{background:color-mix(in srgb,var(--ochre) 10%,transparent)}
+.cal button.ft{background:color-mix(in srgb,var(--ochre) 24%,transparent)}
+.cal button.fe[aria-pressed=true],.cal button.ft[aria-pressed=true]{background:var(--ink)}
+.cdot.fe{background:color-mix(in srgb,var(--ochre) 25%,transparent)}.cdot.ft{background:color-mix(in srgb,var(--ochre) 55%,transparent)}
+.calwd.fe .calwh,.calwd.ft .calwh{background:color-mix(in srgb,var(--ochre) 14%,transparent);border-radius:var(--r-s)}
+.cal button{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.caltoday .evlist{margin:0}.caltoday .tagcard{margin-top:var(--sp2)}
+.chipbtn .wdot,.freq .wdot,.wdot{width:8px!important;height:8px!important;min-width:8px;flex:0 0 8px!important;padding:0!important;display:inline-block}
 </style>
 
 <div class="app" id="app">
@@ -725,12 +736,21 @@ function ferienAt(d){const k=typeof d==="string"?d:ymd(d);return ferienList().fi
 // Freie Tage ab heute (Feiertage und Ferienbeginn), für Urlaube und Ausflüge
 function freiNext(n,days){const out=[],t=new Date();for(let i=0;i<(days||400)&&out.length<n;i++){const d=addDays(t,i),k=ymd(d),ft=feiertag(k),fe=ferienList().find(f=>f.from===k);if(fe)out.push({k,d,name:fe.name,ic:"🏖️",to:fe.to});if(ft)out.push({k,d,name:ft,ic:"🎉",bridge:d.getDay()===4?"Fr":d.getDay()===2?"Mo":""})}return out}
 const WD2=["So","Mo","Di","Mi","Do","Fr","Sa"];
+// Personen (Florian 15.11.2026): ein Merkmal über alle Bereiche; im Kalender trägt nur die Person eine Farbe, der Bereich ist das Symbol
+const PCOL={p0:"#2e7d6b",p1:"#b8862b",kid:"#8a5cc2",both:"#7a8594"};
+function whoLabel(w){return w==="kid"?kidName():w==="p0"||w==="p1"?pname(w):"Alle"}
+function whoOpts(){return [["both","Alle"],["p0",pname("p0")],["p1",pname("p1")],["kid",kidName()]]}
+const pDot=w=>`<span class="wdot" style="background:${PCOL[w||"both"]||PCOL.both}" aria-hidden="true"></span>`;
+// Familywall: wem gehört ein Termin? Hand-Zuordnung > Wort im Titel > Teilnehmer/Ersteller (einmal zugeordnet) > Alle
+function fwWho(id,x){const E=(S.food&&S.food.ext)||{},ov=(E.fwwho||{})[id];if(ov)return ov;const nm=String(x.name||"").toLowerCase();
+  const kw=Object.values(E.fwkw||{}).find(r=>r&&r.kw&&nm.includes(String(r.kw).toLowerCase()));if(kw)return kw.who;
+  const M=E.fwmap||{},ws=[...new Set((x.a||[]).map(h=>M[h]).filter(Boolean))];return ws.length===1?ws[0]:ws.length?"both":""}
 function freiLine(x){return x.ic==="🏖️"?`🏖️ ${esc(x.name)} ${x.to===x.k?WD2[x.d.getDay()]+" "+rDate(x.k)+" (schulfrei)":rDate(x.k)+"–"+rDate(x.to)}`:`🎉 ${WD2[x.d.getDay()]} ${rDate(x.k)} ${esc(x.name)}${x.bridge?` · Brückentag ${x.bridge}`:""}`}
 const CAL_SRC=[
   (a,z)=>{const out=[];termine().forEach(x=>{if(!x.date)return;if(!x.rep){if(x.to&&x.to>x.date){let d=ymdD(x.date),n=0;while(ymd(d)<=x.to&&n<60){const k=ymd(d);if(k>=a&&k<=z)out.push({d:k,t:k===x.date?x.time||"":"",name:x.name+(n?" (Tag "+(n+1)+")":""),icon:"📅",src:"own",id:x.id,who:x.who||"",note:x.note||"",remind:x.remind||false});d=addDays(d,1);n++}return}if(x.date>=a&&x.date<=z)out.push({d:x.date,t:x.time||"",name:x.name,icon:"📅",src:"own",id:x.id,who:x.who||"",note:x.note||"",remind:x.remind||false});return}
     let d=ymdD(x.date);const end=ymdD(z);let n=0;while(d<=end&&n<800){const k=ymd(d);if(k>=a)out.push({d:k,t:x.time||"",name:x.name,icon:x.rep==="y"?"🎂":"🔁",src:"own",id:x.id,who:x.who||"",note:x.note||"",remind:x.remind||false});d=x.rep==="w"?addDays(d,7):x.rep==="m"?new Date(d.getFullYear(),d.getMonth()+1,d.getDate(),12):new Date(d.getFullYear()+1,d.getMonth(),d.getDate(),12);n++}});return out},
   (a,z)=>kitas().filter(x=>x.sec==="termine"&&x.date&&x.date>=a&&x.date<=z).map(x=>({d:x.date,t:"",name:"Kita: "+x.name,icon:"🎒",src:"kita",who:"kid",nav:"kita|ks:termine"})),
-  (a,z)=>prios().filter(x=>x.due&&x.due>=a&&x.due<=z).map(x=>({d:x.due,t:x.time||"",name:x.name,icon:"🔔",src:"prio",from:x.from,nav:"wichtig|"})),
+  (a,z)=>prios().filter(x=>x.due&&x.due>=a&&x.due<=z).map(x=>({d:x.due,t:x.time||"",name:x.name,icon:"🔔",src:"prio",from:x.from,who:x.who||"",nav:"wichtig|"})),
   (a,z)=>{const out=[];for(let d=ymdD(a);ymd(d)<=z;d=addDays(d,1)){const m=mealInfo(planDays(mondayOf(d))["d"+((d.getDay()+6)%7)]);if(m)out.push({d:ymd(d),t:"",name:m.name,icon:"🍲",src:"food",nav:"essen|ft:plan"})}return out},
   (a,z)=>{const out=[];urlaube().forEach(u=>{if(reiseSt(u)==="traum"||!u.from)return;const to=u.to||u.from;if(to<a||u.from>z)return;for(let d=ymdD(u.from>a?u.from:a);ymd(d)<=(to<z?to:z);d=addDays(d,1)){const k=ymd(d);out.push({d:k,t:"",name:"Urlaub: "+u.name+(k===u.from?" (Start)":k===to?" (letzter Tag)":""),icon:u.emo||"⛵",src:"reise",attr:'data-reise="'+esc(u.id)+'"'})}});return out},
   (a,z)=>trips().filter(x=>x.date&&!x.done&&x.date>=a&&x.date<=z).map(x=>{const pl=x.pack&&packLists().find(p=>p.id===x.pack);return {d:x.date,t:"",name:"Ausflug: "+x.name,icon:"🚲",src:"trip",note:pl?"🎒 Packliste: "+pl.name:"",nav:pl?"ausflug|tt:pack":"ausflug|tt:ideen",pack:pl?pl.id:""}}),
@@ -740,16 +760,16 @@ const CAL_SRC=[
   (a,z)=>{const fw=S.food&&S.food.ext&&S.food.ext.fw;if(!fw||!fw.items)return [];const own=new Set(termine().map(x=>(x.name||"").trim().toLowerCase()+"|"+x.date)),out=[];
     const nrm=t=>String(t||"").toLowerCase().replace(/[^a-zäöüß]/g,"");
     Object.keys(fw.items).forEach(id=>{const x=fw.items[id];if(!x||!x.date||!x.name||own.has(x.name.trim().toLowerCase()+"|"+x.date))return;const ft=nrm(feiertag(x.date));if(ft&&!x.time&&(nrm(x.name).includes(ft)||ft.includes(nrm(x.name))))return;const to=x.to&&x.to>x.date?x.to:x.date;if(to<a||x.date>z)return;let d=ymdD(x.date),n=0;
-      while(ymd(d)<=to&&n<60){const k=ymd(d);if(k>=a&&k<=z)out.push({d:k,t:k===x.date?x.time||"":"",name:x.name+(n?" (Tag "+(n+1)+")":""),icon:"👪",src:"ext",note:"Aus Familywall"+(x.end?", bis "+x.end:"")+(x.place?" · "+x.place:"")+". Ändern geht in Familywall."});d=addDays(d,1);n++}});return out},
+      while(ymd(d)<=to&&n<60){const k=ymd(d);if(k>=a&&k<=z)out.push({d:k,t:k===x.date?x.time||"":"",name:x.name+(n?" (Tag "+(n+1)+")":""),icon:"👪",src:"ext",who:fwWho(id,x),fw:id,note:"Aus Familywall"+(x.end?", bis "+x.end:"")+(x.place?" · "+x.place:"")+". Ändern geht in Familywall."});d=addDays(d,1);n++}});return out},
   (a,z)=>{const out=[];for(let d=ymdD(a);ymd(d)<=z;d=addDays(d,1)){const k=ymd(d),ft=feiertag(k);if(ft)out.push({d:k,t:"",name:ft,icon:"🎉",src:"frei",note:"Feiertag in Bayern. Die Kita hat zu."})}
     ferienList().forEach(f=>{if(f.from>=a&&f.from<=z)out.push({d:f.from,t:"",name:f.from===f.to?f.name+" (schulfrei)":f.name+" beginnen",icon:"🏖️",src:"frei",note:"Schulferien Bayern bis "+rDate(f.to)+"."});if(f.to!==f.from&&f.to>=a&&f.to<=z)out.push({d:f.to,t:"",name:"Letzter Tag "+f.name,icon:"🏖️",src:"frei"})});return out}];
 // Was der Kalender zeigt (Filter nach Bereich und Person). dayStress und Rückseite nutzen calEvents ungefiltert.
 function calShown(a,z){const off=S.calOff||[],w=S.calWho||"";return calEvents(a,z).filter(e=>!off.includes(CAL_LBL.some(l=>l[0]===e.src)?e.src:"own")&&(!w||!e.who||e.who==="both"||e.who===w))}
 function calEvents(a,z){const out=[];CAL_SRC.forEach(f=>{try{out.push(...f(a,z))}catch(_){}});return out.sort((x,y)=>(x.d+(x.t||"99")+(x.src==="food"?"1":"0"))<(y.d+(y.t||"99")+(y.src==="food"?"1":"0"))?-1:1)}
-function evRow(e,showDay){const who=e.who==="kid"?" · Kind":e.who&&e.who!=="both"?" · "+esc(pname(e.who)):"";const day=showDay?`<span class="t">${esc(dLabel(e.d))}</span>`:`<span class="t">${esc(e.t||"")}</span>`;
-  const body=`<span>${e.icon} ${esc(e.name)}${showDay&&e.t?` <span class="freq">${esc(e.t)}</span>`:""}${who?`<span class="freq">${who}</span>`:""}${e.note?`<br><span class="freq">${esc(e.note)}</span>`:""}</span>`;
+function evRow(e,showDay){const who=e.who&&e.who!=="both"?" · "+esc(whoLabel(e.who)):"";const day=showDay?`<span class="t">${esc(dLabel(e.d))}</span>`:`<span class="t">${esc(e.t||"")}</span>`;
+  const body=`<span>${pDot(e.who)}${e.icon} ${esc(e.name)}${showDay&&e.t?` <span class="freq">${esc(e.t)}</span>`:""}${who?`<span class="freq">${who}</span>`:""}${e.note?`<br><span class="freq">${esc(e.note)}</span>`:""}</span>`;
   const gift=e.icon==="🎂"?`<button class="catbtn" data-nav="projekte|pf:geschenk" aria-label="Geschenkideen ansehen" style="background:none;border:none">🎁</button>`:"";
-  return `<li>${day}${e.src==="own"?`<button class="ev" data-teredit="${esc(e.id)}">${body}</button>${gift}<button class="catbtn" data-terbell="${esc(e.id)}" aria-pressed="${!!e.remind}" aria-label="${esc(e.name)}: ${e.remind?"nicht mehr erinnern":"erinnern"}" style="background:none;border:none;${e.remind?"":"opacity:.35"}">🔔</button><button class="catbtn" data-terrm="${esc(e.id)}" aria-label="${esc(e.name)} löschen" style="background:none;border:none;opacity:.6">✕</button>`:e.attr?`<button class="ev" ${e.attr}>${body}</button><i class="freq">›</i>`:e.pack?`<button class="ev" data-gopack="${esc(e.pack)}">${body}</button><i class="freq">›</i>`:e.nav?`<button class="ev" data-nav="${esc(e.nav)}">${body}</button><i class="freq">›</i>`:`<span class="ev">${body}</span>`}</li>`}
+  return `<li>${day}${e.src==="own"?`<button class="ev" data-teredit="${esc(e.id)}">${body}</button>${gift}<button class="catbtn" data-terbell="${esc(e.id)}" aria-pressed="${!!e.remind}" aria-label="${esc(e.name)}: ${e.remind?"nicht mehr erinnern":"erinnern"}" style="background:none;border:none;${e.remind?"":"opacity:.35"}">🔔</button><button class="catbtn" data-terrm="${esc(e.id)}" aria-label="${esc(e.name)} löschen" style="background:none;border:none;opacity:.6">✕</button>`:e.attr?`<button class="ev" ${e.attr}>${body}</button><i class="freq">›</i>`:e.fw?`<button class="ev" data-fwpick="${esc(e.fw)}">${body}</button><i class="freq">👤</i>`:e.pack?`<button class="ev" data-gopack="${esc(e.pack)}">${body}</button><i class="freq">›</i>`:e.nav?`<button class="ev" data-nav="${esc(e.nav)}">${body}</button><i class="freq">›</i>`:`<span class="ev">${body}</span>`}</li>`}
 function renderTerForm(){const d=S.terDraft,pn=k=>esc(pname(k));
   return `<section class="card"><div class="section-head"><h2>${d.id?"Termin ändern":"Neuer Termin"}</h2></div><form id="terform" novalidate>
     <label class="fld"><span>Was</span><input id="ter-name" data-terf="name" value="${esc(d.name)}" maxlength="80" placeholder="z. B. Zahnarzt" autocomplete="off"></label>
@@ -760,20 +780,28 @@ function renderTerForm(){const d=S.terDraft,pn=k=>esc(pname(k));
     <div class="fld"><span>🔔 Erinnern (zählt an der Glocke)</span><div class="unl">${[["","Nein"],["tag","Am Tag"],["1d","1 Tag vorher"],["1h","1 Stunde vorher"]].map(o=>`<button type="button" class="chipbtn neutral" data-terrem="${o[0]}" aria-pressed="${(d.remind===true?"tag":d.remind||"")===o[0]}">${o[1]}</button>`).join("")}</div></div>
     <label class="fld"><span>Notiz</span><input data-terf="note" value="${esc(d.note)}" maxlength="200" autocomplete="off"></label>
     <div class="btnrow"><button class="primary" type="submit">Speichern</button><button class="ghost" type="button" data-act="tercancel">Abbrechen</button>${d.id?`<button class="ghost danger" type="button" data-terrm="${esc(d.id)}">Löschen</button>`:""}</div></form></section>`}
-function calFilters(){const off=S.calOff||[],w=S.calWho||"",pn=k=>esc(pname(k));
-  return `<div class="unl calf">${CAL_LBL.map(l=>`<button class="chipbtn neutral" data-caloff="${l[0]}" aria-pressed="${!off.includes(l[0])}"><i class="cdot" style="background:${CAL_COL[l[0]]}"></i>${l[1]} ${l[2]}</button>`).join("")}</div>
-  <div class="unl calf">${[["","Alle"],["p0",pn("p0")],["p1",pn("p1")],["kid","Kind"]].map(o=>`<button class="chipbtn neutral" data-calwho="${o[0]}" aria-pressed="${w===o[0]}">${o[1]}</button>`).join("")}</div>`}
+function calWhoRow(){const w=S.calWho||"",me=S.me,oth=me==="p0"?"p1":me==="p1"?"p0":"";const o=[["","Alle"]].concat(me?[[me,"Ich"],[oth,pname(oth)]]:[["p0",pname("p0")],["p1",pname("p1")]]).concat([["kid",kidName()]]);
+  return `<div class="unl calwho" role="group" aria-label="Für wen">${o.map(x=>`<button class="chipbtn neutral" data-calwho="${x[0]}" aria-pressed="${w===x[0]}">${x[0]?pDot(x[0]):""}${esc(x[1])}</button>`).join("")}</div>`}
+function calFilters(){const off=S.calOff||[],E=(S.food&&S.food.ext)||{},P=(E.fw&&E.fw.people)||{},M=E.fwmap||{},K=E.fwkw||{};
+  let h=`<div class="section-head"><h2>Bereiche</h2><span><button class="ghost small" data-caloffall="1">Alle</button><button class="ghost small" data-caloffall="0">Keine</button></span></div>
+  <div class="unl calf">${CAL_LBL.map(l=>`<button class="chipbtn neutral" data-caloff="${l[0]}" aria-pressed="${!off.includes(l[0])}">${l[1]} ${l[2]}</button>`).join("")}</div>`;
+  if(Object.keys(P).length)h+=`<div class="section-head" style="margin-top:var(--sp3)"><h2>👪 Familywall: wer ist wer</h2></div><div class="freq">Familywall gibt Teilnehmer und Ersteller mit. Einmal zuordnen, dann bekommen die Termine die Person.</div>${Object.keys(P).map(hh=>`<div class="fld"><span>${esc(P[hh])}</span><div class="unl">${whoOpts().map(o=>`<button class="chipbtn neutral" data-fwmap="${hh}" data-v="${o[0]}" aria-pressed="${(M[hh]||"")===o[0]}">${pDot(o[0])}${esc(o[1])}</button>`).join("")}</div></div>`).join("")}`;
+  const kl=Object.keys(K).filter(k=>K[k]&&K[k].kw);if(kl.length)h+=`<div class="freq" style="margin-top:var(--sp2)">Regeln: ${kl.map(k=>`<span style="white-space:nowrap">„${esc(K[k].kw)}“ → ${esc(whoLabel(K[k].who))} <button class="ghost small" data-fwkwrm="${k}" aria-label="Regel löschen">✕</button></span>`).join(" ")}</div>`;
+  return h}
+// Heute-Streifen (Florian 15.11.2026): oben im Kalender ohne Klick und Scrollen, Termine und To-dos von heute
+function calTodayStrip(){const now=new Date(),k=ymd(now),ev=calShown(k,k).filter(e=>e.src!=="prio"),td=todoRows();
+  return `<section class="card caltoday"><div class="section-head"><h2>Heute</h2><span class="freq">${WD2[now.getDay()]} ${now.getDate()}.${now.getMonth()+1}.${feiertag(k)?" · 🎉 "+esc(feiertag(k)):""}</span></div>${ev.length?`<ul class="evlist">${ev.map(e=>evRow(e,false)).join("")}</ul>`:`<div class="freq">Keine Termine.</div>`}${td?`<div class="tagcard">${td}</div>`:""}</section>`}
 function calDayCard(k,MN){const sd=ymdD(k),dl=calShown(k,k),u=inUrlaub(k);
   return `<section class="card"><div class="section-head"><h2>${esc(DAYN[(sd.getDay()+6)%7])}, ${sd.getDate()}. ${MN[sd.getMonth()]}</h2><button class="primary" data-act="ternew">＋ Termin</button></div>${dl.length?`<ul class="evlist">${dl.map(e=>evRow(e,false)).join("")}</ul>`:`<div class="freq">Nichts eingetragen.</div>`}${u?`<div class="freq" style="margin-top:6px">⛵ Urlaub: Wochenvorschlag lässt den Tag frei, Kita und Kurse sind ausgeblendet.</div>`:""}</section>`}
-function renderCal(){if(S.terDraft)return renderTerForm();const today=ymd(new Date()),m0=S.calMonth||new Date(new Date().getFullYear(),new Date().getMonth(),1,12),sel=S.calDay||today,v=S.calView||"monat";
+function renderCal(){if(S.terDraft)return renderTerForm();const today=ymd(new Date()),m0=S.calMonth||new Date(new Date().getFullYear(),new Date().getMonth(),1,12),sel=S.calDay||today,v=S.calView||(()=>{try{return localStorage.getItem("hq-calview")}catch(_){return ""}})()||"woche";
   const MN=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
-  let h=`<section class="card"><form id="calquick" class="addrow" novalidate><input id="calq" placeholder="Schnell: Do 15 Uhr Kinderarzt" maxlength="120" autocomplete="off" aria-label="Termin schnell eintragen"><button class="primary" type="submit">＋</button></form>
-    <div class="freq" style="margin-top:4px">Versteht heute, morgen, Wochentage, 24.12., 9:30, "jede Woche", "Geburtstag".</div></section>`;
-  h+=`<div class="unl" style="margin:0 0 8px">${[["monat","Monat"],["woche","Woche"],["liste","Liste"]].map(o=>`<button class="chipbtn neutral" data-calview="${o[0]}" aria-pressed="${v===o[0]}">${o[1]}</button>`).join("")}<button class="chipbtn neutral" data-act="calfilt" aria-pressed="${!!S.calFiltOpen}">Filter${(S.calOff||[]).length||S.calWho?" •":""}</button></div>`;
+  let h=calTodayStrip()+`<section class="card"><form id="calquick" class="addrow" novalidate><input id="calq" placeholder="Schnell: Do 15 Uhr Kinderarzt" maxlength="120" autocomplete="off" aria-label="Termin schnell eintragen"><button class="primary" type="submit">＋</button></form>
+    <div class="freq" style="margin-top:4px">Versteht heute, morgen, Wochentage, 24.12., 9:30, "jede Woche", "Geburtstag". Lange auf einen Tag drücken legt dort einen Termin an.</div></section>`;
+  h+=`<div class="unl" style="margin:0 0 8px">${[["woche","Woche"],["monat","Monat"],["liste","Liste"]].map(o=>`<button class="chipbtn neutral" data-calview="${o[0]}" aria-pressed="${v===o[0]}">${o[1]}</button>`).join("")}<button class="chipbtn neutral" data-act="calfilt" aria-pressed="${!!S.calFiltOpen}">Bereiche${(S.calOff||[]).length?" ("+(CAL_LBL.length-(S.calOff||[]).length)+"/"+CAL_LBL.length+")":""}</button></div>${calWhoRow()}`;
   if(S.calFiltOpen)h+=`<section class="card">${calFilters()}</section>`;
   if(v==="woche"){const mon=mondayOf(ymdD(sel)),{w}=isoWeek(mon);
     h+=`<section class="card"><div class="section-head" style="align-items:center"><h2>KW ${w}</h2><div class="weeknav"><button class="iconbtn" data-calw="-7" aria-label="Vorige Woche">‹</button>${+mon!==+mondayOf(new Date())?`<button class="ghost" data-calw="0">Heute</button>`:""}<button class="iconbtn" data-calw="7" aria-label="Nächste Woche">›</button></div></div>`;
-    for(let i=0;i<7;i++){const d=addDays(mon,i),k=ymd(d),l=calShown(k,k);h+=`<div class="calwd${k===today?" today":""}"><button class="calwh" data-calday="${k}" data-calview="monat"><b>${DAYS[i]}</b> ${d.getDate()}.${d.getMonth()+1}.</button>${l.length?`<ul class="evlist">${l.map(e=>evRow(e,false)).join("")}</ul>`:`<div class="freq">frei</div>`}</div>`}
+    for(let i=0;i<7;i++){const d=addDays(mon,i),k=ymd(d),l=calShown(k,k);h+=`<div class="calwd${k===today?" today":""}${feiertag(k)?" ft":ferienAt(k)?" fe":""}"><button class="calwh" data-calday="${k}" data-calview="monat"><b>${DAYS[i]}</b> ${d.getDate()}.${d.getMonth()+1}.${ferienAt(k)&&!feiertag(k)?` <span class="freq">🏖️ ${esc(ferienAt(k).name)}</span>`:""}</button>${l.length?`<ul class="evlist">${l.map(e=>evRow(e,false)).join("")}</ul>`:`<div class="freq">frei</div>`}</div>`}
     return h+`</section>`}
   if(v==="liste"){const l=calShown(today,ymd(addDays(new Date(),60))),by={};l.forEach(e=>{(by[e.d]=by[e.d]||[]).push(e)});const ks=Object.keys(by).sort();
     h+=ks.length?ks.map(k=>{const d=ymdD(k);return `<section class="card"><div class="section-head"><h2>${esc(dLabel(k))}</h2><span class="freq">${d.getDate()}. ${MN[d.getMonth()]}</span></div><ul class="evlist">${by[k].map(e=>evRow(e,false)).join("")}</ul></section>`}).join(""):`<div class="empty"><h2>Nichts in den nächsten 60 Tagen</h2><div>Mit Filtern sieht man vielleicht zu wenig.</div></div>`;
@@ -781,9 +809,9 @@ function renderCal(){if(S.terDraft)return renderTerForm();const today=ymd(new Da
   const first=mondayOf(m0),last=addDays(mondayOf(new Date(m0.getFullYear(),m0.getMonth()+1,0,12)),6),ev=calShown(ymd(first),ymd(last)),by={};ev.forEach(e=>{(by[e.d]=by[e.d]||[]).push(e)});
   h+=`<section class="card"><div class="section-head" style="align-items:center"><h2>${MN[m0.getMonth()]} ${m0.getFullYear()}</h2><div class="weeknav"><button class="iconbtn" data-calm="-1" aria-label="Voriger Monat">‹</button>${m0.getMonth()!==new Date().getMonth()||m0.getFullYear()!==new Date().getFullYear()?`<button class="ghost" data-calm="0">Heute</button>`:""}<button class="iconbtn" data-calm="1" aria-label="Nächster Monat">›</button></div></div>
     <div class="cal">${["Mo","Di","Mi","Do","Fr","Sa","So"].map(x=>`<span class="cw">${x}</span>`).join("")}`;
-  for(let d=first;d<=last;d=addDays(d,1)){const k=ymd(d),l=(by[k]||[]),srcs=[...new Set(l.map(e=>e.src).filter(x=>x!=="food"&&x!=="reise"))],u=l.some(e=>e.src==="reise");
-    h+=`<button data-calday="${k}" class="${d.getMonth()!==m0.getMonth()?"out ":""}${k===today?"today ":""}${u?"urlaub":""}" aria-pressed="${k===sel}" aria-label="${d.getDate()}. ${MN[d.getMonth()]}${u?", Urlaub":""}${l.length?", "+l.length+" Einträge":""}"><span>${d.getDate()}</span><span class="dots">${srcs.slice(0,4).map(x=>`<i data-s="${x}" style="background:${CAL_COL[x]||CAL_COL.ext}"></i>`).join("")}</span></button>`}
-  h+=`</div><div class="freq" style="margin-top:8px">${CAL_LBL.filter(x=>x[0]!=="food").map(x=>`<span style="white-space:nowrap"><i class="cdot" style="background:${CAL_COL[x[0]]}"></i>${x[2]}</span>`).join(" &nbsp; ")}</div></section>`;
+  for(let d=first;d<=last;d=addDays(d,1)){const k=ymd(d),l=(by[k]||[]),ws=[...new Set(l.filter(e=>e.src!=="food"&&e.src!=="reise"&&e.src!=="frei").map(e=>e.who||"both"))].sort((a,b)=>["p0","p1","kid","both"].indexOf(a)-["p0","p1","kid","both"].indexOf(b)),u=l.some(e=>e.src==="reise");
+    h+=`<button data-calday="${k}" class="${d.getMonth()!==m0.getMonth()?"out ":""}${k===today?"today ":""}${u?"urlaub ":""}${feiertag(k)?"ft ":ferienAt(k)?"fe":""}" aria-pressed="${k===sel}" aria-label="${d.getDate()}. ${MN[d.getMonth()]}${u?", Urlaub":""}${l.length?", "+l.length+" Einträge":""}"><span>${d.getDate()}</span><span class="dots">${ws.slice(0,4).map(x=>`<i style="background:${PCOL[x]}"></i>`).join("")}</span></button>`}
+  h+=`</div><div class="freq" style="margin-top:8px">${whoOpts().map(o=>`<span style="white-space:nowrap">${pDot(o[0])}${esc(o[1])}</span>`).join(" &nbsp; ")} &nbsp; <span style="white-space:nowrap"><i class="cdot fe"></i>Ferien</span> &nbsp; <span style="white-space:nowrap"><i class="cdot ft"></i>Feiertag</span></div></section>`;
   h+=calDayCard(sel,MN);
   const up=calShown(today,ymd(addDays(new Date(),21))).filter(e=>e.src!=="food"&&e.src!=="reise"&&e.d!==sel).slice(0,12);
   if(up.length)h+=`<section class="card"><div class="section-head"><h2>Demnächst</h2></div><ul class="evlist">${up.map(e=>evRow(e,true)).join("")}</ul></section>`;
@@ -985,18 +1013,23 @@ function campCfg(){const c=(S.config&&S.config.camp)||{};const ex=c.extras?(Arra
 function campItems(cc){cc=cc||campCfg();return HOUSE.map(c=>({id:c[0],name:c[1],cost:c[2]===0||c[0]==="tent"||c[0]==="pit"?0:cc.costs[c[0]]!=null?(cc.costs[c[0]]|0):c[2]})).concat(cc.extras.map(e=>({id:e.id,name:e.name||e.emoji,cost:e.cost|0,emoji:e.emoji}))).sort((a,b)=>a.cost-b.cost)}
 // Start hat drei Seiten (Florian 15.11.2026): Haus, Tag und Woche, Wichtig
 function startPager(p){return `<div class="pager" role="group" aria-label="Seiten von Start"><div class="pdots">${[["camp","Haus"],["tag","Tag und Woche"],["wichtig","Wichtig"]].map((x,i)=>`<button class="pdot" data-go="${x[0]}" aria-pressed="${i===p}"><b>${x[1]}</b></button>`).join("")}</div></div>`}
+// Heute zu tun als eine Quelle (Tag und Woche, Heute-Streifen im Kalender)
+function todoRows(){const now=new Date(),today=ymd(now),tmw=ymd(addDays(startOfDay(now),1)),D=backDay(now);
+  const row=(ic,txt,sub,attr,chk)=>`<div class="trow">${chk?`<button class="tchk" ${chk}><span class="box"></span></button>`:`<span class="tic">${ic}</span>`}<button class="ttx" ${attr||""}><span>${chk?ic+" ":""}${txt}${sub?`<i>${sub}</i>`:""}</span><em>›</em></button></div>`;
+  const pr=prios().filter(x=>x.from!=="mittag"),pt=pr.filter(x=>x.due&&x.due<=tmw).sort((a,b)=>(a.due+(a.time||""))<(b.due+(b.time||""))?-1:1);
+  const kb=kitaBring();let L="";
+  if(now.getMonth()===11&&now.getDate()<=24)advCals().filter(c=>c.year===now.getFullYear()).forEach(c=>{const x=advDoors(c.id)[now.getDate()];L+=row("🎄",advHidden(c,now.getDate())?"Türchen "+now.getDate()+" wartet":x?"Türchen "+now.getDate()+": "+esc(x.name):"Türchen "+now.getDate()+" ist noch leer","",`data-advgo="${esc(c.id)}"`)});
+  pt.forEach(x=>{L+=row("🔔",esc(x.name),(x.due<today?"seit "+dLabel(x.due):x.due===today?"heute":"morgen")+(x.time?" "+x.time:""),prioTarget(x).trim(),`data-priodone="${esc(x.id)}" aria-label="${esc(x.name)} erledigt"`)});
+  if(kb.length&&D.di<5&&!inUrlaub(now))L+=row("📦","Kita: "+esc(kb.slice(0,3).map(x=>x.name).join(", "))+(kb.length>3?" …":""),"mitbringen",'data-nav="kita|ks:tasche"');
+  if(!D.meal&&now.getHours()<20)L+=row("🍲","Noch kein Abendessen","Rezept aussuchen",'data-nav="essen|ft:rezepte" data-mealfor="1"');
+  return L}
 function renderTag(){loadWx();const now=new Date(),today=ymd(now),tmw=ymd(addDays(startOfDay(now),1)),D=backDay(now),mon=mondayOf(now),sun=ymd(addDays(mon,6));
   const DN=["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"],O=S.tagOpen||(S.tagOpen={}),night=skyPhase()==="night";
   const row=(ic,txt,sub,attr,chk)=>`<div class="trow">${chk?`<button class="tchk" ${chk}><span class="box"></span></button>`:`<span class="tic">${ic}</span>`}<button class="ttx" ${attr||""}><span>${chk?ic+" ":""}${txt}${sub?`<i>${sub}</i>`:""}</span><em>›</em></button></div>`;
   // Dashboard oben (Florian 15.11.2026: wieder da): Wetter, Zeitstrahl, Zähler, Blick auf 3 Tage
   let h=`<h1 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Tag und Woche</h1>`+renderBack(night,true);
   // Heute zu tun: nur Dinge zum Erledigen; Termine, Kita-Mittag und Abendessen stehen im Zeitstrahl, Monatsaufgaben bei der Woche
-  const pr=prios().filter(x=>x.from!=="mittag"),pt=pr.filter(x=>x.due&&x.due<=tmw).sort((a,b)=>(a.due+(a.time||""))<(b.due+(b.time||""))?-1:1);
-  const bsplit=rotSplit(),kb=kitaBring();let L="";
-  if(now.getMonth()===11&&now.getDate()<=24)advCals().filter(c=>c.year===now.getFullYear()).forEach(c=>{const x=advDoors(c.id)[now.getDate()];L+=row("🎄",advHidden(c,now.getDate())?"Türchen "+now.getDate()+" wartet":x?"Türchen "+now.getDate()+": "+esc(x.name):"Türchen "+now.getDate()+" ist noch leer","",`data-advgo="${esc(c.id)}"`)});
-  pt.forEach(x=>{L+=row("🔔",esc(x.name),(x.due<today?"seit "+dLabel(x.due):x.due===today?"heute":"morgen")+(x.time?" "+x.time:""),prioTarget(x).trim(),`data-priodone="${esc(x.id)}" aria-label="${esc(x.name)} erledigt"`)});
-  if(kb.length&&D.di<5&&!inUrlaub(now))L+=row("📦","Kita: "+esc(kb.slice(0,3).map(x=>x.name).join(", "))+(kb.length>3?" …":""),"mitbringen",'data-nav="kita|ks:tasche"');
-  if(!D.meal&&now.getHours()<20)L+=row("🍲","Noch kein Abendessen","Rezept aussuchen",'data-nav="essen|ft:rezepte" data-mealfor="1"');
+  const L=todoRows(),bsplit=rotSplit(),kb=kitaBring(),pr=prios().filter(x=>x.from!=="mittag"),pt=pr.filter(x=>x.due&&x.due<=tmw);
   h+=`<section class="card tagcard"><div class="section-head"><h2>Heute zu tun</h2></div>${L||`<div class="freq" style="padding:8px 0">Nichts Dringendes. Neue Erinnerungen über die Glocke.</div>`}</section>`;
   // Diese Woche: nur Zusammenfassungen, aufklappbar
   const fold=(id,ic,t,info,body,attr)=>body?`<section class="card setcard tagfold"><button class="setsum" data-tagsum="${id}" aria-expanded="${!!O[id]}"><h2>${ic} ${t}</h2><span class="freq num" style="margin-left:auto;margin-right:8px">${info}</span><i>${O[id]?"▾":"›"}</i></button>${O[id]?`<div class="setbody">${body}</div>`:""}</section>`:`<section class="card setcard tagfold"><button class="setsum" ${attr}><h2>${ic} ${t}</h2><span class="freq num" style="margin-left:auto;margin-right:8px">${info}</span><i>›</i></button></section>`;
@@ -2263,6 +2296,7 @@ function renderPrioMask(){const d=S.prioDraft,f=d.from||"frei",tpl=(PRIO_TPL[f]|
    <div class="fld"><span>Wann?</span><div class="unl">${quick.map(q=>`<button class="chipbtn" data-pmday="${q[1]}" aria-pressed="${d.due===q[1]}">${q[0]}</button>`).join("")}<button class="chipbtn" data-pmday="" aria-pressed="${!d.due}">Ohne Tag</button></div></div>
    <label class="fld"><span>Tag</span><input type="date" id="pm-due" data-pdf="due" value="${esc(d.due)}"></label>
    <label class="fld"><span>Uhrzeit</span><input type="time" id="pm-time" data-pdf="time" value="${esc(d.time)}"></label>
+   <div class="fld"><span>Für wen</span><div class="unl">${whoOpts().map(o=>`<button class="chipbtn" data-pmwho="${o[0]}" aria-pressed="${(d.who||"both")===o[0]}">${pDot(o[0])}${esc(o[1])}</button>`).join("")}</div></div>
    <div class="fld"><span>Wiederholen</span><div class="unl">${[["","Nein"],["d","Jeden Tag"],["w","Jede Woche"],["m","Jeden Monat"],["y","Jedes Jahr"]].map(r=>`<button class="chipbtn" data-pmrep="${r[0]}" aria-pressed="${(d.rep||"")===r[0]}">${r[1]}</button>`).join("")}</div></div>
    <label class="fld"><span>Notiz</span><textarea id="pm-note" data-pdf="note" rows="2">${esc(d.note||"")}</textarea></label>
    <div class="btnrow"><button class="primary" data-act="pmsave">Speichern</button><button class="ghost" data-act="pmcancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="pmdel">Löschen</button>`:""}</div></section>${d.id?"":BULK_CARD}`}
@@ -2571,6 +2605,15 @@ function fanClose(){S.fan=null;S.fanAt=Date.now();const el=document.getElementBy
 document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("button[data-tab]");if(!b)return;const t=b.dataset.tab,now=Date.now();
   if(TAP_SEQ[t]){const lt=S.lastTap,n=S.gest.tap&&lt&&lt.t===t&&lt.on===S.tab&&now-lt.at<450?lt.n+1:0;const q=TAP_SEQ[t];if(S.tab!==t||n)S.prev=S.tab;q[n%q.length]();S.lastTap={t,at:now,n,on:S.tab};S.draft=null;render();window.scrollTo(0,0);return}
   if(t==="essen"&&S.tab!=="essen")S.foodTab="heute";S.tab=t;S.draft=null;render();window.scrollTo(0,0)});
+
+// Kalender: lange auf einen Tag drücken = neuer Termin an diesem Tag (Florian 15.11.2026); kurzer Tipp öffnet den Tag
+(()=>{let t=null,fired=false,x0=0,y0=0;const clear=()=>{clearTimeout(t);t=null};
+  app.addEventListener("pointerdown",e=>{const b=e.target.closest("[data-calday]");if(!b)return;fired=false;x0=e.clientX;y0=e.clientY;clear();
+    t=setTimeout(()=>{fired=true;t=null;setTimeout(()=>{fired=false},900);try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}S.calDay=b.dataset.calday;S.terDraft={id:null,name:"",date:b.dataset.calday,time:"",who:"both",rep:"",note:""};render();window.scrollTo(0,0);const el=document.getElementById("ter-name");if(el)el.focus()},500)});
+  app.addEventListener("pointermove",e=>{if(t&&Math.abs(e.clientX-x0)+Math.abs(e.clientY-y0)>12)clear()});
+  ["pointerup","pointercancel"].forEach(k=>app.addEventListener(k,clear));
+  app.addEventListener("click",e=>{if(fired){fired=false;e.stopPropagation();e.preventDefault()}},true);
+  app.addEventListener("contextmenu",e=>{if(e.target.closest("[data-calday]"))e.preventDefault()})})();
 app.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;
   if(b.dataset.mealfor)S.mealFor=ymd(new Date());
@@ -2600,6 +2643,7 @@ app.addEventListener("click",async e=>{
   if(S.prioDraft&&b.dataset.pmtpl){const r=parseWhen(S.prioDraft.name);S.prioDraft.name=b.dataset.pmtpl+(r.due||r.time?" "+S.prioDraft.name:"");render();return}
   if(S.prioDraft&&b.dataset.pmarea){S.prioDraft.from=b.dataset.pmarea;S.prioDraft.areaSet=true;S.prioDraft.ref="";render();return}
   if(S.prioDraft&&b.dataset.pmday!=null){S.prioDraft.due=b.dataset.pmday;if(!S.prioDraft.due)S.prioDraft.time="";render();return}
+  if(S.prioDraft&&b.dataset.pmwho!=null){S.prioDraft.who=b.dataset.pmwho;render();return}
   if(S.prioDraft&&b.dataset.pmrep!=null){S.prioDraft.rep=b.dataset.pmrep;render();return}
   if(b.dataset.act==="pmtplsave"&&S.prioDraft){const r=parseWhen(S.prioDraft.name),n=(r.rest||"").slice(0,40);if(!n){toast("Erst oben bei „Was?“ etwas eintragen");return}try{await S.store.setPath("food/priotpl/"+(S.prioDraft.from||"frei")+"/"+newId("v"),{name:n});toast("Vorlage gemerkt")}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.act==="pmbulk"){const el=document.getElementById("pm-bulk"),lines=(el&&el.value||"").split(/\n|;/).map(x=>x.replace(/^[\s•\-*]+/,"").replace(/^\d{1,2}[.)]\s+/,"").trim()).filter(x=>x.length>1).slice(0,30);let n=0;for(const l of lines){const v=prioFromLine(l);if(!v)continue;try{await S.store.setPath("food/prio/"+newId("w"),v);n++}catch(_){toast("Konnte nicht speichern.");break}}if(n){S.prioDraft=null;S.tab="wichtig";toast(n===1?"1 Erinnerung eingelesen":n+" Erinnerungen eingelesen");render()}else toast("Nichts zum Einlesen gefunden");return}
@@ -2607,7 +2651,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="pmdel"&&S.prioDraft&&S.prioDraft.id){try{await S.store.setPath("food/prio/"+S.prioDraft.id,null);S.prioDraft=null;toast("Gelöscht");render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.act==="pmsave"&&S.prioDraft){const d=S.prioDraft,r=parseWhen(d.name);let name=(d.due||d.time?d.name:r.rest||d.name).trim().slice(0,80);if(!name){toast("Bitte eintragen, woran erinnert werden soll");return}
     const due=d.due||r.due||"",time=due?(d.time||r.time||""):"",auto=!d.areaSet&&(d.from||"frei")==="frei"?detectArea(d.name):"";if(auto)d.from=auto;const src=d.ref?prioSrc(d.from,d.ref):null;
-    const v=Object.assign({name,from:d.from||"frei",at:d.at||Date.now(),by:d.by||S.me||""},d.ref&&src?{ref:d.ref}:{},due?{due}:{},time?{time}:{},d.rep&&due?{rep:d.rep}:{},d.note&&d.note.trim()?{note:d.note.trim().slice(0,300)}:{});
+    const v=Object.assign({name,from:d.from||"frei",at:d.at||Date.now(),by:d.by||S.me||""},d.ref&&src?{ref:d.ref}:{},due?{due}:{},time?{time}:{},d.rep&&due?{rep:d.rep}:{},d.note&&d.note.trim()?{note:d.note.trim().slice(0,300)}:{},d.who&&d.who!=="both"?{who:d.who}:{});
     try{await S.store.setPath("food/prio/"+(d.id||newId("w")),v);S.prioDraft=null;if(TAB_FROM[S.prioBack])S.tab=S.prioBack;toast(due?"Erinnerung für "+dLabel(due)+(time?" um "+time:""):"Steht jetzt unter Wichtig");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.priosort){S.prioSort=b.dataset.priosort;render();return}
   if(b.dataset.reise){S.reiseOpen=b.dataset.reise;S.tab="ausflug";S.tripTab="urlaub";render();window.scrollTo(0,0);return}
@@ -2686,7 +2730,13 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="musdel"&&S.musDraft&&S.musDraft.id){if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Wirklich löschen?";return}try{await S.store.setPath("food/music/"+S.musDraft.id,null);S.musDraft=null;toast("Gelöscht");render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.act==="mussave"&&S.musDraft){const d=S.musDraft,u=safeLink(d.link),name=((d.name||"").trim()||(u?musName(u):"")).slice(0,80);if(!name){toast("Bitte Name oder Link eintragen");return}const id=d.id||newId("m");
     try{await S.store.setPath("food/music/"+id,{name,link:u||null,svc:u?musSvc(u)[0]:null,occ:d.occ||null,note:(d.note||"").trim().slice(0,120)||null,fav:(musics().find(x=>x.id===id)||{}).fav||null,at:(musics().find(x=>x.id===id)||{}).at||Date.now(),by:S.me||""});S.musDraft=null;toast("Gespeichert");render()}catch(_){toast("Konnte nicht speichern.")}return}
-  if(b.dataset.calview){S.calView=b.dataset.calview;render();return}
+  if(b.dataset.calview){S.calView=b.dataset.calview;try{localStorage.setItem("hq-calview",S.calView)}catch(_){}render();return}
+  if(b.dataset.caloffall!=null){S.calOff=b.dataset.caloffall==="1"?[]:CAL_LBL.map(l=>l[0]);try{localStorage.setItem("hq-caloff",JSON.stringify(S.calOff))}catch(_){}render();return}
+  if(b.dataset.fwmap){try{await S.store.setPath("food/ext/fwmap/"+b.dataset.fwmap,b.dataset.v||null)}catch(_){toast("Konnte nicht speichern.")}return}
+  if(b.dataset.fwkwrm){try{await S.store.setPath("food/ext/fwkw/"+b.dataset.fwkwrm,null)}catch(_){}return}
+  if(b.dataset.fwpick){const id=b.dataset.fwpick,fw=S.food&&S.food.ext&&S.food.ext.fw,x=fw&&fw.items&&fw.items[id];if(!x)return;const cur=((S.food.ext.fwwho||{})[id])||"";
+    editBox("Wem gehört „"+x.name+"“?",[{k:"who",label:"Dieser Termin",type:"chips",opts:[["","Automatisch"]].concat(whoOpts()),val:cur},{k:"kw",label:"Optional: Regel für alle Termine mit diesem Wort im Titel",type:"text",val:""}],
+      async V=>{await S.store.setPath("food/ext/fwwho/"+id,V.who||null);const kw=String(V.kw||"").trim().slice(0,40);if(kw&&V.who)await S.store.setPath("food/ext/fwkw/"+newId("k"),{kw,who:V.who});toast("Gespeichert")});return}
   if(b.dataset.calw!=null){const n=+b.dataset.calw;S.calDay=n===0?null:ymd(addDays(ymdD(S.calDay||ymd(new Date())),n));render();return}
   if(b.dataset.act==="calfilt"){S.calFiltOpen=!S.calFiltOpen;render();return}
   if(b.dataset.caloff){const o=S.calOff||[],k=b.dataset.caloff;S.calOff=o.includes(k)?o.filter(x=>x!==k):o.concat(k);try{localStorage.setItem("hq-caloff",JSON.stringify(S.calOff))}catch(_){}render();return}
@@ -2702,7 +2752,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.terrm){if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Löschen?";return}try{await S.store.setPath("food/termin/"+b.dataset.terrm,null);await prioDropRef([b.dataset.terrm]);if(S.terDraft&&S.terDraft.id===b.dataset.terrm)S.terDraft=null;toast("Termin gelöscht")}catch(_){toast("Konnte nicht speichern.")}render();return}
   if(b.dataset.prio){const [from,id]=b.dataset.prio.split("|"),ex=prioOf(from,id);try{if(ex){await S.store.setPath("food/prio/"+ex.id,null);toast("Nicht mehr auf der Startseite")}else{const x=prioSrc(from,id);if(!x)return;const nid=newId("w"),v=Object.assign({name:String(x.name).slice(0,80),from,ref:id,at:Date.now(),by:S.me||""},from==="kita"&&x.date?{due:x.date}:{});await S.store.setPath("food/prio/"+nid,v);toastAct("🔔 Steht jetzt bei Wichtig.","⏰ Tag und Zeit",()=>prioNew(PRIO_FROM[from]?(from==="rezepte"||from==="mittag"?"essen":from):"frei",{id:nid,name:v.name,ref:id,due:v.due||"",time:"",rep:"",note:"",at:v.at,by:v.by}))}}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.priodone){const x=prios().find(y=>y.id===b.dataset.priodone);if(x&&x.rep&&x.due){const base=new Date(x.due+"T12:00:00");let nx=repNext(base,x.rep);const t0=startOfDay(new Date());while(nx<t0)nx=repNext(nx,x.rep);try{await S.store.setPath("food/prio/"+x.id+"/due",ymd(nx));toast("Erledigt. Nächstes Mal: "+dLabel(ymd(nx)))}catch(_){toast("Konnte nicht speichern.")}return}try{await S.store.setPath("food/prio/"+b.dataset.priodone,null);if(S.prioEdit===b.dataset.priodone)S.prioEdit=null;toast("Erledigt")}catch(_){toast("Konnte nicht speichern.")}return}
-  if(b.dataset.prioedit){const x=prios().find(y=>y.id===b.dataset.prioedit);if(!x)return;prioNew(x.from&&PRIO_FROM[x.from]?(x.from==="rezepte"||x.from==="mittag"?"essen":x.from):"frei",{id:x.id,name:x.name,ref:x.ref||"",due:x.due||"",time:x.time||"",rep:x.rep||"",note:x.note||"",at:x.at,by:x.by});return}
+  if(b.dataset.prioedit){const x=prios().find(y=>y.id===b.dataset.prioedit);if(!x)return;prioNew(x.from&&PRIO_FROM[x.from]?(x.from==="rezepte"||x.from==="mittag"?"essen":x.from):"frei",{id:x.id,name:x.name,ref:x.ref||"",due:x.due||"",time:x.time||"",rep:x.rep||"",note:x.note||"",who:x.who||"",at:x.at,by:x.by});return}
   if(b.dataset.act==="priosave"||b.dataset.act==="prioclear"){const id=S.prioEdit;if(!id)return;const clr=b.dataset.act==="prioclear",dv=clr?"":(document.getElementById("pr-date")||{}).value||"",tv=clr?"":(document.getElementById("pr-time")||{}).value||"";S.prioEdit=null;try{await S.store.setPath("food/prio/"+id+"/due",dv||null);await S.store.setPath("food/prio/"+id+"/time",dv&&tv?tv:null);toast(dv?"Erinnerung gesetzt":"Erinnerung entfernt")}catch(_){toast("Konnte nicht speichern.")}render();return}
   if(b.dataset.go==="post"){mboxTap();return}
   if(b.dataset.go==="suche"){S.prev=S.tab;S.tab="suche";render();window.scrollTo(0,0);const el=document.getElementById("sq");if(el)el.focus();return}

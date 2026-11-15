@@ -50,6 +50,7 @@ function renderPrioMask(){const d=S.prioDraft,f=d.from||"frei",tpl=(PRIO_TPL[f]|
    <div class="fld"><span>Wann?</span><div class="unl">${quick.map(q=>`<button class="chipbtn" data-pmday="${q[1]}" aria-pressed="${d.due===q[1]}">${q[0]}</button>`).join("")}<button class="chipbtn" data-pmday="" aria-pressed="${!d.due}">Ohne Tag</button></div></div>
    <label class="fld"><span>Tag</span><input type="date" id="pm-due" data-pdf="due" value="${esc(d.due)}"></label>
    <label class="fld"><span>Uhrzeit</span><input type="time" id="pm-time" data-pdf="time" value="${esc(d.time)}"></label>
+   <div class="fld"><span>Für wen</span><div class="unl">${whoOpts().map(o=>`<button class="chipbtn" data-pmwho="${o[0]}" aria-pressed="${(d.who||"both")===o[0]}">${pDot(o[0])}${esc(o[1])}</button>`).join("")}</div></div>
    <div class="fld"><span>Wiederholen</span><div class="unl">${[["","Nein"],["d","Jeden Tag"],["w","Jede Woche"],["m","Jeden Monat"],["y","Jedes Jahr"]].map(r=>`<button class="chipbtn" data-pmrep="${r[0]}" aria-pressed="${(d.rep||"")===r[0]}">${r[1]}</button>`).join("")}</div></div>
    <label class="fld"><span>Notiz</span><textarea id="pm-note" data-pdf="note" rows="2">${esc(d.note||"")}</textarea></label>
    <div class="btnrow"><button class="primary" data-act="pmsave">Speichern</button><button class="ghost" data-act="pmcancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="pmdel">Löschen</button>`:""}</div></section>${d.id?"":BULK_CARD}`}

@@ -1,7 +1,7 @@
 srv.listen(8765,async()=>{
   const b=await chromium.launch();const errs=[];const out=process.argv[2];
   const c=await b.newContext({viewport:{width:400,height:860},deviceScaleFactor:2,timezoneId:'Europe/Berlin'});const A=await c.newPage();A.setDefaultTimeout(8000);await A.clock.setFixedTime(new Date('2026-11-16T10:00:00+01:00'));A.on('pageerror',e=>errs.push(e.message));
-  await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');
+  await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');await A.evaluate(()=>localStorage.setItem('hq-calview','monat'));
   const key=/k=([^&]+)/.exec(A.url())[1];const put=(pa,d)=>fetch('http://localhost:8765/haushalt/'+key+'/'+pa+'.json',{method:'PUT',body:JSON.stringify(d)});
   await put('food/urlaub/u1',{name:'Bretagne',emo:'🏝️',state:'aktuell',from:'2026-11-27',to:'2026-11-30',at:1});
   await put('food/trip/t1',{name:'Wildpark',kind:'tiere',pack:'main',date:'2026-11-21',at:1,done:false});

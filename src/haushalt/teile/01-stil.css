@@ -447,3 +447,14 @@ h2{font-weight:700}
 .card.today{padding-top:var(--sp3);padding-bottom:var(--sp2)}.card.today h2{margin:0 0 var(--sp1);font-size:var(--fs-l)}
 .card.today .todayrow{padding-top:var(--sp2);padding-bottom:var(--sp2)}
 @media (max-height:720px){.starthead{display:none}.card.today h2{font-size:var(--fs-m)}.card.today .todayrow{padding-top:6px;padding-bottom:6px}}
+/* Kalender (Florian 15.11.2026): Farbe nur je Person, Ferien und Feiertage als Hintergrund, Heute-Streifen oben */
+.wdot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:var(--sp1);vertical-align:middle;flex:0 0 auto}
+.calwho{margin:0 0 var(--sp2)}
+.cal button.fe{background:color-mix(in srgb,var(--ochre) 10%,transparent)}
+.cal button.ft{background:color-mix(in srgb,var(--ochre) 24%,transparent)}
+.cal button.fe[aria-pressed=true],.cal button.ft[aria-pressed=true]{background:var(--ink)}
+.cdot.fe{background:color-mix(in srgb,var(--ochre) 25%,transparent)}.cdot.ft{background:color-mix(in srgb,var(--ochre) 55%,transparent)}
+.calwd.fe .calwh,.calwd.ft .calwh{background:color-mix(in srgb,var(--ochre) 14%,transparent);border-radius:var(--r-s)}
+.cal button{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.caltoday .evlist{margin:0}.caltoday .tagcard{margin-top:var(--sp2)}
+.chipbtn .wdot,.freq .wdot,.wdot{width:8px!important;height:8px!important;min-width:8px;flex:0 0 8px!important;padding:0!important;display:inline-block}

@@ -118,18 +118,23 @@ function campCfg(){const c=(S.config&&S.config.camp)||{};const ex=c.extras?(Arra
 function campItems(cc){cc=cc||campCfg();return HOUSE.map(c=>({id:c[0],name:c[1],cost:c[2]===0||c[0]==="tent"||c[0]==="pit"?0:cc.costs[c[0]]!=null?(cc.costs[c[0]]|0):c[2]})).concat(cc.extras.map(e=>({id:e.id,name:e.name||e.emoji,cost:e.cost|0,emoji:e.emoji}))).sort((a,b)=>a.cost-b.cost)}
 // Start hat drei Seiten (Florian 15.11.2026): Haus, Tag und Woche, Wichtig
 function startPager(p){return `<div class="pager" role="group" aria-label="Seiten von Start"><div class="pdots">${[["camp","Haus"],["tag","Tag und Woche"],["wichtig","Wichtig"]].map((x,i)=>`<button class="pdot" data-go="${x[0]}" aria-pressed="${i===p}"><b>${x[1]}</b></button>`).join("")}</div></div>`}
+// Heute zu tun als eine Quelle (Tag und Woche, Heute-Streifen im Kalender)
+function todoRows(){const now=new Date(),today=ymd(now),tmw=ymd(addDays(startOfDay(now),1)),D=backDay(now);
+  const row=(ic,txt,sub,attr,chk)=>`<div class="trow">${chk?`<button class="tchk" ${chk}><span class="box"></span></button>`:`<span class="tic">${ic}</span>`}<button class="ttx" ${attr||""}><span>${chk?ic+" ":""}${txt}${sub?`<i>${sub}</i>`:""}</span><em>›</em></button></div>`;
+  const pr=prios().filter(x=>x.from!=="mittag"),pt=pr.filter(x=>x.due&&x.due<=tmw).sort((a,b)=>(a.due+(a.time||""))<(b.due+(b.time||""))?-1:1);
+  const kb=kitaBring();let L="";
+  if(now.getMonth()===11&&now.getDate()<=24)advCals().filter(c=>c.year===now.getFullYear()).forEach(c=>{const x=advDoors(c.id)[now.getDate()];L+=row("🎄",advHidden(c,now.getDate())?"Türchen "+now.getDate()+" wartet":x?"Türchen "+now.getDate()+": "+esc(x.name):"Türchen "+now.getDate()+" ist noch leer","",`data-advgo="${esc(c.id)}"`)});
+  pt.forEach(x=>{L+=row("🔔",esc(x.name),(x.due<today?"seit "+dLabel(x.due):x.due===today?"heute":"morgen")+(x.time?" "+x.time:""),prioTarget(x).trim(),`data-priodone="${esc(x.id)}" aria-label="${esc(x.name)} erledigt"`)});
+  if(kb.length&&D.di<5&&!inUrlaub(now))L+=row("📦","Kita: "+esc(kb.slice(0,3).map(x=>x.name).join(", "))+(kb.length>3?" …":""),"mitbringen",'data-nav="kita|ks:tasche"');
+  if(!D.meal&&now.getHours()<20)L+=row("🍲","Noch kein Abendessen","Rezept aussuchen",'data-nav="essen|ft:rezepte" data-mealfor="1"');
+  return L}
 function renderTag(){loadWx();const now=new Date(),today=ymd(now),tmw=ymd(addDays(startOfDay(now),1)),D=backDay(now),mon=mondayOf(now),sun=ymd(addDays(mon,6));
   const DN=["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"],O=S.tagOpen||(S.tagOpen={}),night=skyPhase()==="night";
   const row=(ic,txt,sub,attr,chk)=>`<div class="trow">${chk?`<button class="tchk" ${chk}><span class="box"></span></button>`:`<span class="tic">${ic}</span>`}<button class="ttx" ${attr||""}><span>${chk?ic+" ":""}${txt}${sub?`<i>${sub}</i>`:""}</span><em>›</em></button></div>`;
   // Dashboard oben (Florian 15.11.2026: wieder da): Wetter, Zeitstrahl, Zähler, Blick auf 3 Tage
   let h=`<h1 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Tag und Woche</h1>`+renderBack(night,true);
   // Heute zu tun: nur Dinge zum Erledigen; Termine, Kita-Mittag und Abendessen stehen im Zeitstrahl, Monatsaufgaben bei der Woche
-  const pr=prios().filter(x=>x.from!=="mittag"),pt=pr.filter(x=>x.due&&x.due<=tmw).sort((a,b)=>(a.due+(a.time||""))<(b.due+(b.time||""))?-1:1);
-  const bsplit=rotSplit(),kb=kitaBring();let L="";
-  if(now.getMonth()===11&&now.getDate()<=24)advCals().filter(c=>c.year===now.getFullYear()).forEach(c=>{const x=advDoors(c.id)[now.getDate()];L+=row("🎄",advHidden(c,now.getDate())?"Türchen "+now.getDate()+" wartet":x?"Türchen "+now.getDate()+": "+esc(x.name):"Türchen "+now.getDate()+" ist noch leer","",`data-advgo="${esc(c.id)}"`)});
-  pt.forEach(x=>{L+=row("🔔",esc(x.name),(x.due<today?"seit "+dLabel(x.due):x.due===today?"heute":"morgen")+(x.time?" "+x.time:""),prioTarget(x).trim(),`data-priodone="${esc(x.id)}" aria-label="${esc(x.name)} erledigt"`)});
-  if(kb.length&&D.di<5&&!inUrlaub(now))L+=row("📦","Kita: "+esc(kb.slice(0,3).map(x=>x.name).join(", "))+(kb.length>3?" …":""),"mitbringen",'data-nav="kita|ks:tasche"');
-  if(!D.meal&&now.getHours()<20)L+=row("🍲","Noch kein Abendessen","Rezept aussuchen",'data-nav="essen|ft:rezepte" data-mealfor="1"');
+  const L=todoRows(),bsplit=rotSplit(),kb=kitaBring(),pr=prios().filter(x=>x.from!=="mittag"),pt=pr.filter(x=>x.due&&x.due<=tmw);
   h+=`<section class="card tagcard"><div class="section-head"><h2>Heute zu tun</h2></div>${L||`<div class="freq" style="padding:8px 0">Nichts Dringendes. Neue Erinnerungen über die Glocke.</div>`}</section>`;
   // Diese Woche: nur Zusammenfassungen, aufklappbar
   const fold=(id,ic,t,info,body,attr)=>body?`<section class="card setcard tagfold"><button class="setsum" data-tagsum="${id}" aria-expanded="${!!O[id]}"><h2>${ic} ${t}</h2><span class="freq num" style="margin-left:auto;margin-right:8px">${info}</span><i>${O[id]?"▾":"›"}</i></button>${O[id]?`<div class="setbody">${body}</div>`:""}</section>`:`<section class="card setcard tagfold"><button class="setsum" ${attr}><h2>${ic} ${t}</h2><span class="freq num" style="margin-left:auto;margin-right:8px">${info}</span><i>›</i></button></section>`;
