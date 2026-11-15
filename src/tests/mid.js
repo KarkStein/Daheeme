@@ -10,9 +10,9 @@ srv.listen(8765,async()=>{
     o.later=await A.$$eval('.laterline',l=>l.map(x=>x.innerText).join(' | '));
     await A.click('.brand');await A.waitForTimeout(400);
     await A.click('.camp',{position:{x:120,y:60}});await A.waitForTimeout(400);
-    o.back=await A.$$eval('.btask b',l=>l.map(x=>x.innerText));
+    o.back=await A.$$eval('.tagcard .trow',l=>l.map(x=>x.innerText));
     if(shot){await A.addStyleTag({content:'#tabs{display:none!important}'});await A.waitForTimeout(800);await A.screenshot({path:out+'/'+shot});
-      await A.click('.btask:has-text("roter Schrank")');await A.waitForTimeout(400);o.after=await A.$$eval('.btask b',l=>l.map(x=>x.innerText));o.still=!!(await A.$('.flipin.flipped'))}
+      await A.click('.trow:has-text("roter Schrank") .tchk');await A.waitForTimeout(400);o.after=await A.$$eval('.tagcard .trow',l=>l.map(x=>x.innerText))}
     await c.close();return o};
   r.a=await run('2026-11-10');r.b=await run('2026-11-20','dashboard-aufgaben.png');
   console.error(JSON.stringify(r),errs);

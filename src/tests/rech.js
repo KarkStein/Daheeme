@@ -8,8 +8,8 @@ srv.listen(8765,async()=>{
   const key=/k=([^&]+)/.exec(A.url())[1];const r={};
   await A.click('#tabs [data-tab=camp]');await A.waitForTimeout(400);
   const bx=await A.$('.camp svg');const bb=await bx.boundingBox();await A.mouse.click(bb.x+bb.width*0.72,bb.y+bb.height*0.45);await A.waitForTimeout(700);
-  r.back=await A.$$eval('.bfoot button',l=>l.map(x=>x.innerText));
-  await A.click('.bfoot [data-go=recherchen]');await A.waitForTimeout(400);
+  r.back=await A.$$eval('.tagcard .trow',l=>l.map(x=>x.innerText));
+  await A.click('.tagcard [data-go=recherchen]');await A.waitForTimeout(400);
   r.h1=await A.$eval('#app h1',e=>e.innerText);r.auftr=await A.$$eval('.rauftr li',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));r.inbox=await A.$$eval('.rinbox li',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));
   await A.click('[data-act=rwnew]');await A.selectOption('[data-rwf=area]','reisen');await A.fill('[data-rwf=what]','Ferienwohnungen Ostsee für 4 mit Kleinkind');await A.selectOption('[data-rwf=rhythm]','monatlich');await A.click('[data-act=rwsave]');await A.waitForTimeout(500);
   r.wish=await A.$$eval('.rwlist li',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));r.copy=await A.$eval('#rcopy',e=>e.value).catch(()=>'(clipboard)');
