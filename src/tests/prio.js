@@ -9,7 +9,7 @@ srv.listen(8765,async()=>{
   await A.click('[data-prio^="kita|"]');await A.waitForTimeout(300);const pressed=await A.$eval('[data-prio^="kita|"]',e=>e.getAttribute('aria-pressed'));
   const W=async P=>{await P.evaluate(()=>{const b=document.createElement('button');b.dataset.go='wichtig';document.getElementById('app').appendChild(b);b.click()});await P.waitForTimeout(300)};
   // Idee am Haus mit Glocke
-  await A.click('.brandbtn');await A.click('.spot[data-go=amhaus]');await A.click('.tile[data-pfilter=haus]');await A.fill('#projinput','Dachrinne reinigen');await A.press('#projinput','Enter');await A.waitForTimeout(300);
+  await A.click('[data-tab=camp]');await A.click('.spot[data-go=amhaus]');await A.click('.tile[data-pfilter=haus]');await A.fill('#projinput','Dachrinne reinigen');await A.press('#projinput','Enter');await A.waitForTimeout(300);
   await A.click('[data-prio^="amhaus|"]');await A.waitForTimeout(300);
   // Startseite: freie Notiz und Erinnerung
   await W(A);await A.waitForSelector('#prioinput');await A.fill('#prioinput','Steuer abgeben');await A.press('#prioinput','Enter');await A.waitForTimeout(300);
@@ -29,7 +29,7 @@ srv.listen(8765,async()=>{
   await A.click('.bellnav');const wh=await A.$eval('h1',e=>e.textContent);const secs=await A.$$eval('.section-head h2',l=>l.map(x=>x.textContent));
   await A.click('[data-priosort=bereich]');const secs2=await A.$$eval('.section-head h2',l=>l.map(x=>x.textContent));
   await A.screenshot({path:out+'/prio-liste.png',fullPage:true});
-  await A.click('.brandbtn');await A.click('.today [data-go=wichtig]');const wh2=await A.$eval('h1',e=>e.textContent);
+  await A.click('[data-tab=camp]');await A.click('.today [data-go=wichtig]');const wh2=await A.$eval('h1',e=>e.textContent);
   console.log({wh,secs,secs2,wh2,heute:await A.$$eval('.today .todayrow',l=>l.map(x=>x.innerText))});
   console.log({shopRowGone,pressed,rows,later,brows,after,h1,errs});
   const ok=!errs.length&&shopRowGone&&pressed==='true'&&rows.length===3&&rows.some(r=>/Laternenfest.*Erinnerung ab/.test(r))&&later.length===2&&brows.length===3&&after.length===2&&!after.some(r=>/Steuer/.test(r))&&h1==='Kita'&&/Wichtig/.test(wh)&&secs.includes('Ohne Datum')&&secs.includes('Später')&&secs2.length===3&&secs2.some(x=>/Rezepte/.test(x))&&/Wichtig/.test(wh2);

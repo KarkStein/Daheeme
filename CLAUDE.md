@@ -36,7 +36,7 @@ node src/build-web.js http://localhost:8765   # danach wieder lokal bauen
 
 ## Navigation und Bedienung
 
-- Kopfzeile: 🏕️🧹 oben links führt zum Start, 🔔 daneben öffnet Wichtig. Zahl (`bellItems`, Florian 15.11.2026): Erinnerungen der nächsten 24 Stunden plus Überfälliges, Termine nur, wenn an ihnen 🔔 angetippt ist (`food/termin/<id>/remind`, Knopf `data-terbell` im Kalender; Wichtig zeigt sie oben als "Termine mit Glocke"); keine Aufgaben, kein Essen. Rechts: Lupe (Suche, Tab `suche`), Zahnrad (Einstellungen, `settings`), Kachel ganz in der Ecke (Bereiche, `bereiche`).
+- Kopfzeile: links in der Ecke nur 🔔 (öffnet Wichtig; das 🏕️🧹-Symbol ist seit 15.11.2026 weg, nur noch im Zeltbild). Zum Start geht es über den Reiter Start. Mehrfachtipp zählt nur, wenn man seit dem letzten Tipp auf derselben Seite geblieben ist (`S.lastTap.on`). Zahl (`bellItems`, Florian 15.11.2026): Erinnerungen der nächsten 24 Stunden plus Überfälliges, Termine nur, wenn an ihnen 🔔 angetippt ist (`food/termin/<id>/remind`, Knopf `data-terbell` im Kalender; Wichtig zeigt sie oben als "Termine mit Glocke"); keine Aufgaben, kein Essen. Rechts: Lupe (Suche, Tab `suche`), Zahnrad (Einstellungen, `settings`), Kachel ganz in der Ecke (Bereiche, `bereiche`).
 - Zentrale Bereichsliste `AREAS` (Gruppe in `AREAS[i][6]`, Reihenfolge nach `AREA_GROUPS`: Essen, Alltag, Wir, Zuhause, Freizeit, Quer). Daraus: Bereiche-Seite (`AREA_TREE`), Menü über Start und Wischen. Neuer Bereich = eine Zeile in `AREAS`.
 - Sprünge: `data-nav="tab|art:wert"` über `goNav` (art: `wp` Wochenseite, `ft` Essen-Reiter, `ks` Kita, `tt` Reisen, `pf` Ideen/Am Haus, `pv` Partner, `ps` Spiel). `data-go="<tab>"` öffnet einen Bereich.
 - Menü über Start: lange (450 ms) auf den Reiter Start → `#fan` (`fanOpen`): Gruppen als Säule, Bereiche nach rechts, ziehen und loslassen oder tippen. Schalter `S.gest.ring`.
@@ -136,7 +136,7 @@ Einkauf (Bereich) / Einkaufsliste (die Liste), Packliste(n), Wochenplan (nie Ess
 
 ## Offene Liste
 
-- Zelt-Code entfernen (eigener, rückholbarer Schritt); danach App-Name/Symbol/Farben anpassen, aber vorher fragen (auch das 🏕️ oben links). Plan: https://claude.ai/artifact/MzunYyXEYMKWLFxg56qyNr
+- Zelt-Code entfernen (eigener, rückholbarer Schritt); danach App-Name/Symbol/Farben anpassen, aber vorher fragen. Plan: https://claude.ai/artifact/MzunYyXEYMKWLFxg56qyNr
 - Supervisorblick 15.11.2026: Mehrfachtipp und Wischen bleiben an (Florian: lassen, später vielleicht auf Stand bringen). Rückseite = die eine Tagesansicht (gebaut). Glocke als zentraler Ort ist umgesetzt. Offen: echte Handy-Benachrichtigung (braucht einen Dienst, z. B. Firebase Cloud Messaging plus geplanter GitHub-Lauf; mittlerer Aufwand, erst auf Florians Okay).
 - Wartet auf Florian: weitere Schnellmenüs (Baum, Fahrrad, Boot, Leuchtturm …), Personenfilter Ich/anderer/Kind, Kontakte zu anderen, Zufallsfoto, Reise-Recherche-Aufträge, Aufgaben mit Datum im Kalender, Bildelement für Musik geklärt (Ghettoblaster).
 - Test mit zwei echten Handys. Schriften selbst ausliefern statt Google Fonts. Pausiert: Minispiele.

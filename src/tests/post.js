@@ -10,7 +10,7 @@ srv.listen(8765,async()=>{
   const cards=await A.$$eval('#kontakte .contact b',l=>l.map(x=>x.textContent));const was=await A.$$eval('#kontakte .wabtn',l=>l.map(x=>x.href));
   await A.screenshot({path:out+'/partner-kontakte.png',fullPage:true});const mask=await A.$eval('[data-contact=p1]',e=>e.value+'|'+e.placeholder);const plain=await A.evaluate(()=>document.getElementById('app').innerHTML.includes('1234567')&&!document.getElementById('app').innerHTML.replace(/wa\.me\/\d+|tel:\+\d+/g,'').includes('1234567')?'links-only':document.getElementById('app').innerHTML.replace(/wa\.me\/\d+|tel:\+\d+/g,'').includes('1234567')?'LEAK':'none');console.error('MASK',mask,plain);
   // kurzer Tipp: WhatsApp
-  await A.clock.setFixedTime(new Date('2026-11-14T12:00:05+01:00'));await A.click('.brandbtn');await A.waitForTimeout(300);
+  await A.clock.setFixedTime(new Date('2026-11-14T12:00:05+01:00'));await A.click('[data-tab=camp]');await A.waitForTimeout(300);
   const [pop]=await Promise.all([c.waitForEvent('page',{timeout:5000}).catch(()=>null),A.click('.spot[data-go=post]')]);const popUrl=pop?pop.url():null;if(pop)await pop.close();
   const stay=await A.$('.camp')!==null;
   // langes Drücken: Auswahl

@@ -14,7 +14,7 @@ srv.listen(8765,async()=>{
   await A.addStyleTag({content:'#tabs{display:none!important}'});await A.screenshot({path:out+'/kita-mitbringen.png',fullPage:true});
   r.sections=await A.$$eval('.card h2',l=>l.map(x=>x.innerText));
   await A.click('#tabs [data-tab=woche]').catch(()=>{});await nav('woche|wp:0');r.tl=await A.$$eval('.tasklink',l=>l.map(x=>x.innerText));
-  await A.click('.brand');await A.waitForTimeout(400);await A.click('.camp',{position:{x:120,y:60}});await A.waitForTimeout(400);r.back=await A.$$eval('.btask b',l=>l.map(x=>x.innerText));
+  await nav('camp|');await A.waitForTimeout(400);await A.click('.camp',{position:{x:120,y:60}});await A.waitForTimeout(400);r.back=await A.$$eval('.btask b',l=>l.map(x=>x.innerText));
   console.error(JSON.stringify(r),errs);
   const ok=!errs.length&&r.shop.length===1&&r.shop[0]==='Windeln|Kita: Mitbringen'&&r.prio.length===1&&/Windeln/.test(r.prio[0])&&r.tl.some(x=>/Mitbringen: 2/.test(x))&&r.sections.some(x=>/Liegt in der Kita/.test(x));
   console.error(ok?'KB OK':'KB FAIL');await b.close();srv.close();process.exit(0)});

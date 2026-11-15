@@ -5,7 +5,7 @@ srv.listen(8765,async()=>{
     if(!key){await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');key=/k=([^&]+)/.exec(A.url())[1];
       await fetch('http://localhost:8765/haushalt/'+key+'/food/wxplace.json',{method:'PUT',body:JSON.stringify({name:'Kiel',lat:54.32,lon:10.12})});}
     else{await A.addInitScript(()=>{localStorage.setItem('hq-me','p0')});await A.goto('http://localhost:8765/?bild=haus#k='+key);}
-    await A.waitForTimeout(1200);await A.click('.brandbtn').catch(()=>{});await A.waitForTimeout(600);const cam=await A.$('.camp');await cam.screenshot({path:out+'/sky-'+name+'.png'});await c.close()};
+    await A.waitForTimeout(1200);await A.click('[data-tab=camp]').catch(()=>{});await A.waitForTimeout(600);const cam=await A.$('.camp');await cam.screenshot({path:out+'/sky-'+name+'.png'});await c.close()};
   await shot('tag','2026-11-14T12:00:00+01:00',0);
   await shot('abend','2026-11-14T16:25:00+01:00',1);
   await shot('nacht','2026-11-14T22:00:00+01:00',0);

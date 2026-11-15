@@ -22,7 +22,7 @@ srv.listen(8765,async()=>{
   await A.screenshot({path:out+'/maske.png',fullPage:true});
   await A.click('[data-act=tripsave]');await A.waitForTimeout(400);
   await A.click('[data-act=tripnew]');await A.fill('#tr-name','Aquarium Brest');await A.click('[data-tset=kind][data-v=tiere]');await A.click('[data-tset=wx][data-v=egal]');await A.click('[data-tset=dur][data-v=halb]');await A.click('[data-tset=cost][data-v="2"]');await A.click('[data-act=tripsave]');await A.waitForTimeout(400);
-  await B.click('.brandbtn');await B.click('.spot[data-go=ausflug]');await B.waitForSelector('text=Aquarium Brest');await B.waitForSelector('text=Strand von Kerlouan');
+  await B.click('[data-tab=camp]');await B.click('.spot[data-go=ausflug]');await B.waitForSelector('text=Aquarium Brest');await B.waitForSelector('text=Strand von Kerlouan');
   await B.click('[data-tfilter=regen]');const shown=await B.$$eval('ul.shop .nm',l=>l.map(x=>x.textContent));console.log('regen',shown);
   await B.click('[data-tfilter=""]');await B.waitForTimeout(200);
   await B.screenshot({path:out+'/ideen.png',fullPage:true});

@@ -5,6 +5,6 @@ srv.listen(8765,async()=>{
   const res=[];
   for(const go of ['woche','essen','einkauf','ausflug','projekte','spiel']){await A.click('.spot[data-go='+go+']');await A.waitForTimeout(150);
     if(go==='ausflug'){await A.click('[data-act=tripnew]')}
-    await A.click('.brandbtn');await A.waitForTimeout(150);res.push(go+':'+(await A.$('.camp svg')?'ok':'NO'))}
-  await A.click('[data-tab=woche]');await A.click('.brandbtn');res.push('tab:'+(await A.$('.camp svg')?'ok':'NO'));
+    await A.click('[data-tab=camp]');await A.waitForTimeout(150);res.push(go+':'+(await A.$('.camp svg')?'ok':'NO'))}
+  await A.click('[data-tab=woche]');await A.click('[data-tab=camp]');res.push('tab:'+(await A.$('.camp svg')?'ok':'NO'));
   console.log(res.join(' '),errs);console.log(!errs.length&&!res.join().includes('NO')?'HOME OK':'HOME FAIL');await b.close();srv.close();process.exit(0)});

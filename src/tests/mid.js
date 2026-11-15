@@ -8,7 +8,7 @@ srv.listen(8765,async()=>{
     await A.click('#tabs [data-tab=woche]');await A.waitForTimeout(400);
     o.titles=await A.$$eval('.task-title',l=>l.map(x=>x.innerText).filter(x=>/Flächen|Zimmer drüben/.test(x)));
     o.later=await A.$$eval('.laterline',l=>l.map(x=>x.innerText).join(' | '));
-    await A.click('.brand');await A.waitForTimeout(400);
+    await A.click('[data-tab=camp]');await A.waitForTimeout(400);
     await A.click('.camp',{position:{x:120,y:60}});await A.waitForTimeout(400);
     if(await A.$('[data-tagsum=auf]'))await A.click('[data-tagsum=auf]');await A.waitForTimeout(200);o.back=await A.$$eval('.tagcard .trow',l=>l.map(x=>x.innerText));
     if(shot){await A.addStyleTag({content:'#tabs{display:none!important}'});await A.waitForTimeout(800);await A.screenshot({path:out+'/'+shot});

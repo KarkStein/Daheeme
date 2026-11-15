@@ -13,7 +13,7 @@ srv.listen(8765,async()=>{
   await A.click('[data-rec=r1]');await A.click('[data-recshop]');await A.click('[data-pickmode=alle]');await A.waitForTimeout(500);
   await A.click('#tabs [data-tab=einkauf]');const shop=await A.$$eval('.shop .nm',l=>l.map(x=>x.innerText.split('\n')[0]));
   await A.reload();await A.waitForTimeout(800);const h1b=await A.$eval('h1',e=>e.textContent);
-  await A.click('.brandbtn');await A.click('.spot[data-go=kita]');await A.reload();await A.waitForTimeout(800);const h1c=await A.$eval('h1',e=>e.textContent);
+  await A.click('[data-tab=camp]');await A.click('.spot[data-go=kita]');await A.reload();await A.waitForTimeout(800);const h1c=await A.$eval('h1',e=>e.textContent);
   await A.goBack();await A.waitForTimeout(400);const h1d=await A.$eval('h1',e=>e.textContent).catch(()=>'start');const start=!!(await A.$('.camp'));
   console.log({t1,h1a,hasRec,shop,h1b,h1c,h1d,start,errs});
   const ok=!errs.length&&hasRec&&shop.some(x=>/800 g Kartoffeln/.test(x))&&shop.some(x=>/2 Fenchel/.test(x))&&/Einkauf/.test(h1b)&&h1c==='Kita'&&start;
