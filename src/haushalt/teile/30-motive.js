@@ -3,10 +3,11 @@
 // Bildstil fürs Haus am Meer: "" (wie bisher), "licht" (Licht und Schatten), "aquarell", "fein" (Texturen und Licht).
 // Gilt je Gerät (localStorage hq-motiv, hq-bildstil); Vorschau per ?motiv=… und ?stil=… im Link.
 function motivList(){return [["meer","🌊","Haus am Meer"],["stadt","🚋","Stadthaus in München (Entwurf)"]]}
-function stilList(){return [["","✏️","Wie bisher"],["licht","☀️","Licht und Schatten"],["aquarell","🖌️","Aquarell"],["fein","🪨","Fein gezeichnet"]]}
+function stilList(){return [["licht","☀️","Licht und Schatten"],["","✏️","Flach (alt)"],["aquarell","🖌️","Aquarell"],["fein","🪨","Fein gezeichnet"]]}
 function urlPick(k){try{return new URLSearchParams(location.search).get(k)}catch(_){return null}}
 function motiv(){const u=urlPick("motiv");if(u&&motivList().some(m=>m[0]===u))return u;let v="";try{v=localStorage.getItem("hq-motiv")||""}catch(_){}return motivList().some(m=>m[0]===v)?v:"meer"}
-function bildStil(){const u=urlPick("stil");if(u!=null&&stilList().some(m=>m[0]===u))return u;let v="";try{v=localStorage.getItem("hq-bildstil")||""}catch(_){}return stilList().some(m=>m[0]===v)?v:""}
+// Standard seit 16.11.2026 (Florian): Licht und Schatten; "" = bewusst wie bisher
+function bildStil(){const u=urlPick("stil");if(u!=null&&stilList().some(m=>m[0]===u))return u;let v=null;try{v=localStorage.getItem("hq-bildstil")}catch(_){}return v==null?"licht":stilList().some(m=>m[0]===v)?v:"licht"}
 function motivPlace(){return motiv()==="stadt"?"in der Stadt":"am Meer"}
 
 // Zusätzliche Definitionen je Stil

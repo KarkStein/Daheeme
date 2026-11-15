@@ -116,7 +116,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="musdel"&&S.musDraft&&S.musDraft.id){if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Wirklich löschen?";return}try{await S.store.setPath("food/music/"+S.musDraft.id,null);S.musDraft=null;toast("Gelöscht");render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.act==="mussave"&&S.musDraft){const d=S.musDraft,u=safeLink(d.link),name=((d.name||"").trim()||(u?musName(u):"")).slice(0,80);if(!name){toast("Bitte Name oder Link eintragen");return}const id=d.id||newId("m");
     try{await S.store.setPath("food/music/"+id,{name,link:u||null,svc:u?musSvc(u)[0]:null,occ:d.occ||null,note:(d.note||"").trim().slice(0,120)||null,fav:(musics().find(x=>x.id===id)||{}).fav||null,at:(musics().find(x=>x.id===id)||{}).at||Date.now(),by:S.me||""});S.musDraft=null;toast("Gespeichert");render()}catch(_){toast("Konnte nicht speichern.")}return}
-  if(b.dataset.calview){S.calView=b.dataset.calview;try{localStorage.setItem("hq-calview",S.calView)}catch(_){}render();return}
+  if(b.dataset.calview){S.calView=b.dataset.calview;try{localStorage.setItem("hq-calview2",S.calView)}catch(_){}render();return}
   if(b.dataset.caloffall!=null){S.calOff=b.dataset.caloffall==="1"?[]:CAL_LBL.map(l=>l[0]);try{localStorage.setItem("hq-caloff",JSON.stringify(S.calOff))}catch(_){}render();return}
   if(b.dataset.fwmap){try{await S.store.setPath("food/ext/fwmap/"+b.dataset.fwmap,b.dataset.v||null)}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.fwkwrm){try{await S.store.setPath("food/ext/fwkw/"+b.dataset.fwkwrm,null)}catch(_){}return}

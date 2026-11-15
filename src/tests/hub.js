@@ -1,7 +1,7 @@
 srv.listen(8765,async()=>{
   const b=await chromium.launch();const errs=[];const out=process.argv[2];
   const c=await b.newContext({viewport:{width:400,height:860},deviceScaleFactor:2,timezoneId:'Europe/Berlin'});const A=await c.newPage();A.setDefaultTimeout(8000);await A.clock.setFixedTime(new Date('2026-11-16T10:00:00+01:00'));A.on('pageerror',e=>errs.push(e.message));
-  await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');await A.evaluate(()=>localStorage.setItem('hq-calview','monat'));
+  await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');await A.evaluate(()=>localStorage.removeItem('hq-calview2'));
   const key=/k=([^&]+)/.exec(A.url())[1];const put=(pa,d)=>fetch('http://localhost:8765/haushalt/'+key+'/'+pa+'.json',{method:'PUT',body:JSON.stringify(d)});
   await put('food/urlaub/u1',{name:'Bretagne',emo:'🏝️',state:'aktuell',from:'2026-11-27',to:'2026-11-30',at:1});
   await put('food/trip/t1',{name:'Wildpark',kind:'tiere',pack:'main',date:'2026-11-21',at:1,done:false});
@@ -10,9 +10,8 @@ srv.listen(8765,async()=>{
   await A.waitForTimeout(300);const r={};
   await A.click('#tabs [data-tab=woche]');await A.waitForTimeout(80);await A.click('#tabs [data-tab=woche]');
   await A.waitForTimeout(300);
-  r.hasQuick=!!(await A.$('#calq'));
-  await A.fill('#calq','Do 15 Uhr Kinderarzt Kind');await A.press('#calq','Enter');await A.waitForTimeout(400);
-  await A.fill('#calq','Geburtstag Oma 25.11. jedes Jahr');await A.press('#calq','Enter');await A.waitForTimeout(400);
+  r.hasQuick=!(await A.$('#calq'))&&(await A.$eval('[data-calview][aria-pressed=true]',x=>x.dataset.calview))==='monat'; // Florian 16.11.2026: Monat zuerst, kein Schnellfeld
+  await put('food/termin/hq1',{name:'Kinderarzt',date:'2026-11-19',time:'15:00',who:'kid',at:1});await put('food/termin/hq2',{name:'Geburtstag Oma',date:'2026-11-25',rep:'y',at:2});await A.waitForTimeout(400);
   const db=JSON.parse(JSON.stringify(get(['haushalt',key,'food'])));r.ter=Object.values(db.termin||{}).map(t=>[t.name,t.date,t.time||'',t.who||'',t.rep||''].join('/'));
   await A.click('[data-calm="0"]').catch(()=>{});await A.click('[data-calday="2026-11-17"]');await A.waitForTimeout(200);
   r.di=await A.$$eval('.evlist li',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));

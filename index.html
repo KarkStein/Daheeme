@@ -769,7 +769,7 @@ function calEvents(a,z){const out=[];CAL_SRC.forEach(f=>{try{out.push(...f(a,z))
 function evRow(e,showDay){const who=e.who&&e.who!=="both"?" · "+esc(whoLabel(e.who)):"";const day=showDay?`<span class="t">${esc(dLabel(e.d))}</span>`:`<span class="t">${esc(e.t||"")}</span>`;
   const body=`<span>${pDot(e.who)}${e.icon} ${esc(e.name)}${showDay&&e.t?` <span class="freq">${esc(e.t)}</span>`:""}${who?`<span class="freq">${who}</span>`:""}${e.note?`<br><span class="freq">${esc(e.note)}</span>`:""}</span>`;
   const gift=e.icon==="🎂"?`<button class="catbtn" data-nav="projekte|pf:geschenk" aria-label="Geschenkideen ansehen" style="background:none;border:none">🎁</button>`:"";
-  return `<li>${day}${e.src==="own"?`<button class="ev" data-teredit="${esc(e.id)}">${body}</button>${gift}<button class="catbtn" data-terbell="${esc(e.id)}" aria-pressed="${!!e.remind}" aria-label="${esc(e.name)}: ${e.remind?"nicht mehr erinnern":"erinnern"}" style="background:none;border:none;${e.remind?"":"opacity:.35"}">🔔</button><button class="catbtn" data-terrm="${esc(e.id)}" aria-label="${esc(e.name)} löschen" style="background:none;border:none;opacity:.6">✕</button>`:e.attr?`<button class="ev" ${e.attr}>${body}</button><i class="freq">›</i>`:e.fw?`<button class="ev" data-fwpick="${esc(e.fw)}">${body}</button><i class="freq">👤</i>`:e.pack?`<button class="ev" data-gopack="${esc(e.pack)}">${body}</button><i class="freq">›</i>`:e.nav?`<button class="ev" data-nav="${esc(e.nav)}">${body}</button><i class="freq">›</i>`:`<span class="ev">${body}</span>`}</li>`}
+  return `<li data-who="${esc(e.who||"")}">${day}${e.src==="own"?`<button class="ev" data-teredit="${esc(e.id)}">${body}</button>${gift}<button class="catbtn" data-terbell="${esc(e.id)}" aria-pressed="${!!e.remind}" aria-label="${esc(e.name)}: ${e.remind?"nicht mehr erinnern":"erinnern"}" style="background:none;border:none;${e.remind?"":"opacity:.35"}">🔔</button><button class="catbtn" data-terrm="${esc(e.id)}" aria-label="${esc(e.name)} löschen" style="background:none;border:none;opacity:.6">✕</button>`:e.attr?`<button class="ev" ${e.attr}>${body}</button><i class="freq">›</i>`:e.fw?`<button class="ev" data-fwpick="${esc(e.fw)}">${body}</button><i class="freq">👤</i>`:e.pack?`<button class="ev" data-gopack="${esc(e.pack)}">${body}</button><i class="freq">›</i>`:e.nav?`<button class="ev" data-nav="${esc(e.nav)}">${body}</button><i class="freq">›</i>`:`<span class="ev">${body}</span>`}</li>`}
 function renderTerForm(){const d=S.terDraft,pn=k=>esc(pname(k));
   return `<section class="card"><div class="section-head"><h2>${d.id?"Termin ändern":"Neuer Termin"}</h2></div><form id="terform" novalidate>
     <label class="fld"><span>Was</span><input id="ter-name" data-terf="name" value="${esc(d.name)}" maxlength="80" placeholder="z. B. Zahnarzt" autocomplete="off"></label>
@@ -785,19 +785,18 @@ function calWhoRow(){const w=S.calWho||"",me=S.me,oth=me==="p0"?"p1":me==="p1"?"
 function calFilters(){const off=S.calOff||[],E=(S.food&&S.food.ext)||{},P=(E.fw&&E.fw.people)||{},M=E.fwmap||{},K=E.fwkw||{};
   let h=`<div class="section-head"><h2>Bereiche</h2><span><button class="ghost small" data-caloffall="1">Alle</button><button class="ghost small" data-caloffall="0">Keine</button></span></div>
   <div class="unl calf">${CAL_LBL.map(l=>`<button class="chipbtn neutral" data-caloff="${l[0]}" aria-pressed="${!off.includes(l[0])}">${l[1]} ${l[2]}</button>`).join("")}</div>`;
-  if(Object.keys(P).length)h+=`<div class="section-head" style="margin-top:var(--sp3)"><h2>👪 Familywall: wer ist wer</h2></div><div class="freq">Familywall gibt Teilnehmer und Ersteller mit. Einmal zuordnen, dann bekommen die Termine die Person.</div>${Object.keys(P).map(hh=>`<div class="fld"><span>${esc(P[hh])}</span><div class="unl">${whoOpts().map(o=>`<button class="chipbtn neutral" data-fwmap="${hh}" data-v="${o[0]}" aria-pressed="${(M[hh]||"")===o[0]}">${pDot(o[0])}${esc(o[1])}</button>`).join("")}</div></div>`).join("")}`;
+  if(Object.keys(P).length)h+=`<div class="section-head" style="margin-top:var(--sp3)"><h2>👪 Familywall: wer ist wer</h2></div><div class="freq">Familywall schreibt zu jedem Termin, wer ihn angelegt hat oder dabei ist. Leider nur mit dem Namen aus Familywall. Tippe hier einmal an, wer das bei euch ist. Danach steht bei allen Terminen dieser Person automatisch der richtige Name, und der Filter „Für wen“ oben wirkt auch für Familywall.</div>${Object.keys(P).map(hh=>{const ex=Object.values((E.fw&&E.fw.items)||{}).filter(x=>(x.a||[]).includes(hh)).slice(0,2).map(x=>x.name);return `<div class="fld"><span>„${esc(P[hh])}“ in Familywall${ex.length?`<br><span class="freq">z. B. ${ex.map(esc).join(", ")}</span>`:""}<br><span class="freq">Das ist bei uns:</span></span><div class="unl">${whoOpts().map(o=>`<button class="chipbtn neutral" data-fwmap="${hh}" data-v="${o[0]}" aria-pressed="${(M[hh]||"")===o[0]}">${pDot(o[0])}${esc(o[1])}</button>`).join("")}</div></div>`}).join("")}`;
   const kl=Object.keys(K).filter(k=>K[k]&&K[k].kw);if(kl.length)h+=`<div class="freq" style="margin-top:var(--sp2)">Regeln: ${kl.map(k=>`<span style="white-space:nowrap">„${esc(K[k].kw)}“ → ${esc(whoLabel(K[k].who))} <button class="ghost small" data-fwkwrm="${k}" aria-label="Regel löschen">✕</button></span>`).join(" ")}</div>`;
   return h}
 // Heute-Streifen (Florian 15.11.2026): oben im Kalender ohne Klick und Scrollen, Termine und To-dos von heute
-function calTodayStrip(){const now=new Date(),k=ymd(now),ev=calShown(k,k).filter(e=>e.src!=="prio"),td=todoRows();
+function calTodayStrip(){const now=new Date(),k=ymd(now),ev=calShown(k,k).filter(e=>e.src!=="prio"),td=todoRows(true);
   return `<section class="card caltoday"><div class="section-head"><h2>Heute</h2><span class="freq">${WD2[now.getDay()]} ${now.getDate()}.${now.getMonth()+1}.${feiertag(k)?" · 🎉 "+esc(feiertag(k)):""}</span></div>${ev.length?`<ul class="evlist">${ev.map(e=>evRow(e,false)).join("")}</ul>`:`<div class="freq">Keine Termine.</div>`}${td?`<div class="tagcard">${td}</div>`:""}</section>`}
 function calDayCard(k,MN){const sd=ymdD(k),dl=calShown(k,k),u=inUrlaub(k);
   return `<section class="card"><div class="section-head"><h2>${esc(DAYN[(sd.getDay()+6)%7])}, ${sd.getDate()}. ${MN[sd.getMonth()]}</h2><button class="primary" data-act="ternew">＋ Termin</button></div>${dl.length?`<ul class="evlist">${dl.map(e=>evRow(e,false)).join("")}</ul>`:`<div class="freq">Nichts eingetragen.</div>`}${u?`<div class="freq" style="margin-top:6px">⛵ Urlaub: Wochenvorschlag lässt den Tag frei, Kita und Kurse sind ausgeblendet.</div>`:""}</section>`}
-function renderCal(){if(S.terDraft)return renderTerForm();const today=ymd(new Date()),m0=S.calMonth||new Date(new Date().getFullYear(),new Date().getMonth(),1,12),sel=S.calDay||today,v=S.calView||(()=>{try{return localStorage.getItem("hq-calview")}catch(_){return ""}})()||"woche";
+function renderCal(){if(S.terDraft)return renderTerForm();const today=ymd(new Date()),m0=S.calMonth||new Date(new Date().getFullYear(),new Date().getMonth(),1,12),sel=S.calDay||today,v=S.calView||(()=>{try{return localStorage.getItem("hq-calview2")}catch(_){return ""}})()||"monat";
   const MN=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
-  let h=calTodayStrip()+`<section class="card"><form id="calquick" class="addrow" novalidate><input id="calq" placeholder="Schnell: Do 15 Uhr Kinderarzt" maxlength="120" autocomplete="off" aria-label="Termin schnell eintragen"><button class="primary" type="submit">＋</button></form>
-    <div class="freq" style="margin-top:4px">Versteht heute, morgen, Wochentage, 24.12., 9:30, "jede Woche", "Geburtstag". Lange auf einen Tag drücken legt dort einen Termin an.</div></section>`;
-  h+=`<div class="unl" style="margin:0 0 8px">${[["woche","Woche"],["monat","Monat"],["liste","Liste"]].map(o=>`<button class="chipbtn neutral" data-calview="${o[0]}" aria-pressed="${v===o[0]}">${o[1]}</button>`).join("")}<button class="chipbtn neutral" data-act="calfilt" aria-pressed="${!!S.calFiltOpen}">Bereiche${(S.calOff||[]).length?" ("+(CAL_LBL.length-(S.calOff||[]).length)+"/"+CAL_LBL.length+")":""}</button></div>${calWhoRow()}`;
+  let h=calTodayStrip()+``;
+  h+=`<div class="unl" style="margin:0 0 8px">${[["monat","Monat"],["woche","Woche"],["liste","Liste"]].map(o=>`<button class="chipbtn neutral" data-calview="${o[0]}" aria-pressed="${v===o[0]}">${o[1]}</button>`).join("")}<button class="chipbtn neutral" data-act="calfilt" aria-pressed="${!!S.calFiltOpen}">Bereiche${(S.calOff||[]).length?" ("+(CAL_LBL.length-(S.calOff||[]).length)+"/"+CAL_LBL.length+")":""}</button></div>${calWhoRow()}`;
   if(S.calFiltOpen)h+=`<section class="card">${calFilters()}</section>`;
   if(v==="woche"){const mon=mondayOf(ymdD(sel)),{w}=isoWeek(mon);
     h+=`<section class="card"><div class="section-head" style="align-items:center"><h2>KW ${w}</h2><div class="weeknav"><button class="iconbtn" data-calw="-7" aria-label="Vorige Woche">‹</button>${+mon!==+mondayOf(new Date())?`<button class="ghost" data-calw="0">Heute</button>`:""}<button class="iconbtn" data-calw="7" aria-label="Nächste Woche">›</button></div></div>`;
@@ -1018,23 +1017,26 @@ function campItems(cc){cc=cc||campCfg();return HOUSE.map(c=>({id:c[0],name:c[1],
 // Start hat drei Seiten (Florian 15.11.2026): Haus, Tag und Woche, Wichtig
 function startPager(p){return `<div class="pager" role="group" aria-label="Seiten von Start"><div class="pdots">${[["camp","Haus"],["tag","Tag und Woche"],["wichtig","Wichtig"]].map((x,i)=>`<button class="pdot" data-go="${x[0]}" aria-pressed="${i===p}"><b>${x[1]}</b></button>`).join("")}</div></div>`}
 // Heute zu tun als eine Quelle (Tag und Woche, Heute-Streifen im Kalender)
-function todoRows(){const now=new Date(),today=ymd(now),tmw=ymd(addDays(startOfDay(now),1)),D=backDay(now);
+function todoRows(tomorrowOff){const now=new Date(),today=ymd(now),tmw=ymd(addDays(startOfDay(now),1)),D=backDay(now);
   const row=(ic,txt,sub,attr,chk)=>`<div class="trow">${chk?`<button class="tchk" ${chk}><span class="box"></span></button>`:`<span class="tic">${ic}</span>`}<button class="ttx" ${attr||""}><span>${chk?ic+" ":""}${txt}${sub?`<i>${sub}</i>`:""}</span><em>›</em></button></div>`;
   const pr=prios().filter(x=>x.from!=="mittag"),pt=pr.filter(x=>x.due&&x.due<=tmw).sort((a,b)=>(a.due+(a.time||""))<(b.due+(b.time||""))?-1:1);
   const kb=kitaBring();let L="";
   if(now.getMonth()===11&&now.getDate()<=24)advCals().filter(c=>c.year===now.getFullYear()).forEach(c=>{const x=advDoors(c.id)[now.getDate()];L+=row("🎄",advHidden(c,now.getDate())?"Türchen "+now.getDate()+" wartet":x?"Türchen "+now.getDate()+": "+esc(x.name):"Türchen "+now.getDate()+" ist noch leer","",`data-advgo="${esc(c.id)}"`)});
-  pt.forEach(x=>{L+=row("🔔",esc(x.name),(x.due<today?"seit "+dLabel(x.due):x.due===today?"heute":"morgen")+(x.time?" "+x.time:""),prioTarget(x).trim(),`data-priodone="${esc(x.id)}" aria-label="${esc(x.name)} erledigt"`)});
+  const prow=x=>row("🔔",esc(x.name),(x.due<today?"seit "+dLabel(x.due):x.due===today?"heute":"morgen")+(x.time?" "+x.time:""),prioTarget(x).trim(),`data-priodone="${esc(x.id)}" aria-label="${esc(x.name)} erledigt"`);
+  pt.filter(x=>x.due<=today).forEach(x=>{L+=prow(x)});
   if(kb.length&&D.di<5&&!inUrlaub(now))L+=row("📦","Kita: "+esc(kb.slice(0,3).map(x=>x.name).join(", "))+(kb.length>3?" …":""),"mitbringen",'data-nav="kita|ks:tasche"');
   if(!D.meal&&now.getHours()<20)L+=row("🍲","Noch kein Abendessen","Rezept aussuchen",'data-nav="essen|ft:rezepte" data-mealfor="1"');
+  // Morgen nur darunter und kleiner (Florian 16.11.2026: „das wirklich von heute“)
+  const pm=pt.filter(x=>x.due>today);if(pm.length&&!tomorrowOff)L+=`<div class="freq" style="margin-top:var(--sp2)">Morgen</div>`+pm.map(prow).join("");
   return L}
 function renderTag(){loadWx();const now=new Date(),today=ymd(now),tmw=ymd(addDays(startOfDay(now),1)),D=backDay(now),mon=mondayOf(now),sun=ymd(addDays(mon,6));
   const DN=["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"],O=S.tagOpen||(S.tagOpen={}),night=skyPhase()==="night";
   const row=(ic,txt,sub,attr,chk)=>`<div class="trow">${chk?`<button class="tchk" ${chk}><span class="box"></span></button>`:`<span class="tic">${ic}</span>`}<button class="ttx" ${attr||""}><span>${chk?ic+" ":""}${txt}${sub?`<i>${sub}</i>`:""}</span><em>›</em></button></div>`;
   // Dashboard oben (Florian 15.11.2026: wieder da): Wetter, Zeitstrahl, Zähler, Blick auf 3 Tage
-  let h=`<h1 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Tag und Woche</h1>`+renderBack(night,true);
-  // Heute zu tun: nur Dinge zum Erledigen; Termine, Kita-Mittag und Abendessen stehen im Zeitstrahl, Monatsaufgaben bei der Woche
+  // Heute zu tun ganz oben, ohne Scrollen (Florian 16.11.2026); Termine, Kita-Mittag und Abendessen stehen im Zeitstrahl darunter, Monatsaufgaben bei der Woche
   const L=todoRows(),bsplit=rotSplit(),kb=kitaBring(),pr=prios().filter(x=>x.from!=="mittag"),pt=pr.filter(x=>x.due&&x.due<=tmw);
-  h+=`<section class="card tagcard"><div class="section-head"><h2>Heute zu tun</h2></div>${L||`<div class="freq" style="padding:8px 0">Nichts Dringendes. Neue Erinnerungen über die Glocke.</div>`}</section>`;
+  let h=`<h1 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Tag und Woche</h1>`
+   +`<section class="card tagcard"><div class="section-head"><h2>Heute zu tun</h2><span class="freq">${DN[now.getDay()]}, ${now.getDate()}.${now.getMonth()+1}.</span></div>${L||`<div class="freq" style="padding:8px 0">Heute ist nichts fällig. Neue Erinnerungen über die Glocke.</div>`}</section>`+renderBack(night,true);
   // Diese Woche: nur Zusammenfassungen, aufklappbar
   const fold=(id,ic,t,info,body,attr)=>body?`<section class="card setcard tagfold"><button class="setsum" data-tagsum="${id}" aria-expanded="${!!O[id]}"><h2>${ic} ${t}</h2><span class="freq num" style="margin-left:auto;margin-right:8px">${info}</span><i>${O[id]?"▾":"›"}</i></button>${O[id]?`<div class="setbody">${body}</div>`:""}</section>`:`<section class="card setcard tagfold"><button class="setsum" ${attr}><h2>${ic} ${t}</h2><span class="freq num" style="margin-left:auto;margin-right:8px">${info}</span><i>›</i></button></section>`;
   h+=`<div class="section-head" style="margin-top:6px"><h2>Diese Woche</h2><span class="freq">KW ${isoWeek(mon).w}</span></div>`;
@@ -1539,7 +1541,7 @@ const QUICK={
   einkauf:["🧺 Einkauf",[["➕","Artikel hinzufügen",{nav:"einkauf",focus:"#shopinput"}],["📋","Offene Posten",{nav:"einkauf",scroll:".shop"}]]],
   essen:["🍲 Essen",[["🔗","Rezept aus Link speichern",{nav:"essen|ft:rezepte",click:'[data-act="recpaste"]'}]]],
   woche:["🧹 Woche",[["🙋","Meine offenen Aufgaben",{nav:"woche|wp:1",fn:()=>{S.wmwWho=S.me||"p0";S.wmwView="zeit"}}],["✅","Aufgabe abhaken",{nav:"woche"}],["🏠","Homeoffice eintragen",{nav:"woche",scroll:".hoslot"}]]],
-  kalender:["📅 Kalender",[["➕","Neuer Termin",{nav:"woche|wp:3",focus:"#calq"}],["🗓️","Heute und morgen",{nav:"woche|wp:3",fn:()=>{S.calView="liste"}}]]],
+  kalender:["📅 Kalender",[["➕","Neuer Termin",{nav:"woche|wp:3",click:"[data-act=ternew]"}],["🗓️","Heute und morgen",{nav:"woche|wp:3",fn:()=>{S.calView="liste"}}]]],
   kita:["🎒 Kita",[["📦","Mitbringen für morgen",{nav:"kita|ks:tasche"}],["🍽️","Kita-Essen heute",{nav:"kita|ks:essen",fn:()=>{S.foodWeek=null;S.kitaEdit=false},scroll:".kmday.today"}]]],
   amhaus:["🏠 Am Haus",[["➕","Neues Projekt",{nav:"amhaus|pf:wohnen",click:'[data-act="hprojnew"]'}],["🔧","Reparatur notieren",{nav:"amhaus|pf:haus",focus:"#projinput"}],["📍","Sammlung",{nav:"amhaus|pf:wohnen",click:'[data-act="hsamm"]'}]]]
 };
@@ -1657,7 +1659,7 @@ function renderSettings(){const per=(S.config&&S.config.persons)||[];const G=S.g
     <div class="freq" style="margin-top:10px">Hell oder dunkel</div><div class="unl">${[["","Wie das Handy"],["light","☀️ Hell"],["dark","🌙 Dunkel"]].map(x=>`<button class="chipbtn neutral" data-theme-set="${x[0]}" aria-pressed="${th===x[0]}">${x[1]}</button>`).join("")}</div>
     <div style="margin-top:8px">${sw("labels","Beschriftungen im Bild zeigen",!!S.labels)}</div><div class="freq" style="margin-top:10px">Motiv im Startbild</div><div class="unl">${motivList().map(x=>`<button class="chipbtn neutral" data-motiv-set="${x[0]}" aria-pressed="${motiv()===x[0]}">${x[1]} ${x[2]}</button>`).join("")}</div>
     <div class="freq" style="margin-top:10px">Bildstil</div><div class="unl">${stilList().map(x=>`<button class="chipbtn neutral" data-stil-set="${x[0]}" aria-pressed="${bildStil()===x[0]}">${x[1]} ${x[2]}</button>`).join("")}</div>
-    <div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy. Das Haus am Meer bleibt der Standard. Das Stadthaus ist ein Entwurf.</div>`,"aussehen");
+    <div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy. Standard ist das Haus am Meer mit Licht und Schatten. Das Stadthaus ist ein Entwurf.</div>`,"aussehen");
   h+=card("👆 Bedienung",`${sw("tap","Mehrfach tippen blättert weiter",G.tap,"zweimal auf Woche = Kalender")}${sw("swipe","Wischen wechselt den Bereich",G.swipe)}${sw("ring","Menü: lange auf Start drücken",G.ring,"erst Gruppen, dann Bereiche")}<div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy.</div>`,"bedienung");
   h+=card("🍲 Essen",`${sw("veg","Mehr Vegetarisches bei Vorschlägen",vegW()>0,"für beide")}<div class="freq" style="margin:6px 0">Mengen sind für 4 Personen. Die Recherche achtet aufs Kleinkind. Ändern: schreib es Claude.</div>${go('data-nav="essen|ft:rezepte"',"🏷️","Rezepte, Filter und eigene Tags")}`,"essen");
   h+=card("",go('data-go="recherchen"',"🤖","<b>Recherchen</b> · alle festen Aufträge, Neues und eure Wünsche"));
@@ -2738,7 +2740,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="musdel"&&S.musDraft&&S.musDraft.id){if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Wirklich löschen?";return}try{await S.store.setPath("food/music/"+S.musDraft.id,null);S.musDraft=null;toast("Gelöscht");render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.act==="mussave"&&S.musDraft){const d=S.musDraft,u=safeLink(d.link),name=((d.name||"").trim()||(u?musName(u):"")).slice(0,80);if(!name){toast("Bitte Name oder Link eintragen");return}const id=d.id||newId("m");
     try{await S.store.setPath("food/music/"+id,{name,link:u||null,svc:u?musSvc(u)[0]:null,occ:d.occ||null,note:(d.note||"").trim().slice(0,120)||null,fav:(musics().find(x=>x.id===id)||{}).fav||null,at:(musics().find(x=>x.id===id)||{}).at||Date.now(),by:S.me||""});S.musDraft=null;toast("Gespeichert");render()}catch(_){toast("Konnte nicht speichern.")}return}
-  if(b.dataset.calview){S.calView=b.dataset.calview;try{localStorage.setItem("hq-calview",S.calView)}catch(_){}render();return}
+  if(b.dataset.calview){S.calView=b.dataset.calview;try{localStorage.setItem("hq-calview2",S.calView)}catch(_){}render();return}
   if(b.dataset.caloffall!=null){S.calOff=b.dataset.caloffall==="1"?[]:CAL_LBL.map(l=>l[0]);try{localStorage.setItem("hq-caloff",JSON.stringify(S.calOff))}catch(_){}render();return}
   if(b.dataset.fwmap){try{await S.store.setPath("food/ext/fwmap/"+b.dataset.fwmap,b.dataset.v||null)}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.fwkwrm){try{await S.store.setPath("food/ext/fwkw/"+b.dataset.fwkwrm,null)}catch(_){}return}
@@ -3088,10 +3090,11 @@ app.addEventListener("input",e=>{if(e.target.id==="shopinput"){S.shopText=e.targ
 // Bildstil fürs Haus am Meer: "" (wie bisher), "licht" (Licht und Schatten), "aquarell", "fein" (Texturen und Licht).
 // Gilt je Gerät (localStorage hq-motiv, hq-bildstil); Vorschau per ?motiv=… und ?stil=… im Link.
 function motivList(){return [["meer","🌊","Haus am Meer"],["stadt","🚋","Stadthaus in München (Entwurf)"]]}
-function stilList(){return [["","✏️","Wie bisher"],["licht","☀️","Licht und Schatten"],["aquarell","🖌️","Aquarell"],["fein","🪨","Fein gezeichnet"]]}
+function stilList(){return [["licht","☀️","Licht und Schatten"],["","✏️","Flach (alt)"],["aquarell","🖌️","Aquarell"],["fein","🪨","Fein gezeichnet"]]}
 function urlPick(k){try{return new URLSearchParams(location.search).get(k)}catch(_){return null}}
 function motiv(){const u=urlPick("motiv");if(u&&motivList().some(m=>m[0]===u))return u;let v="";try{v=localStorage.getItem("hq-motiv")||""}catch(_){}return motivList().some(m=>m[0]===v)?v:"meer"}
-function bildStil(){const u=urlPick("stil");if(u!=null&&stilList().some(m=>m[0]===u))return u;let v="";try{v=localStorage.getItem("hq-bildstil")||""}catch(_){}return stilList().some(m=>m[0]===v)?v:""}
+// Standard seit 16.11.2026 (Florian): Licht und Schatten; "" = bewusst wie bisher
+function bildStil(){const u=urlPick("stil");if(u!=null&&stilList().some(m=>m[0]===u))return u;let v=null;try{v=localStorage.getItem("hq-bildstil")}catch(_){}return v==null?"licht":stilList().some(m=>m[0]===v)?v:"licht"}
 function motivPlace(){return motiv()==="stadt"?"in der Stadt":"am Meer"}
 
 // Zusätzliche Definitionen je Stil

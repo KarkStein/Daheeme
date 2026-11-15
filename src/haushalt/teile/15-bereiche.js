@@ -4,7 +4,7 @@ const QUICK={
   einkauf:["🧺 Einkauf",[["➕","Artikel hinzufügen",{nav:"einkauf",focus:"#shopinput"}],["📋","Offene Posten",{nav:"einkauf",scroll:".shop"}]]],
   essen:["🍲 Essen",[["🔗","Rezept aus Link speichern",{nav:"essen|ft:rezepte",click:'[data-act="recpaste"]'}]]],
   woche:["🧹 Woche",[["🙋","Meine offenen Aufgaben",{nav:"woche|wp:1",fn:()=>{S.wmwWho=S.me||"p0";S.wmwView="zeit"}}],["✅","Aufgabe abhaken",{nav:"woche"}],["🏠","Homeoffice eintragen",{nav:"woche",scroll:".hoslot"}]]],
-  kalender:["📅 Kalender",[["➕","Neuer Termin",{nav:"woche|wp:3",focus:"#calq"}],["🗓️","Heute und morgen",{nav:"woche|wp:3",fn:()=>{S.calView="liste"}}]]],
+  kalender:["📅 Kalender",[["➕","Neuer Termin",{nav:"woche|wp:3",click:"[data-act=ternew]"}],["🗓️","Heute und morgen",{nav:"woche|wp:3",fn:()=>{S.calView="liste"}}]]],
   kita:["🎒 Kita",[["📦","Mitbringen für morgen",{nav:"kita|ks:tasche"}],["🍽️","Kita-Essen heute",{nav:"kita|ks:essen",fn:()=>{S.foodWeek=null;S.kitaEdit=false},scroll:".kmday.today"}]]],
   amhaus:["🏠 Am Haus",[["➕","Neues Projekt",{nav:"amhaus|pf:wohnen",click:'[data-act="hprojnew"]'}],["🔧","Reparatur notieren",{nav:"amhaus|pf:haus",focus:"#projinput"}],["📍","Sammlung",{nav:"amhaus|pf:wohnen",click:'[data-act="hsamm"]'}]]]
 };

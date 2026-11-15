@@ -8,7 +8,7 @@ srv.listen(8765,async()=>{
   await put('food/termin/t1',{name:'Familienessen',date:'2026-11-16',time:'12:00',who:'both',at:1});
   const nav=async v=>{await A.evaluate(v=>{const b=document.createElement("button");b.dataset.nav=v;b.id="zz";document.getElementById("app").appendChild(b)},v);await A.click("#zz");await A.waitForTimeout(300)};
   await A.waitForTimeout(500);await nav('woche|wp:3');const r={};
-  r.view=await A.$eval('[data-calview][aria-pressed=true]',e=>e.innerText);r.strip=await A.$eval('.caltoday',e=>e.innerText.replace(/\n/g,' '));
+  r.view=await A.$eval('[data-calview][aria-pressed=true]',e=>e.innerText);r.strip=await A.$eval('.caltoday',e=>e.innerText.replace(/\n/g,' '));await A.click('[data-calview=woche]');await A.waitForTimeout(200);
   await A.click('[data-act=calfilt]');await A.click('[data-fwmap=ha][data-v=p1]');await A.waitForTimeout(400);
   r.map=JSON.stringify(get(['haushalt',key,'food','ext','fwmap']));
   await A.click('[data-fwpick=f2]');await A.waitForTimeout(200);await A.click('#mbox [data-ebk=who][data-ebv=kid]');await A.fill('#mbox [data-ebf=kw]','kurs');await A.click('#mbox button[type=submit]');await A.waitForTimeout(400);
@@ -19,5 +19,5 @@ srv.listen(8765,async()=>{
   const day=await A.$('.calwh[data-calday="2026-11-19"]');await day.scrollIntoViewIfNeeded();const bx=await day.boundingBox();await A.mouse.move(bx.x+10,bx.y+10);await A.mouse.down();await A.waitForTimeout(700);await A.mouse.up();await A.waitForTimeout(300);
   r.draft=await A.$eval('[data-terf=date]',e=>e.value).catch(()=>'');r.dbg=await A.$eval('#app',e=>e.innerText.slice(0,200));
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&r.view==='Woche'&&/Heute/.test(r.strip)&&/Familienessen/.test(r.strip)&&/Yoga/.test(r.strip)&&r.map==='{"ha":"p1"}'&&r.ov==='{"f2":"kid"}'&&r.kw==='kurs:kid'&&!r.kidView.yoga&&r.kidView.schwimm&&r.kidView.essen&&r.kidView.eltern&&r.draft==='2026-11-19';
+  const ok=!errs.length&&r.view==='Monat'&&/Heute/.test(r.strip)&&/Familienessen/.test(r.strip)&&/Yoga/.test(r.strip)&&r.map==='{"ha":"p1"}'&&r.ov==='{"f2":"kid"}'&&r.kw==='kurs:kid'&&!r.kidView.yoga&&r.kidView.schwimm&&r.kidView.essen&&r.kidView.eltern&&r.draft==='2026-11-19';
   console.error(ok?'PERS OK':'PERS FAIL');await b.close();srv.close();process.exit(0)});

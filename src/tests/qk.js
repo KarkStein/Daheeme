@@ -13,11 +13,11 @@ srv.listen(8765,async()=>{
   await home();await lp('.spot[data-go=woche]');r.woche=await A.$$eval('#mbox .quickbtn',l=>l.length);
   await A.screenshot({path:out+'/schnellmenue-besen.png'});
   await A.click('#mbox [data-quick="0"]');await A.waitForTimeout(400);r.wmw=await A.$eval('#app h1',e=>e.innerText);
-  await home();await lp('.spot[data-nav="woche|wp:3"]');await A.click('#mbox [data-quick="0"]');await A.waitForTimeout(400);r.cal=await A.evaluate(()=>document.activeElement&&document.activeElement.id);
+  await home();await lp('.spot[data-nav="woche|wp:3"]');await A.click('#mbox [data-quick="0"]');await A.waitForTimeout(400);r.cal=await A.evaluate(()=>document.getElementById('terform')?'terform':'');
   await home();await lp('.spot[data-go=kita]');await A.click('#mbox [data-quick="0"]');await A.waitForTimeout(400);r.kita=await A.evaluate(()=>!!document.getElementById('kitainput'));
   await home();await lp('.spot[aria-label="Am Haus: Lampe"]');r.lampe=await A.$$eval('#mbox .quickbtn',l=>l.length);await A.click('#mbox [data-quick="1"]');await A.waitForTimeout(400);r.rep=await A.evaluate(()=>document.activeElement&&document.activeElement.id);
   await home();await lp('.spot[aria-label="Garten: Baum"]');r.baum=!!(await A.$('#mbox'));
   await A.click('.spot[data-go=kita]');await A.waitForTimeout(300);r.tap=await A.$eval('#app h1',e=>e.innerText);
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&r.ein.length===2&&r.einFocus==='shopinput'&&r.essen&&r.woche===3&&/Wer macht was/.test(r.wmw)&&r.cal==='calq'&&r.kita&&r.lampe===3&&r.rep==='projinput'&&!r.baum&&r.tap==='Kita';
+  const ok=!errs.length&&r.ein.length===2&&r.einFocus==='shopinput'&&r.essen&&r.woche===3&&/Wer macht was/.test(r.wmw)&&r.cal==='terform'&&r.kita&&r.lampe===3&&r.rep==='projinput'&&!r.baum&&r.tap==='Kita';
   console.error(ok?'QK OK':'QK FAIL');await b.close();srv.close();process.exit(0)});
