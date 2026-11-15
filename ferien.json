@@ -1,0 +1,152 @@
+{
+ "updated": "2026-11-15",
+ "land": "Bayern",
+ "quelle": "openholidaysapi.org",
+ "ferien": [
+  {
+   "name": "Weihnachtsferien",
+   "from": "2024-12-23",
+   "to": "2025-01-03"
+  },
+  {
+   "name": "Frühjahrsferien",
+   "from": "2025-03-03",
+   "to": "2025-03-07"
+  },
+  {
+   "name": "Osterferien",
+   "from": "2025-04-14",
+   "to": "2025-04-25"
+  },
+  {
+   "name": "Pfingstferien",
+   "from": "2025-06-10",
+   "to": "2025-06-20"
+  },
+  {
+   "name": "Sommerferien",
+   "from": "2025-08-01",
+   "to": "2025-09-15"
+  },
+  {
+   "name": "Herbstferien",
+   "from": "2025-11-03",
+   "to": "2025-11-07"
+  },
+  {
+   "name": "Buß- und Bettag",
+   "from": "2025-11-19",
+   "to": "2025-11-19"
+  },
+  {
+   "name": "Weihnachtsferien",
+   "from": "2025-12-22",
+   "to": "2026-01-05"
+  },
+  {
+   "name": "Frühjahrsferien",
+   "from": "2026-02-16",
+   "to": "2026-02-20"
+  },
+  {
+   "name": "Osterferien",
+   "from": "2026-03-30",
+   "to": "2026-04-10"
+  },
+  {
+   "name": "Pfingstferien",
+   "from": "2026-05-26",
+   "to": "2026-06-05"
+  },
+  {
+   "name": "Sommerferien",
+   "from": "2026-08-03",
+   "to": "2026-09-14"
+  },
+  {
+   "name": "Herbstferien",
+   "from": "2026-11-02",
+   "to": "2026-11-06"
+  },
+  {
+   "name": "Buß- und Bettag",
+   "from": "2026-11-18",
+   "to": "2026-11-18"
+  },
+  {
+   "name": "Weihnachtsferien",
+   "from": "2026-12-24",
+   "to": "2027-01-08"
+  },
+  {
+   "name": "Frühjahrsferien",
+   "from": "2027-02-08",
+   "to": "2027-02-12"
+  },
+  {
+   "name": "Osterferien",
+   "from": "2027-03-22",
+   "to": "2027-04-02"
+  },
+  {
+   "name": "Pfingstferien",
+   "from": "2027-05-18",
+   "to": "2027-05-28"
+  },
+  {
+   "name": "Sommerferien",
+   "from": "2027-08-02",
+   "to": "2027-09-13"
+  },
+  {
+   "name": "Herbstferien",
+   "from": "2027-11-02",
+   "to": "2027-11-05"
+  },
+  {
+   "name": "Buß- und Bettag",
+   "from": "2027-11-17",
+   "to": "2027-11-17"
+  },
+  {
+   "name": "Weihnachtsferien",
+   "from": "2027-12-24",
+   "to": "2028-01-07"
+  },
+  {
+   "name": "Frühjahrsferien",
+   "from": "2028-02-28",
+   "to": "2028-03-03"
+  },
+  {
+   "name": "Osterferien",
+   "from": "2028-04-10",
+   "to": "2028-04-21"
+  },
+  {
+   "name": "Pfingstferien",
+   "from": "2028-06-06",
+   "to": "2028-06-16"
+  },
+  {
+   "name": "Sommerferien",
+   "from": "2028-07-31",
+   "to": "2028-09-11"
+  },
+  {
+   "name": "Herbstferien",
+   "from": "2028-10-30",
+   "to": "2028-11-03"
+  },
+  {
+   "name": "Buß- und Bettag",
+   "from": "2028-11-22",
+   "to": "2028-11-22"
+  },
+  {
+   "name": "Weihnachtsferien",
+   "from": "2028-12-23",
+   "to": "2029-01-05"
+  }
+ ]
+}
