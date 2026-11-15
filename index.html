@@ -136,6 +136,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .slot.on.p0{background:var(--p0);border-color:var(--p0)}
 .slot.on.p1{background:var(--p1);border-color:var(--p1)}
 .slot.hoslot{-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
+.hogrp{display:grid;gap:6px}.hohalf{display:grid;grid-template-columns:1fr 1fr;gap:6px}.hohalf .quickbtn{font-size:.85rem;font-weight:500;padding:10px}.quickbtn[aria-pressed=true]{border:2px solid var(--ink)}.slot sup{font-size:.55rem;margin-left:1px}
 .slot.on.x{background:var(--muted);border-color:var(--muted);color:var(--surface)}
 .slot.split{border-style:solid;color:var(--fg);background:linear-gradient(90deg,var(--L,transparent) 50%,var(--R,transparent) 50%)}
 .slot.split.h0{--L:var(--p0)}
@@ -719,7 +720,7 @@ function renderWeek(){
         if(isBoth){const leg=tk[k],a=tk[k+"_p0"]||(leg&&leg.by==="p0"?leg:null),b=tk[k+"_p1"]||(leg&&leg.by==="p1"?leg:null);
           c+=(a?0.5:0)+(b?0.5:0);cls.push("split");if(a)cls.push("h0");if(b)cls.push("h1");if(a&&b)lbl="✓";on=!!(a&&b);
           aria=(a?" "+esc(pname("p0"))+" erledigt":"")+(b?" "+esc(pname("p1"))+" erledigt":"")}
-        else{const v=tk[k];if(v){c++;on=true;cls.push("on",isHO?(v.by==="x"?"x":v.by):"chk");lbl=isHO?esc(v.by==="x"?(v.lbl||"X").slice(0,2):pname(v.by).charAt(0)):"✓";aria=" erledigt von "+esc(v.by==="x"?(v.lbl||"X"):pname(v.by))}}
+        else{const v=tk[k];if(v){c++;on=true;cls.push("on",isHO?(v.by==="x"?"x":v.by):"chk");lbl=isHO?`<span>${esc(v.by==="x"?(v.lbl||"X").slice(0,2):pname(v.by).charAt(0))}${v.part?`<sup>${v.part==="ab"?1:2}</sup>`:""}</span>`:"✓";aria=" erledigt von "+esc(v.by==="x"?(v.lbl||"X"):pname(v.by))+(v.part==="ab"?", holt nachmittags ab":v.part==="br"?", bringt morgens":"")}}
         if(f==="day"){if(i===today)cls.push("today");if(i>today)cls.push("future");if(isHO)cls.push("hoslot")}
         slots+=`<button class="${cls.join(" ")}" data-task="${esc(t.id)}" data-slot="${i}" ${isBoth?'data-split="1"':""} ${f==="day"&&i>today&&!isHO?"disabled":""} aria-pressed="${on}" aria-label="${esc(t.name)} ${f==="day"?DAYS[i]:(i+1)+". Mal"}${aria}">${lbl}</button>`}
       doneAll=c>=n;pct=n?c/n:0;const cs=(c%1?String(c).replace(".",","):c);
@@ -1342,10 +1343,10 @@ function hoCanEdit(){const cm=mondayOf(new Date());if(+S.view<+cm&&S.wkEdit!==wk
 function hoPick(btn){if(!hoCanEdit())return;S.mboxAt=Date.now();if(document.getElementById("mbox"))return;const t=tasks().find(x=>x.id===btn.dataset.task);if(!t)return;const wk=wkKey(S.view),key=t.id+"__"+btn.dataset.slot,cur=ticksOf(wk)[key];
   const set=async v=>{mboxClose();try{await S.store.tick(wk,key,v)}catch(_){toast("Konnte nicht speichern. Bitte nochmal tippen.")}};
   const el=document.createElement("div");el.id="mbox";el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="Homeoffice"><div class="section-head"><h2>🏠 ${esc(DAYS[+btn.dataset.slot]||"")}: wer ist im Homeoffice?</h2></div><div class="quicklist">
-    ${(S.me==="p1"?["p1","p0"]:["p0","p1"]).map(p=>`<button class="quickbtn" data-hop="${p}"><span class="qi">${esc(pname(p).charAt(0))}</span><span>${esc(pname(p))}</span></button>`).join("")}
+    ${(S.me==="p1"?["p1","p0"]:["p0","p1"]).map(p=>{const i=esc(pname(p).charAt(0)),on=x=>cur&&cur.by===p&&(cur.part||"")===x?" aria-pressed=\"true\"":"";return `<div class="hogrp"><button class="quickbtn" data-hop="${p}"${on("")}><span class="qi">${i}</span><span>${esc(pname(p))}, ganzer Tag</span></button><div class="hohalf"><button class="quickbtn" data-hop="${p}|ab"${on("ab")}><span class="qi">${i}<sup>1</sup></span><span>1 von 2: holt nachmittags ab</span></button><button class="quickbtn" data-hop="${p}|br"${on("br")}><span class="qi">${i}<sup>2</sup></span><span>2 von 2: bringt morgens</span></button></div></div>`}).join("")}
     ${cur?`<button class="quickbtn" data-hop="clear"><span class="qi">✕</span><span>Leeren</span></button>`:""}</div></div>`;
   document.body.appendChild(el);
-  el.addEventListener("click",e=>{const b=e.target.closest("[data-hop]");if(b){const p=b.dataset.hop;set(p==="clear"?null:{by:p,at:Date.now()});return}if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose()})}
+  el.addEventListener("click",e=>{const b=e.target.closest("[data-hop]");if(b){const [p,part]=b.dataset.hop.split("|");set(p==="clear"?null:Object.assign({by:p,at:Date.now()},part?{part}:{}));return}if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose()})}
 function mboxClose(){const el=document.getElementById("mbox");if(el)el.remove()}
 // ---------- Schnellmenü im Startbild: lange auf ein Bildelement drücken (Florian 15.11.2026) ----------
 // Eintrag: [Symbol, Text, {nav, fn?, click?, focus?, scroll?}]; ein einziger Eintrag startet sofort.
