@@ -11,7 +11,7 @@ srv.listen(8765,async()=>{
   await A.click('[data-gest=veg]');await A.waitForTimeout(300);
   await A.fill('[data-pname="1"]','Jule');await A.press('[data-pname="1"]','Tab');await A.waitForTimeout(400);
   let db=JSON.parse(JSON.stringify(get(['haushalt',key])));r.veg=db.food.pref;r.names=db.config.persons;
-  r.nummer=await A.$eval('.setcard .fld span',e=>e.innerText);
+  r.nummer=await A.$$eval('.setcard .fld span',l=>l.map(e=>e.innerText).join(' | '));
   const [dl]=await Promise.all([A.waitForEvent('download'),A.click('[data-act=backup]')]);const p=out+'/backup.json';await dl.saveAs(p);const bk=JSON.parse(fs.readFileSync(p));r.bk=[bk.app,bk.config.persons[1],!!bk.food];
   await A.click('[data-gest=veg]');await A.waitForTimeout(300);
   await A.setInputFiles('#restorefile',p);await A.waitForTimeout(300);r.restoreAsk=await A.$$eval('[data-act=restoredo]',l=>l.length);await A.click('[data-act=restoredo]');await A.waitForTimeout(400);
