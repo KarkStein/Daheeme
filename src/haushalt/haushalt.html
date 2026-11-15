@@ -1294,11 +1294,9 @@ function hoCanEdit(){const cm=mondayOf(new Date());if(+S.view<+cm&&S.wkEdit!==wk
 function hoPick(btn){if(!hoCanEdit())return;S.mboxAt=Date.now();if(document.getElementById("mbox"))return;const t=tasks().find(x=>x.id===btn.dataset.task);if(!t)return;const wk=wkKey(S.view),key=t.id+"__"+btn.dataset.slot,cur=ticksOf(wk)[key];
   const set=async v=>{mboxClose();try{await S.store.tick(wk,key,v)}catch(_){toast("Konnte nicht speichern. Bitte nochmal tippen.")}};
   const el=document.createElement("div");el.id="mbox";el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="Homeoffice"><div class="section-head"><h2>🏠 ${esc(DAYS[+btn.dataset.slot]||"")}: wer ist im Homeoffice?</h2></div><div class="quicklist">
-    ${["p0","p1"].map(p=>`<button class="quickbtn" data-hop="${p}"><span class="qi">${esc(pname(p).charAt(0))}</span><span>${esc(pname(p))}</span></button>`).join("")}
-    <form class="addrow" id="hoxform"><input type="text" id="hoxin" maxlength="12" placeholder="X: eigener Eintrag" value="${cur&&cur.by==="x"?esc(cur.lbl||""):""}" aria-label="Eigener Eintrag" autocomplete="off"><button class="ghost" type="submit">Übernehmen</button></form>
+    ${(S.me==="p1"?["p1","p0"]:["p0","p1"]).map(p=>`<button class="quickbtn" data-hop="${p}"><span class="qi">${esc(pname(p).charAt(0))}</span><span>${esc(pname(p))}</span></button>`).join("")}
     ${cur?`<button class="quickbtn" data-hop="clear"><span class="qi">✕</span><span>Leeren</span></button>`:""}</div></div>`;
   document.body.appendChild(el);
-  el.addEventListener("submit",e=>{e.preventDefault();const v=(document.getElementById("hoxin").value||"").trim().slice(0,12);set({by:"x",lbl:v||"X",at:Date.now(),who:S.me||""})});
   el.addEventListener("click",e=>{const b=e.target.closest("[data-hop]");if(b){const p=b.dataset.hop;set(p==="clear"?null:{by:p,at:Date.now()});return}if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose()})}
 function mboxClose(){const el=document.getElementById("mbox");if(el)el.remove()}
 // ---------- Schnellmenü im Startbild: lange auf ein Bildelement drücken (Florian 15.11.2026) ----------
