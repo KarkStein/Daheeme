@@ -107,6 +107,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .slot:active{transform:scale(.9)}
 .slot.today{border-style:solid;border-color:var(--ink);color:var(--ink)}
 .slot.future{opacity:.35}
+.slot.future.hoslot{opacity:.85;border-style:dashed}
 .slot.on{border-style:solid;color:#fff;font-size:.8rem}
 .slot.on.p0{background:var(--p0);border-color:var(--p0)}
 .slot.on.p1{background:var(--p1);border-color:var(--p1)}
@@ -561,7 +562,7 @@ function floatAt(btn,txt){const card=btn.closest(".task");if(!card)return;const 
   const r=btn.getBoundingClientRect(),c=card.getBoundingClientRect();f.style.left=(r.left-c.left+4)+"px";f.style.top=(r.top-c.top-6)+"px";card.appendChild(f);setTimeout(()=>f.remove(),950)}
 async function toggle(btn){
   if(!S.me){toast("Wähle oben zuerst, wer du bist.");return}
-  if(prioOn()){const cm=mondayOf(new Date());if(+S.view>+cm){toast("Vorschau: abhaken geht erst in der Woche selbst.");return}if(+S.view<+cm&&S.wkEdit!==wkKey(S.view)){toast("Archiv: erst „✏️ Nachtragen“ antippen.");return}}
+  if(prioOn()){const cm=mondayOf(new Date());const isHO=(tasks().find(x=>x.id===btn.dataset.task)||{}).owner==="ho";if(+S.view>+cm&&!isHO){toast("Vorschau: abhaken geht erst in der Woche selbst. Homeoffice kannst du schon eintragen.");return}if(+S.view<+cm&&S.wkEdit!==wkKey(S.view)){toast("Archiv: erst „✏️ Nachtragen“ antippen.");return}}
   const t=tasks().find(x=>x.id===btn.dataset.task);if(!t)return;
   let wk=wkKey(S.view),key,cur;
   if(btn.dataset.slot==="p"){const pt=periodTick(t,S.view);key=t.id+"__p";if(pt){wk=pt.wk;cur=pt.v}}
@@ -659,7 +660,7 @@ function renderWeek(){
   const {w}=isoWeek(mon);
   let h=`<div class="top"><div><div class="eyebrow">KW ${w} · ${fmt(mon,{day:"numeric",month:"short"})} – ${fmt(addDays(mon,6),{day:"numeric",month:"short"})}</div><h1>${isCur?"Diese Woche":(mon<cur?"Rückblick":"Vorschau")}</h1></div>
    <div class="weeknav">${prioOn()?`<button class="iconbtn" data-prionew="woche" aria-label="Erinnerung anlegen">🔔</button>`:""}<button class="iconbtn" data-wknav="-1" aria-label="Vorige Woche">‹</button>${isCur?"":`<button class="ghost" data-wknav="0">Heute</button>`}<button class="iconbtn" data-wknav="1" aria-label="Nächste Woche" ${+mon>=+addDays(cur,28)?"disabled":""}>›</button></div></div>`;
-  if(!isCur)h+=`<div class="wkro">${mon<cur?(S.wkEdit===wk?`✏️ Nachtragen ist an. <button class="ghost" data-act="wkedit">Fertig</button>`:`📦 Archiv: diese Woche ist nur zum Ansehen. <button class="ghost" data-act="wkedit">✏️ Nachtragen</button>`):`🔭 Vorschau: abhaken geht erst in der Woche selbst.`}</div>`;
+  if(!isCur)h+=`<div class="wkro">${mon<cur?(S.wkEdit===wk?`✏️ Nachtragen ist an. <button class="ghost" data-act="wkedit">Fertig</button>`:`📦 Archiv: diese Woche ist nur zum Ansehen. <button class="ghost" data-act="wkedit">✏️ Nachtragen</button>`):`🔭 Vorschau: Homeoffice kannst du schon eintragen, abhaken geht erst in der Woche selbst.`}</div>`;
   h+=meChooser();
   const cnt={all:[0,0],p0:[0,0],p1:[0,0]};
   tasks().forEach(t=>{if(group(t.freq)!=="week"||t.owner!=="rot")return;const o=ownerFor(t,mon,split);const n=slotsOf(t);
@@ -693,8 +694,8 @@ function renderWeek(){
           c+=(a?0.5:0)+(b?0.5:0);cls.push("split");if(a)cls.push("h0");if(b)cls.push("h1");if(a&&b)lbl="✓";on=!!(a&&b);
           aria=(a?" "+esc(pname("p0"))+" erledigt":"")+(b?" "+esc(pname("p1"))+" erledigt":"")}
         else{const v=tk[k];if(v){c++;on=true;cls.push("on",isHO?v.by:"chk");lbl=isHO?esc(pname(v.by).charAt(0)):"✓";aria=" erledigt von "+esc(pname(v.by))}}
-        if(f==="day"){if(i===today)cls.push("today");if(i>today)cls.push("future")}
-        slots+=`<button class="${cls.join(" ")}" data-task="${esc(t.id)}" data-slot="${i}" ${isBoth?'data-split="1"':""} ${f==="day"&&i>today?"disabled":""} aria-pressed="${on}" aria-label="${esc(t.name)} ${f==="day"?DAYS[i]:(i+1)+". Mal"}${aria}">${lbl}</button>`}
+        if(f==="day"){if(i===today)cls.push("today");if(i>today)cls.push("future");if(isHO)cls.push("hoslot")}
+        slots+=`<button class="${cls.join(" ")}" data-task="${esc(t.id)}" data-slot="${i}" ${isBoth?'data-split="1"':""} ${f==="day"&&i>today&&!isHO?"disabled":""} aria-pressed="${on}" aria-label="${esc(t.name)} ${f==="day"?DAYS[i]:(i+1)+". Mal"}${aria}">${lbl}</button>`}
       doneAll=c>=n;pct=n?c/n:0;const cs=(c%1?String(c).replace(".",","):c);
       html=`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${f==="day"?"täglich":n+"× pro Woche"} · ${cs}/${n}</span></div></div></div><div class="slots">${slots}</div>${isBoth?`<div class="freq">Jeder hakt seine Hälfte ab: links ${esc(pname("p0"))}, rechts ${esc(pname("p1"))}.</div>`:""}</article>`;
     }else{const pt=periodTick(t,mon);doneAll=!!pt;pct=doneAll?1:0;
