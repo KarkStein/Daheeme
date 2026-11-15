@@ -12,9 +12,9 @@ srv.listen(8765,async()=>{
   const box=await (await A.$('.camp')).boundingBox();await A.mouse.click(box.x+box.width*0.72,box.y+box.height*0.45);await A.waitForTimeout(200);
   await A.waitForTimeout(900);r.flipped=await A.$eval('.flipin',e=>e.classList.contains('flipped'));r.dash=await A.$$eval('.campback .bcnt',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));r.line=await A.$$eval('.campback .bline li',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));r.ahead=await A.$$eval('.campback .bday3',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));await (await A.$('.flipbox')).screenshot({path:out+'/rueckseite.png'});
   await A.screenshot({path:out+'/rueckseite-ganz.png'});
-  const bb=await (await A.$('.campback')).boundingBox();await A.mouse.click(bb.x+bb.width*0.5,bb.y+bb.height*0.95);await A.waitForTimeout(900);r.closed=!(await A.$eval('.flipin',e=>e.classList.contains('flipped')));
+  await A.click('.campback .bdate');await A.waitForTimeout(900);r.closed=!(await A.$eval('.flipin',e=>e.classList.contains('flipped')));
   await (await A.$('.camp')).screenshot({path:out+'/welle.png'});
-  await A.mouse.click(box.x+box.width*0.72,box.y+box.height*0.45);await A.waitForTimeout(300);await A.click('.campback .bcnt[data-go=einkauf]');r.tile=await A.$eval('h1',e=>e.textContent);await A.click('#tabs [data-tab=camp]');await A.waitForTimeout(200);r.backflat=!(await A.$eval('.flipin',e=>e.classList.contains('flipped')));
+  if(!(await A.$eval('.flipin',e=>e.classList.contains('flipped'))))await A.mouse.click(box.x+box.width*0.72,box.y+box.height*0.45);await A.waitForTimeout(800);await A.click('.campback .bcnt[data-go=einkauf]');r.tile=await A.$eval('h1',e=>e.textContent);await A.click('#tabs [data-tab=camp]');await A.waitForTimeout(200);r.backflat=await A.$eval('.flipin',e=>e.classList.contains('flipped'));await A.click('.campback .bflip');await A.waitForTimeout(1000);
   await A.click('.spot[data-act=wxpop]');await A.waitForTimeout(300);r.hours=await A.$$eval('.wxhours li',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));await (await A.$('.wxpanel')).screenshot({path:out+'/wetter-heute.png'});
   // Mehrfachtipp
   const seq=async(t,n)=>{for(let i=0;i<n;i++)await A.click('#tabs [data-tab='+t+']');await A.waitForTimeout(150)};

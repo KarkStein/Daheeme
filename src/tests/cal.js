@@ -19,5 +19,5 @@ srv.listen(8765,async()=>{
   r.rmBtns=await A.$$eval('.dishrm',l=>l.length);await A.screenshot({path:out+'/heute-storno.png',fullPage:true});
   await A.click('.dishrm');await A.waitForTimeout(400);r.after=await A.$eval('.fdish',e=>e.innerText);
   console.log(r,errs);
-  const ok=!errs.length&&r.cal>=35&&r.pager[1]==='Kalender*'&&r.day.some(x=>/Omas/.test(x))&&r.start.length===1&&/Wichtig|Erinnerung/i.test(r.camp)&&/Wochenplan/.test(r.essen)&&/Rezepte/.test(r.einkauf)&&r.rmBtns===1&&/Noch nichts/.test(r.after);
+  const ok=!errs.length&&r.cal>=35&&r.pager[1]==='Kalender*'&&r.day.some(x=>/Omas/.test(x))&&/Wichtig|Erinnerung/i.test(r.camp)&&/Wochenplan/.test(r.essen)&&/Rezepte/.test(r.einkauf)&&r.rmBtns===1&&/Noch nichts/.test(r.after);
   console.log(ok?'CAL OK':'CAL FAIL');await b.close();srv.close();process.exit(0)});

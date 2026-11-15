@@ -13,7 +13,7 @@ srv.listen(8765,async()=>{
   await A.click('#tabs [data-tab=camp]');await A.click('#tabs [data-tab=einkauf]');await A.click('[data-srclink="Kürbisauflauf"]');await A.waitForTimeout(200);const a2=await A.$eval('[data-food=heute]',e=>e.getAttribute('aria-pressed'));const a2b=!!(await A.$('.dishmore'));
   await A.click('[data-food=plan]');await A.click('[data-openrec=r9]');const a3=await A.$eval('section.rec:not(.compact) .nm',e=>e.textContent).catch(()=>null);
   await A.click('[data-shopview="Linsensuppe"]');const a4=await A.$eval('.shop .nm',e=>e.innerText.split('\n')[0]);
-  await A.click('.brandbtn');await A.click('.prow .pnm[data-openrec]');const a5=await A.$eval('section.rec:not(.compact) .nm',e=>e.textContent).catch(()=>null);
+  await A.click('.brandbtn');await A.click('.today [data-go=wichtig]');await A.waitForTimeout(300);await A.click('.prow .pnm[data-openrec]');const a5=await A.$eval('section.rec:not(.compact) .nm',e=>e.textContent).catch(()=>null);
   console.log({a1,a2,a2b,a3,a4,a5,errs});
   const ok=!errs.length&&a1==='Linsensuppe'&&a2==='true'&&a2b&&a3==='Linsensuppe'&&a4==='250 g Linsen'&&a5==='Linsensuppe';
   console.log(ok?'LINKS2 OK':'LINKS2 FAIL');await b.close();srv.close();process.exit(0)});
