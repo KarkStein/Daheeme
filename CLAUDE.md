@@ -89,6 +89,10 @@ git add -A && git commit && git push origin main
 - Musik (Entwurf, Wunsch 15.11.2026): Tab `musik` (`renderMusic`), nur Links, kein Abspielen. `food/music/<id>` `{name,link,svc,occ,fav?,note?,at,by}`; Anlässe `MUS_OCC` (kochen, kinder, auto, abend, party, ruhe, sport, sonst), Dienste `MUS_SVC` (Spotify, Apple Music, YouTube (Music), Deezer, Tidal, Amazon, SoundCloud). Link einfügen legt an (`musName`: Name aus Apple/YouTube-Pfad, sonst "Spotify-Playlist"; `musOccGuess` rät den Anlass). Verzahnt über `musLinks(occ)`: Kochen in Essen › Heute, Autofahrt bei Ausflüge und im Urlaub, Kinder unter Spiel zu Hause. Erreichbar über Bereiche, Kreismenü (13 Einträge, Winkel aus `RING.length`) und Wischen; ein Bildelement fehlt noch (Florian entscheidet).
 - Rezepte-Seite (Florian 15.11.2026): oben Tagesrezepte, dann eigene Kochbücher und Rezepte, dann die Zeile "🔎 Rezept-Datenbank", dann Wochenvorschlag.
 
+- Zentrale Bereichsliste `AREAS` (15.11.2026): Bereiche-Übersicht (`AREA_TREE`), Kreismenü (`RING`: alle Bereiche mit Kurzname, Kalender nach Woche, Wichtig am Ende; Briefe nicht mehr eigen) und Wischen (`SWIPE_TABS`) werden daraus gebaut. Neuer Bereich: eine Zeile in `AREAS`.
+- Einkauf nur an einem Ort (Florian 15.11.2026): Reiter Einkauf (Überschrift "Einkauf"); Essen hat keinen Einkauf-Chip mehr, nur Verlinkungen ("Noch einkaufen" bzw. "🛒 Einkauf: N offen" in Heute, Zutaten-Knöpfe). Doppeltipp auf Einkauf führt weiter zu Rezepte.
+- Startbild-Ausschnitt `HVB` (weniger Himmel, Himmelsdinge 13 tiefer), Spots über `spotPos`. Ghettoblaster hinten am Strand (Musik), Noten, wenn Playlists da sind. Rückseite: Zeitstrahl und Vorschau sind keine Links mehr (Tipp dreht zurück), Knöpfe "↺ Zum Bild" und "📅 Kalender ›", nur Zähler springen.
+
 ## Offene Liste
 
 - Haus am Meer freischalten, wenn der Besitzer es sagt; dann App-Name und Symbol (bisher 🏕️🧹, Zelt im Start-Tab) und Farben anpassen (Plan: https://claude.ai/artifact/MzunYyXEYMKWLFxg56qyNr).
