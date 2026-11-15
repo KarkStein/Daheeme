@@ -202,6 +202,8 @@ details.reisemap summary{cursor:pointer;font-weight:600}
 .campback .bday{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:#f0d28c}.campback .bdate{font-family:var(--display,inherit);font-weight:800;font-size:1.45rem;line-height:1.1}.campback .bsub{font-size:.74rem;opacity:.9;margin-top:2px}.campback .bwx{font-weight:700;margin-right:6px;opacity:1}
 .campback .bspark{display:block;width:100%;max-width:180px;height:auto;margin-top:4px;color:#fdf7ea}
 .campback .bstamp{flex:0 0 auto;width:54px;height:64px;border:2px dashed rgba(240,210,140,.7);border-radius:4px;display:grid;place-items:center;background:rgba(255,255,255,.08);transform:rotate(3deg);margin:2px 4px 0 0}.campback .bstamp span{opacity:.6}
+.campback .btasks{display:flex;flex-direction:column;gap:6px;margin:4px 0 10px}.campback .btask{display:flex;align-items:center;gap:8px;text-align:left;background:rgba(240,210,140,.16);border:1px solid rgba(240,210,140,.45);border-radius:12px;padding:8px 10px;color:inherit;font:inherit}.campback .btask b{flex:1;min-width:0;font-size:14px}.campback .btask small{opacity:.75;font-size:11px}
+.laterline{margin-top:6px}
 .campback .bline{list-style:none;margin:0;padding:0 0 0 2px;display:flex;flex-direction:column}.campback .bline li{position:relative}
 .campback .bline .btl,.campback .bline .bnow{display:grid;grid-template-columns:38px 12px 1fr;align-items:center;gap:4px;width:100%;background:none;border:none;color:inherit;text-align:left;padding:3px 0;font:inherit;font-size:.82rem}
 .campback .bline .bt{font-variant-numeric:tabular-nums;opacity:.75;font-size:.72rem}.campback .bline .bn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}.campback .bline .dim{opacity:.6}
@@ -530,6 +532,11 @@ function ticksOf(wk){return (S.weeks[wk]&&S.weeks[wk].ticks)||{}}
 function periodTick(t,mon){const pid=periodOf(t.freq,mon).id;const key=t.id+"__p";
   for(const wk in S.weeks){const v=ticksOf(wk)[key];if(v&&periodOf(t.freq,mondayFromKey(wk)).id===pid)return {wk,v}}
   return null}
+// Längere Rhythmen sind erst ab der Mitte ihres Zeitraums dran (Florian 15.11.2026): Monat ab dem 15., Halbjahr ab 1.4./1.10., Jahr ab 1.7.
+function periodMid(freq,mon){const th=addDays(mon,3),y=th.getFullYear(),m=th.getMonth();
+  if(freq==="month")return new Date(y,m,15);if(freq==="half")return new Date(y,m<6?3:9,1);return new Date(y,6,1)}
+function periodDue(t,mon,ref){if(group(t.freq)==="week")return true;mon=mon||mondayOf(new Date());
+  if(!ref){const cur=mondayOf(new Date());ref=+mon===+cur?startOfDay(new Date()):addDays(mon,6)}return ref>=periodMid(t.freq,mon)}
 function weekScore(wk){const mon=mondayFromKey(wk);const tk=ticksOf(wk);const byId={};tasks().forEach(t=>byId[t.id]=t);
   const pts={p0:0,p1:0};
   for(const k in tk){const v=tk[k];if(!v)continue;const t=byId[k.split("__")[0]];if(!t)continue;if(v.by==="p0"||v.by==="p1")pts[v.by]+=t.pts||0}
@@ -696,7 +703,7 @@ function renderWeek(){
         slots+=`<button class="${cls.join(" ")}" data-task="${esc(t.id)}" data-slot="${i}" ${isBoth?'data-split="1"':""} ${f==="day"&&i>today&&!isHO?"disabled":""} aria-pressed="${on}" aria-label="${esc(t.name)} ${f==="day"?DAYS[i]:(i+1)+". Mal"}${aria}">${lbl}</button>`}
       doneAll=c>=n;pct=n?c/n:0;const cs=(c%1?String(c).replace(".",","):c);
       html=`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${f==="day"?"täglich":n+"× pro Woche"} · ${cs}/${n}</span></div></div></div><div class="slots">${slots}</div>${taskLink(t)}${isBoth?`<div class="freq">Jeder hakt seine Hälfte ab: links ${esc(pname("p0"))}, rechts ${esc(pname("p1"))}.</div>`:""}</article>`;
-    }else{const pt=periodTick(t,mon);doneAll=!!pt;pct=doneAll?1:0;
+    }else{const pt=periodTick(t,mon);doneAll=!!pt;pct=doneAll?1:0;if(!pt&&!periodDue(t,mon))return {t,o,html:"",done:false,later:periodMid(f,mon),pct:0,times:1};
       const lbl=pt?`✓ Erledigt von ${esc(pname(pt.v.by))} am ${fmt(new Date(pt.v.at),{day:"numeric",month:"short"})}`:"○ Als erledigt markieren";
       html=`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${FREQ_LABEL[f]}</span></div></div></div><div><button class="bigcheck${pt?" on chk":""}" data-task="${esc(t.id)}" data-slot="p" aria-pressed="${doneAll}">${lbl}</button></div>${taskLink(t)}</article>`}
     return {t,o,html,done:doneAll,pct,times:slotsOf(t)}};
@@ -708,8 +715,8 @@ function renderWeek(){
   if(hoTop){const ho=tasks().filter(t=>t.owner==="ho").map(card);
     h=h.replace("<!--HOTOP-->",ho.length?`<section class="section hotop" id="sec-ho" aria-label="Homeoffice"><div class="section-head"><h2>🏠 Homeoffice</h2><span class="freq">wer an dem Tag zu Hause ist</span></div>${ho.map(x=>x.html).join("")}</section>`:"")}
   secs.forEach(([id,title,fn0])=>{const fn=hoTop?t=>t.owner!=="ho"&&fn0(t):fn0;const xs=tasks().filter(fn).map(card).filter(vis).sort(order);if(!xs.length)return;
-    const op=xs.filter(x=>!x.done),dn=xs.filter(x=>x.done);
-    h+=`<section class="section" id="sec-${id}"><div class="section-head"><h2>${title}</h2>${!hoTop&&(id==="day"||id==="gem")?`<span class="freq">„Homeoffice“ = wer an dem Tag zu Hause ist</span>`:""}</div>${op.map(x=>x.html).join("")}${dn.length?`<div class="donesep">Erledigt</div>`+dn.map(x=>x.html).join(""):""}</section>`});
+    const lt=xs.filter(x=>x.later),op=xs.filter(x=>!x.done&&!x.later),dn=xs.filter(x=>x.done);if(!op.length&&!dn.length&&!lt.length)return;
+    h+=`<section class="section" id="sec-${id}"><div class="section-head"><h2>${title}</h2>${!hoTop&&(id==="day"||id==="gem")?`<span class="freq">„Homeoffice“ = wer an dem Tag zu Hause ist</span>`:""}</div>${op.map(x=>x.html).join("")}${dn.length?`<div class="donesep">Erledigt</div>`+dn.map(x=>x.html).join(""):""}${lt.length?`<div class="laterline freq">⏳ Erst ab Mitte des Zeitraums: ${lt.map(x=>esc(x.t.name)+" (ab "+fmt(x.later,{day:"numeric",month:"numeric"})+")").join(", ")}</div>`:""}</section>`});
   return h}
 
 function renderScore(){
@@ -1389,7 +1396,10 @@ function renderBack(night){const now=new Date(),today=ymd(now),D=backDay(now),pr
   const timed=T.filter(x=>x.t).sort((a,b)=>a.t<b.t?-1:1),untimed=T.filter(x=>!x.t);
   const rows=[];let nowDone=false;timed.forEach(x=>{if(!nowDone&&x.t>nm){rows.push({now:1});nowDone=true}rows.push(x)});if(!nowDone)rows.push({now:1});
   const row=x=>x.now?`<li class="bnow"><span class="bt">${nm}</span><span class="bdot"></span><span class="bn">jetzt</span></li>`:`<li><div class="btl${x.dim?" dim":""}"><span class="bt">${esc(x.t||"")}</span><span class="bdot"></span><span class="bn">${x.ic} ${esc(x.n)}</span></div></li>`;
-  const line=`<ul class="bline">${untimed.map(row).join("")}${rows.slice(0,7).map(row).join("")}</ul>`;
+  // Fällige längere Aufgaben (Monat, Halbjahr, Jahr) ab Mitte des Zeitraums
+  const bmon=mondayOf(now),bsplit=rotSplit(),btk=tasks().filter(t=>{if(group(t.freq)==="week"||periodTick(t,bmon)||!periodDue(t,bmon,startOfDay(now)))return false;const o=ownerFor(t,bmon,bsplit);return !S.me||o===S.me||o==="both"});
+  const btasks=btk.length?`<div class="btasks">${btk.map(t=>{const o=ownerFor(t,bmon,bsplit);return `<button class="btask" data-wtick="${esc(t.id)}" data-who="${o==="both"?S.me||"p0":o}"><span>⬜</span><b>${esc(t.name)}</b><small>${FREQ_LABEL[t.freq]}${!S.me&&o!=="both"?" · "+esc(pname(o)):""}</small></button>`}).join("")}</div>`:"";
+  const line=btasks+`<ul class="bline">${untimed.map(row).join("")}${rows.slice(0,7).map(row).join("")}</ul>`;
   // Zähler
   const nx=urlaube().filter(u=>reiseSt(u)==="aktuell"&&u.from&&u.from>=today).sort((a,b)=>a.from<b.from?-1:1)[0],nd=nx?reiseDays(nx):null;
   const cnt=(n,lab,attr)=>`<button class="bcnt" ${attr}><b>${n}</b><span>${lab}</span></button>`;
@@ -1919,7 +1929,7 @@ function wmwState(t,p,mon,tk){if(group(t.freq)!=="week"){const pt=periodTick(t,m
   const n=slotsOf(t);let c=0;for(let i=0;i<n;i++){const b=t.id+"__"+i;if(t.owner==="both"?(tk[b+"_"+p]||(tk[b]&&tk[b].by===p)):tk[b])c++}return {c,n}}
 function wmwList(who){const mon=mondayOf(new Date()),split=rotSplit(),tk=ticksOf(wkKey(mon)),P=who==="alle"?["p0","p1"]:[who],L=[];
   tasks().forEach(t=>{const o=ownerFor(t,mon,split);const ps=o==="both"?P:P.includes(o)?[o]:who==="alle"&&o==="ho"?["ho"]:[];
-    ps.forEach(p=>{const st=p==="ho"?wmwState(t,"p0",mon,tk):wmwState(t,p,mon,tk);L.push({t,p,o,...st,done:st.c>=st.n})})});return L}
+    ps.forEach(p=>{const st=p==="ho"?wmwState(t,"p0",mon,tk):wmwState(t,p,mon,tk),done=st.c>=st.n;if(!done&&!periodDue(t,mon))return;L.push({t,p,o,...st,done})})});return L}
 function wmwRow(x,showP){const per=WMW_PER[x.t.freq],who=x.p==="ho"?"Homeoffice":pname(x.p);
   return `<li class="wmwrow${x.done?" done":""}">${x.done?`<span class="wmwchk" aria-label="Erledigt">✅</span>`:`<button class="wmwchk" data-wtick="${esc(x.t.id)}" data-who="${x.p}" aria-label="${esc(x.t.name)} abhaken">⬜</button>`}<span class="ev"><b>${esc(x.t.name)}</b>${taskLink(x.t,1)}<span class="freq"> · ${WMW_FL(x.t)}${per?" · "+per:""}${x.o==="rot"?" · im Wechsel":x.o==="both"?" · zu zweit":""}</span></span>${showP?`<span class="wmwp ${x.p}">${esc(who)}</span>`:""}${group(x.t.freq)==="week"&&x.n>1?`<span class="freq num">${x.c}/${x.n}</span>`:""}</li>`}
 function renderWmw(){const d=S.draft||(S.draft=JSON.parse(JSON.stringify(S.config)));const me=S.me||"p0",who=S.wmwWho||me,O=S.wmwOpen||(S.wmwOpen={offen:true}),view=S.wmwView||"zeit";
@@ -1932,7 +1942,8 @@ function renderWmw(){const d=S.draft||(S.draft=JSON.parse(JSON.stringify(S.confi
   h+=`<section class="card wmwtop"><div class="wmwnums"><div><b>${open.length}</b><span>offen</span></div><div><b>${done.length}</b><span>erledigt</span></div><div><b>${L.length}</b><span>diese Woche</span></div></div>
     <div class="freq" style="margin-top:8px">Aufwand der Woche</div><div class="wmwbar"><span class="p0" style="width:${(a0/tot*100).toFixed(0)}%"></span><span class="p1" style="width:${(a1/tot*100).toFixed(0)}%"></span></div><div class="wmwleg freq"><span>${esc(pname("p0"))} ${Math.round(a0/tot*100)} %</span><span>${esc(pname("p1"))} ${Math.round(a1/tot*100)} %</span></div></section>`;
   h+=`<div class="filters" role="group" aria-label="Ansicht"><button class="chipbtn neutral" data-wmwview="zeit" aria-pressed="${view==="zeit"}">Nach Stand</button><button class="chipbtn neutral" data-wmwview="rhythmus" aria-pressed="${view==="rhythmus"}">Nach Rhythmus</button><button class="chipbtn neutral" data-act="wmwall">${Object.values(O).filter(Boolean).length>=4?"Alle zuklappen":"Alle aufklappen"}</button></div>`;
-  if(view==="zeit"){h+=sec("offen","⏳ Offen",open.length,ul(open)+`<div class="btnrow" style="margin-top:6px"><button class="ghost" data-act="toweek">In „Diese Woche“ abhaken</button></div>`)+sec("erledigt","✅ Erledigt",done.length,ul(done))}
+  const later=tasks().filter(t=>group(t.freq)!=="week"&&!periodTick(t,mon)&&!periodDue(t,mon)&&(who==="alle"||[who,"both"].includes(ownerFor(t,mon,split)))),laterTxt=later.length?`<div class="freq" style="margin-top:6px">⏳ Erst ab Mitte des Zeitraums: ${later.map(t=>esc(t.name)+" (ab "+fmt(periodMid(t.freq,mon),{day:"numeric",month:"numeric"})+")").join(", ")}</div>`:"";
+  if(view==="zeit"){h+=sec("offen","⏳ Offen",open.length,ul(open)+laterTxt+`<div class="btnrow" style="margin-top:6px"><button class="ghost" data-act="toweek">In „Diese Woche“ abhaken</button></div>`)+sec("erledigt","✅ Erledigt",done.length,ul(done))}
   else[["day","Täglich"],["week","Pro Woche"],["month","Monatlich"],["half","Halbjährlich"],["year","Jährlich"]].forEach(f=>{const a=L.filter(x=>x.t.freq===f[0]);if(a.length)h+=sec("f-"+f[0],f[1],a.length,ul(a))});
   // Wer hat welche Aufgaben (früher "Übersicht")
   const isW=t=>group(t.freq)==="week",rot=tasks().filter(t=>t.owner==="rot"),li=a=>a.length?`<ul class="alist">${a.map(t=>`<li><span>${esc(t.name)}</span><span class="freq">${WMW_FL(t)}</span></li>`).join("")}</ul>`:"",blk=(ti,a)=>a.length?`<div style="margin-top:8px"><div class="eyebrow">${ti}</div>${li(a)}</div>`:"";
@@ -2093,7 +2104,7 @@ function ringEnd(){const r=S.ring;if(!r)return;if(r.sel>=0){const v=RING[r.sel][
   app.addEventListener("touchmove",e=>{if(mt){const p=e.touches[0];if(Math.hypot(p.clientX-mt.x,p.clientY-mt.y)>10){clearTimeout(mt.timer);mt=null}}},{passive:true});
   const me=()=>{if(mt){clearTimeout(mt.timer);mt=null}if(document.getElementById("mbox"))S.mboxAt=Date.now()};app.addEventListener("touchend",me,{passive:true});app.addEventListener("touchcancel",me,{passive:true})}
  // Kurzer Tipp auf eine freie Stelle im Bild: Dashboard auf/zu
- app.addEventListener("click",e=>{if(!prioOn()||S.tab!=="camp"||S.ring)return;const c=e.target.closest(".camp,.campback");if(!c||e.target.closest(".spot,.bcnt,.bcal"))return;if(Date.now()-(S.ringAt||0)<600)return;S.flip=!S.flip;const f=c.closest(".flipin");if(f)f.classList.toggle("flipped",S.flip)})}
+ app.addEventListener("click",e=>{if(!prioOn()||S.tab!=="camp"||S.ring)return;const c=e.target.closest(".camp,.campback");if(!c||e.target.closest(".spot,.bcnt,.bcal,.btask"))return;if(Date.now()-(S.ringAt||0)<600)return;S.flip=!S.flip;const f=c.closest(".flipin");if(f)f.classList.toggle("flipped",S.flip)})}
 // Doppeltipp auf einen der 4 Reiter springt auf seine zweite Seite (nur im Entwurf)
 try{S.labels=localStorage.getItem("hq-labels")==="1"}catch(_){}
 S.gest={tap:true,swipe:true,ring:true};try{const g=JSON.parse(localStorage.getItem("hq-gest")||"{}");Object.assign(S.gest,g)}catch(_){}
