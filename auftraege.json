@@ -2,7 +2,37 @@
   "updated": "2026-11-15",
   "hinweis": "Feste Recherche-Aufträge der App. Claude pflegt diese Datei, wenn ein Auftrag eingerichtet, geändert oder gelöscht wird. Die App zeigt sie unter Quer durch alles › Recherchen. 'file' ist die Ergebnisdatei, deren Feld 'updated' der letzte Lauf ist. 'wish' verweist auf den Wunsch in der App (food/rwunsch/<id>).",
   "items": [
-    {"id": "rezepte-taeglich", "area": "rezepte", "name": "Tägliche Rezept-Recherche", "what": "Ein Rezept pro Rubrik (gesund, schnell, vegetarisch, saisonal, exotisch) und 4 bis 5 Emmi-Rezepte, mit Mengen und Tags", "rhythm": "täglich 5:43", "file": "ideen.json"},
-    {"id": "rezepte-woche", "area": "rezepte", "name": "Wochenrezepte", "what": "20 Abendessen für die kommende Woche als Vorrat für den Wochenvorschlag, mit Mengen und Tags", "rhythm": "samstags 5:17", "file": "wochenideen.json"}
+    {
+      "id": "rezepte-taeglich",
+      "area": "rezepte",
+      "name": "Tägliche Rezept-Recherche",
+      "what": "Ein Rezept pro Rubrik (gesund, schnell, vegetarisch, saisonal, exotisch) und 4 bis 5 Emmi-Rezepte, mit Mengen und Tags",
+      "rhythm": "täglich 5:43",
+      "file": "ideen.json"
+    },
+    {
+      "id": "rezepte-woche",
+      "area": "rezepte",
+      "name": "Wochenrezepte",
+      "what": "20 Abendessen für die kommende Woche als Vorrat für den Wochenvorschlag, mit Mengen und Tags",
+      "rhythm": "samstags 5:17",
+      "file": "wochenideen.json"
+    },
+    {
+      "id": "ausflug-woche",
+      "area": "reisen",
+      "name": "Was ist los: Wochentipps",
+      "what": "12 bis 18 kindertaugliche Tipps in München und im Umland (bis 1:30 mit Zug, selten Auto) bis Sonntag nächster Woche, getrennt nach Stadt/Umland, draußen/drinnen und Art",
+      "rhythm": "donnerstags 5:29",
+      "file": "ausflugtipps.json"
+    },
+    {
+      "id": "ausflug-monat",
+      "area": "reisen",
+      "name": "Was ist los: Monatsüberblick",
+      "what": "20 bis 30 kindertaugliche Tipps für den kommenden Monat in München und im Umland, gleiche Filter",
+      "rhythm": "am 27. jedes Monats 5:37",
+      "file": "ausflugtipps.json"
+    }
   ]
 }

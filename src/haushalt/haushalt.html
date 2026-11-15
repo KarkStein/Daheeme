@@ -202,6 +202,7 @@ details.reisemap summary{cursor:pointer;font-weight:600}
 .campback .btop{display:flex;gap:10px;align-items:flex-start}.campback .bhead{flex:1;min-width:0}
 .campback .bday{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:#f0d28c}.campback .bdate{font-family:var(--display,inherit);font-weight:800;font-size:1.45rem;line-height:1.1}.campback .bsub{font-size:.74rem;opacity:.9;margin-top:2px}.campback .bwx{font-weight:700;margin-right:6px;opacity:1}
 .campback .bspark{display:block;width:100%;max-width:180px;height:auto;margin-top:4px;color:#fdf7ea}
+.campback .bring{flex:0 0 auto;position:relative;width:62px;height:70px;border:0;background:none;color:inherit;padding:0;margin:0 2px 0 0;cursor:pointer;font:inherit}.campback .bring svg{width:54px;height:54px;display:block;margin:0 auto}.campback .bring .num{position:absolute;top:17px;left:0;right:0;text-align:center;font-weight:700;font-size:14px}.campback .bring small{display:block;text-align:center;font-size:11px;opacity:.8;margin-top:-2px}
 .campback .bstamp{flex:0 0 auto;width:54px;height:64px;border:2px dashed rgba(240,210,140,.7);border-radius:4px;display:grid;place-items:center;background:rgba(255,255,255,.08);transform:rotate(3deg);margin:2px 4px 0 0}.campback .bstamp span{opacity:.6}
 .campback .btasks{display:flex;flex-direction:column;gap:6px;margin:4px 0 10px}.campback .btask{display:flex;align-items:center;gap:8px;text-align:left;background:rgba(240,210,140,.16);border:1px solid rgba(240,210,140,.45);border-radius:12px;padding:8px 10px;color:inherit;font:inherit}.campback .btask b{flex:1;min-width:0;font-size:14px}.campback .btask small{opacity:.75;font-size:11px}.campback .bprio{padding:4px 6px}.campback .bprio button{background:none;border:0;color:inherit;font:inherit;padding:4px}.campback .bpn{flex:1;display:flex;align-items:center;gap:8px;text-align:left;min-width:0}
 .laterline{margin-top:6px}
@@ -411,6 +412,7 @@ a.primary,a.primary:visited{color:var(--bg)}
 .nextdays{list-style:none;margin:0;padding:0;display:grid;gap:8px}.nextdays li{display:flex;gap:10px;align-items:baseline}
 .srclink{background:none;border:none;padding:8px 4px;font-size:1rem;cursor:pointer}
 .areacard .areahead{font-weight:700;font-size:1.1rem}.areacard .te{font-size:1.2rem}
+.toast .toastbtn{margin-left:8px;background:var(--bg);color:var(--fg);border:0;border-radius:999px;padding:5px 12px;font:inherit;font-weight:700;cursor:pointer}
 .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:.88rem;font-weight:600;z-index:9;max-width:calc(100% - 32px)}
 .celebrate{background:var(--lemon);color:var(--lemon-ink);border-radius:var(--r);padding:12px 14px;font-weight:700;display:flex;gap:10px;align-items:center}
 </style>
@@ -561,6 +563,11 @@ function streak(){const cur=mondayOf(new Date());let s=0;let m=addDays(cur,-7);
 
 // ---------- Aktionen ----------
 function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2600)}
+// Toast mit Knopf, z. B. "Auch von der Einkaufsliste nehmen"
+function toastAct(msg,lab,fn){const el=document.getElementById("toast");el.innerHTML=`<span>${esc(msg)}</span> <button type="button" class="toastbtn">${esc(lab)}</button>`;el.hidden=false;el.querySelector(".toastbtn").onclick=async()=>{el.hidden=true;await fn()};clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,8000)}
+// Herkunft geleert oder gelöscht: anbieten, die daraus entstandenen Einträge mitzunehmen (Florian 15.11.2026)
+function offerShopRemove(msg,items){items=items.filter(i=>i&&!i.done);if(!items.length){toast(msg);return}
+  toastAct(msg+" "+items.length+(items.length===1?" Sache steht":" Sachen stehen")+" noch auf der Einkaufsliste.","🧺 Auch entfernen",async()=>{try{for(const i of items)await S.store.setPath("food/shop/"+i.id,null);toast("Von der Einkaufsliste genommen")}catch(_){toast("Konnte nicht speichern.")}})}
 function floatAt(btn,txt){const card=btn.closest(".task");if(!card)return;const f=document.createElement("span");f.className="float";f.textContent=txt;
   const r=btn.getBoundingClientRect(),c=card.getBoundingClientRect();f.style.left=(r.left-c.left+4)+"px";f.style.top=(r.top-c.top-6)+"px";card.appendChild(f);setTimeout(()=>f.remove(),950)}
 // Florian 15.11.2026: "Saugen" heißt "Saugen (nach Bedarf)", das Paket mit der Treppe wird "Saugen komplett" mit Teilbereichen. Einmalig.
@@ -596,6 +603,11 @@ function ownerChip(o,isRot){const cls=o==="p0"||o==="p1"?o:o;const lbl=o==="p0"|
 function meChooser(){return `<div class="me"><span>Ich bin</span>
   <button class="chipbtn p0" data-me="p0" aria-pressed="${S.me==="p0"}">${esc(pname("p0"))}</button>
   <button class="chipbtn p1" data-me="p1" aria-pressed="${S.me==="p1"}">${esc(pname("p1"))}</button></div>`}
+// Wochenring im Dashboard (Florian 15.11.2026, ersetzt den Fotoplatz): Stand der Wechsel-Aufgaben dieser Woche
+function rotCount(mon){const split=rotSplit(),tk=ticksOf(wkKey(mon));let d=0,n=0;
+  tasks().forEach(t=>{if(group(t.freq)!=="week"||t.owner!=="rot")return;const k=slotsOf(t);for(let i=0;i<k;i++){d+=tk[t.id+"__"+i]?1:0;n++}});return [d,n]}
+function bweekRing(){const [d,n]=rotCount(mondayOf(new Date()));if(!n)return "";const r=22,c=2*Math.PI*r,p=Math.min(1,d/n);
+  return `<button class="bring" data-go="woche" aria-label="Wochenstand: ${d} von ${n} Wechsel-Aufgaben erledigt"><svg viewBox="0 0 54 54" aria-hidden="true"><circle cx="27" cy="27" r="${r}" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="6"/><circle cx="27" cy="27" r="${r}" fill="none" stroke="var(--lemon)" stroke-width="6" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-p)).toFixed(1)}" transform="rotate(-90 27 27)"/></svg><span class="num">${d}/${n}</span><small>Woche</small></button>`}
 function ring(p){const r=36,c=2*Math.PI*r;const off=c*(1-Math.min(1,p));
   return `<svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="${r}" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="8"/><circle cx="42" cy="42" r="${r}" fill="none" stroke="var(--lemon)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}"/></svg>`}
 
@@ -1464,12 +1476,12 @@ function renderBack(night,dash){const now=new Date(),today=ymd(now),D=backDay(no
   // Zähler
   // Urlaub gehört nicht in die Tagesansicht (Florian 15.11.2026)
   const cnt=(n,lab,attr)=>`<button class="bcnt" ${attr}><b>${n}</b><span>${lab}</span></button>`;
-  const counters=`<div class="bcnts">${cnt(due.length||pr.length,due.length?"fällig":"Erinnerungen",'data-go="wichtig"')}${cnt(shop.length,"im Einkauf",'data-go="einkauf"')}${cnt(D.ev.filter(e=>e.src!=="prio").length,"Termine heute",'data-nav="woche|wp:3"')}</div>`;
+  const counters=`<div class="bcnts">${cnt(due.length||pr.length,due.length?"fällig":"Erinnerungen",'data-go="wichtig"')}${cnt(shop.length,"im Einkauf",'data-go="einkauf"')}${cnt(D.ev.filter(e=>e.src!=="prio").length,"Termine heute",'data-nav="woche|wp:3" data-calopen="liste"')}</div>`;
   // Blick voraus
   const ahead=[1,2,3].map(i=>{const d=addDays(startOfDay(now),i),x=backDay(d),e=x.ev[0];return `<div class="bday3"><b>${i===1?"Morgen":DN[d.getDay()].slice(0,2)}</b><span>🍲 ${x.meal?esc(x.meal.name):"–"}</span>${e?`<span>${e.icon||"📅"} ${esc(e.name)}</span>`:""}</div>`}).join("");
   return `<div class="campback${night?" night":""}${dash?" dash":""}" aria-label="Der Tag auf einen Blick"><div class="brim"></div>
-    <div class="btop"><div class="bhead"><div class="bday">${DN[now.getDay()]}</div><div class="bdate">${now.getDate()}. ${MN[now.getMonth()]}</div><div class="bsub">${nowT!=null?`<span class="bwx">${nowI} ${nowT}°</span>`:""}🌅 ${hm(t.rise)} · 🌇 ${hm(t.set)}</div>${spark}</div>${dash?"":`<div class="bstamp" aria-hidden="true"><span>📷</span></div>`}</div>
-    ${line}${counters}<div class="b3">${ahead}</div><div class="bfoot"><button class="bcal" data-nav="woche|wp:3">📅 Kalender ›</button>${(n=>n?`<button class="bcal" data-go="recherchen">🤖 ${n} neu</button>`:"")(rNew().length)}${dash?"":`<button class="bflip" data-act="flipback">↺ Zum Bild</button>`}</div>
+    <div class="btop"><div class="bhead"><div class="bday">${DN[now.getDay()]}</div><div class="bdate">${now.getDate()}. ${MN[now.getMonth()]}</div><div class="bsub">${nowT!=null?`<span class="bwx">${nowI} ${nowT}°</span>`:""}🌅 ${hm(t.rise)} · 🌇 ${hm(t.set)}</div>${spark}</div>${dash?bweekRing():`<div class="bstamp" aria-hidden="true"><span>📷</span></div>`}</div>
+    ${line}${counters}<div class="b3">${ahead}</div><div class="bfoot"><button class="bcal" data-nav="woche|wp:3" data-calopen="monat">📅 Kalender ›</button>${(n=>n?`<button class="bcal" data-go="recherchen">🤖 ${n} neu</button>`:"")(rNew().length)}${dash?"":`<button class="bflip" data-act="flipback">↺ Zum Bild</button>`}</div>
     ${dash?"":`<div class="bturn">↺ Tippen zum Umdrehen</div>`}</div>`}
 function moonName(p){return p<0.03||p>0.97?"Neumond":p<0.22?"zunehmende Sichel":p<0.28?"zunehmender Halbmond":p<0.47?"zunehmender Mond":p<0.53?"Vollmond":p<0.72?"abnehmender Mond":p<0.78?"abnehmender Halbmond":"abnehmende Sichel"}
 function wxPanel(night){const pl=S.food&&S.food.wxplace,now=new Date(),lat=pl&&pl.lat!=null?+pl.lat:51.0,lon=pl&&pl.lon!=null?+pl.lon:10.4,t=sunTimes(now,lat,lon),hm=m=>{m=Math.round(m);return Math.floor(m/60)+":"+String(m%60).padStart(2,"0")},mp=moonPhase(now);
@@ -1658,6 +1670,28 @@ const csv=v=>(v||"").split(",").filter(Boolean);
 const lab=(L,k)=>(L.find(x=>x[0]===k)||[])[L[0].length===3?2:1]||"";
 function tripTags(x){const k=TRIP_KIND.find(c=>c[0]===x.kind),out=[];if(x.date&&!x.done)out.push("📅 "+dLabel(x.date));if(k)out.push(k[1]+" "+k[2]);if(x.wx==="egal")out.push("🌧️ auch bei Regen");if(x.dur)out.push("⏱️ "+lab(TRIP_DUR,x.dur));if(x.drive)out.push("🚗 "+x.drive+" min");if(x.cost)out.push(lab(TRIP_COST,x.cost));
   csv(x.kid).forEach(c=>out.push("👶 "+lab(TRIP_KID,c)));const se=csv(x.season);if(se.length&&se.length<4)out.push("📅 "+se.map(c=>lab(TRIP_SEA,c)).join(", "));return out}
+// Was ist los: Ergebnis der Ausflugs-Recherche (ausflugtipps.json, Florian 15.11.2026)
+// {updated, region, items:[{name,where:stadt|umland,io:draussen|drinnen,cat:natur|kultur|markt|tiere,date?|from?,to?,time?,place?,travel?,link?,kid?,price?,note?,kind?}]}
+const ATIP_WO=[["stadt","🏙️","In München"],["umland","🚆","Umland"]];
+const ATIP_IO=[["draussen","☀️","Draußen"],["drinnen","🏠","Drinnen"]];
+const ATIP_CAT=[["natur","🌳","Natur und Bewegung"],["kultur","🏛️","Kultur und Museum"],["markt","🎪","Märkte und Feste"],["tiere","🐐","Tiere und Spielen"]];
+function atipItems(){const j=S.atipps;if(!j||!Array.isArray(j.items))return [];const t=ymd(new Date()),have=new Set(trips().map(x=>(x.name||"").toLowerCase()));
+  return j.items.filter(i=>i&&i.name&&((i.to||i.date||"9999")>=t)&&!have.has(String(i.name).toLowerCase()))}
+function atipWhen(i){const f=i.date||i.from,t=i.to;const d=x=>{const m=String(x||"").match(/(\d{4})-(\d\d)-(\d\d)/);return m?`${+m[3]}.${+m[2]}.`:""};return f?(t&&t!==f?d(f)+"–"+d(t):d(f))+(i.time?" "+i.time:""):"laufend"}
+function atipCard(){const all=atipItems(),z=S.atipZ||"woche",c=S.atipC||"",io=S.atipIO||"",wo=S.atipWO||"",t=ymd(new Date()),end=ymd(addDays(new Date(),z==="woche"?7:31));
+  const L=all.filter(i=>(!c||i.cat===c)&&(!io||i.io===io||i.io==="beides")&&(!wo||i.where===wo)&&((i.date||i.from||t)<=end)).sort((a,b)=>(a.date||a.from||"")<(b.date||b.from||"")?-1:1);
+  const chip=(k,v,on,txt)=>`<button class="chipbtn neutral" data-${k}="${v}" aria-pressed="${on}">${txt}</button>`;
+  let h=`<section class="card atip"><div class="section-head"><h2>🗓️ Was ist los</h2>${S.atipps&&S.atipps.updated?`<span class="freq">${esc(rDate(S.atipps.updated)||S.atipps.updated)}${S.atipps.region?" · "+esc(S.atipps.region):""}</span>`:""}</div>
+  <div class="unl">${chip("atipz","woche",z==="woche","Diese Woche")}${chip("atipz","monat",z==="monat","Diesen Monat")}</div>
+  <div class="unl">${chip("atipwo","",!wo,"Stadt und Umland")}${ATIP_WO.map(a=>chip("atipwo",a[0],wo===a[0],a[1]+" "+a[2])).join("")}</div>
+  <div class="unl">${chip("atipio","",!io,"Draußen und drinnen")}${ATIP_IO.map(a=>chip("atipio",a[0],io===a[0],a[1]+" "+a[2]+(a[0]==="drinnen"&&S.wx&&S.wx.cur!=null&&/regen|gewitter|schnee/.test(wxKind(S.wx.cur))?" (passt heute)":""))).join("")}</div>
+  <div class="unl">${chip("atipc","",!c,"Alle")}${ATIP_CAT.map(a=>chip("atipc",a[0],c===a[0],a[1]+" "+a[2])).join("")}</div>`;
+  if(!S.atipps||!S.atipps.items||!S.atipps.items.length)return h+`<div class="freq">Hier erscheint, was in München und im Umland los ist (höchstens 1:30 mit Zug oder Auto): draußen und drinnen, Natur, Kultur, Märkte und Feste, Tiere und Spielen, kindertauglich. Wochentipps donnerstags, Monatsüberblick vor Monatsbeginn.</div></section>`;
+  if(!L.length)return h+`<div class="freq">Für diese Auswahl gerade nichts. Probiert „Diesen Monat“ oder „Alle“.</div></section>`;
+  const by={};L.forEach(i=>{(by[i.cat]=by[i.cat]||[]).push(i)});
+  ATIP_CAT.concat([["sonst","✨","Sonstiges"]]).forEach(a=>{const g=a[0]==="sonst"?L.filter(i=>!ATIP_CAT.some(x=>x[0]===i.cat)):by[a[0]];if(!g||!g.length)return;
+    h+=`<div class="freq" style="margin-top:8px">${a[1]} ${a[2]}</div><ul class="evlist">${g.map(i=>{const u=safeLink(i.link),ix=S.atipps.items.indexOf(i);return `<li><span class="ev">${u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(i.name)}</a>`:esc(i.name)}<br><span class="freq">${esc(atipWhen(i))}${i.where==="stadt"?" · 🏙️":i.where==="umland"?" · 🚆":""}${i.io==="drinnen"?" · 🏠":i.io==="draussen"?" · ☀️":""}${i.place?" · "+esc(i.place):""}${i.travel?" · "+esc(i.travel):""}${i.price?" · "+esc(i.price):""}${i.kid?" · 🧒 "+esc(i.kid===true?"kindertauglich":i.kid):""}</span>${i.note?`<br><span class="freq">${esc(i.note)}</span>`:""}</span><button class="ghost small" data-atiptake="${ix}">🚲 Merken</button></li>`}).join("")}</ul>`});
+  return h+`</section>`}
 function renderTripIdeas(){const d=S.tripDraft;
   if(d){const one=(f,L)=>`<div class="unl">${L.map(c=>`<button class="chipbtn" data-tset="${f}" data-v="${c[0]}" aria-pressed="${d[f]===c[0]}">${c.length===3?c[1]+" "+c[2]:c[1]}</button>`).join("")}</div>`;
     const many=(f,L)=>`<div class="unl">${L.map(c=>`<button class="chipbtn" data-ttog="${f}" data-v="${c[0]}" aria-pressed="${csv(d[f]).includes(c[0])}">${c[1]}</button>`).join("")}</div>`;
@@ -1681,7 +1715,7 @@ function renderTripIdeas(){const d=S.tripDraft;
   const open=all.filter(x=>!x.done&&match(x)).sort((a,b)=>(a.at||0)-(b.at||0)),done=all.filter(x=>x.done).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0));
   const card=x=>{const l=safeLink(x.link),tg=tripTags(x),pl=x.pack&&packLists().find(p=>p.id===x.pack);return `<li class="${x.done?"done":""}"><button class="item" data-tripdone="${esc(x.id)}" aria-pressed="${!!x.done}" aria-label="${esc(x.name)}: ${x.done?"doch noch nicht gemacht":"waren wir"}"><span class="box">${x.done?"✓":""}</span><span class="nm">${esc(x.name)}${!x.done&&tg.length?`<br><span class="freq">${tg.map(x=>`<span style="white-space:nowrap">${esc(x)}</span>`).join(" · ")}</span>`:""}${x.note&&!x.done?`<br><span class="freq">${esc(x.note)}</span>`:""}${x.done&&x.doneAt?`<br><span class="freq">Gemacht am ${new Date(x.doneAt).toLocaleDateString("de-DE")}</span>`:""}</span></button>${pl&&!x.done?`<button class="catbtn" data-gopack="${esc(pl.id)}" aria-label="Packliste ${esc(pl.name)} öffnen">🎒</button>`:""}${x.adv&&!x.done?`<button class="catbtn" data-advgo="${esc(x.adv)}" aria-label="Zum Adventskalender">🎄</button>`:""}${(sp=>sp?`<a class="catbtn" href="${esc(safeLink(sp.link)||"#")}" target="_blank" rel="noopener" aria-label="Ausgaben in Splitwise">💶</a>`:"")(splitFor("trip:"+x.id)[0])}${l?`<a class="catbtn" href="${esc(l)}" target="_blank" rel="noopener" aria-label="Link öffnen">🗺️</a>`:""}<button class="rm" data-tripedit="${esc(x.id)}" aria-label="${esc(x.name)} bearbeiten">✎</button></li>`};
   const kinds=TRIP_KIND.filter(k=>all.some(x=>!x.done&&x.kind===k[0]));
-  let h=`<div class="btnrow"><button class="primary" data-act="tripnew">+ Neue Ausflugsidee</button></div>`+mz;
+  let h=`<div class="btnrow"><button class="primary" data-act="tripnew">+ Neue Ausflugsidee</button></div>`+mz+atipCard();
   if(kinds.length||all.some(x=>!x.done&&x.wx==="egal"))h+=`<div class="unl"><button class="chipbtn" data-tfilter="" aria-pressed="${!F}">Alle</button>${all.some(x=>!x.done&&x.wx==="egal")?`<button class="chipbtn" data-tfilter="regen" aria-pressed="${F==="regen"}">🌧️ Bei Regen</button>`:""}${kinds.map(k=>`<button class="chipbtn" data-tfilter="${k[0]}" aria-pressed="${F===k[0]}">${k[1]} ${k[2]}</button>`).join("")}</div>`;
   h+=open.length?`<section class="card"><div class="section-head"><h2>Wollen wir mal hin</h2><span class="freq num">${open.length}</span></div><ul class="shop">${open.map(card).join("")}</ul><div class="freq">Tippt auf ein Ziel, wenn ihr dort wart. Mit ✎ bearbeitet ihr es.</div></section>`
     :`<div class="empty"><h2>${F?"Nichts Passendes":"Noch keine Ideen"}</h2><div>${F?"Für diesen Filter gibt es noch kein Ziel.":"Legt mit dem Knopf oben eure erste Ausflugsidee an. Ihr seht beide dieselbe Liste."}</div></div>`;
@@ -1727,7 +1761,7 @@ function buyRefLink(x){const r=String(x.ref||""),[k,v]=r.split(":");if(k==="pack
 // Einträge aus anderen Bereichen, die hier automatisch erscheinen
 function buyLinked(list){const out=[];
   if(list==="geschenke")projs().filter(x=>projCat(x)==="geschenk"&&!x.done&&(x.state==="geplant"||x.state==="dran")).forEach(x=>out.push({name:x.name,sub:x.for?"für "+x.for:"",tick:`data-projdone="${esc(x.id)}"`,link:`<button class="chipbtn neutral buyref" data-nav="projekte|pf:geschenk">🎁 Idee ›</button>`}));
-  if(list==="spiel"){const y=new Date().getFullYear();advCals().filter(c=>c.year===y).forEach(c=>Object.values(advDoors(c.id)).filter(d=>d.kind==="klein"&&(d.st||"idee")==="idee"&&d.name).sort((a,b)=>a.day-b.day).forEach(d=>out.push({name:d.name,sub:"Türchen "+d.day,tick:`data-advbought="${esc(c.id)}|${d.day}"`,link:`<button class="chipbtn neutral buyref" data-advgo="${esc(c.id)}">🎄 Türchen ›</button>`})))}
+  if(list==="spiel"){const y=new Date().getFullYear();advCals().filter(c=>c.year===y).forEach(c=>Object.values(advDoors(c.id)).filter(d=>(d.kind||advKind(d.name))==="klein"&&(d.st||"idee")==="idee"&&d.name).sort((a,b)=>a.day-b.day).forEach(d=>out.push({name:d.name,sub:"Türchen "+d.day+(advNeed(d).length?" · "+advNeed(d).join(", "):""),tick:`data-advbought="${esc(c.id)}|${d.day}"`,link:`<button class="chipbtn neutral buyref" data-advgo="${esc(c.id)}">🎄 Türchen ›</button>`})))}
   if(list==="baumarkt")funde("haus").filter(f=>f.proj&&(f.kind==="werkzeug"||f.kind==="material")&&f.st!=="gebucht").forEach(f=>{const hp=hprojs().find(x=>x.id===f.proj);if(hp)out.push({name:f.name,sub:f.price?f.price+" €":"",tick:`data-fundbought="${esc(f.id)}"`,link:`<button class="chipbtn neutral buyref" data-hproj="${esc(hp.id)}">${esc(hp.emo||"🔨")} ${esc(hp.name)} ›</button>`})});
   return out}
 function renderBuy(){const O=S.buyOpen||(S.buyOpen={}),all=buys();
@@ -1874,7 +1908,7 @@ const advForLbl=c=>c.for==="kid"?"Kind":pname(c.for);
 function advHidden(c,day){if(!c||c.for==="kid"||c.for!==S.me)return false;const n=new Date();return !(n.getFullYear()>(c.year||0)||(n.getMonth()===11&&n.getDate()>=day&&n.getFullYear()===(c.year||0)))}
 function advToday(c){const n=new Date();return c&&n.getFullYear()===(c.year||0)&&n.getMonth()===11&&n.getDate()<=24?n.getDate():0}
 function advCur(){const L=advCals(),y=advYear();let c=S.advCal&&L.find(x=>x.id===S.advCal);if(!c)c=L.find(x=>x.year===y&&x.for===(S.me==="p0"?"p1":S.me==="p1"?"p0":"kid"))||L.find(x=>x.year===y&&x.for==="kid")||L.find(x=>x.year===y);return c||null}
-async function advSet(cal,day,patch){const k=cal.id+"_"+day,cur=advDoors(cal.id)[day]||{};const v=Object.assign({cal:cal.id,day},cur,patch,{at:Date.now(),by:S.me||""});delete v.id;if(!v.name&&!patch.name)v.name=cur.name||"";
+async function advSet(cal,day,patch){const k=cal.id+"_"+day,cur=advDoors(cal.id)[day]||{};const v=Object.assign({cal:cal.id,day},cur,patch,{at:Date.now(),by:S.me||""});delete v.id;if(!v.name&&patch.name==null)v.name=cur.name||"";
   if(patch.name!=null&&!patch.kind&&!cur.kind)v.kind=advKind(patch.name);if(patch.name&&!cur.name&&v.need==null){const nd=advNeedDef(patch.name);if(nd)v.need=nd}if(!v.st)v.st=cal.kind==="gekauft"?"eingepackt":"idee";
   try{await S.store.setPath("food/adoor/"+k,v.name?v:null)}catch(_){toast("Konnte nicht speichern.")}}
 async function advNew(forWho,kind){const id=newId("a"),y=advYear();const name=kind==="gekauft"?"Gekaufter Kalender":forWho==="kid"?"Adventskalender":"Für "+pname(forWho);
@@ -1921,9 +1955,9 @@ function renderAdvent(){const L=advCals(),y=advYear(),cur=L.filter(x=>x.year===y
     <input type="text" data-advname="${sd}" value="${esc(x?x.name:"")}" maxlength="80" placeholder="Was kommt hinein?" autocomplete="off" aria-label="Inhalt Türchen ${sd}">
     ${x?`<div class="unl">${ADV_KIND.map(a=>`<button class="chipbtn neutral" data-advkind="${a[0]}" aria-pressed="${k===a[0]}">${a[1]} ${a[2]}</button>`).join("")}</div>
     ${buy?"":`<div class="unl">${ADV_ST.map(s=>`<button class="chipbtn neutral" data-advst="${s[0]}" aria-pressed="${x.st===s[0]}">${s[2]} ${s[1]}</button>`).join("")}</div>`}
-    <label class="fld"><span>🛒 Dafür einkaufen (eine Zeile pro Sache)</span><textarea data-advneed="${sd}" rows="3" placeholder="z. B. Nüsse&#10;Mandarinen">${esc(x.need||"")}</textarea></label>
+    <label class="fld"><span>${k==="klein"?"🧸 Dafür besorgen (steht bei Einkauf › Spielsachen)":"🛒 Dafür einkaufen (eine Zeile pro Sache)"}</span><textarea data-advneed="${sd}" rows="3" placeholder="${k==="klein"?"z. B. Holzauto&#10;Batterien":"z. B. Nüsse&#10;Mandarinen"}">${esc(x.need||"")}</textarea></label>
     <div class="advrow"><label class="fld"><span>💶 Preis</span><input data-advprice="${sd}" value="${esc(x.price||"")}" inputmode="decimal" placeholder="z. B. 3,50"></label>
-    ${advNeed(x).length?`<button class="ghost" data-advshop="${sd}">🛒 Auf die Einkaufsliste</button>`:""}${shopItems().some(i=>i.src===advSrc(sd)&&!i.done)?`<button class="ghost" data-advshopsee="${sd}">🧺 Auf der Liste ansehen</button>`:""}</div>
+    ${k==="klein"?((x.st||"idee")==="idee"?`<button class="ghost" data-nav="listen|bl:spiel">🧸 Steht bei Spielsachen ›</button>`:""):advNeed(x).length?`<button class="ghost" data-advshop="${sd}">🛒 Auf die Einkaufsliste</button>`:""}${shopItems().some(i=>i.src===advSrc(sd)&&!i.done)?`<button class="ghost" data-advshopsee="${sd}">🧺 Auf der Liste ansehen</button>`:""}</div>
     ${advLinks(c,x)}
     <div class="btnrow"><button class="ghost danger" data-advclear="${sd}">Türchen leeren</button></div>`:""}</div>`}
   if(!mine){h+=`<div class="btnrow" style="margin-top:10px">${buy?"":`<button class="ghost" data-act="advfill">🎲 Freie Türchen füllen</button>`}<button class="ghost" data-act="advpaste">📋 ${buy?"Inhaltsverzeichnis einfügen":"Liste einfügen"}</button>${buy?"":`<button class="ghost" data-act="advshopall">🛒 Was fehlt</button>`}</div>`;
@@ -2003,6 +2037,7 @@ const KITA_SECS=[["termine","📅","Termine"],["essen","🍽️","Essen"],["tasc
 const KITA_SRC="Kita: Mitbringen";
 const kitaBring=()=>kitas().filter(x=>x.sec==="tasche"&&!x.done).sort((a,b)=>(a.at||0)-(b.at||0));
 const kitaMitTermine=()=>{const t=ymd(new Date()),z=ymd(addDays(new Date(),7));return kitas().filter(x=>x.sec==="termine"&&x.kind==="mit"&&x.date&&x.date>=t&&x.date<=z).sort((a,b)=>a.date<b.date?-1:1)};
+const kitaShopOf=n=>shopItems().filter(i=>!i.done&&i.name.trim().toLowerCase()===String(n||"").trim().toLowerCase());
 const onShop=n=>shopItems().some(i=>!i.done&&i.name.trim().toLowerCase()===String(n).trim().toLowerCase());
 function parseKitaPlan(txt){const m=/(\d{1,2})\.(\d{1,2})\./.exec(txt||"");if(!m)return null;const now=new Date();let y=now.getFullYear();const mo=+m[2]-1;if(mo-now.getMonth()>6)y--;if(now.getMonth()-mo>6)y++;
   const mon=mondayOf(new Date(y,mo,+m[1],12)),days={},clean=s=>s.replace(/\s*\([^)]*\)/g,"").replace(/\s+/g," ").replace(/[\s,;]+$/,"").trim();
@@ -2210,6 +2245,7 @@ async function wmwTick(id,p){if(!S.me){toast("Wähle zuerst in den Einstellungen
 const RSRC=[{key:"ideen",file:"ideen.json",get:()=>S.ideas,lab:"📖 Tagesrezepte",nav:"essen|ft:rezepte",n:j=>(j.items||[]).length+(j.emmi||[]).length},
   {key:"woche",file:"wochenideen.json",get:()=>S.wideas,lab:"✨ Wochenrezepte",nav:"essen|ft:rezepte",n:j=>(j.items||[]).length},
   {key:"reise",file:"reisefunde.json",get:()=>S.rfunde,lab:"🧭 Reisen und Ausflüge",nav:"ausflug|tt:recherche",n:j=>(j.items||[]).length},
+  {key:"atipp",file:"ausflugtipps.json",get:()=>S.atipps,lab:"🗓️ Was ist los (Ausflüge)",nav:"ausflug|tt:ideen",n:j=>(j.items||[]).length},
   {key:"haus",file:"hausfunde.json",get:()=>S.hfunde,lab:"🏠 Am Haus",nav:"amhaus|",n:j=>(j.items||[]).length}];
 const RAREA=[["rezepte","📖","Rezepte"],["reisen","🧭","Reisen und Ausflüge"],["haus","🏠","Am Haus"],["spiel","⚽","Sport und Spiel"],["musik","🎵","Musik"],["kita","🎒","Kita"],["sonst","🔎","Sonstiges"]];
 const RRHY=[["taeglich","täglich"],["woechentlich","wöchentlich"],["monatlich","monatlich"],["einmal","einmal"]];
@@ -2510,7 +2546,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="kitasave"){const d=S.kitaDraft,name=(d.name||"").trim().slice(0,80);if(!name){toast("Bitte einen Titel eintragen");return}
     const id=d.id||newId("c"),base="food/kita/"+id+"/";
     try{await S.store.setPath(base+"name",name);await S.store.setPath(base+"sec",d.sec);await S.store.setPath(base+"date",/^\d{4}-\d{2}-\d{2}$/.test(d.date||"")?d.date:null);await S.store.setPath(base+"kind",d.kind||null);await S.store.setPath(base+"note",(d.note||"").trim().slice(0,2000)||null);if(!d.id)await S.store.setPath(base+"at",Date.now());S.kitaDraft=null;toast("Gespeichert");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
-  if(b.dataset.act==="kitadel"){try{await S.store.setPath("food/kita/"+S.kitaDraft.id,null);S.kitaDraft=null;toast("Gelöscht");render()}catch(_){toast("Konnte nicht speichern.")}return}
+  if(b.dataset.act==="kitadel"){try{const nm=S.kitaDraft.name;await S.store.setPath("food/kita/"+S.kitaDraft.id,null);S.kitaDraft=null;render();offerShopRemove("Gelöscht.",kitaShopOf(nm))}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.kitaadd){kitaAdd(b.dataset.kitaadd);return}
   if(b.dataset.suggedit){S.suggEdit=S.suggEdit===b.dataset.suggedit?null:b.dataset.suggedit;render();return}
   if(b.dataset.sugghide){const [l,...n]=b.dataset.sugghide.split("|");suggHide(l,n.join("|"));return}
@@ -2520,7 +2556,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="kitashopall"){const L=kitaBring().map(x=>x.name);if(L.length)openPick([{src:KITA_SRC,lines:L}]);return}
   if(b.dataset.act==="kitaremind"){const L=kitaBring().map(x=>x.name),due=ymd(addDays(new Date(),1)),ex=prios().find(x=>x.ref==="kitabag"),v={name:"Kita mitnehmen: "+L.join(", ").slice(0,70),from:"kita",ref:"kitabag",due,time:"07:30",at:Date.now(),by:S.me||""};try{await S.store.setPath("food/prio/"+(ex?ex.id:newId("p")),v);toast("Erinnerung morgen 7:30, steht unter Wichtig");render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.cleanshop){cleanPick(tasks().find(t=>t.id===b.dataset.cleanshop));return}
-  if(b.dataset.kitarm){try{await S.store.setPath("food/kita/"+b.dataset.kitarm,null)}catch(_){toast("Konnte nicht speichern.")}return}
+  if(b.dataset.kitarm){try{const it=((S.food&&S.food.kita)||{})[b.dataset.kitarm];await S.store.setPath("food/kita/"+b.dataset.kitarm,null);if(it)offerShopRemove("Entfernt.",kitaShopOf(it.name))}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.act==="kitamealedit"){S.kitaEdit=!S.kitaEdit;render();return}
   if(b.dataset.act==="kitamealsave"){const wk=wkKey(planWeek());const gv=id=>{const el=document.getElementById(id);return (el?el.value:"").trim().slice(0,120)};const F=[["text","ke-d"],["fr","ke-fr"],["na","ke-na"],["bz","ke-bz"]];const vals=[0,1,2,3,4].map(i=>F.map(([k,id])=>[k,gv(id+i)]));try{for(let i=0;i<5;i++){for(const [k,v] of vals[i])await S.store.setPath("food/kitaplan/"+wk+"/d"+i+"/"+k,v||null);await S.store.setPath("food/kitaplan/"+wk+"/d"+i+"/at",Date.now())}S.kitaEdit=false;render();toast("Kita-Essen gespeichert")}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.act==="kitaplanimport"){const el=document.getElementById("kitaplantext"),p=parseKitaPlan(el?el.value:"");if(!p){toast("Kein Speiseplan erkannt. Steht ein Datum wie 16.11. und Montag bis Freitag drin?");return}
@@ -2554,12 +2590,12 @@ app.addEventListener("click",async e=>{
   if(b.dataset.advcal){S.advCal=b.dataset.advcal;S.advDoor=null;render();return}
   if(b.dataset.advnew){const [w,k]=b.dataset.advnew.split("|");advNew(w,k);return}
   if(b.dataset.advdoor){const d=+b.dataset.advdoor,c=advCur();if(c&&c.for===S.me&&c.for!=="kid"){toast(advHidden(c,d)?"Türchen "+d+" öffnet sich am "+d+". Dezember.":"Türchen "+d+": "+((advDoors(c.id)[d]||{}).name||"leer"));return}S.advDoor=S.advDoor===d?null:d;render();if(S.advDoor){const i=document.querySelector("[data-advname]");if(i&&!i.value)i.focus()}return}
-  if(b.dataset.advkind||b.dataset.advst){const c=advCur();if(c&&S.advDoor)advSet(c,S.advDoor,b.dataset.advkind?{kind:b.dataset.advkind}:{st:b.dataset.advst});return}
-  if(b.dataset.advclear){const c=advCur();if(c)advSet(c,+b.dataset.advclear,{name:""});S.advDoor=null;return}
+  if(b.dataset.advkind||b.dataset.advst){const c=advCur();if(c&&S.advDoor){advSet(c,S.advDoor,b.dataset.advkind?{kind:b.dataset.advkind}:{st:b.dataset.advst});if(b.dataset.advkind==="klein"&&shopItems().some(i=>!i.done&&i.src===advSrc(S.advDoor))){shopRemoveBlock(advSrc(S.advDoor));toast("Steht jetzt bei Spielsachen statt auf der Einkaufsliste")}}return}
+  if(b.dataset.advclear){const c=advCur(),d=+b.dataset.advclear;if(c){await advSet(c,d,{name:""});S.advDoor=null;render();offerShopRemove("Türchen "+d+" geleert.",shopItems().filter(i=>i.src===advSrc(d)))}return}
   if(b.dataset.advsugg){const c=advCur();if(!c)return;const D=advDoors(c.id);let d=S.advDoor&&!D[S.advDoor]?S.advDoor:0;if(!d){d=1;while(D[d]&&d<=24)d++}if(d>24){toast("Alle 24 Türchen sind voll.");return}await advSet(c,d,{name:b.dataset.advsugg,kind:advKind(b.dataset.advsugg)});suggRemember("advent",b.dataset.advsugg);S.advDoor=null;render();return}
   if(b.dataset.advshop){const c=advCur(),x=c&&advDoors(c.id)[+b.dataset.advshop];if(x)openPick([{src:advSrc(x.day),lines:advNeed(x)}]);return}
   if(b.dataset.advshopsee){S.shopFilter=advSrc(+b.dataset.advshopsee);S.prev=S.tab;S.tab="einkauf";render();window.scrollTo(0,0);return}
-  if(b.dataset.act==="advshopall"){const c=advCur();if(!c)return;const B=Object.values(advDoors(c.id)).filter(x=>x.st==="idee"&&advNeed(x).length).sort((a,b)=>a.day-b.day).map(x=>({src:advSrc(x.day),lines:advNeed(x)}));if(!B.length){toast("Bei keinem offenen Türchen steht etwas zum Einkaufen.");return}openPick(B);return}
+  if(b.dataset.act==="advshopall"){const c=advCur();if(!c)return;const B=Object.values(advDoors(c.id)).filter(x=>x.st==="idee"&&advNeed(x).length&&(x.kind||advKind(x.name))!=="klein").sort((a,b)=>a.day-b.day).map(x=>({src:advSrc(x.day),lines:advNeed(x)}));if(!B.length){toast("Bei keinem offenen Türchen steht etwas zum Einkaufen.");return}openPick(B);return}
   if(b.dataset.advtrip){const c=advCur(),d=+b.dataset.advtrip,x=c&&advDoors(c.id)[d];if(!x)return;const id=newId("t");try{await S.store.setPath("food/trip/"+id,{name:x.name,date:(c.year||advYear())+"-12-"+String(d).padStart(2,"0"),note:"🎄 Adventskalender, Türchen "+d,adv:c.id,done:false,at:Date.now(),by:S.me||""});await advSet(c,d,{trip:id});toast("Ausflug angelegt, steht im Kalender");render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.advrec){S.prev=S.tab;S.tab="suche";S.sq=b.dataset.advrec;render();window.scrollTo(0,0);return}
   if(b.dataset.advprio){const c=advCur(),d=+b.dataset.advprio,x=c&&advDoors(c.id)[d];if(!x)return;const due=ymd(addDays(new Date(c.year||advYear(),11,d),-1));prioNew("projekte",{name:"Türchen "+d+": "+x.name,ref:"advent:"+c.id,due:due>ymd(new Date())?due:""});return}
@@ -2567,7 +2603,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="advpaste"){S.advPaste=S.advPaste!=null?null:"";render();if(S.advPaste!=null){const t=document.getElementById("advtext");if(t)t.focus()}return}
   if(b.dataset.act==="advpastecancel"){S.advPaste=null;render();return}
   if(b.dataset.act==="advpasteok"){const c=advCur(),t=document.getElementById("advtext");if(c&&t)advPick(c,t.value);return}
-  if(b.dataset.act==="advdel"){const c=advCur();if(!c)return;if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Wirklich löschen?";return}try{for(const x of Object.values(advDoors(c.id)))await S.store.setPath("food/adoor/"+x.id,null);await S.store.setPath("food/advent/"+c.id,null);S.advCal=null;S.advDoor=null;toast("Kalender gelöscht");render()}catch(_){toast("Konnte nicht speichern.")}return}
+  if(b.dataset.act==="advdel"){const c=advCur();if(!c)return;if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Wirklich löschen?";return}try{for(const x of Object.values(advDoors(c.id)))await S.store.setPath("food/adoor/"+x.id,null);await S.store.setPath("food/advent/"+c.id,null);const days=Object.values(advDoors(c.id)).map(x=>advSrc(x.day));S.advCal=null;S.advDoor=null;render();offerShopRemove("Kalender gelöscht.",shopItems().filter(i=>days.includes(i.src)))}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.pfilter!=null){S.projFilter=b.dataset.pfilter;S.hprojOpen=null;S.hsamm=false;S.projText="";render();window.scrollTo(0,0);return}
   if(b.dataset.projstate){const x=projs().find(y=>y.id===b.dataset.projstate);if(x){const i=PROJ_STATE.findIndex(s=>s[0]===x.state),nx=PROJ_STATE[((i<0?0:i)+1)%PROJ_STATE.length][0];try{await S.store.setPath("food/idea/"+x.id+"/state",nx==="idee"?null:nx)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}return}
   if(b.dataset.proj2hp){const x=projs().find(y=>y.id===b.dataset.proj2hp);if(!x)return;const c=projCat(x),id=newId("h");try{await S.store.setPath("food/hproj/"+id,{name:x.name,emo:HCAT[c][1],cat:c,state:"aktuell",note:x.note||"",at:Date.now(),by:S.me||""});await S.store.setPath("food/idea/"+x.id,null);S.tab="amhaus";S.projFilter=c;S.hprojOpen=id;S.hsamm=false;toast("Projekt angelegt");render();window.scrollTo(0,0)}catch(_){toast("Konnte nicht speichern.")}return}
@@ -2584,7 +2620,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.briefrm){S.store.setPath("food/brief/"+b.dataset.briefrm,null).catch(()=>toast("Konnte nicht speichern."));return}
   if(b.dataset.urlaubrm){S.store.setPath("food/urlaub/"+b.dataset.urlaubrm,null).catch(()=>toast("Konnte nicht speichern."));return}
   if(b.dataset.wknav!=null){const n=+b.dataset.wknav;S.view=n===0?mondayOf(new Date()):addDays(S.view,7*n);S.wkEdit=null;render();return}
-  if(b.dataset.nav!=null){goNav(b.dataset.nav);return}
+  if(b.dataset.nav!=null){if(b.dataset.calopen){S.calView=b.dataset.calopen;S.calDay=null;S.calMonth=null}goNav(b.dataset.nav);return}
   if(b.dataset.area){const a=ALL_AREAS[+b.dataset.area];if(!a)return;const o=a[2];S.prev=S.tab;S.tab=o.go;S.weekPage=o.wp||0;if(o.ft)S.foodTab=o.ft;if(o.tt)S.tripTab=o.tt;if(o.go==="projekte"||o.go==="amhaus")S.projFilter="";render();window.scrollTo(0,0);return}
   if(b.dataset.bild){try{localStorage.setItem("hq-bild",b.dataset.bild)}catch(_){}location.href=location.pathname+"?bild="+b.dataset.bild+location.hash;return}
   if(b.dataset.trip){S.tripDraft=null;S.reiseOpen=null;S.tripTab=b.dataset.trip;render();window.scrollTo(0,0);return}
@@ -2595,6 +2631,12 @@ app.addEventListener("click",async e=>{
   if(b.dataset.packlist){S.packList=b.dataset.packlist;S.packListNew=false;render();return}
   if(b.dataset.act==="packlistnew"){S.packListNew=!S.packListNew;render();const el=document.getElementById("packlistinput");if(el)el.focus();return}
   if(b.dataset.act==="packlistdel"){const L=curPack();if(L.id==="main")return;try{for(const i of packs().filter(x=>x.list===L.id)){await buyDropRef("pack:"+i.id);await S.store.setPath("food/pack/"+i.id,null)}await S.store.setPath("food/packlist/"+L.id,null);S.packList="main";toast("Liste gelöscht")}catch(_){toast("Konnte nicht speichern.")}return}
+  if(b.dataset.atipz){S.atipZ=b.dataset.atipz;render();return}
+  if(b.dataset.atipc!=null){S.atipC=b.dataset.atipc;render();return}
+  if(b.dataset.atipwo!=null){S.atipWO=b.dataset.atipwo;render();return}
+  if(b.dataset.atipio!=null){S.atipIO=b.dataset.atipio;render();return}
+  if(b.dataset.atiptake){const i=S.atipps&&S.atipps.items[+b.dataset.atiptake];if(!i)return;const k={natur:"wandern",kultur:"stadt",tiere:"tiere"}[i.cat]||"sonst";
+    S.tripDraft={id:null,name:i.name||"",note:[i.place,i.travel,i.time,i.price,i.note].filter(Boolean).join(" · "),link:safeLink(i.link)||"",kind:TRIP_KIND.some(x=>x[0]===i.kind)?i.kind:k,dur:"",wx:i.io==="drinnen"?"egal":"",drive:"",kid:"",cost:"",season:"",pack:"",date:i.date||i.from||""};render();window.scrollTo(0,0);return}
   if(b.dataset.act==="tripnew"){S.tripDraft={id:null,name:"",note:"",link:"",kind:"",wx:"",dur:"",drive:"",kid:"",cost:"",season:"",pack:""};render();window.scrollTo(0,0);const el=document.getElementById("tr-name");if(el)el.focus();return}
   if(b.dataset.packadd){packAdd(b.dataset.packadd);return}
   if(b.dataset.pack){const i=packs().find(x=>x.id===b.dataset.pack);if(i){try{await S.store.setPath("food/pack/"+i.id+"/done",!i.done)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}return}
@@ -2806,6 +2848,7 @@ function start(store,mode){S.store=store;S.mode=mode;let gotCfg=false,gotWeeks=f
     food=>{S.food=food||{};if(S.tab==="essen"||S.tab==="privat"||S.tab==="post"||S.tab==="settings"||S.tab==="einkauf"||S.tab==="camp"||S.tab==="ausflug"||S.tab==="projekte"||S.tab==="amhaus"||S.tab==="spiel"||S.tab==="kita"||S.tab==="musik"||S.tab==="recherchen"||S.tab==="wichtig"||S.tab==="tag"||S.tab==="listen"||S.tab==="ausgaben"||S.tab==="reisen")render()});
   try{fetch("wochenideen.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.wideas=j;if(S.tab==="essen")render()}}).catch(()=>{})}catch(_){}
   try{fetch("hausfunde.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.hfunde=j;if(S.tab==="amhaus")render()}}).catch(()=>{})}catch(_){}
+  try{fetch("ausflugtipps.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.atipps=j;if(S.tab==="ausflug")render()}}).catch(()=>{})}catch(_){}
   try{fetch("reisefunde.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.rfunde=j;if(S.tab==="ausflug")render()}}).catch(()=>{})}catch(_){}
   try{fetch("ideen.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.ideas=j;if(S.tab==="essen")render()}}).catch(()=>{})}catch(_){}
 }

@@ -1,0 +1,19 @@
+srv.listen(8765,async()=>{
+  const b=await chromium.launch();const errs=[];const out=process.argv[2];const r={};
+  const c=await b.newContext({viewport:{width:400,height:860},deviceScaleFactor:2,timezoneId:'Europe/Berlin'});const A=await c.newPage();A.setDefaultTimeout(8000);A.on('pageerror',e=>errs.push(e.message));
+  const d=n=>{const x=new Date(Date.now()+n*864e5);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')};
+  const J={updated:d(0),region:'Testregion',items:[{name:'Flohmarkt am Platz',where:'stadt',cat:'markt',io:'draussen',travel:'🚆 20 Min',date:d(2),time:'9 Uhr',place:'Altstadt',kid:true},{name:'Laternenwanderung',where:'umland',cat:'natur',io:'draussen',date:d(4),place:'Wald'},{name:'Burg mit Ritterfest',cat:'kultur',io:'drinnen',date:d(20)},{name:'Alt',cat:'markt',date:d(-3)}]};
+  await A.route('**/ausflugtipps.json',rt=>rt.fulfill({contentType:'application/json',body:JSON.stringify(J)}));
+  await A.goto('http://localhost:8765/');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');await A.waitForTimeout(300);
+  const key=/k=([^&]+)/.exec(A.url())[1];const db=()=>JSON.parse(JSON.stringify(get(['haushalt',key,'food'])||{}));
+  const nav=async v=>{await A.evaluate(v=>{const b=document.createElement("button");b.dataset.nav=v;b.id="zz";document.getElementById("app").appendChild(b)},v);await A.click("#zz");await A.waitForTimeout(400)};
+  await nav('ausflug|tt:ideen');r.week=await A.$eval('.atip',e=>e.innerText);
+  await A.click('[data-atipz=monat]');await A.waitForTimeout(200);r.month=await A.$eval('.atip',e=>e.innerText);
+  await A.addStyleTag({content:'#tabs{display:none!important}'});await (await A.$('.atip')).screenshot({path:out+'/was-ist-los.png'});await A.addStyleTag({content:'#tabs{display:flex!important}'});
+  await A.click('[data-atipwo=stadt]');await A.waitForTimeout(200);r.stadt=await A.$eval('.atip',e=>e.innerText);await A.click('[data-atipwo=""]');await A.click('[data-atipio=drinnen]');await A.waitForTimeout(200);r.drin=await A.$eval('.atip',e=>e.innerText);await A.click('[data-atipio=""]');await A.click('[data-atipc=natur]');await A.waitForTimeout(200);r.natur=await A.$eval('.atip',e=>e.innerText);
+  await A.click('[data-atiptake]');await A.waitForTimeout(300);r.name=await A.$eval('#tr-name',e=>e.value);r.date=await A.$eval('#tr-date',e=>e.value);
+  await A.click('[data-act=tripsave]');await A.waitForTimeout(400);r.saved=Object.values(db().trip||{}).map(x=>x.name+'|'+(x.date||''));
+  r.after=await A.$eval('.atip',e=>e.innerText);
+  console.error(JSON.stringify(r),errs);
+  const ok=!errs.length&&/Flohmarkt/.test(r.week)&&/Laternen/.test(r.week)&&!/Burg/.test(r.week)&&!/Alt\b/.test(r.week)&&/Burg/.test(r.month)&&!/Flohmarkt/.test(r.natur)&&/Burg/.test(r.drin)&&!/Flohmarkt/.test(r.drin)&&/20 Min/.test(r.week)&&/Flohmarkt/.test(r.stadt)&&!/Laternen/.test(r.stadt)&&r.name==='Laternenwanderung'&&r.date===d(4)&&r.saved.includes('Laternenwanderung|'+d(4))&&!/Laternen/.test(r.after);
+  console.error(ok?'ATIP OK':'ATIP FAIL');await b.close();srv.close();process.exit(0)});

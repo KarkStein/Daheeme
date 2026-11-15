@@ -9,6 +9,7 @@ const srv=http.createServer((req,res)=>{
   const u=new URL(req.url,'http://x');
   if(!u.pathname.endsWith('.json')){res.writeHead(200,{'content-type':'text/html'});return res.end(html())}
   const p=u.pathname.slice(1,-5).split('/').filter(Boolean);
+  if(p[0]!=='haushalt'){res.writeHead(404);return res.end()} // Ergebnisdateien der Recherche (ideen.json usw.) gibt es hier nicht
   res.setHeader('access-control-allow-origin','*');
   if(req.method==='GET'){res.writeHead(200,{'content-type':'text/event-stream'});
     res.write('event: put\ndata: '+JSON.stringify({path:'/',data:get(p)??null})+'\n\n');clients.push({p,res});return}
