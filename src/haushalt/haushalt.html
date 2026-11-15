@@ -93,6 +93,9 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .slot:active{transform:scale(.9)}
 .slot.today{border-style:solid;border-color:var(--ink);color:var(--ink)}
 .slot.future{opacity:.35}
+.suggedit .shop li{display:flex;align-items:center;gap:8px}
+.suggin{flex:1;min-width:0;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--surface);color:var(--fg);font:inherit}
+.ghost.small{padding:4px 10px;font-size:.82rem}
 .kmweek{display:grid;gap:10px}
 .kmday{padding:12px 14px}
 .kmday.today{border:2px solid var(--ink)}
@@ -1570,8 +1573,25 @@ function renderPack(){const L=curPack(),items=packs().filter(i=>(i.list||"main")
     :`<div class="empty"><h2>Die Liste „${esc(L.name)}“ ist leer</h2><div>Tippt Vorschläge an oder schreibt eigene Dinge dazu. Die Liste bleibt für jeden Ausflug.</div></div>`;
   if(L.id!=="main")h+=`<div><button class="ghost danger" data-act="packlistdel">Liste „${esc(L.name)}“ löschen</button></div>`;
   return h}
+// ---------- Vorschlagsgedächtnis (gemeinsamer Baustein): food/sugg/<liste>/<favKey> = {name,n,at,hide?} ----------
+function suggRaw(list){return ((S.food&&S.food.sugg)||{})[list]||{}}
+function suggList(list,defs){const raw=suggRaw(list),m=new Map();(defs||[]).forEach((n,i)=>m.set(favKey(n),{name:n,n:0,at:0,def:i}));
+  Object.entries(raw).forEach(([k,v])=>{if(!v||!v.name)return;const d=m.get(k);m.set(k,Object.assign({def:d?d.def:999},d||{},v))});
+  return [...m.values()].filter(x=>!x.hide).sort((a,b)=>(b.n||0)-(a.n||0)||(b.at||0)-(a.at||0)||a.def-b.def)}
+async function suggRemember(list,name){name=(name||"").trim();if(!name)return;const k=favKey(name),cur=suggRaw(list)[k]||{};try{await S.store.setPath("food/sugg/"+list+"/"+k,{name,n:(cur.n||0)+1,at:Date.now()})}catch(_){}}
+async function suggHide(list,name){try{await S.store.setPath("food/sugg/"+list+"/"+favKey(name),{name,hide:true,at:Date.now()})}catch(_){toast("Konnte nicht speichern.")}}
+async function suggRename(list,old,nw){nw=(nw||"").trim().slice(0,60);if(!nw||nw===old)return;const o=suggList(list,SUGG_DEFS[list]).find(x=>x.name===old)||{};
+  try{await S.store.setPath("food/sugg/"+list+"/"+favKey(old),{name:old,hide:true,at:Date.now()});if(favKey(nw)!==favKey(old))await S.store.setPath("food/sugg/"+list+"/"+favKey(nw),{name:nw,n:o.n||0,at:Date.now()});else await S.store.setPath("food/sugg/"+list+"/"+favKey(nw),{name:nw,n:o.n||0,at:Date.now()})}catch(_){toast("Konnte nicht speichern.")}}
+const SUGG_DEFS={get kita(){return KITA_BAG}};
+function suggBlock(list,have,addAttr){const all=suggList(list,SUGG_DEFS[list]),ed=S.suggEdit===list,sug=all.filter(x=>!have.has(x.name.toLowerCase()));
+  if(ed)return `<section class="card suggedit"><div class="section-head"><h2>Vorschläge bearbeiten</h2><button class="ghost" data-suggedit="${list}">Fertig</button></div>
+    <div class="freq">Antippen und umschreiben, ✕ nimmt den Vorschlag weg. Was ihr eintippt, merkt sich die App automatisch; Häufiges steht vorn.</div>
+    <ul class="shop">${all.map(x=>`<li><input type="text" class="suggin" data-sugglist="${list}" data-suggold="${esc(x.name)}" value="${esc(x.name)}" maxlength="60" aria-label="Vorschlag umbenennen">${x.n?`<span class="freq num">${x.n}×</span>`:""}<button class="rm" data-sugghide="${list}|${esc(x.name)}" aria-label="${esc(x.name)} entfernen">✕</button></li>`).join("")}</ul>
+    <form class="addrow" data-suggform="${list}"><input type="text" placeholder="Neuer Vorschlag" maxlength="60" autocomplete="off" aria-label="Neuer Vorschlag"><button class="ghost" type="submit">+ Dazu</button></form>
+    ${Object.values(suggRaw(list)).some(v=>v&&v.hide)?`<div><button class="ghost" data-suggreset="${list}">Entfernte Vorschläge zurückholen</button></div>`:""}</section>`;
+  return `<div><div class="section-head" style="margin-bottom:6px"><div class="eyebrow">Vorschläge</div><button class="ghost small" data-suggedit="${list}">✏️ Bearbeiten</button></div>${sug.length?`<div class="unl">${sug.map(x=>`<button class="chipbtn" ${addAttr}="${esc(x.name)}">+ ${esc(x.name)}</button>`).join("")}</div>`:`<div class="freq">Alles aus den Vorschlägen ist schon in der Tasche.</div>`}</div>`}
 async function kitaAdd(name){name=(name||"").trim().slice(0,60);if(!name)return;if(kitas().some(i=>i.sec==="tasche"&&i.name.toLowerCase()===name.toLowerCase())){toast("Steht schon drauf");return}
-  try{await S.store.setPath("food/kita/"+newId("c"),{name,sec:"tasche",done:false,at:Date.now()})}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}
+  try{await S.store.setPath("food/kita/"+newId("c"),{name,sec:"tasche",done:false,at:Date.now()});suggRemember("kita",name)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}
 async function packAdd(name){name=(name||"").trim().slice(0,60);if(!name)return;if(packs().some(i=>(i.list||"main")===curPack().id&&i.name.toLowerCase()===name.toLowerCase())){toast("Steht schon auf der Packliste");return}
   try{const L=curPack(),v={name,done:false,at:Date.now()};if(L.id!=="main")v.list=L.id;await S.store.setPath("food/pack/"+newId("k"),v)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}
 async function tripAddUnused(name){name=(name||"").trim().slice(0,80);if(!name)return;
@@ -1804,7 +1824,7 @@ function renderKita(){const d=S.kitaDraft,sec=KITA_SECS.find(s=>s[0]===S.kitaSec
   if(sec[0]==="tasche"){const items=all.sort((a,b)=>(a.at||0)-(b.at||0)),have=new Set(items.map(i=>i.name.toLowerCase())),sug=KITA_BAG.filter(n=>!have.has(n.toLowerCase())),ok=items.filter(i=>i.done).length;
     const li=i=>`<li class="${i.done?"done":""}"><button class="item" data-kitatick="${esc(i.id)}" aria-pressed="${!!i.done}"><span class="box">${i.done?"✓":""}</span><span class="nm">${esc(i.name)}</span></button>${i.done?"":bell("kita",i)}<button class="rm" data-kitarm="${esc(i.id)}" aria-label="${esc(i.name)} entfernen">✕</button></li>`;
     h+=`<form class="addrow" id="kitaform"><input type="text" id="kitainput" placeholder="Was gehört in die Kita-Tasche?" value="${esc(S.kitaText)}" autocomplete="off" enterkeyhint="done" aria-label="Gegenstand"><button class="primary" type="submit">Hinzufügen</button></form>`;
-    if(sug.length)h+=`<div><div class="eyebrow" style="margin-bottom:6px">Vorschläge</div><div class="unl">${sug.map(n=>`<button class="chipbtn" data-kitaadd="${esc(n)}">+ ${esc(n)}</button>`).join("")}</div></div>`;
+    h+=suggBlock("kita",have,"data-kitaadd");
     h+=items.length?`<section class="card"><div class="section-head"><h2>In der Kita</h2><span class="freq num">${ok} von ${items.length} da</span></div><ul class="shop">${items.map(li).join("")}</ul>${ok?`<div><button class="ghost" data-act="kitareset">Neu prüfen</button></div>`:""}<div class="freq">Abhaken, was in der Kita ist. Was fehlt, bleibt offen und muss mit.</div></section>`
       :`<div class="empty"><h2>Die Kita-Tasche ist leer</h2><div>Tippt Vorschläge an oder schreibt eigene Dinge dazu.</div></div>`;
     return h}
@@ -2175,6 +2195,9 @@ app.addEventListener("click",async e=>{
     try{await S.store.setPath(base+"name",name);await S.store.setPath(base+"sec",d.sec);await S.store.setPath(base+"date",/^\d{4}-\d{2}-\d{2}$/.test(d.date||"")?d.date:null);await S.store.setPath(base+"kind",d.kind||null);await S.store.setPath(base+"note",(d.note||"").trim().slice(0,2000)||null);if(!d.id)await S.store.setPath(base+"at",Date.now());S.kitaDraft=null;toast("Gespeichert");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.act==="kitadel"){try{await S.store.setPath("food/kita/"+S.kitaDraft.id,null);S.kitaDraft=null;toast("Gelöscht");render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.kitaadd){kitaAdd(b.dataset.kitaadd);return}
+  if(b.dataset.suggedit){S.suggEdit=S.suggEdit===b.dataset.suggedit?null:b.dataset.suggedit;render();return}
+  if(b.dataset.sugghide){const [l,...n]=b.dataset.sugghide.split("|");suggHide(l,n.join("|"));return}
+  if(b.dataset.suggreset){const l=b.dataset.suggreset,raw=suggRaw(l);try{for(const [k,v] of Object.entries(raw))if(v&&v.hide)await S.store.setPath("food/sugg/"+l+"/"+k,null)}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.kitatick){const x=kitas().find(y=>y.id===b.dataset.kitatick);if(x){try{await S.store.setPath("food/kita/"+x.id+"/done",!x.done)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}return}
   if(b.dataset.kitarm){try{await S.store.setPath("food/kita/"+b.dataset.kitarm,null)}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.act==="kitamealedit"){S.kitaEdit=!S.kitaEdit;render();return}
@@ -2366,7 +2389,8 @@ app.addEventListener("change",e=>{const ft=e.target.dataset&&e.target.dataset.fu
 app.addEventListener("change",e=>{const row=e.target.closest(".editrow[data-i]");if(!row||!S.draft)return;const t=S.draft.tasks[+row.dataset.i];const f=e.target.dataset.f;if(!f)return;
   t[f]=(f==="times"||f==="pts")?(+e.target.value||0):e.target.value;if(f==="freq"&&t.freq==="week"&&!t.times)t.times=1;if(f==="freq"||f==="owner")render()});
 app.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="mealinput"){e.preventDefault();const b=app.querySelector("[data-act=mealsave]");if(b)b.click()}});
-app.addEventListener("submit",async e=>{if(e.target.id==="kitaform"){e.preventDefault();const v=S.kitaText;S.kitaText="";const el=document.getElementById("kitainput");if(el)el.value="";kitaAdd(v);return}
+app.addEventListener("change",e=>{const t=e.target;if(!t.dataset||!t.dataset.suggold)return;suggRename(t.dataset.sugglist,t.dataset.suggold,t.value)});
+app.addEventListener("submit",async e=>{if(e.target.dataset&&e.target.dataset.suggform){e.preventDefault();const l=e.target.dataset.suggform,i=e.target.querySelector("input"),v=(i&&i.value||"").trim().slice(0,60);if(!v)return;i.value="";const k=favKey(v),cur=suggRaw(l)[k]||{};try{await S.store.setPath("food/sugg/"+l+"/"+k,{name:v,n:cur.hide?0:(cur.n||0),at:Date.now()})}catch(_){toast("Konnte nicht speichern.")}return}if(e.target.id==="kitaform"){e.preventDefault();const v=S.kitaText;S.kitaText="";const el=document.getElementById("kitainput");if(el)el.value="";kitaAdd(v);return}
   if(e.target.id==="contactaddform"){e.preventDefault();const n=document.getElementById("contactname"),t=document.getElementById("contactnum"),nv=(n&&n.value||"").trim().slice(0,30),tv=(t&&t.value||"").trim().slice(0,30);if(!nv){toast("Bitte einen Namen eintragen.");return}if(tv&&!waNum(tv)){toast("Bitte eine gültige Handynummer eintragen.");return}S.store.setPath("food/contacts/"+newId("c"),{name:nv,num:tv,at:Date.now()}).catch(()=>toast("Konnte nicht speichern."));n.value="";t.value="";return}
   if(e.target.id==="contactform"){e.preventDefault();const el=document.getElementById("contactinput"),v=(el&&el.value||"").trim().slice(0,30);if(!waNum(v)){toast("Bitte eine gültige Handynummer eintragen.");return}const ot=(S.me||"p0")==="p0"?"p1":"p0";S.store.setPath("food/contact/"+ot,v).then(()=>render()).catch(()=>toast("Konnte nicht speichern."));return}
   if(e.target.id==="briefform"){e.preventDefault();const el=document.getElementById("briefinput"),v=(el&&el.value||"").trim().slice(0,80);if(!v)return;el.value="";S.store.setPath("food/brief/"+newId("b"),{name:v,at:Date.now(),by:S.me||""}).catch(()=>toast("Konnte nicht speichern."));return}
