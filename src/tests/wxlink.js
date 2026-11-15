@@ -1,6 +1,6 @@
 srv.listen(8765,async()=>{
   const b=await chromium.launch();const errs=[];const out=process.argv[2];const r={};
-  const c=await b.newContext({viewport:{width:400,height:860},deviceScaleFactor:2,timezoneId:'Europe/Berlin'});const A=await c.newPage();A.setDefaultTimeout(8000);A.on('pageerror',e=>errs.push(e.message));
+  const c=await b.newContext({viewport:{width:400,height:860},deviceScaleFactor:2,timezoneId:'Europe/Berlin'});const A=await c.newPage();A.setDefaultTimeout(8000);{const n=new Date();await A.clock.setFixedTime(new Date(n.getFullYear(),n.getMonth(),n.getDate(),10,20))}A.on('pageerror',e=>errs.push(e.message));
   const wx={current:{weather_code:2},hourly:{time:[],temperature_2m:[],precipitation_probability:[],weather_code:[]},daily:{time:[],temperature_2m_max:[],precipitation_sum:[],weather_code:[],wind_speed_10m_max:[],snowfall_sum:[]}};
   for(let i=-1;i<8;i++){const d=new Date(Date.now()+i*864e5);const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');wx.daily.time.push(k);wx.daily.temperature_2m_max.push(5);wx.daily.precipitation_sum.push(0);wx.daily.weather_code.push(i===2?73:1);wx.daily.wind_speed_10m_max.push(i===3?35:10);wx.daily.snowfall_sum.push(i===2?3:0);for(let h=0;h<24;h++){wx.hourly.time.push(k+'T'+String(h).padStart(2,'0')+':00');wx.hourly.temperature_2m.push(4);wx.hourly.precipitation_probability.push(10);wx.hourly.weather_code.push(1)}}
   await A.route('https://api.open-meteo.com/**',rt=>rt.fulfill({contentType:'application/json',body:JSON.stringify(wx)}));

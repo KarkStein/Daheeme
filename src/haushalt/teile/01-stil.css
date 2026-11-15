@@ -441,3 +441,9 @@ h2{font-weight:700}
 .campback .bcnt b{font-family:var(--f-display);font-weight:700}
 .campback .bcnt span{font-size:var(--fs-xs)}
 .campback .bring small{font-size:var(--fs-xs)}
+/* Startseite passt ohne Scrollen auf den ersten Bildschirm (Florian 15.11.2026) */
+.starthead{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp2);margin:0 0 var(--sp2)}
+.starthead h1{font-size:var(--fs-xl);margin:0}.starthead .eyebrow{margin:0;white-space:nowrap}
+.card.today{padding-top:var(--sp3);padding-bottom:var(--sp2)}.card.today h2{margin:0 0 var(--sp1);font-size:var(--fs-l)}
+.card.today .todayrow{padding-top:var(--sp2);padding-bottom:var(--sp2)}
+@media (max-height:720px){.starthead{display:none}.card.today h2{font-size:var(--fs-m)}.card.today .todayrow{padding-top:6px;padding-bottom:6px}}
