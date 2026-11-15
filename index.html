@@ -1298,7 +1298,7 @@ function wxPlaceRow(){const pl=S.food&&S.food.wxplace;return `<div class="freq" 
 // Zentrale Bereichsliste (15.11.2026): Bereiche-Übersicht, Kreismenü und Wischen werden daraus gebaut.
 // [Symbol, Name, Tab, Kurzname im Kreis (leer = nicht im Kreis), Sprung im Kreis, Unterbereiche()]
 // Gliederung (Florian 15.11.2026): Alltag, Essen, Zuhause, Freizeit, Wir, Quer. Die 4 Reiter unten bleiben Abkürzungen.
-const AREA_GROUPS=[["alltag","🗓️","Alltag"],["essen","🍲","Essen"],["zuhause","🏡","Zuhause"],["freizeit","🌊","Freizeit"],["wir","🫶","Wir"],["quer","🧭","Quer durch alles"]];
+const AREA_GROUPS=[["essen","🍲","Essen"],["alltag","🗓️","Alltag"],["wir","🫶","Wir"],["zuhause","🏡","Zuhause"],["freizeit","🌊","Freizeit"],["quer","🧭","Quer durch alles"]];
 // [Symbol, Name, Tab, Kurzname im Kreis (leer = nicht im Kreis), Sprung im Kreis, Unterbereiche(), Gruppe]
 const AREAS=[["🏠","Start","camp","","",()=>[],""],["🧹","Woche","woche","Woche","woche|",()=>[["Diese Woche","wp:0"],["Kalender","wp:3"],["Wer macht was","wp:1"],["Übersicht","wp:2"]],"alltag"],
   ["🎒","Kita","kita","Kita","kita|",()=>KITA_SECS.map(k=>[k[2]==="Essen"?"Kita-Essen":k[2],"ks:"+k[0]]),"alltag"],
@@ -1309,7 +1309,9 @@ const AREAS=[["🏠","Start","camp","","",()=>[],""],["🧹","Woche","woche","Wo
   ["⚽","Sport und Spiel","spiel","Sport","spiel|",()=>PLAY_SECS.map(p=>[p[2],"ps:"+p[0]]),"freizeit"],["🎵","Musik","musik","Musik","musik|",()=>[],"freizeit"],
   ["🫶","Partner","privat","Partner","privat|",()=>[["Mittagessen","pv:lunch"],["Briefe","pv:briefe"],["Kontakte","pv:kontakte"]],"wir"],
   ["💡","Ideen","projekte","Ideen","projekte|",()=>PROJ_CATS.filter(c=>PROJ_GROUPS.projekte&&PROJ_GROUPS.projekte.cats?PROJ_GROUPS.projekte.cats.includes(c[0]):["geschenk","sonst"].includes(c[0])).map(c=>[c[2],"pf:"+c[0]]),"wir"],
-  ["🔔","Wichtig","wichtig","Wichtig","wichtig|",()=>[],"quer"],["⚙️","Einstellungen","settings","","",()=>[],"quer"]];
+  ["🔔","Wichtig","wichtig","Wichtig","wichtig|",()=>[],"quer"],["🤖","Recherchen","recherchen","","",()=>[],"quer"],["⚙️","Einstellungen","settings","","",()=>[],"quer"]];
+// Reihenfolge folgt den Gruppen (Florian 15.11.2026: Essen, dann Woche und Kita, dann Wir)
+AREAS.sort((x,y)=>(x[6]?AREA_GROUPS.findIndex(g=>g[0]===x[6]):-1)-(y[6]?AREA_GROUPS.findIndex(g=>g[0]===y[6]):-1));
 // Zusätze, die keine eigenen Bereiche sind: Kalender (im Kreis direkt nach Woche), Wichtig, Einstellungen
 const AREA_TREE=()=>AREAS.map(a=>[a[0],a[1],a[2],a[5](),a[6]]);
 function renderAreas(){let h=`<div><div class="eyebrow">Alles auf einen Blick</div><h1>Bereiche</h1></div>`;
@@ -1350,7 +1352,7 @@ function renderBack(night){const now=new Date(),today=ymd(now),D=backDay(now),pr
   const ahead=[1,2,3].map(i=>{const d=addDays(startOfDay(now),i),x=backDay(d),e=x.ev[0];return `<div class="bday3"><b>${i===1?"Morgen":DN[d.getDay()].slice(0,2)}</b><span>🍲 ${x.meal?esc(x.meal.name):"–"}</span>${e?`<span>${e.icon||"📅"} ${esc(e.name)}</span>`:""}</div>`}).join("");
   return `<div class="campback${night?" night":""}" aria-label="Rückseite: der Tag auf einen Blick"><div class="brim"></div>
     <div class="btop"><div class="bhead"><div class="bday">${DN[now.getDay()]}</div><div class="bdate">${now.getDate()}. ${MN[now.getMonth()]}</div><div class="bsub">${nowT!=null?`<span class="bwx">${nowI} ${nowT}°</span>`:""}🌅 ${hm(t.rise)} · 🌇 ${hm(t.set)}</div>${spark}</div><div class="bstamp" aria-hidden="true"><span>📷</span></div></div>
-    ${line}${counters}<div class="b3">${ahead}</div><div class="bfoot"><button class="bcal" data-nav="woche|wp:3">📅 Kalender ›</button><button class="bflip" data-act="flipback">↺ Zum Bild</button></div>
+    ${line}${counters}<div class="b3">${ahead}</div><div class="bfoot"><button class="bcal" data-nav="woche|wp:3">📅 Kalender ›</button>${(n=>n?`<button class="bcal" data-go="recherchen">🤖 ${n} neu</button>`:"")(rNew().length)}<button class="bflip" data-act="flipback">↺ Zum Bild</button></div>
     <div class="bturn">↺ Tippen zum Umdrehen</div></div>`}
 function moonName(p){return p<0.03||p>0.97?"Neumond":p<0.22?"zunehmende Sichel":p<0.28?"zunehmender Halbmond":p<0.47?"zunehmender Mond":p<0.53?"Vollmond":p<0.72?"abnehmender Mond":p<0.78?"abnehmender Halbmond":"abnehmende Sichel"}
 function wxPanel(night){const pl=S.food&&S.food.wxplace,now=new Date(),lat=pl&&pl.lat!=null?+pl.lat:51.0,lon=pl&&pl.lon!=null?+pl.lon:10.4,t=sunTimes(now,lat,lon),hm=m=>{m=Math.round(m);return Math.floor(m/60)+":"+String(m%60).padStart(2,"0")},mp=moonPhase(now);
@@ -1372,7 +1374,7 @@ function renderSettings(){const per=(S.config&&S.config.persons)||[];const hs=sc
   h+=`<section class="card"><button class="todayrow" data-go="einkauf"><span>🧂</span><span>Immer im Haus: steht jetzt unter Einkauf</span><i>›</i></button></section>`;
   h+=`<section class="card"><div class="section-head"><h2>🖼️ Startbild</h2></div><div class="unl"><button class="chipbtn neutral" data-bild="haus" aria-pressed="${hs}">🏠 Haus am Meer (Entwurf)</button><button class="chipbtn neutral" data-bild="zelt" aria-pressed="${!hs}">🏕️ Zeltplatz</button></div><div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy. Das Haus ist noch nicht für beide freigeschaltet.</div></section>`;
   h+=`<section class="card"><div class="section-head"><h2>👥 Plan, Aufgaben, Einladung</h2></div><div class="freq">Aufgaben, Wechsel-Pakete, Kosten der Dinge im Bild und der Einladungs-Link stehen unter Woche › Wer macht was.</div><div class="btnrow" style="margin-top:8px"><button class="ghost" data-area="1">Öffnen</button></div></section>`;
-  h+=`<section class="card"><div class="section-head"><h2>🔎 Rezept-Recherche</h2></div><div class="freq">Täglich ein Rezept pro Rubrik: ${IDEA_CATS.map(c=>esc(c[2]||c[1]||c[0])).join(", ")}. Dazu samstags die Wochenrezepte. Quellen und Vorlieben pflege ich für euch: schreib mir einfach, was dazu oder weg soll.</div></section>`;
+  h+=`<section class="card"><button class="todayrow" data-go="recherchen"><span>🤖</span><span>Recherchen: alle festen Aufträge, Neues und eure Wünsche</span><i>›</i></button></section>`;
   h+=`<section class="card"><div class="section-head"><h2>🔔 Erinnerungen</h2></div><div class="freq">Eigene Vorlagen legst du in der Maske einer Erinnerung an (Knopf „＋ als Vorlage“).</div><div class="btnrow" style="margin-top:8px"><button class="ghost" data-area="${ALL_AREAS.findIndex(a=>a[2].go==="wichtig")}">Alle Erinnerungen</button></div></section>`;
   return h}
 function renderShop(){let h=`<div><div class="eyebrow">Einkaufsliste</div><h1>Einkauf</h1></div>${bellRow("einkauf")}`;
@@ -1755,7 +1757,7 @@ function renderPrioMask(){const d=S.prioDraft,f=d.from||"frei",tpl=(PRIO_TPL[f]|
    <div class="fld"><span>Wiederholen</span><div class="unl">${[["","Nein"],["w","Jede Woche"],["m","Jeden Monat"]].map(r=>`<button class="chipbtn" data-pmrep="${r[0]}" aria-pressed="${(d.rep||"")===r[0]}">${r[1]}</button>`).join("")}</div></div>
    <label class="fld"><span>Notiz</span><textarea id="pm-note" data-pdf="note" rows="2">${esc(d.note||"")}</textarea></label>
    <div class="btnrow"><button class="primary" data-act="pmsave">Speichern</button><button class="ghost" data-act="pmcancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="pmdel">Löschen</button>`:""}</div></section>${d.id?"":BULK_CARD}`}
-function renderWichtig(){if(S.prioDraft)return renderPrioMask();const today=ymd(new Date()),k=S.prioSort||"datum",list=prioSorted();let h=`<div><div class="eyebrow">Alle Erinnerungen</div><h1>🔔 Wichtig</h1></div><div class="btnrow"><button class="primary" data-prionew="frei">+ Neue Erinnerung</button></div><div class="filters" role="group" aria-label="Sortieren">${PRIO_SORT.map(x=>`<button class="chipbtn neutral" data-priosort="${x[0]}" aria-pressed="${k===x[0]}">${x[1]}</button>`).join("")}</div>`;
+function renderWichtig(){if(S.prioDraft)return renderPrioMask();const today=ymd(new Date()),k=S.prioSort||"datum",list=prioSorted();let h=`<div><div class="eyebrow">Alle Erinnerungen</div><h1>🔔 Wichtig</h1></div><div class="btnrow"><button class="primary" data-prionew="frei">+ Neue Erinnerung</button></div><div class="filters" role="group" aria-label="Sortieren">${PRIO_SORT.map(x=>`<button class="chipbtn neutral" data-priosort="${x[0]}" aria-pressed="${k===x[0]}">${x[1]}</button>`).join("")}</div>`;h+=rInbox(false);
   if(!list.length)return h+`<div class="empty"><h2>Nichts Wichtiges</h2><div>Tippt in Kita, Essen, Einkauf, Ideen, Am Haus, Ausflügen oder Sport und Spiel auf die Glocke 🔔. Dann steht der Eintrag hier und auf der Startseite.</div></div><section class="card"><form class="addrow" id="prioform" style="margin-top:6px"><input type="text" id="prioinput" placeholder="Etwas Wichtiges notieren" value="${esc(S.prioText||"")}" autocomplete="off" enterkeyhint="done" aria-label="Wichtiges notieren"><button class="primary" type="submit">+</button></form></section>`;
   const sec=(t,a)=>a.length?`<section class="card"><div class="section-head"><h2>${t}</h2><span class="freq num">${a.length}</span></div>${a.map(prioRow).join("")}</section>`:"";
   if(k==="datum")h+=sec("Fällig",list.filter(x=>x.due&&x.due<=today))+sec("Ohne Datum",list.filter(x=>!x.due))+sec("Kommt noch",list.filter(x=>x.due&&x.due>today));
@@ -1825,6 +1827,43 @@ function renderPlan(){
   h+=`<div class="line" style="display:flex;gap:8px;flex-wrap:wrap"><button class="ghost" data-act="add">+ Aufgabe</button><button class="primary" data-act="save">Plan speichern</button><button class="ghost" data-act="reset">Änderungen verwerfen</button></div></section>`;
   return h}
 
+// ---------- Recherchen (zentral, Quer durch alles; Entwurf 15.11.2026) ----------
+// Ergebnisdateien der festen Aufträge; ihr Feld "updated" ist der letzte Lauf. auftraege.json listet die Aufträge.
+const RSRC=[{key:"ideen",file:"ideen.json",get:()=>S.ideas,lab:"📖 Tagesrezepte",nav:"essen|ft:rezepte",n:j=>(j.items||[]).length+(j.emmi||[]).length},
+  {key:"woche",file:"wochenideen.json",get:()=>S.wideas,lab:"✨ Wochenrezepte",nav:"essen|ft:rezepte",n:j=>(j.items||[]).length},
+  {key:"reise",file:"reisefunde.json",get:()=>S.rfunde,lab:"🧭 Reisen und Ausflüge",nav:"ausflug|tt:recherche",n:j=>(j.items||[]).length},
+  {key:"haus",file:"hausfunde.json",get:()=>S.hfunde,lab:"🏠 Am Haus",nav:"amhaus|",n:j=>(j.items||[]).length}];
+const RAREA=[["rezepte","📖","Rezepte"],["reisen","🧭","Reisen und Ausflüge"],["haus","🏠","Am Haus"],["spiel","⚽","Sport und Spiel"],["musik","🎵","Musik"],["kita","🎒","Kita"],["sonst","🔎","Sonstiges"]];
+const RRHY=[["taeglich","täglich"],["woechentlich","wöchentlich"],["monatlich","monatlich"],["einmal","einmal"]];
+const rArea=k=>RAREA.find(a=>a[0]===k)||RAREA[RAREA.length-1];
+const rDate=u=>{const m=String(u||"").match(/(\d{4})-(\d\d)-(\d\d)/);return m?`${+m[3]}.${+m[2]}.`:""};
+const rSeen=k=>{const s=S.food&&S.food.rseen&&S.food.rseen[k];return s&&s[S.me||"x"]||""};
+// Neu aus der Recherche: Ergebnisdateien, deren Stand dieses Handy (bzw. diese Person) noch nicht als gesehen markiert hat
+function rNew(){return RSRC.map(r=>{const j=r.get();return j&&j.updated&&r.n(j)&&rSeen(r.key)!==String(j.updated)?{...r,j}:null}).filter(Boolean)}
+async function rMarkSeen(keys){for(const k of keys){const r=RSRC.find(x=>x.key===k),j=r&&r.get();if(j&&j.updated)try{await S.store.setPath("food/rseen/"+k+"/"+(S.me||"x"),String(j.updated))}catch(_){}}render()}
+function rInbox(full){const L=rNew();if(!L.length)return full?`<section class="card"><div class="section-head"><h2>🤖 Neu aus der Recherche</h2></div><div class="freq">Alles gesehen. Neues erscheint hier, sobald ein Auftrag gelaufen ist.</div></section>`:"";
+  return `<section class="card rinbox"><div class="section-head"><h2>🤖 Neu aus der Recherche</h2><span class="freq num">${L.length}</span></div><ul class="evlist">${L.map(r=>`<li class="rnew"><button class="dishlink" data-rgo="${r.key}"><span class="ev"><b>${r.lab}</b><span class="freq"> · ${r.n(r.j)} Vorschläge vom ${rDate(r.j.updated)}</span></span><i>›</i></button><button class="ghost" data-rseen="${r.key}" aria-label="Gesehen">✓</button></li>`).join("")}</ul><div class="btnrow" style="margin-top:6px"><button class="ghost" data-rseen="${L.map(r=>r.key).join(",")}">Alles gesehen</button></div></section>`}
+const rwuensche=()=>listOf(S.food&&S.food.rwunsch).sort((a,b)=>(b.at||0)-(a.at||0));
+function rWishText(w){const a=rArea(w.area),r=(RRHY.find(x=>x[0]===w.rhythm)||[0,w.rhythm||"offen"])[1];return `Bitte richte für Daheeme einen Recherche-Auftrag ein (Wunsch ${w.id}).\nBereich: ${a[2]}\nWas: ${w.what||""}\nRhythmus: ${r}${w.note?"\nNotiz: "+w.note:""}${w.task?"\nÄndert den bestehenden Auftrag: "+w.task:""}`}
+async function copyText(t){try{await navigator.clipboard.writeText(t);toast("Kopiert. Jetzt Claude schicken.");return}catch(_){}S.copyBox=t;render();toast("Bitte den Text markieren und kopieren.")}
+function renderResearch(){if(!S.auftrLoad){S.auftrLoad=1;try{fetch("auftraege.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.auftr=j;if(S.tab==="recherchen")render()}}).catch(()=>{})}catch(_){}}const A=(S.auftr&&S.auftr.items)||[],W=rwuensche(),d=S.rDraft;
+  let h=`<div><div class="eyebrow">Quer durch alles</div><h1>🤖 Recherchen</h1></div><div class="freq" style="margin:-4px 2px 8px">Die Ergebnisse stehen in ihren Bereichen. Hier seht ihr alle festen Aufträge, was neu ist, und könnt Neues wünschen.</div>`;
+  if(S.copyBox)h+=`<section class="card"><div class="section-head"><h2>📋 Text für Claude</h2><button class="ghost" data-act="copyclose" aria-label="Schließen">✕</button></div><textarea id="rcopy" rows="7" readonly style="width:100%">${esc(S.copyBox)}</textarea></section>`;
+  h+=rInbox(true);
+  h+=`<section class="card"><div class="section-head"><h2>⚙️ Feste Aufträge</h2><span class="freq num">${A.length}</span></div>`;
+  h+=A.length?`<ul class="evlist rauftr">${A.map(a=>{const ar=rArea(a.area),src=RSRC.find(r=>r.file===a.file),j=src&&src.get(),last=j&&j.updated?rDate(j.updated):"";
+    return `<li><div class="ev"><b>${ar[1]} ${esc(a.name||"")}</b><div class="freq">${esc(ar[2])} · ${esc(a.rhythm||"")}${last?` · zuletzt ${last}`:" · noch kein Lauf"}</div>${a.what?`<div class="freq">${esc(a.what)}</div>`:""}<div class="btnrow" style="margin-top:4px">${src?`<button class="ghost" data-nav="${src.nav}">Ergebnisse ›</button>`:""}<button class="ghost" data-rchange="${esc(a.id||"")}">✎ Ändern wünschen</button></div></div></li>`}).join("")}</ul>`:`<div class="freq">Noch keine Liste geladen.</div>`;
+  h+=`</section>`;
+  if(d)h+=`<section class="card"><div class="section-head"><h2>${d.id?"✎ Wunsch ändern":"＋ Neuer Wunsch"}</h2></div><div class="bkform">
+    <label class="fld"><span>Bereich</span><select data-rwf="area">${RAREA.map(a=>`<option value="${a[0]}"${d.area===a[0]?" selected":""}>${a[1]} ${esc(a[2])}</option>`).join("")}</select></label>
+    <label class="fld"><span>Was soll gesucht werden?</span><textarea data-rwf="what" rows="3" maxlength="600" placeholder="z. B. Ferienwohnungen an der Ostsee für 4, mit Kleinkind">${esc(d.what||"")}</textarea></label>
+    <label class="fld"><span>Wie oft?</span><select data-rwf="rhythm">${RRHY.map(r=>`<option value="${r[0]}"${d.rhythm===r[0]?" selected":""}>${r[1]}</option>`).join("")}</select></label>
+    <label class="fld"><span>Notiz</span><input data-rwf="note" value="${esc(d.note||"")}" maxlength="200" autocomplete="off"></label>
+    <div class="btnrow"><button class="primary" data-act="rwsave">Speichern</button><button class="ghost" data-act="rwcancel">Abbrechen</button></div></div></section>`;
+  h+=`<section class="card"><div class="section-head"><h2>💭 Wünsche</h2>${d?"":`<button class="ghost" data-act="rwnew">＋ Wunsch</button>`}</div>`;
+  h+=W.length?`<ul class="evlist rwlist">${W.map(w=>{const done=A.some(a=>a.wish===w.id),ar=rArea(w.area),r=(RRHY.find(x=>x[0]===w.rhythm)||[0,""])[1];
+    return `<li><div class="ev"><b>${ar[1]} ${esc(w.what||"")}</b><div class="freq">${done?"✅ eingerichtet":"⏳ offen"}${r?" · "+r:""}${w.note?" · "+esc(w.note):""}</div><div class="btnrow" style="margin-top:4px">${done?"":`<button class="ghost" data-rwcopy="${esc(w.id)}">📋 Text für Claude kopieren</button>`}<button class="ghost" data-rwedit="${esc(w.id)}" aria-label="Ändern">✎</button><button class="ghost" data-rwdel="${esc(w.id)}" aria-label="Löschen">✕</button></div></div></li>`}).join("")}</ul>`:`<div class="freq">Noch keine Wünsche. Legt einen an, kopiert den Text und schickt ihn Claude. Sobald der Auftrag läuft, steht hier „eingerichtet“.</div>`;
+  return h+`</section>`}
 function render(){
   if(S.mode==="loading")return;
   if(S.tab==="reisen"){S.tab="ausflug";S.tripTab="urlaub"} // Reisen und Ausflüge sind ein Bereich
@@ -1839,8 +1878,8 @@ function render(){
   if(!S.config){h+=`<div class="empty"><h2>Noch kein Haushaltsplan hinterlegt</h2><div>Legt euren Plan aus der Vorlage an (eure Liste mit Müll, Saugen, Wäsche und Co.). Danach könnt ihr alles unter „Plan“ anpassen.</div><button class="primary" data-act="template">Plan aus Vorlage anlegen</button></div>`;app.innerHTML=h;return}
   const inSet=S.tab==="plan"||S.tab==="alle";
   h+=inSet?`<div class="appbar"><button class="ghost" data-go="${S.prev||"camp"}">‹ Zurück</button><span class="brand">Euer Plan</span></div><div class="filters" role="group" aria-label="Ansicht"><button class="chipbtn neutral" data-go="alle" aria-pressed="${S.tab==="alle"}">Übersicht</button><button class="chipbtn neutral" data-go="plan" aria-pressed="${S.tab==="plan"}">Plan bearbeiten</button></div>`
-    :`<div class="appbar">${prioOn()?`<span class="appleft"><button class="brand brandbtn" data-go="camp" aria-label="Zur Startseite">🏕️🧹</button><button class="iconbtn bellnav" data-go="wichtig" aria-label="Wichtig: alle Erinnerungen">🔔${(n=>n?`<b class="badge">${n}</b>`:"")(prios().filter(x=>x.due&&x.due<=ymd(new Date())).length)}</button></span>`:`<button class="brand brandbtn" data-go="camp" aria-label="Zur Startseite">🏕️🧹</button>`}${prioOn()?`<span class="appleft"><button class="iconbtn" data-go="bereiche" aria-label="Alle Bereiche"${S.tab==="bereiche"?' aria-pressed="true"':""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></svg></button>`:""}<button class="iconbtn" data-go="${prioOn()?"settings":"alle"}" aria-label="${prioOn()?"Einstellungen und alle Bereiche":"Übersicht und Plan"}"${prioOn()&&S.tab==="settings"?' aria-pressed="true"':""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button>${prioOn()?"</span>":""}</div>`;
-  h+=S.tab==="bereiche"?renderAreas():S.tab==="settings"?renderSettings():S.tab==="wichtig"?renderWichtig():S.tab==="woche"?(prioOn()?weekPager()+[renderWeek,renderPlan,renderAll,renderCal][S.weekPage|0]():renderWeek()):S.tab==="alle"?renderAll():S.tab==="camp"?renderCamp():S.tab==="essen"||S.tab==="einkauf"?renderFood():S.tab==="ausflug"?renderTrips():S.tab==="projekte"||S.tab==="amhaus"?renderProjects():S.tab==="spiel"?renderPlay():S.tab==="musik"?renderMusic():S.tab==="kita"?renderKita():S.tab==="privat"?renderPrivat():S.tab==="post"?(S.tab="privat",S.privSec="briefe",renderPrivat()):S.tab==="reisen"?renderTrips():renderPlan();
+    :`<div class="appbar">${prioOn()?`<span class="appleft"><button class="brand brandbtn" data-go="camp" aria-label="Zur Startseite">🏕️🧹</button><button class="iconbtn bellnav" data-go="wichtig" aria-label="Wichtig: alle Erinnerungen">🔔${(n=>n?`<b class="badge">${n}</b>`:"")(prios().filter(x=>x.due&&x.due<=ymd(new Date())).length)}</button></span>`:`<button class="brand brandbtn" data-go="camp" aria-label="Zur Startseite">🏕️🧹</button>`}${prioOn()?`<span class="appleft">`:""}<button class="iconbtn" data-go="${prioOn()?"settings":"alle"}" aria-label="${prioOn()?"Einstellungen und alle Bereiche":"Übersicht und Plan"}"${prioOn()&&S.tab==="settings"?' aria-pressed="true"':""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button>${prioOn()?`<button class="iconbtn" data-go="bereiche" aria-label="Alle Bereiche"${S.tab==="bereiche"?' aria-pressed="true"':""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></svg></button></span>`:""}</div>`;
+  h+=S.tab==="bereiche"?renderAreas():S.tab==="settings"?renderSettings():S.tab==="wichtig"?renderWichtig():S.tab==="woche"?(prioOn()?weekPager()+[renderWeek,renderPlan,renderAll,renderCal][S.weekPage|0]():renderWeek()):S.tab==="alle"?renderAll():S.tab==="camp"?renderCamp():S.tab==="essen"||S.tab==="einkauf"?renderFood():S.tab==="ausflug"?renderTrips():S.tab==="projekte"||S.tab==="amhaus"?renderProjects():S.tab==="spiel"?renderPlay():S.tab==="musik"?renderMusic():S.tab==="recherchen"?renderResearch():S.tab==="kita"?renderKita():S.tab==="privat"?renderPrivat():S.tab==="post"?(S.tab="privat",S.privSec="briefe",renderPrivat()):S.tab==="reisen"?renderTrips():renderPlan();
   const y=window.scrollY,ae=document.activeElement,fid=ae&&app.contains(ae)&&ae.id?ae.id:null,sel=fid&&ae.selectionStart!=null?[ae.selectionStart,ae.selectionEnd]:null;
   h+=renderPick();app.innerHTML=h;window.scrollTo(0,y);syncNav();
   if(fid){const el=document.getElementById(fid);if(el){el.focus({preventScroll:true});if(sel){try{el.setSelectionRange(sel[0],sel[1])}catch(_){}}}}
@@ -1864,7 +1903,7 @@ window.addEventListener("popstate",e=>{if(navBusy){navBusy=false;return}const st
   NAV.length=Math.min(NAV.length,st.i);NAV[st.i]=navKey();render();window.scrollTo(0,0)});
 // ---------- Events ----------
 // Wischen links/rechts wechselt im Entwurf die Hauptbereiche: erst die 4 Reiter, dann weiter zu den übrigen Bereichen (keine Unterseiten)
-const SWIPE_TABS=["camp","woche","essen","einkauf"].concat(AREAS.map(a=>a[2]).filter(t=>!["camp","woche","essen","einkauf","wichtig","settings"].includes(t)));
+const SWIPE_TABS=["camp","woche","essen","einkauf"].concat(AREAS.map(a=>a[2]).filter(t=>!["camp","woche","essen","einkauf","wichtig","settings","recherchen"].includes(t)));
 function swipeTo(dir){const i=SWIPE_TABS.indexOf(S.tab);if(i<0)return;const j=i+dir;if(j<0||j>=SWIPE_TABS.length)return;const t=SWIPE_TABS[j];
   S.prev=S.tab;S.tab=t;S.draft=S.campDraft=S.tripDraft=S.projDraft=S.playDraft=S.kitaDraft=S.recDraft=S.planEdit=S.lunchDraft=null;S.shopPick=null;
   if(t==="woche")S.weekPage=0;if(t==="essen")S.foodTab="heute";if(t==="projekte"||t==="amhaus")S.projFilter="";
@@ -1951,6 +1990,17 @@ app.addEventListener("click",async e=>{
     if(b.dataset.packshop){const i=packs().find(y=>y.id===b.dataset.packshop);if(i){try{const r=await shopAddMany([i.name],"🏝️ "+(x?x.name:"Urlaub"),{force:true,quiet:true});toast(r&&r.n?i.name+" steht auf der Einkaufsliste":"Steht schon auf der Liste")}catch(_){toast("Konnte nicht speichern.")}}return}
     if(b.dataset.reiseprio!=null){const n=REISE_PRIO[+b.dataset.reiseprio];let due="";if(x&&x.from){const d=addDays(new Date(x.from+"T12:00:00"),n==="Pässe prüfen"?-42:n==="Auto checken lassen"?-14:n==="Kita abmelden"?-21:n==="Packen"?-2:-7);if(d>new Date())due=ymd(d)}prioNew("reisen",{name:n,ref:S.reiseOpen,due});return}
     if(b.dataset.act==="reisedel"){if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Wirklich löschen?";return}try{for(const i of packs().filter(i=>i.list==="u_"+S.reiseOpen))await S.store.setPath("food/pack/"+i.id,null);await S.store.setPath("food/packlist/u_"+S.reiseOpen,null);await S.store.setPath("food/urlaub/"+S.reiseOpen,null);S.reiseOpen=null;toast("Urlaub gelöscht");render()}catch(_){toast("Konnte nicht speichern.")}return}}
+  if(b.dataset.rgo){const r=RSRC.find(x=>x.key===b.dataset.rgo);if(r){await rMarkSeen([r.key]);goNav(r.nav)}return}
+  if(b.dataset.rseen){await rMarkSeen(b.dataset.rseen.split(","));return}
+  if(b.dataset.act==="copyclose"){S.copyBox="";render();return}
+  if(b.dataset.act==="rwnew"){S.rDraft={area:"rezepte",what:"",rhythm:"woechentlich",note:""};render();return}
+  if(b.dataset.act==="rwcancel"){S.rDraft=null;render();return}
+  if(b.dataset.rchange!=null){const a=((S.auftr&&S.auftr.items)||[]).find(x=>x.id===b.dataset.rchange)||{};S.rDraft={area:a.area||"sonst",what:"Änderung an „"+(a.name||"")+"“: ",rhythm:"woechentlich",note:"",task:a.id||""};render();window.scrollTo(0,document.body.scrollHeight);return}
+  if(b.dataset.rwedit){const w=rwuensche().find(x=>x.id===b.dataset.rwedit);if(w){S.rDraft={...w};render()}return}
+  if(b.dataset.rwdel){if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Wirklich?";return}try{await S.store.setPath("food/rwunsch/"+b.dataset.rwdel,null)}catch(_){}render();return}
+  if(b.dataset.rwcopy){const w=rwuensche().find(x=>x.id===b.dataset.rwcopy);if(w)copyText(rWishText(w));return}
+  if(b.dataset.act==="rwsave"){const d=S.rDraft;if(!d||!String(d.what||"").trim()){toast("Bitte eintragen, was gesucht werden soll.");return}const id=d.id||newId("w"),v={area:d.area||"sonst",what:String(d.what).trim().slice(0,600),name:String(d.what).trim().slice(0,80),rhythm:d.rhythm||null,note:(d.note||"").trim()||null,task:d.task||null,state:"offen",at:d.at||Date.now(),by:d.by||S.me||""};
+    try{await S.store.setPath("food/rwunsch/"+id,v);S.rDraft=null;render();copyText(rWishText({...v,id}))}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.act==="labels"){S.labels=!S.labels;try{localStorage.setItem("hq-labels",S.labels?"1":"")}catch(_){}render();return}
   if(b.dataset.act==="wxpop"){S.wxPop=!S.wxPop;S.flip=false;render();return}
   if(b.dataset.wpage!=null){setWeekPage(+b.dataset.wpage);return}
@@ -2223,6 +2273,7 @@ app.addEventListener("input",e=>{if(e.target.id==="shopinput"){S.shopText=e.targ
   if(S.playDraft&&e.target.dataset.plf){S.playDraft[e.target.dataset.plf]=e.target.value;
     if(e.target.dataset.plf==="link"&&!S.playDraft.name.trim()){const n=nameFromLink(e.target.value.trim());if(n){S.playDraft.name=n;const el=document.getElementById("pl-name");if(el)el.value=n}}return}
   if(S.projDraft&&e.target.dataset.pf){S.projDraft[e.target.dataset.pf]=e.target.value;return}
+  if(S.rDraft&&e.target.dataset.rwf){S.rDraft[e.target.dataset.rwf]=e.target.value;return}
   if(S.musDraft&&e.target.dataset.muf){S.musDraft[e.target.dataset.muf]=e.target.value;return}
   if(S.tripDraft&&e.target.dataset.tf){S.tripDraft[e.target.dataset.tf]=e.target.value;return}
   if(S.terDraft&&e.target.dataset.terf){S.terDraft[e.target.dataset.terf]=e.target.value;return}
@@ -2240,7 +2291,7 @@ function start(store,mode){S.store=store;S.mode=mode;let gotCfg=false,gotWeeks=f
   store.listen((cfg,fromCache)=>{S.config=cfg;if(!fromCache){gotCfg=true;S.cfgConfirmed=true}if(gotCfg&&gotWeeks){clearTimeout(timer);S.timedOut=false}render()},
     (w,fromCache)=>{S.weeks=w;if(!fromCache)gotWeeks=true;if(gotCfg&&gotWeeks){clearTimeout(timer);S.timedOut=false}render()},
     err=>{clearTimeout(timer);toast("Verbindung zu den gemeinsamen Daten verloren. Seite neu öffnen.")},
-    food=>{S.food=food||{};if(S.tab==="essen"||S.tab==="privat"||S.tab==="post"||S.tab==="settings"||S.tab==="einkauf"||S.tab==="camp"||S.tab==="ausflug"||S.tab==="projekte"||S.tab==="amhaus"||S.tab==="spiel"||S.tab==="kita"||S.tab==="musik")render()});
+    food=>{S.food=food||{};if(S.tab==="essen"||S.tab==="privat"||S.tab==="post"||S.tab==="settings"||S.tab==="einkauf"||S.tab==="camp"||S.tab==="ausflug"||S.tab==="projekte"||S.tab==="amhaus"||S.tab==="spiel"||S.tab==="kita"||S.tab==="musik"||S.tab==="recherchen"||S.tab==="wichtig")render()});
   try{fetch("wochenideen.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.wideas=j;if(S.tab==="essen")render()}}).catch(()=>{})}catch(_){}
   try{fetch("hausfunde.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.hfunde=j;if(S.tab==="amhaus")render()}}).catch(()=>{})}catch(_){}
   try{fetch("reisefunde.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.rfunde=j;if(S.tab==="ausflug")render()}}).catch(()=>{})}catch(_){}
