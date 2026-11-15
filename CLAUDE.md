@@ -123,6 +123,7 @@ node src/build-web.js http://localhost:8765   # danach wieder lokal bauen
 - Übertragen auf Listen: immer `openPick`.
 - Herkunft geleert oder gelöscht (Türchen, Adventskalender, Kita-Mitbringen): `offerShopRemove` bietet per Toast-Knopf (`toastAct`) an, die entstandenen Einkaufslisten-Einträge mitzunehmen. Rezept und Wochenplan-Tag nehmen ihren Block weiter direkt mit. Neue Quelle = dort `offerShopRemove` aufrufen.
 - Löschen nimmt Verknüpfungen mit (Prüfung 15.11.2026): Erinnerungen mit `ref` (`prioDropRef`), Ausgaben-Zuordnung (`splitDropRef`), Packliste des Urlaubs, Rezept-Bezug im Wochenplan und Einkaufslisten-Block (`recDrop`), Türchen-Verweis auf gelöschte Ausflüge. Id vor dem Löschen merken (Render setzt offene Ansicht zurück). Links ohne `https://` ergänzt `safeLink`. Bereiche öffnen auf ihrer ersten Seite (Kita Termine, Musik ohne Filter außer `data-musf`).
+- Prüfung Anlegen (15.11.2026): Termine haben "Bis" (mehrtägig, `to`, nicht bei Wiederholung) und Löschen in der Maske; Bearbeiten behält 🔔. Erinnerungen wiederholen auch täglich und jährlich (`repNext`). Eigene Vorlagen (`food/priotpl`) und eigene Rezept-Tags (`food/rectag`) haben ✕. "Oft gekauft" hat ✏️ Bearbeiten (✕ setzt `food/fav/<k>/n` auf 0, Kategorie bleibt).
 - Erinnerung mit `ref` auf den Eintrag; Sprung zurück (Rezept, Adventskalender `advent:<id>`).
 
 ## Datenmodell (unter dem Schlüssel)
