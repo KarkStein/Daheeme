@@ -455,6 +455,11 @@ h2{font-weight:700}
 .tabs{border-top:2px solid var(--ink)}
 .tabs button[aria-selected="true"]{color:var(--ink)}
 .bellnav .badge{width:auto;height:18px;border-radius:999px;font-family:var(--f-body);font-size:.7rem;font-weight:700;top:-4px;right:-6px}
+/* Ein Bauplan für beide Kopfblöcke (Florian 15.11.2026): gleiche Zonen, gleiche Größen */
+.campback.wkpanel{margin:0 0 var(--sp4)}
+.campback .bcnt b{font-family:var(--f-display);font-weight:700}
+.campback .bcnt span{font-size:var(--fs-xs)}
+.campback .bring small{font-size:var(--fs-xs)}
 </style>
 
 <div class="app" id="app">
@@ -680,8 +685,12 @@ function meChooser(){return `<div class="me"><span>Ich bin</span>
 // Wochenring im Dashboard (Florian 15.11.2026, ersetzt den Fotoplatz): Stand der Wechsel-Aufgaben dieser Woche
 function rotCount(mon){const split=rotSplit(),tk=ticksOf(wkKey(mon));let d=0,n=0;
   tasks().forEach(t=>{if(group(t.freq)!=="week"||t.owner!=="rot")return;const k=slotsOf(t);for(let i=0;i<k;i++){d+=tk[t.id+"__"+i]?1:0;n++}});return [d,n]}
-function bweekRing(){const [d,n]=rotCount(mondayOf(new Date()));if(!n)return "";const r=22,c=2*Math.PI*r,p=Math.min(1,d/n);
-  return `<button class="bring" data-go="woche" aria-label="Wochenstand: ${d} von ${n} Wechsel-Aufgaben erledigt"><svg viewBox="0 0 54 54" aria-hidden="true"><circle cx="27" cy="27" r="${r}" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="6"/><circle cx="27" cy="27" r="${r}" fill="none" stroke="var(--lemon)" stroke-width="6" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-p)).toFixed(1)}" transform="rotate(-90 27 27)"/></svg><span class="num">${d}/${n}</span><small>Woche</small></button>`}
+// Ein Bauplan für beide Kopfblöcke (Tag und Woche, Diese Woche; Florian 15.11.2026): Kopf (Zeile, Titel, Unterzeile, Ring rechts), Inhalt, Zähler-Kacheln, Fuß
+function panelRing(d,n,lbl,attr){const r=22,c=2*Math.PI*r,p=n?Math.min(1,d/n):0;
+  return `<button class="bring" ${attr}><svg viewBox="0 0 54 54" aria-hidden="true"><circle cx="27" cy="27" r="${r}" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="6"/><circle cx="27" cy="27" r="${r}" fill="none" stroke="var(--lemon)" stroke-width="6" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-p)).toFixed(1)}" transform="rotate(-90 27 27)"/></svg><span class="num">${d}/${n}</span><small>${lbl}</small></button>`}
+const panelTile=(n,lab,attr)=>`<button class="bcnt" ${attr||""}><b class="num">${n}</b><span>${lab}</span></button>`;
+function panelHead(eye,title,sub,right){return `<div class="brim"></div><div class="btop"><div class="bhead"><div class="bday">${eye}</div><div class="bdate">${title}</div>${sub?`<div class="bsub">${sub}</div>`:""}</div>${right||""}</div>`}
+function bweekRing(){const [d,n]=rotCount(mondayOf(new Date()));if(!n)return "";return panelRing(d,n,"Woche",`data-go="woche" aria-label="Wochenstand: ${d} von ${n} Wechsel-Aufgaben erledigt"`)}
 function ring(p){const r=36,c=2*Math.PI*r;const off=c*(1-Math.min(1,p));
   return `<svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="${r}" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="8"/><circle cx="42" cy="42" r="${r}" fill="none" stroke="var(--lemon)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}"/></svg>`}
 
@@ -694,12 +703,23 @@ const termine=()=>listOf(S.food&&S.food.termin);
 try{S.calOff=JSON.parse(localStorage.getItem("hq-caloff")||"[]")}catch(_){}
 const CAL_COL={own:"var(--ink)",kita:"#c7442f",prio:"#e0a030",ext:"#3f6fa8",food:"#8aa38b",reise:"#2f8fa3",trip:"#6a9a3a",play:"#8a5cc2"};
 // Filter-Chips im Kalender: Quelle -> [Symbol, Name]
-const CAL_LBL=[["own","📅","Termine"],["kita","🎒","Kita"],["prio","🔔","Erinnerungen"],["food","🍲","Essen"],["reise","⛵","Urlaub"],["trip","🚲","Ausflüge"],["play","⚽","Sport"],["advent","🎄","Advent"],["ext","👪","Familywall"]];
+const CAL_LBL=[["own","📅","Termine"],["kita","🎒","Kita"],["prio","🔔","Erinnerungen"],["food","🍲","Essen"],["reise","⛵","Urlaub"],["trip","🚲","Ausflüge"],["play","⚽","Sport"],["advent","🎄","Advent"],["ext","👪","Familywall"],["frei","🎉","Ferien und Feiertage"]];
 const WD_RX=[["so","sonntag"],["mo","montag"],["di","dienstag"],["mi","mittwoch"],["do","donnerstag"],["fr","freitag"],["sa","samstag"]];
 function whenDays(t){t=" "+String(t||"").toLowerCase()+" ";const out=[];WD_RX.forEach((w,i)=>{if(new RegExp("[\\s,(/]("+w[1]+"s?|"+w[0]+"\\.?)(?=[\\s,/)]|$)").test(t))out.push(i)});return out}
 function whenTime(t){const m=String(t||"").match(/(\d{1,2})(?:[:.](\d{2}))?\s*uhr|(\d{1,2})[:.](\d{2})/i);if(!m)return "";const h=+(m[1]||m[3]),mi=+(m[2]||m[4]||0);return h<24&&mi<60?String(h).padStart(2,"0")+":"+String(mi).padStart(2,"0"):""}
 function inUrlaub(d){const k=typeof d==="string"?d:ymd(d);return urlaube().find(u=>reiseSt(u)!=="traum"&&u.from&&k>=u.from&&k<=(u.to||u.from))||null}
 function ymdD(x){return new Date(x+"T12:00:00")}
+// Ferien und Feiertage Bayern (Florian 15.11.2026): Feiertage gerechnet, Schulferien aus ferien.json (monatlich per Lauf von openholidaysapi.org)
+function easterSun(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),da=(h+l-7*m+114)%31+1;return new Date(y,mo-1,da,12)}
+const FT_FIX=[["01-01","Neujahr"],["01-06","Heilige Drei Könige"],["05-01","Tag der Arbeit"],["08-15","Mariä Himmelfahrt"],["10-03","Tag der Deutschen Einheit"],["11-01","Allerheiligen"],["12-25","1. Weihnachtstag"],["12-26","2. Weihnachtstag"]],FT_EAST=[[-2,"Karfreitag"],[1,"Ostermontag"],[39,"Christi Himmelfahrt"],[50,"Pfingstmontag"],[60,"Fronleichnam"]],_ftc={};
+function feiertage(y){if(_ftc[y])return _ftc[y];const o={},e=easterSun(y);FT_FIX.forEach(f=>{o[y+"-"+f[0]]=f[1]});FT_EAST.forEach(f=>{o[ymd(addDays(e,f[0]))]=f[1]});return _ftc[y]=o}
+function feiertag(d){const k=typeof d==="string"?d:ymd(d);return feiertage(+k.slice(0,4))[k]||""}
+function ferienList(){return ((S.ferien&&S.ferien.ferien)||[]).filter(f=>f&&f.from&&f.to)}
+function ferienAt(d){const k=typeof d==="string"?d:ymd(d);return ferienList().find(f=>k>=f.from&&k<=f.to)||null}
+// Freie Tage ab heute (Feiertage und Ferienbeginn), für Urlaube und Ausflüge
+function freiNext(n,days){const out=[],t=new Date();for(let i=0;i<(days||400)&&out.length<n;i++){const d=addDays(t,i),k=ymd(d),ft=feiertag(k),fe=ferienList().find(f=>f.from===k);if(fe)out.push({k,d,name:fe.name,ic:"🏖️",to:fe.to});if(ft)out.push({k,d,name:ft,ic:"🎉",bridge:d.getDay()===4?"Fr":d.getDay()===2?"Mo":""})}return out}
+const WD2=["So","Mo","Di","Mi","Do","Fr","Sa"];
+function freiLine(x){return x.ic==="🏖️"?`🏖️ ${esc(x.name)} ${rDate(x.k)}–${rDate(x.to)}`:`🎉 ${WD2[x.d.getDay()]} ${rDate(x.k)} ${esc(x.name)}${x.bridge?` · Brückentag ${x.bridge}`:""}`}
 const CAL_SRC=[
   (a,z)=>{const out=[];termine().forEach(x=>{if(!x.date)return;if(!x.rep){if(x.to&&x.to>x.date){let d=ymdD(x.date),n=0;while(ymd(d)<=x.to&&n<60){const k=ymd(d);if(k>=a&&k<=z)out.push({d:k,t:k===x.date?x.time||"":"",name:x.name+(n?" (Tag "+(n+1)+")":""),icon:"📅",src:"own",id:x.id,who:x.who||"",note:x.note||"",remind:x.remind||false});d=addDays(d,1);n++}return}if(x.date>=a&&x.date<=z)out.push({d:x.date,t:x.time||"",name:x.name,icon:"📅",src:"own",id:x.id,who:x.who||"",note:x.note||"",remind:x.remind||false});return}
     let d=ymdD(x.date);const end=ymdD(z);let n=0;while(d<=end&&n<800){const k=ymd(d);if(k>=a)out.push({d:k,t:x.time||"",name:x.name,icon:x.rep==="y"?"🎂":"🔁",src:"own",id:x.id,who:x.who||"",note:x.note||"",remind:x.remind||false});d=x.rep==="w"?addDays(d,7):x.rep==="m"?new Date(d.getFullYear(),d.getMonth()+1,d.getDate(),12):new Date(d.getFullYear()+1,d.getMonth(),d.getDate(),12);n++}});return out},
@@ -713,7 +733,9 @@ const CAL_SRC=[
   // Familywall (Florian 15.11.2026): nur lesend, stündlich vom Lauf im privaten Sicherungs-Repo nach food/ext/fw geschrieben; gleiche Termine wie in der App nur einmal
   (a,z)=>{const fw=S.food&&S.food.ext&&S.food.ext.fw;if(!fw||!fw.items)return [];const own=new Set(termine().map(x=>(x.name||"").trim().toLowerCase()+"|"+x.date)),out=[];
     Object.keys(fw.items).forEach(id=>{const x=fw.items[id];if(!x||!x.date||!x.name||own.has(x.name.trim().toLowerCase()+"|"+x.date))return;const to=x.to&&x.to>x.date?x.to:x.date;if(to<a||x.date>z)return;let d=ymdD(x.date),n=0;
-      while(ymd(d)<=to&&n<60){const k=ymd(d);if(k>=a&&k<=z)out.push({d:k,t:k===x.date?x.time||"":"",name:x.name+(n?" (Tag "+(n+1)+")":""),icon:"👪",src:"ext",note:"Aus Familywall"+(x.end?", bis "+x.end:"")+(x.place?" · "+x.place:"")+". Ändern geht in Familywall."});d=addDays(d,1);n++}});return out}];
+      while(ymd(d)<=to&&n<60){const k=ymd(d);if(k>=a&&k<=z)out.push({d:k,t:k===x.date?x.time||"":"",name:x.name+(n?" (Tag "+(n+1)+")":""),icon:"👪",src:"ext",note:"Aus Familywall"+(x.end?", bis "+x.end:"")+(x.place?" · "+x.place:"")+". Ändern geht in Familywall."});d=addDays(d,1);n++}});return out},
+  (a,z)=>{const out=[];for(let d=ymdD(a);ymd(d)<=z;d=addDays(d,1)){const k=ymd(d),ft=feiertag(k);if(ft)out.push({d:k,t:"",name:ft,icon:"🎉",src:"frei",note:"Feiertag in Bayern. Die Kita hat zu."})}
+    ferienList().forEach(f=>{if(f.from>=a&&f.from<=z)out.push({d:f.from,t:"",name:f.name+" beginnen",icon:"🏖️",src:"frei",note:"Schulferien Bayern bis "+rDate(f.to)+"."});if(f.to!==f.from&&f.to>=a&&f.to<=z)out.push({d:f.to,t:"",name:"Letzter Tag "+f.name,icon:"🏖️",src:"frei"})});return out}];
 // Was der Kalender zeigt (Filter nach Bereich und Person). dayStress und Rückseite nutzen calEvents ungefiltert.
 function calShown(a,z){const off=S.calOff||[],w=S.calWho||"";return calEvents(a,z).filter(e=>!off.includes(CAL_LBL.some(l=>l[0]===e.src)?e.src:"own")&&(!w||!e.who||e.who==="both"||e.who===w))}
 function calEvents(a,z){const out=[];CAL_SRC.forEach(f=>{try{out.push(...f(a,z))}catch(_){}});return out.sort((x,y)=>(x.d+(x.t||"99")+(x.src==="food"?"1":"0"))<(y.d+(y.t||"99")+(y.src==="food"?"1":"0"))?-1:1)}
@@ -779,18 +801,13 @@ function renderWeek(){
     tasks().forEach(t=>{if(group(t.freq)!=="week")return;const k=t.owner==="rot"?(ownerFor(t,mon,split)===S.me?"rot":null):(t.owner===S.me?"fix":null);if(!k)return;
       const n=slotsOf(t);for(let i=0;i<n;i++){m[k][0]+=tk[t.id+"__"+i]?1:0;m[k][1]++}});
     const d=m.rot[0]+m.fix[0],n=m.rot[1]+m.fix[1];
-    h+=`<section class="board" aria-label="Mein Wochenstand">
-    <button class="who" data-jump="rot" aria-label="Wechsel-Aufgaben gebündelt anzeigen"><span class="name">Im Wechsel ›</span><span class="pts num">${m.rot[0]}<small>/${m.rot[1]}</small></span><span class="sub">diese Woche erledigt</span></button>
-    <div class="ring">${ring(n?d/n:0)}<div class="lbl num">${d}/${n}<small>${esc(pname(S.me))}</small></div></div>
-    <button class="who right" data-jump="fix" aria-label="Feste Aufgaben gebündelt anzeigen"><span class="name">Feste Aufgaben ›</span><span class="pts num">${m.fix[0]}<small>/${m.fix[1]}</small></span><span class="sub">diese Woche erledigt</span></button>
-  </section>`;
+    h+=`<section class="campback dash wkpanel" aria-label="Mein Wochenstand">${panelHead("Mein Stand · KW "+w,n-d>0?`Noch ${n-d} offen`:"Alles erledigt",esc(pname(S.me))+", Wechsel und feste Aufgaben",panelRing(d,n,"gesamt",'data-jump="rot" aria-label="Gebündelt anzeigen"'))}
+    <div class="bcnts" style="grid-template-columns:repeat(2,1fr)">${panelTile(m.rot[0]+"/"+m.rot[1],"im Wechsel ›",'data-jump="rot"')}${panelTile(m.fix[0]+"/"+m.fix[1],"feste Aufgaben ›",'data-jump="fix"')}</div></section>`;
     if(n&&d>=n)h+=`<div class="celebrate">Du hast alle deine Aufgaben für diese Woche erledigt.</div>`;
   }else{
-  h+=`<section class="board" aria-label="Wochenstand">
-    <button class="who" data-jump="rot" aria-label="Wechsel-Aufgaben gebündelt anzeigen"><span class="name">${esc(pname("p0"))}</span><span class="pts num">${cnt.p0[0]}<small>/${cnt.p0[1]}</small></span><span class="sub">Wechsel-Aufgaben ›</span></button>
-    <div class="ring">${ring(pct)}<div class="lbl num">${cnt.all[0]}/${cnt.all[1]}<small>im Wechsel</small></div></div>
-    <button class="who right" data-jump="rot" aria-label="Wechsel-Aufgaben gebündelt anzeigen"><span class="name">${esc(pname("p1"))}</span><span class="pts num">${cnt.p1[0]}<small>/${cnt.p1[1]}</small></span><span class="sub">Wechsel-Aufgaben ›</span></button>
-  </section>`;
+  const fx=[0,0];tasks().forEach(t=>{if(group(t.freq)!=="week"||t.owner==="rot")return;const n=slotsOf(t);for(let i=0;i<n;i++){fx[0]+=tk[t.id+"__"+i]?1:0;fx[1]++}});const op=cnt.all[1]-cnt.all[0];
+  h+=`<section class="campback dash wkpanel" aria-label="Wochenstand">${panelHead("Wochenstand · KW "+w,op>0?`Noch ${op} offen`:"Alles erledigt","Wechsel-Aufgaben "+(isCur?"dieser Woche":mon<cur?"dieser Woche (Rückblick)":"(Vorschau)"),panelRing(cnt.all[0],cnt.all[1],"im Wechsel",'data-jump="rot" aria-label="Wechsel-Aufgaben gebündelt anzeigen"'))}
+    <div class="bcnts">${panelTile(cnt.p0[0]+"/"+cnt.p0[1],esc(pname("p0"))+" ›",'data-jump="rot"')}${panelTile(cnt.p1[0]+"/"+cnt.p1[1],esc(pname("p1"))+" ›",'data-jump="rot"')}${panelTile(fx[0]+"/"+fx[1],"feste Aufgaben ›",'data-jump="fix"')}</div></section>`;
   if(cnt.all[1]&&cnt.all[0]>=cnt.all[1])h+=`<div class="celebrate">Alle Wechsel-Aufgaben dieser Woche sind erledigt.</div>`;}
   h+=scopeSwitch(`<button class="chipbtn neutral" data-act="hidedone" aria-pressed="${S.hideDone}">Erledigte ausblenden</button><button class="chipbtn neutral" data-act="groupby" aria-pressed="${S.groupBy==="art"}">Fest und Wechsel bündeln</button>`);
 
@@ -1373,7 +1390,7 @@ const KID_RULE={br:["p0","p1","p0","p1","p0"],ab:["p1","p0","p1","p0","p1"]};
 const kidRule=()=>{const r=S.food&&S.food.kid&&S.food.kid.rule;return {br:(r&&r.br)||KID_RULE.br,ab:(r&&r.ab)||KID_RULE.ab}};
 const kitaZu=d=>kitas().find(x=>x.sec==="termine"&&x.kind==="zu"&&x.date===d)||null;
 function bhDay(mon,i){const wk=wkKey(mon),d=addDays(mon,i),k=ymd(d),ov=(((S.food&&S.food.kid&&S.food.kid.bh)||{})[wk]||{})["d"+i]||{},hoT=tasks().find(t=>t.owner==="ho"),ho=hoT?ticksOf(wk)[hoT.id+"__"+i]:null,hp=ho&&(ho.by==="p0"||ho.by==="p1")?ho.by:null,rl=kidRule();
-  const off=kitaZu(k)?"zu":inUrlaub(d)?"urlaub":"";
+  const off=kitaZu(k)?"zu":feiertag(k)?"frei":inUrlaub(d)?"urlaub":"";
   const pick=(f,hoOk)=>{const base=hp&&hoOk?{p:hp,src:"ho"}:{p:rl[f][i]||"p0",src:"regel"};return ov[f]&&ov[f]!==base.p?{p:ov[f],src:"hand",base}:Object.assign({base},base)};
   return {i,k,d,off,ho,hoT,br:pick("br",!ho||!ho.part||ho.part==="br"),ab:pick("ab",!ho||!ho.part||ho.part==="ab")}}
 // Auswahl je Feld (Florian 15.11.2026: jedes Feld direkt wählen, mit Optionen): Person nur diese Woche, 📌 jede Woche, wie geplant, Homeoffice des Tages
@@ -1402,7 +1419,7 @@ function bringDone(wk,i){const tk=ticksOf(wk);for(const t of bringTasks())for(le
 function kidBhRows(mon,cur){const today=ymd(new Date()),wk=wkKey(mon);return [0,1,2,3,4].map(i=>{const x=bhDay(mon,i),isT=x.k===today,DN=["Mo","Di","Mi","Do","Fr"];
   const who=f=>{const y=x[f];return `<button class="chipbtn neutral kidwho" data-kidset="${wk}|${i}|${f}" aria-label="${f==="br"?"Bringt":"Holt"} am ${DN[i]}: ${esc(pname(y.p))}, tippen zum Auswählen">${esc(pname(y.p))}${y.src==="ho"?" 🏠":y.src==="hand"?" ✋":""}</button>`};
   const dn=cur&&x.k<=today&&!x.off?bringDone(wk,i):null;
-  return `<li class="kidrow${isT?" today":""}${x.off?" off":""}"><span class="kidday"><b>${DN[i]}</b><small>${x.d.getDate()}.${x.d.getMonth()+1}.</small></span>${x.off?`<span class="freq">${x.off==="zu"?"🚪 Kita zu":"⛵ Urlaub"}</span>`:`<span class="kidcol"><small>bringt</small>${who("br")}</span><span class="kidcol"><small>holt</small>${who("ab")}</span>${cur&&x.k<=today?`<button class="iconbtn kidchk" data-kidbrought="${i}" aria-pressed="${!!dn}" aria-label="${dn?"Gebracht, zurücknehmen":"Als gebracht abhaken"}">${dn?"✅":"⬜"}</button>`:""}`}</li>`}).join("")}
+  return `<li class="kidrow${isT?" today":""}${x.off?" off":""}"><span class="kidday"><b>${DN[i]}</b><small>${x.d.getDate()}.${x.d.getMonth()+1}.</small></span>${x.off?`<span class="freq">${x.off==="zu"?"🚪 Kita zu":x.off==="frei"?"🎉 "+esc(feiertag(x.k)):"⛵ Urlaub"}</span>`:`<span class="kidcol"><small>bringt</small>${who("br")}</span><span class="kidcol"><small>holt</small>${who("ab")}</span>${cur&&x.k<=today?`<button class="iconbtn kidchk" data-kidbrought="${i}" aria-pressed="${!!dn}" aria-label="${dn?"Gebracht, zurücknehmen":"Als gebracht abhaken"}">${dn?"✅":"⬜"}</button>`:""}`}</li>`}).join("")}
 function renderKind(){const now=new Date(),cm=mondayOf(now),off=S.kidWk|0,mon=addDays(cm,7*off),{w}=isoWeek(mon),today=ymd(now),di=(now.getDay()+6)%7,nm=kidName();
   let h=`<div><div class="eyebrow">Wir</div><h1>${esc(nm)}</h1></div>`;
   if(nm==="Kind")h+=`<div class="freq">Den Namen tragt ihr unter <button class="linkbtn" data-go="settings">Einstellungen › Wir</button> ein. Er bleibt nur bei euch.</div>`;
@@ -1568,12 +1585,12 @@ function renderBack(night,dash){const now=new Date(),today=ymd(now),D=backDay(no
   const line=(dash?"":advBack()+prRow+mealRow+kitaRow+btasks)+`<ul class="bline">${untimed.map(row).join("")}${rows.slice(0,7).map(row).join("")}</ul>`;
   // Zähler
   // Urlaub gehört nicht in die Tagesansicht (Florian 15.11.2026)
-  const cnt=(n,lab,attr)=>`<button class="bcnt" ${attr}><b>${n}</b><span>${lab}</span></button>`;
+  const cnt=panelTile;
   const counters=`<div class="bcnts">${cnt(due.length||pr.length,due.length?"fällig":"Erinnerungen",'data-go="wichtig"')}${cnt(shop.length,"im Einkauf",'data-go="einkauf"')}${cnt(D.ev.filter(e=>e.src!=="prio").length,"Termine heute",'data-nav="woche|wp:3" data-calopen="liste"')}</div>`;
   // Blick voraus
   const ahead=[1,2,3].map(i=>{const d=addDays(startOfDay(now),i),x=backDay(d),e=x.ev[0];return `<div class="bday3"><b>${i===1?"Morgen":DN[d.getDay()].slice(0,2)}</b><span>🍲 ${x.meal?esc(x.meal.name):"–"}</span>${e?`<span>${e.icon||"📅"} ${esc(e.name)}</span>`:""}</div>`}).join("");
   return `<div class="campback${night?" night":""}${dash?" dash":""}" aria-label="Der Tag auf einen Blick"><div class="brim"></div>
-    <div class="btop"><div class="bhead"><div class="bday">${DN[now.getDay()]}</div><div class="bdate">${now.getDate()}. ${MN[now.getMonth()]}</div><div class="bsub">${nowT!=null?(dash?wxA(`<span class="bwx">${nowI} ${nowT}° ›</span>`,"","std"):`<span class="bwx">${nowI} ${nowT}°</span>`):""}🌅 ${hm(t.rise)} · 🌇 ${hm(t.set)}</div>${dash&&spark?wxA(spark,"bsparka","std"):spark}</div>${dash?bweekRing():`<div class="bstamp" aria-hidden="true"><span>📷</span></div>`}</div>
+    <div class="btop"><div class="bhead"><div class="bday">${DN[now.getDay()]}${dash?" · Heute":""}</div><div class="bdate">${now.getDate()}. ${MN[now.getMonth()]}</div><div class="bsub">${nowT!=null?(dash?wxA(`<span class="bwx">${nowI} ${nowT}° ›</span>`,"","std"):`<span class="bwx">${nowI} ${nowT}°</span>`):""}🌅 ${hm(t.rise)} · 🌇 ${hm(t.set)}</div>${dash&&spark?wxA(spark,"bsparka","std"):spark}</div>${dash?bweekRing():`<div class="bstamp" aria-hidden="true"><span>📷</span></div>`}</div>
     ${line}${counters}<div class="b3">${ahead}</div><div class="bfoot"><button class="bcal" data-nav="woche|wp:3" data-calopen="monat">📅 Kalender ›</button><button class="bcal" data-act="ternewgo">＋ Termin</button>${(n=>n?`<button class="bcal" data-go="recherchen">🤖 ${n} neu</button>`:"")(rNew().length)}${dash?"":`<button class="bflip" data-act="flipback">↺ Zum Bild</button>`}</div>
     ${dash?"":`<div class="bturn">↺ Tippen zum Umdrehen</div>`}</div>`}
 function moonName(p){return p<0.03||p>0.97?"Neumond":p<0.22?"zunehmende Sichel":p<0.28?"zunehmender Halbmond":p<0.47?"zunehmender Mond":p<0.53?"Vollmond":p<0.72?"abnehmender Mond":p<0.78?"abnehmender Halbmond":"abnehmende Sichel"}
@@ -1704,6 +1721,11 @@ function renderSammlung(ar){ar=ar||"reise";const A=FAREA[ar],ff=fundFilt(ar),fk=
 const renderRecherche=()=>renderSammlung("reise");
 function reiseDays(x){if(!x.from)return null;const t=startOfDay(new Date()),a=startOfDay(new Date(x.from+"T12:00:00")),b=x.to?startOfDay(new Date(x.to+"T12:00:00")):a;const n=Math.round((a-t)/864e5);return t>b?{past:true}:n<=0?{now:true}:{n}}
 function reiseWhen(x){const f=d=>{const z=new Date(d+"T12:00:00");return z.getDate()+"."+(z.getMonth()+1)+"."+(String(z.getFullYear()).slice(2))};return x.from?f(x.from)+(x.to&&x.to!==x.from?" bis "+f(x.to):""):""}
+// Bahn und MVV (Florian 15.11.2026): Öffi-Verbindung ab zu Hause (Wetter-Ort, sonst München) in Google Maps, darin DB und MVV; Störungen als Links
+function transitQ(dest){const pl=S.food&&S.food.wxplace,o=(pl&&pl.name)||"München";return "https://www.google.com/maps/dir/?api=1&travelmode=transit&origin="+encodeURIComponent(o)+"&destination="+encodeURIComponent(dest)}
+const transitA=(dest,cls)=>dest?`<a class="${cls||"catbtn"}" href="${esc(transitQ(dest))}" target="_blank" rel="noopener" aria-label="Verbindung mit Bahn und MVV">🚆</a>`:"";
+const STOER=[["S-Bahn München","https://www.s-bahn-muenchen.de/aktuell"],["MVG (U-Bahn, Tram, Bus)","https://www.mvg.de/dienste/betriebsaenderungen.html"]];
+const stoerRow=()=>`<div class="freq atipstoer">⚠️ Störungen: ${STOER.map(x=>`<a href="${x[1]}" target="_blank" rel="noopener">${x[0]}</a>`).join(" · ")}</div>`;
 function mapsQ(q){return "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q)}
 function renderReisen(){const l=urlaube();if(S.reiseOpen&&l.find(x=>x.id===S.reiseOpen))return renderReise(l.find(x=>x.id===S.reiseOpen));S.reiseOpen=null;
   const hearts=x=>Object.values(x.hearts||{}).filter(Boolean).length;
@@ -1713,6 +1735,7 @@ function renderReisen(){const l=urlaube();if(S.reiseOpen&&l.find(x=>x.id===S.rei
   const add=(st,t,c)=>`<button class="tile add" data-act="reisenew" data-st="${st}"><span class="te">＋</span><span class="tn">${t}</span><span class="tc">${c}</span></button>`;
   let h=`<div class="section-head"><h2>🧭 Aktuell</h2><span class="freq num">${A.length}</span></div><div class="tiles">${A.map(tile).join("")}${add("aktuell","Neuer Urlaub","geplant oder gebucht")}</div>
     ${E.length?`<details class="reisedone"><summary class="section-head"><h2>📦 Vergangene</h2><span class="freq num">${E.length} ▾</span></summary><div class="tiles">${E.map(tile).join("")}</div></details>`:""}
+    ${(()=>{const F=freiNext(10);return F.length?`<details class="reisedone"><summary class="section-head"><h2>🏖️ Ferien und Feiertage</h2><span class="freq num">Bayern ▾</span></summary><ul class="evlist frei">${F.map(x=>`<li><span class="ev">${freiLine(x)}</span></li>`).join("")}</ul>${ferienList().length?"":`<div class="freq">Die Schulferien kommen gleich nach; Feiertage sind schon da.</div>`}</details>`:""})()}
     <details class="reisedone"><summary class="section-head"><h2>💭 Traum</h2><span class="freq num">${T.length} ▾</span></summary><div class="tiles">${T.map(tile).join("")}${add("traum","Neuer Traum","❤️ von beiden zählt")}</div></details>`;
   const mu=(S.food&&S.food.reisemap)||"",emb=mapsEmbed(mu);
   h+=`<details class="card reisemap"${S.reiseMapOpen?" open":""}><summary>🗺️ Alle Ziele auf einer Karte</summary>${emb?`<div class="mapwrap"><iframe src="${esc(emb)}" loading="lazy" title="Karte mit allen Zielen"></iframe></div>`:mu?`<a href="${esc(mu)}" target="_blank" rel="noopener">Karte öffnen</a>`:""}
@@ -1783,6 +1806,7 @@ function atipCard(){const all=atipItems(),z=S.atipZ||"woche",c=S.atipC||"",io=S.
   const L=all.filter(i=>(!wx||(Array.isArray(i.wx)?i.wx:[i.wx]).includes(wx))&&(!fr||i.free||/^(frei|kostenlos|gratis|0)/i.test(String(i.price||"")))&&(!c||i.cat===c)&&(!io||i.io===io||i.io==="beides")&&((i.where||"stadt")===wo)&&((i.date||i.from||t)<=end)).sort((a,b)=>(a.date||a.from||"")<(b.date||b.from||"")?-1:1);
   const chip=(k,v,on,txt)=>`<button class="chipbtn neutral" data-${k}="${v}" aria-pressed="${on}">${txt}</button>`;
   let h=`<section class="card atip"><div class="section-head"><h2>🗓️ Was ist los</h2>${S.atipps&&S.atipps.updated?`<span class="freq">${esc(rDate(S.atipps.updated)||S.atipps.updated)}${S.atipps.region?" · "+esc(S.atipps.region):""}</span>`:""}</div>
+  ${(()=>{const F=freiNext(3,31);return F.length?`<div class="freq atipfrei">Frei bald: ${F.map(freiLine).join(" · ")}</div>`:""})()}
   <div class="pager atipwo" role="group" aria-label="Stadt oder Umland"><div class="pdots">${ATIP_WO.map(a=>`<button class="pdot" data-atipwo="${a[0]}" aria-pressed="${wo===a[0]}"><b>${a[1]} ${a[2]}</b></button>`).join("")}</div></div>
   ${Object.keys(wd).length?`<div class="freq" style="margin-top:4px">Passt zum Wetter</div><div class="unl">${ATIP_WX.filter(a=>wd[a[0]]).map(a=>chip("atipwx",a[0],wx===a[0],a[1]+" "+a[3]+" · "+wd[a[0]].slice(0,3).join(", "))).join("")}${wx?chip("atipwx","",false,"✕"):""}</div>`:""}
   <div class="unl">${chip("atipz","woche",z==="woche","Diese Woche")}${chip("atipz","monat",z==="monat","Diesen Monat")}<button class="chipbtn neutral" data-atipfree="1" aria-pressed="${fr}">🆓 Kostenlos</button></div>
@@ -1792,10 +1816,10 @@ function atipCard(){const all=atipItems(),z=S.atipZ||"woche",c=S.atipC||"",io=S.
   const LD=L.filter(i=>!i.dauer),LP=all.filter(i=>i.dauer&&(i.where||"stadt")===wo&&(!c||i.cat===c)&&(!io||i.io===io||i.io==="beides")&&(!wx||(Array.isArray(i.wx)?i.wx:[i.wx]).includes(wx))),by={};
   if(!LD.length)h+=`<div class="freq" style="margin-top:8px">Für diese Auswahl gerade keine Termine. Probiert „Diesen Monat“ oder „Alle“.</div>`;LD.forEach(i=>{(by[i.cat]=by[i.cat]||[]).push(i)});
   ATIP_CAT.concat([["sonst","✨","Sonstiges"]]).forEach(a=>{const g=a[0]==="sonst"?LD.filter(i=>!ATIP_CAT.some(x=>x[0]===i.cat)):by[a[0]];if(!g||!g.length)return;
-    h+=`<div class="freq" style="margin-top:8px">${a[1]} ${a[2]}</div><ul class="evlist">${g.map(i=>{const u=safeLink(i.link),ix=S.atipps.items.indexOf(i);return `<li><span class="ev">${i.top?"⭐ Spielplatz der Woche: ":""}${u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(i.name)}</a>`:esc(i.name)}<br><span class="freq">${esc(atipWhen(i))}${i.free?" · 🆓":""}${i.where==="stadt"?" · 🏙️":i.where==="umland"?" · 🚆":""}${i.io==="drinnen"?" · 🏠":i.io==="draussen"?" · ☀️":""}${i.place?" · "+esc(i.place):""}${i.travel?" · "+esc(i.travel):""}${i.price?" · "+esc(i.price):""}${i.kid?" · 🧒 "+esc(i.kid===true?"kindertauglich":i.kid):""}</span>${i.note?`<br><span class="freq">${esc(i.note)}</span>`:""}</span><button class="ghost small" data-atiptake="${ix}">🚲 Merken</button></li>`}).join("")}</ul>`});
+    h+=`<div class="freq" style="margin-top:8px">${a[1]} ${a[2]}</div><ul class="evlist">${g.map(i=>{const u=safeLink(i.link),ix=S.atipps.items.indexOf(i);return `<li><span class="ev">${i.top?"⭐ Spielplatz der Woche: ":""}${u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(i.name)}</a>`:esc(i.name)}<br><span class="freq">${esc(atipWhen(i))}${i.free?" · 🆓":""}${i.where==="stadt"?" · 🏙️":i.where==="umland"?" · 🚆":""}${i.io==="drinnen"?" · 🏠":i.io==="draussen"?" · ☀️":""}${i.place?" · "+esc(i.place):""}${i.travel?" · "+esc(i.travel):""}${i.price?" · "+esc(i.price):""}${i.kid?" · 🧒 "+esc(i.kid===true?"kindertauglich":i.kid):""}</span>${i.note?`<br><span class="freq">${esc(i.note)}</span>`:""}</span>${transitA(i.place||i.name,"ghost small btnlink")}<button class="ghost small" data-atiptake="${ix}">🚲 Merken</button></li>`}).join("")}</ul>`});
   const sea=season(),SN={spring:"🌷 Frühling",summer:"☀️ Sommer",autumn:"🍂 Herbst",winter:"❄️ Winter"},G=[["immer","✅ Geht immer",LP.filter(i=>atipSeas(i).includes("immer"))],[sea,SN[sea]+": passt jetzt",LP.filter(i=>atipSeas(i).includes(sea))]],O=S.atipDauer&&typeof S.atipDauer==="object"?S.atipDauer:(S.atipDauer={});
-  G.forEach(([k,t,g])=>{if(!g.length)return;h+=`<button class="setsum atipdauer" data-atipdauer="${k}" aria-expanded="${!!O[k]}" style="margin-top:8px"><span>📍 ${t} (${g.length})</span><i>${O[k]?"▾":"›"}</i></button>`+(O[k]?`<ul class="evlist">${g.map(i=>{const u=safeLink(i.link),ix=S.atipps.items.indexOf(i),kc=ATIP_CAT.find(x=>x[0]===i.cat);return `<li><span class="ev">${kc?kc[1]+" ":""}${u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(i.name)}</a>`:esc(i.name)}<br><span class="freq">${[i.place,i.travel,i.price,i.note].filter(Boolean).map(esc).join(" · ")}</span></span><button class="ghost small" data-atiptake="${ix}">🚲 Merken</button></li>`}).join("")}</ul>`:"")});
-  return h+`</section>`}
+  G.forEach(([k,t,g])=>{if(!g.length)return;h+=`<button class="setsum atipdauer" data-atipdauer="${k}" aria-expanded="${!!O[k]}" style="margin-top:8px"><span>📍 ${t} (${g.length})</span><i>${O[k]?"▾":"›"}</i></button>`+(O[k]?`<ul class="evlist">${g.map(i=>{const u=safeLink(i.link),ix=S.atipps.items.indexOf(i),kc=ATIP_CAT.find(x=>x[0]===i.cat);return `<li><span class="ev">${kc?kc[1]+" ":""}${u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(i.name)}</a>`:esc(i.name)}<br><span class="freq">${[i.place,i.travel,i.price,i.note].filter(Boolean).map(esc).join(" · ")}</span></span>${transitA(i.place||i.name,"ghost small btnlink")}<button class="ghost small" data-atiptake="${ix}">🚲 Merken</button></li>`}).join("")}</ul>`:"")});
+  return h+stoerRow()+`</section>`}
 function renderTripIdeas(){const d=S.tripDraft;
   if(d){const one=(f,L)=>`<div class="unl">${L.map(c=>`<button class="chipbtn" data-tset="${f}" data-v="${c[0]}" aria-pressed="${d[f]===c[0]}">${c.length===3?c[1]+" "+c[2]:c[1]}</button>`).join("")}</div>`;
     const many=(f,L)=>`<div class="unl">${L.map(c=>`<button class="chipbtn" data-ttog="${f}" data-v="${c[0]}" aria-pressed="${csv(d[f]).includes(c[0])}">${c[1]}</button>`).join("")}</div>`;
@@ -1817,7 +1841,7 @@ function renderTripIdeas(){const d=S.tripDraft;
   const mz=musLinks("auto",3);
   const all=trips(),F=S.tripFilter||"",match=x=>!F||(F==="regen"?x.wx==="egal":x.kind===F);
   const open=all.filter(x=>!x.done&&match(x)).sort((a,b)=>(a.at||0)-(b.at||0)),done=all.filter(x=>x.done).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0));
-  const card=x=>{const l=safeLink(x.link),tg=tripTags(x),pl=x.pack&&packLists().find(p=>p.id===x.pack);return `<li class="${x.done?"done":""}"><button class="item" data-tripdone="${esc(x.id)}" aria-pressed="${!!x.done}" aria-label="${esc(x.name)}: ${x.done?"doch noch nicht gemacht":"waren wir"}"><span class="box">${x.done?"✓":""}</span><span class="nm">${esc(x.name)}${!x.done&&tg.length?`<br><span class="freq">${tg.map(x=>`<span style="white-space:nowrap">${esc(x)}</span>`).join(" · ")}</span>`:""}${x.note&&!x.done?`<br><span class="freq">${esc(x.note)}</span>`:""}${x.done&&x.doneAt?`<br><span class="freq">Gemacht am ${new Date(x.doneAt).toLocaleDateString("de-DE")}</span>`:""}</span></button>${pl&&!x.done?`<button class="catbtn" data-gopack="${esc(pl.id)}" aria-label="Packliste ${esc(pl.name)} öffnen">🎒</button>`:""}${x.adv&&!x.done?`<button class="catbtn" data-advgo="${esc(x.adv)}" aria-label="Zum Adventskalender">🎄</button>`:""}${(sp=>sp&&safeLink(sp.link)?`<a class="catbtn" href="${esc(safeLink(sp.link))}" target="_blank" rel="noopener" aria-label="Ausgaben in Splitwise">💶</a>`:"")(splitFor("trip:"+x.id)[0])}${l?`<a class="catbtn" href="${esc(l)}" target="_blank" rel="noopener" aria-label="Link öffnen">🗺️</a>`:""}<button class="rm" data-tripedit="${esc(x.id)}" aria-label="${esc(x.name)} bearbeiten">✎</button></li>`};
+  const card=x=>{const l=safeLink(x.link),tg=tripTags(x),pl=x.pack&&packLists().find(p=>p.id===x.pack);return `<li class="${x.done?"done":""}"><button class="item" data-tripdone="${esc(x.id)}" aria-pressed="${!!x.done}" aria-label="${esc(x.name)}: ${x.done?"doch noch nicht gemacht":"waren wir"}"><span class="box">${x.done?"✓":""}</span><span class="nm">${esc(x.name)}${!x.done&&tg.length?`<br><span class="freq">${tg.map(x=>`<span style="white-space:nowrap">${esc(x)}</span>`).join(" · ")}</span>`:""}${x.note&&!x.done?`<br><span class="freq">${esc(x.note)}</span>`:""}${x.done&&x.doneAt?`<br><span class="freq">Gemacht am ${new Date(x.doneAt).toLocaleDateString("de-DE")}</span>`:""}</span></button>${pl&&!x.done?`<button class="catbtn" data-gopack="${esc(pl.id)}" aria-label="Packliste ${esc(pl.name)} öffnen">🎒</button>`:""}${x.adv&&!x.done?`<button class="catbtn" data-advgo="${esc(x.adv)}" aria-label="Zum Adventskalender">🎄</button>`:""}${(sp=>sp&&safeLink(sp.link)?`<a class="catbtn" href="${esc(safeLink(sp.link))}" target="_blank" rel="noopener" aria-label="Ausgaben in Splitwise">💶</a>`:"")(splitFor("trip:"+x.id)[0])}${!x.done?transitA(x.name):""}${l?`<a class="catbtn" href="${esc(l)}" target="_blank" rel="noopener" aria-label="Link öffnen">🗺️</a>`:""}<button class="rm" data-tripedit="${esc(x.id)}" aria-label="${esc(x.name)} bearbeiten">✎</button></li>`};
   const kinds=TRIP_KIND.filter(k=>all.some(x=>!x.done&&x.kind===k[0]));
   let h=`<div class="btnrow"><button class="primary" data-act="tripnew">+ Neue Ausflugsidee</button></div>`+mz+atipCard();
   if(kinds.length||all.some(x=>!x.done&&x.wx==="egal"))h+=`<div class="unl"><button class="chipbtn" data-tfilter="" aria-pressed="${!F}">Alle</button>${all.some(x=>!x.done&&x.wx==="egal")?`<button class="chipbtn" data-tfilter="regen" aria-pressed="${F==="regen"}">🌧️ Bei Regen</button>`:""}${kinds.map(k=>`<button class="chipbtn" data-tfilter="${k[0]}" aria-pressed="${F===k[0]}">${k[1]} ${k[2]}</button>`).join("")}</div>`;
@@ -2271,7 +2295,8 @@ function renderKita(){const d=S.kitaDraft,sec=KITA_SECS.find(s=>s[0]===S.kitaSec
   if(sec[0]==="termine"){const today=ymd(new Date()),up=all.filter(x=>!x.date||x.date>=today).sort((a,b)=>(a.date||"9")<(b.date||"9")?-1:1),past=all.filter(x=>x.date&&x.date<today).sort((a,b)=>a.date<b.date?1:-1);
     const KI={fest:"🎉",zu:"🚪",eltern:"👥",mit:"📦"};
     const li=x=>`<li><button class="item" data-kitaedit="${esc(x.id)}"><span class="box" style="border:none;font-size:1.1rem">${KI[x.kind]||"📅"}</span><span class="nm">${esc(x.name)}<br><span class="freq">${x.date?esc(dLabel(x.date)):"ohne Datum"}${x.note?" · "+esc(x.note):""}</span></span></button>${bell("kita",x)}</li>`;
-    h+=`<div class="btnrow"><button class="primary" data-act="kitanew">+ Neuer Termin</button></div>`;
+    h+=`<div class="btnrow"><button class="primary" data-act="kitanew">+ Neuer Termin</button><button class="ghost" data-act="kitaimp">📋 Termine einfügen</button></div>`;
+    if(S.kitaImp)h+=kitaImpCard();
     h+=up.length?`<section class="card"><div class="section-head"><h2>Kommt noch</h2><span class="freq num">${up.length}</span></div><ul class="shop">${up.map(li).join("")}</ul><div class="freq">Termine in den nächsten 7 Tagen stehen auch auf der Startseite unter „Heute“.</div></section>`
       :`<div class="empty"><h2>Keine Termine</h2><div>Tragt Feste, Schließtage und Elternabende ein. Ihr seht beide dieselbe Liste.</div></div>`;
     if(past.length)h+=`<section class="card"><div class="section-head"><h2>Vorbei</h2><span class="freq num">${past.length}</span></div><ul class="shop">${past.slice(0,10).map(li).join("")}</ul></section>`;
@@ -2294,6 +2319,32 @@ function renderKita(){const d=S.kitaDraft,sec=KITA_SECS.find(s=>s[0]===S.kitaSec
   h+=`<div class="btnrow"><button class="primary" data-act="kitanew">+ Neue Info</button></div>`;
   h+=all.length?all.sort((a,b)=>(a.name||"").localeCompare(b.name||"","de")).map(li).join(""):`<div class="empty"><h2>Noch keine Infos</h2><div>Zum Beispiel Telefonnummer der Gruppe, Namen der Erzieherinnen, wer abholen darf.</div></div>`;
   return h}
+
+// Termine einfügen (Florian 15.11.2026, Kigaroo exportiert nur einzelne Termine): Text aus PDF/Nachricht oder Termin-Datei (.ics) → Vorschau → übernehmen
+function kitaKindGuess(t){t=String(t||"");return /elternabend|elterngespr|\bEA\b/i.test(t)?"eltern":/geschlossen|schließtag|kita zu|kinderhaus zu|brückentag/i.test(t)?"zu":/mitbring|spielzeugtag|mitnehmen/i.test(t)?"mit":/fest|feier|party|fasching|markt|show|ausflug|basteln/i.test(t)?"fest":""}
+function icsUnfold(t){return String(t).replace(/\r?\n[ \t]/g,"")}
+function parseKitaTermine(text){const out=[],t=String(text||"");
+  if(/BEGIN:VEVENT/i.test(t)){icsUnfold(t).split(/BEGIN:VEVENT/i).slice(1).forEach(b=>{const g=k=>{const m=b.match(new RegExp("^"+k+"[^:\\n]*:(.*)$","mi"));return m?m[1].trim().replace(/\\,/g,",").replace(/\\n/gi," ").replace(/\\;/g,";"):""};
+      const ds=g("DTSTART"),de=g("DTEND"),name=g("SUMMARY").slice(0,80);const m=ds.match(/(\d{4})(\d\d)(\d\d)(?:T(\d\d)(\d\d))?/);if(!m||!name)return;
+      const date=m[1]+"-"+m[2]+"-"+m[3],tm=m[4]?m[4]+":"+m[5]:"",loc=g("LOCATION");let to="";const e=de.match(/(\d{4})(\d\d)(\d\d)(T)?/);
+      if(e){let k=e[1]+"-"+e[2]+"-"+e[3];if(!e[4])k=ymd(addDays(ymdD(k),-1));if(k>date)to=k}
+      if(to){for(let d=ymdD(date);ymd(d)<=to&&out.length<200;d=addDays(d,1))out.push({date:ymd(d),name,kind:kitaKindGuess(name),note:[tm&&ymd(d)===date?tm+" Uhr":"",loc].filter(Boolean).join(" · ")})}
+      else out.push({date,name,kind:kitaKindGuess(name),note:[tm?tm+" Uhr":"",loc].filter(Boolean).join(" · ")})});return out}
+  const now=new Date(),yr=(d,m)=>{let y=now.getFullYear();if(ymd(new Date(y,m-1,d,12))<ymd(addDays(now,-60)))y++;return y};
+  t.split(/\r?\n/).forEach(l=>{const m=l.match(/(\d{1,2})\.\s?(\d{1,2})\.(\d{2,4})?(?:\s*(?:-|–|bis)\s*(\d{1,2})\.\s?(\d{1,2})\.(\d{2,4})?)?/);if(!m)return;
+    let name=l.replace(m[0],"").replace(/^[\s,:;–-]+|[\s,:;–-]+$/g,"").replace(/^(mo|di|mi|do|fr|sa|so)\.?,?\s+/i,"").trim().slice(0,80);if(!name)return;
+    const Y=x=>x?(x.length===2?2000+ +x:+x):0,d1=+m[1],m1=+m[2],y1=Y(m[3])||yr(d1,m1),date=ymd(new Date(y1,m1-1,d1,12));if(!/^\d{4}-\d\d-\d\d$/.test(date)||m1>12||d1>31)return;
+    const tm=(l.match(/(\d{1,2})[:.](\d{2})\s*uhr/i)||[]),note=tm[0]?tm[1]+":"+tm[2]+" Uhr":"";
+    name=name.replace(/,?\s*(um\s*)?\d{1,2}[:.]\d{2}\s*uhr/i,"").trim()||name;
+    if(m[4]){let to=ymd(new Date(Y(m[6])||y1,+m[5]-1,+m[4],12));if(to<date)to=ymd(new Date(y1+1,+m[5]-1,+m[4],12));for(let d=ymdD(date);ymd(d)<=to&&out.length<200;d=addDays(d,1))if(d.getDay()%6)out.push({date:ymd(d),name,kind:kitaKindGuess(name),note})}
+    else out.push({date,name,kind:kitaKindGuess(name),note})});return out}
+function kitaImpCard(){const I=S.kitaImp,KI={fest:"🎉",zu:"🚪",eltern:"👥",mit:"📦"};
+  if(!I.list)return `<section class="card"><div class="section-head"><h2>📋 Termine einfügen</h2></div><div class="freq">Text aus dem Kita-Kalender, einer PDF oder Nachricht einfügen (je Zeile ein Termin mit Datum, z. B. „12.11. St.-Martin-Fest“) oder eine Termin-Datei (.ics) aus Kigaroo wählen.</div>
+    <label class="fld"><textarea id="kimp-text" rows="5" placeholder="12.11. St.-Martin-Fest&#10;28.12.–5.1. Kita geschlossen">${esc(I.text||"")}</textarea></label><label class="fld"><span>Oder Termin-Datei</span><input type="file" id="kimp-file" accept=".ics,text/calendar"></label>
+    <div class="btnrow"><button class="primary" data-act="kimpparse">Erkennen</button><button class="ghost" data-act="kimpcancel">Abbrechen</button></div></section>`;
+  const n=I.list.filter(x=>x.on).length;
+  return `<section class="card"><div class="section-head"><h2>📋 ${I.list.length} erkannt</h2><span class="freq">${n} ausgewählt</span></div>${I.list.length?`<ul class="shop">${I.list.map((x,i)=>`<li class="${x.on?"":"done"}"><button class="item" data-kimptog="${i}" aria-pressed="${x.on}"><span class="box">${x.on?"✓":""}</span><span class="nm">${KI[x.kind]||"📅"} ${esc(x.name)}<br><span class="freq">${esc(dLabel(x.date))}${x.note?" · "+esc(x.note):""}${x.dup?" · steht schon drin":""}</span></span></button></li>`).join("")}</ul>`:`<div class="freq">Kein Termin mit Datum gefunden.</div>`}
+    <div class="btnrow">${n?`<button class="primary" data-act="kimpsave">${n} übernehmen</button>`:""}<button class="ghost" data-act="kimpback">Zurück</button><button class="ghost" data-act="kimpcancel">Abbrechen</button></div></section>`}
 // ---------- Wer macht was (Florian 15.11.2026: Übersicht und Wer macht was in einer Seite). Oben Überblick, darunter ausklappbare Abschnitte ----------
 const WMW_FL=t=>t.freq==="day"?"täglich":t.freq==="week"?(t.times||1)+"× pro Woche":FREQ_LABEL[t.freq];
 const WMW_PER={month:"diesen Monat",half:"dieses Halbjahr",year:"dieses Jahr"};
@@ -2652,6 +2703,14 @@ app.addEventListener("click",async e=>{
   if(b.dataset.go){const fw=focusWeek();S.prev=S.tab;S.tab=b.dataset.go;if(S.tab==="reisen"||S.tab==="ausflug"){S.reiseOpen=null;S.tripTab=S.tab==="reisen"?"urlaub":"ideen"}if(S.tab==="woche")S.weekPage=0;if(S.tab==="essen")S.foodTab="heute";if(S.tab==="kita")S.kitaSec="termine";if(S.tab==="musik")S.musFilter=b.dataset.musf||"";S.tripDraft=S.projDraft=S.playDraft=S.kitaDraft=null;S.hprojOpen=null;S.hsamm=false;if(S.tab==="projekte"||S.tab==="amhaus")S.projFilter=b.dataset.pf||"";if(b.dataset.ft&&b.dataset.ft!=="shop"){S.foodTab=b.dataset.ft;try{localStorage.setItem("hq-foodtab",S.foodTab)}catch(_){}}S.draft=null;focusApply(fw);render();window.scrollTo(0,0);return}
   if(b.dataset.kitasec){S.kitaDraft=null;S.kitaSec=b.dataset.kitasec;render();return}
   if(b.dataset.kset){const d=S.kitaDraft;if(d){const f=b.dataset.kset;d[f]=d[f]===b.dataset.v?"":b.dataset.v;render()}return}
+  if(b.dataset.act==="kitaimp"){S.kitaImp=S.kitaImp?null:{text:"",list:null};render();return}
+  if(b.dataset.act==="kimpcancel"){S.kitaImp=null;render();return}
+  if(b.dataset.act==="kimpback"&&S.kitaImp){S.kitaImp.list=null;render();return}
+  if(b.dataset.act==="kimpparse"&&S.kitaImp){const ta=document.getElementById("kimp-text"),fi=document.getElementById("kimp-file");const t=ta?ta.value:"";S.kitaImp.text=t;let L=parseKitaTermine(t);
+    try{if(fi&&fi.files&&fi.files[0])L=L.concat(parseKitaTermine(await fi.files[0].text()))}catch(_){}
+    const have=new Set(kitas().map(x=>(x.name||"").trim().toLowerCase()+"|"+x.date));S.kitaImp.list=L.map(x=>{const dup=have.has(x.name.trim().toLowerCase()+"|"+x.date);return Object.assign(x,{dup,on:!dup})});render();return}
+  if(b.dataset.kimptog&&S.kitaImp&&S.kitaImp.list){const x=S.kitaImp.list[+b.dataset.kimptog];if(x)x.on=!x.on;render();return}
+  if(b.dataset.act==="kimpsave"&&S.kitaImp&&S.kitaImp.list){const L=S.kitaImp.list.filter(x=>x.on);try{for(const x of L){const v={name:x.name,sec:"termine",date:x.date,at:Date.now(),by:S.me||""};if(x.kind)v.kind=x.kind;if(x.note)v.note=x.note;await S.store.setPath("food/kita/"+newId("c"),v)}S.kitaImp=null;toast(L.length+" Termine übernommen");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.act==="kitanew"){S.kitaDraft={id:null,sec:S.kitaSec,name:"",date:"",kind:"",note:""};render();window.scrollTo(0,0);const el=document.getElementById("ki-name");if(el)el.focus();return}
   if(b.dataset.kitaedit){const x=kitas().find(y=>y.id===b.dataset.kitaedit);if(x){S.kitaDraft={id:x.id,sec:x.sec||"termine",name:x.name||"",date:x.date||"",kind:x.kind||"",note:x.note||""};render();window.scrollTo(0,0)}return}
   if(b.dataset.act==="kitacancel"){S.kitaDraft=null;render();return}
@@ -2961,6 +3020,12 @@ app.addEventListener("input",e=>{if(e.target.id==="shopinput"){S.shopText=e.targ
   if(S.recDraft&&e.target.dataset.rf){S.recDraft[e.target.dataset.rf]=e.target.value;return}
   const row=e.target.closest(".editrow[data-i]");if(!row||!S.draft)return;if(e.target.dataset.f==="name")S.draft.tasks[+row.dataset.i].name=e.target.value});
 
+// Teilen an die App (Florian 15.11.2026): Share Target aus manifest.json (?su=Link&sx=Text&st=Titel) öffnet „Rezept aus Link“ schon ausgefüllt
+function shareIn(){let q;try{q=new URLSearchParams(location.search)}catch(_){return}if(!q.has("su")&&!q.has("sx"))return;
+  const txt=[q.get("st"),q.get("sx"),q.get("su")].filter(Boolean).join("\n").trim();try{const u=new URL(location.href);["su","sx","st"].forEach(k=>u.searchParams.delete(k));history.replaceState(null,"",u.pathname+u.search+(S.key?"#k="+S.key:location.hash))}catch(_){}
+  if(!txt)return;let n=0;const go=()=>{if(!S.config&&n++<20)return setTimeout(go,300);S.tab="essen";S.foodTab="rezepte";S.recDraft={id:null,name:"",ing:"",note:"",link:"",book:S.book||"main",paste:true,pasteText:txt};render();window.scrollTo(0,0);
+    const el=document.getElementById("rec-paste");if(el){el.value=txt;const b=document.querySelector('[data-act="recparse"]');if(b)b.click()}};setTimeout(go,300)}
+
 // ---------- Start ----------
 function start(store,mode){S.store=store;S.mode=mode;let gotCfg=false,gotWeeks=false;
   const timer=setTimeout(()=>{S.timedOut=true;if(!gotCfg)S.config=S.config||null;render()},10000);
@@ -2970,6 +3035,8 @@ function start(store,mode){S.store=store;S.mode=mode;let gotCfg=false,gotWeeks=f
     food=>{S.food=food||{};if(S.tab==="essen"||S.tab==="privat"||S.tab==="post"||S.tab==="settings"||S.tab==="einkauf"||S.tab==="camp"||S.tab==="ausflug"||S.tab==="projekte"||S.tab==="amhaus"||S.tab==="spiel"||S.tab==="kita"||S.tab==="musik"||S.tab==="recherchen"||S.tab==="wichtig"||S.tab==="tag"||S.tab==="listen"||S.tab==="ausgaben"||S.tab==="reisen"||S.tab==="kind")render()});
   try{fetch("wochenideen.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.wideas=j;if(S.tab==="essen")render()}}).catch(()=>{})}catch(_){}
   try{fetch("hausfunde.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.hfunde=j;if(S.tab==="amhaus")render()}}).catch(()=>{})}catch(_){}
+  shareIn();
+  try{fetch("ferien.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.ferien)){S.ferien=j;render()}}).catch(()=>{})}catch(_){}
   try{fetch("ausflugtipps.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.atipps=j;if(S.tab==="ausflug")render()}}).catch(()=>{})}catch(_){}
   try{fetch("reisefunde.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.rfunde=j;if(S.tab==="ausflug")render()}}).catch(()=>{})}catch(_){}
   try{fetch("ideen.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.ideas=j;if(S.tab==="essen")render()}}).catch(()=>{})}catch(_){}

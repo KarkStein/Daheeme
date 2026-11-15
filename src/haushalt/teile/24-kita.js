@@ -25,7 +25,8 @@ function renderKita(){const d=S.kitaDraft,sec=KITA_SECS.find(s=>s[0]===S.kitaSec
   if(sec[0]==="termine"){const today=ymd(new Date()),up=all.filter(x=>!x.date||x.date>=today).sort((a,b)=>(a.date||"9")<(b.date||"9")?-1:1),past=all.filter(x=>x.date&&x.date<today).sort((a,b)=>a.date<b.date?1:-1);
     const KI={fest:"🎉",zu:"🚪",eltern:"👥",mit:"📦"};
     const li=x=>`<li><button class="item" data-kitaedit="${esc(x.id)}"><span class="box" style="border:none;font-size:1.1rem">${KI[x.kind]||"📅"}</span><span class="nm">${esc(x.name)}<br><span class="freq">${x.date?esc(dLabel(x.date)):"ohne Datum"}${x.note?" · "+esc(x.note):""}</span></span></button>${bell("kita",x)}</li>`;
-    h+=`<div class="btnrow"><button class="primary" data-act="kitanew">+ Neuer Termin</button></div>`;
+    h+=`<div class="btnrow"><button class="primary" data-act="kitanew">+ Neuer Termin</button><button class="ghost" data-act="kitaimp">📋 Termine einfügen</button></div>`;
+    if(S.kitaImp)h+=kitaImpCard();
     h+=up.length?`<section class="card"><div class="section-head"><h2>Kommt noch</h2><span class="freq num">${up.length}</span></div><ul class="shop">${up.map(li).join("")}</ul><div class="freq">Termine in den nächsten 7 Tagen stehen auch auf der Startseite unter „Heute“.</div></section>`
       :`<div class="empty"><h2>Keine Termine</h2><div>Tragt Feste, Schließtage und Elternabende ein. Ihr seht beide dieselbe Liste.</div></div>`;
     if(past.length)h+=`<section class="card"><div class="section-head"><h2>Vorbei</h2><span class="freq num">${past.length}</span></div><ul class="shop">${past.slice(0,10).map(li).join("")}</ul></section>`;
@@ -48,3 +49,29 @@ function renderKita(){const d=S.kitaDraft,sec=KITA_SECS.find(s=>s[0]===S.kitaSec
   h+=`<div class="btnrow"><button class="primary" data-act="kitanew">+ Neue Info</button></div>`;
   h+=all.length?all.sort((a,b)=>(a.name||"").localeCompare(b.name||"","de")).map(li).join(""):`<div class="empty"><h2>Noch keine Infos</h2><div>Zum Beispiel Telefonnummer der Gruppe, Namen der Erzieherinnen, wer abholen darf.</div></div>`;
   return h}
+
+// Termine einfügen (Florian 15.11.2026, Kigaroo exportiert nur einzelne Termine): Text aus PDF/Nachricht oder Termin-Datei (.ics) → Vorschau → übernehmen
+function kitaKindGuess(t){t=String(t||"");return /elternabend|elterngespr|\bEA\b/i.test(t)?"eltern":/geschlossen|schließtag|kita zu|kinderhaus zu|brückentag/i.test(t)?"zu":/mitbring|spielzeugtag|mitnehmen/i.test(t)?"mit":/fest|feier|party|fasching|markt|show|ausflug|basteln/i.test(t)?"fest":""}
+function icsUnfold(t){return String(t).replace(/\r?\n[ \t]/g,"")}
+function parseKitaTermine(text){const out=[],t=String(text||"");
+  if(/BEGIN:VEVENT/i.test(t)){icsUnfold(t).split(/BEGIN:VEVENT/i).slice(1).forEach(b=>{const g=k=>{const m=b.match(new RegExp("^"+k+"[^:\\n]*:(.*)$","mi"));return m?m[1].trim().replace(/\\,/g,",").replace(/\\n/gi," ").replace(/\\;/g,";"):""};
+      const ds=g("DTSTART"),de=g("DTEND"),name=g("SUMMARY").slice(0,80);const m=ds.match(/(\d{4})(\d\d)(\d\d)(?:T(\d\d)(\d\d))?/);if(!m||!name)return;
+      const date=m[1]+"-"+m[2]+"-"+m[3],tm=m[4]?m[4]+":"+m[5]:"",loc=g("LOCATION");let to="";const e=de.match(/(\d{4})(\d\d)(\d\d)(T)?/);
+      if(e){let k=e[1]+"-"+e[2]+"-"+e[3];if(!e[4])k=ymd(addDays(ymdD(k),-1));if(k>date)to=k}
+      if(to){for(let d=ymdD(date);ymd(d)<=to&&out.length<200;d=addDays(d,1))out.push({date:ymd(d),name,kind:kitaKindGuess(name),note:[tm&&ymd(d)===date?tm+" Uhr":"",loc].filter(Boolean).join(" · ")})}
+      else out.push({date,name,kind:kitaKindGuess(name),note:[tm?tm+" Uhr":"",loc].filter(Boolean).join(" · ")})});return out}
+  const now=new Date(),yr=(d,m)=>{let y=now.getFullYear();if(ymd(new Date(y,m-1,d,12))<ymd(addDays(now,-60)))y++;return y};
+  t.split(/\r?\n/).forEach(l=>{const m=l.match(/(\d{1,2})\.\s?(\d{1,2})\.(\d{2,4})?(?:\s*(?:-|–|bis)\s*(\d{1,2})\.\s?(\d{1,2})\.(\d{2,4})?)?/);if(!m)return;
+    let name=l.replace(m[0],"").replace(/^[\s,:;–-]+|[\s,:;–-]+$/g,"").replace(/^(mo|di|mi|do|fr|sa|so)\.?,?\s+/i,"").trim().slice(0,80);if(!name)return;
+    const Y=x=>x?(x.length===2?2000+ +x:+x):0,d1=+m[1],m1=+m[2],y1=Y(m[3])||yr(d1,m1),date=ymd(new Date(y1,m1-1,d1,12));if(!/^\d{4}-\d\d-\d\d$/.test(date)||m1>12||d1>31)return;
+    const tm=(l.match(/(\d{1,2})[:.](\d{2})\s*uhr/i)||[]),note=tm[0]?tm[1]+":"+tm[2]+" Uhr":"";
+    name=name.replace(/,?\s*(um\s*)?\d{1,2}[:.]\d{2}\s*uhr/i,"").trim()||name;
+    if(m[4]){let to=ymd(new Date(Y(m[6])||y1,+m[5]-1,+m[4],12));if(to<date)to=ymd(new Date(y1+1,+m[5]-1,+m[4],12));for(let d=ymdD(date);ymd(d)<=to&&out.length<200;d=addDays(d,1))if(d.getDay()%6)out.push({date:ymd(d),name,kind:kitaKindGuess(name),note})}
+    else out.push({date,name,kind:kitaKindGuess(name),note})});return out}
+function kitaImpCard(){const I=S.kitaImp,KI={fest:"🎉",zu:"🚪",eltern:"👥",mit:"📦"};
+  if(!I.list)return `<section class="card"><div class="section-head"><h2>📋 Termine einfügen</h2></div><div class="freq">Text aus dem Kita-Kalender, einer PDF oder Nachricht einfügen (je Zeile ein Termin mit Datum, z. B. „12.11. St.-Martin-Fest“) oder eine Termin-Datei (.ics) aus Kigaroo wählen.</div>
+    <label class="fld"><textarea id="kimp-text" rows="5" placeholder="12.11. St.-Martin-Fest&#10;28.12.–5.1. Kita geschlossen">${esc(I.text||"")}</textarea></label><label class="fld"><span>Oder Termin-Datei</span><input type="file" id="kimp-file" accept=".ics,text/calendar"></label>
+    <div class="btnrow"><button class="primary" data-act="kimpparse">Erkennen</button><button class="ghost" data-act="kimpcancel">Abbrechen</button></div></section>`;
+  const n=I.list.filter(x=>x.on).length;
+  return `<section class="card"><div class="section-head"><h2>📋 ${I.list.length} erkannt</h2><span class="freq">${n} ausgewählt</span></div>${I.list.length?`<ul class="shop">${I.list.map((x,i)=>`<li class="${x.on?"":"done"}"><button class="item" data-kimptog="${i}" aria-pressed="${x.on}"><span class="box">${x.on?"✓":""}</span><span class="nm">${KI[x.kind]||"📅"} ${esc(x.name)}<br><span class="freq">${esc(dLabel(x.date))}${x.note?" · "+esc(x.note):""}${x.dup?" · steht schon drin":""}</span></span></button></li>`).join("")}</ul>`:`<div class="freq">Kein Termin mit Datum gefunden.</div>`}
+    <div class="btnrow">${n?`<button class="primary" data-act="kimpsave">${n} übernehmen</button>`:""}<button class="ghost" data-act="kimpback">Zurück</button><button class="ghost" data-act="kimpcancel">Abbrechen</button></div></section>`}

@@ -436,3 +436,8 @@ h2{font-weight:700}
 .tabs{border-top:2px solid var(--ink)}
 .tabs button[aria-selected="true"]{color:var(--ink)}
 .bellnav .badge{width:auto;height:18px;border-radius:999px;font-family:var(--f-body);font-size:.7rem;font-weight:700;top:-4px;right:-6px}
+/* Ein Bauplan für beide Kopfblöcke (Florian 15.11.2026): gleiche Zonen, gleiche Größen */
+.campback.wkpanel{margin:0 0 var(--sp4)}
+.campback .bcnt b{font-family:var(--f-display);font-weight:700}
+.campback .bcnt span{font-size:var(--fs-xs)}
+.campback .bring small{font-size:var(--fs-xs)}

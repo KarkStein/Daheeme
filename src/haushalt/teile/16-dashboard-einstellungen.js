@@ -30,12 +30,12 @@ function renderBack(night,dash){const now=new Date(),today=ymd(now),D=backDay(no
   const line=(dash?"":advBack()+prRow+mealRow+kitaRow+btasks)+`<ul class="bline">${untimed.map(row).join("")}${rows.slice(0,7).map(row).join("")}</ul>`;
   // Zähler
   // Urlaub gehört nicht in die Tagesansicht (Florian 15.11.2026)
-  const cnt=(n,lab,attr)=>`<button class="bcnt" ${attr}><b>${n}</b><span>${lab}</span></button>`;
+  const cnt=panelTile;
   const counters=`<div class="bcnts">${cnt(due.length||pr.length,due.length?"fällig":"Erinnerungen",'data-go="wichtig"')}${cnt(shop.length,"im Einkauf",'data-go="einkauf"')}${cnt(D.ev.filter(e=>e.src!=="prio").length,"Termine heute",'data-nav="woche|wp:3" data-calopen="liste"')}</div>`;
   // Blick voraus
   const ahead=[1,2,3].map(i=>{const d=addDays(startOfDay(now),i),x=backDay(d),e=x.ev[0];return `<div class="bday3"><b>${i===1?"Morgen":DN[d.getDay()].slice(0,2)}</b><span>🍲 ${x.meal?esc(x.meal.name):"–"}</span>${e?`<span>${e.icon||"📅"} ${esc(e.name)}</span>`:""}</div>`}).join("");
   return `<div class="campback${night?" night":""}${dash?" dash":""}" aria-label="Der Tag auf einen Blick"><div class="brim"></div>
-    <div class="btop"><div class="bhead"><div class="bday">${DN[now.getDay()]}</div><div class="bdate">${now.getDate()}. ${MN[now.getMonth()]}</div><div class="bsub">${nowT!=null?(dash?wxA(`<span class="bwx">${nowI} ${nowT}° ›</span>`,"","std"):`<span class="bwx">${nowI} ${nowT}°</span>`):""}🌅 ${hm(t.rise)} · 🌇 ${hm(t.set)}</div>${dash&&spark?wxA(spark,"bsparka","std"):spark}</div>${dash?bweekRing():`<div class="bstamp" aria-hidden="true"><span>📷</span></div>`}</div>
+    <div class="btop"><div class="bhead"><div class="bday">${DN[now.getDay()]}${dash?" · Heute":""}</div><div class="bdate">${now.getDate()}. ${MN[now.getMonth()]}</div><div class="bsub">${nowT!=null?(dash?wxA(`<span class="bwx">${nowI} ${nowT}° ›</span>`,"","std"):`<span class="bwx">${nowI} ${nowT}°</span>`):""}🌅 ${hm(t.rise)} · 🌇 ${hm(t.set)}</div>${dash&&spark?wxA(spark,"bsparka","std"):spark}</div>${dash?bweekRing():`<div class="bstamp" aria-hidden="true"><span>📷</span></div>`}</div>
     ${line}${counters}<div class="b3">${ahead}</div><div class="bfoot"><button class="bcal" data-nav="woche|wp:3" data-calopen="monat">📅 Kalender ›</button><button class="bcal" data-act="ternewgo">＋ Termin</button>${(n=>n?`<button class="bcal" data-go="recherchen">🤖 ${n} neu</button>`:"")(rNew().length)}${dash?"":`<button class="bflip" data-act="flipback">↺ Zum Bild</button>`}</div>
     ${dash?"":`<div class="bturn">↺ Tippen zum Umdrehen</div>`}</div>`}
 function moonName(p){return p<0.03||p>0.97?"Neumond":p<0.22?"zunehmende Sichel":p<0.28?"zunehmender Halbmond":p<0.47?"zunehmender Mond":p<0.53?"Vollmond":p<0.72?"abnehmender Mond":p<0.78?"abnehmender Halbmond":"abnehmende Sichel"}

@@ -9,8 +9,12 @@ function meChooser(){return `<div class="me"><span>Ich bin</span>
 // Wochenring im Dashboard (Florian 15.11.2026, ersetzt den Fotoplatz): Stand der Wechsel-Aufgaben dieser Woche
 function rotCount(mon){const split=rotSplit(),tk=ticksOf(wkKey(mon));let d=0,n=0;
   tasks().forEach(t=>{if(group(t.freq)!=="week"||t.owner!=="rot")return;const k=slotsOf(t);for(let i=0;i<k;i++){d+=tk[t.id+"__"+i]?1:0;n++}});return [d,n]}
-function bweekRing(){const [d,n]=rotCount(mondayOf(new Date()));if(!n)return "";const r=22,c=2*Math.PI*r,p=Math.min(1,d/n);
-  return `<button class="bring" data-go="woche" aria-label="Wochenstand: ${d} von ${n} Wechsel-Aufgaben erledigt"><svg viewBox="0 0 54 54" aria-hidden="true"><circle cx="27" cy="27" r="${r}" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="6"/><circle cx="27" cy="27" r="${r}" fill="none" stroke="var(--lemon)" stroke-width="6" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-p)).toFixed(1)}" transform="rotate(-90 27 27)"/></svg><span class="num">${d}/${n}</span><small>Woche</small></button>`}
+// Ein Bauplan für beide Kopfblöcke (Tag und Woche, Diese Woche; Florian 15.11.2026): Kopf (Zeile, Titel, Unterzeile, Ring rechts), Inhalt, Zähler-Kacheln, Fuß
+function panelRing(d,n,lbl,attr){const r=22,c=2*Math.PI*r,p=n?Math.min(1,d/n):0;
+  return `<button class="bring" ${attr}><svg viewBox="0 0 54 54" aria-hidden="true"><circle cx="27" cy="27" r="${r}" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="6"/><circle cx="27" cy="27" r="${r}" fill="none" stroke="var(--lemon)" stroke-width="6" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-p)).toFixed(1)}" transform="rotate(-90 27 27)"/></svg><span class="num">${d}/${n}</span><small>${lbl}</small></button>`}
+const panelTile=(n,lab,attr)=>`<button class="bcnt" ${attr||""}><b class="num">${n}</b><span>${lab}</span></button>`;
+function panelHead(eye,title,sub,right){return `<div class="brim"></div><div class="btop"><div class="bhead"><div class="bday">${eye}</div><div class="bdate">${title}</div>${sub?`<div class="bsub">${sub}</div>`:""}</div>${right||""}</div>`}
+function bweekRing(){const [d,n]=rotCount(mondayOf(new Date()));if(!n)return "";return panelRing(d,n,"Woche",`data-go="woche" aria-label="Wochenstand: ${d} von ${n} Wechsel-Aufgaben erledigt"`)}
 function ring(p){const r=36,c=2*Math.PI*r;const off=c*(1-Math.min(1,p));
   return `<svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="${r}" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="8"/><circle cx="42" cy="42" r="${r}" fill="none" stroke="var(--lemon)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}"/></svg>`}
 
@@ -23,12 +27,23 @@ const termine=()=>listOf(S.food&&S.food.termin);
 try{S.calOff=JSON.parse(localStorage.getItem("hq-caloff")||"[]")}catch(_){}
 const CAL_COL={own:"var(--ink)",kita:"#c7442f",prio:"#e0a030",ext:"#3f6fa8",food:"#8aa38b",reise:"#2f8fa3",trip:"#6a9a3a",play:"#8a5cc2"};
 // Filter-Chips im Kalender: Quelle -> [Symbol, Name]
-const CAL_LBL=[["own","📅","Termine"],["kita","🎒","Kita"],["prio","🔔","Erinnerungen"],["food","🍲","Essen"],["reise","⛵","Urlaub"],["trip","🚲","Ausflüge"],["play","⚽","Sport"],["advent","🎄","Advent"],["ext","👪","Familywall"]];
+const CAL_LBL=[["own","📅","Termine"],["kita","🎒","Kita"],["prio","🔔","Erinnerungen"],["food","🍲","Essen"],["reise","⛵","Urlaub"],["trip","🚲","Ausflüge"],["play","⚽","Sport"],["advent","🎄","Advent"],["ext","👪","Familywall"],["frei","🎉","Ferien und Feiertage"]];
 const WD_RX=[["so","sonntag"],["mo","montag"],["di","dienstag"],["mi","mittwoch"],["do","donnerstag"],["fr","freitag"],["sa","samstag"]];
 function whenDays(t){t=" "+String(t||"").toLowerCase()+" ";const out=[];WD_RX.forEach((w,i)=>{if(new RegExp("[\\s,(/]("+w[1]+"s?|"+w[0]+"\\.?)(?=[\\s,/)]|$)").test(t))out.push(i)});return out}
 function whenTime(t){const m=String(t||"").match(/(\d{1,2})(?:[:.](\d{2}))?\s*uhr|(\d{1,2})[:.](\d{2})/i);if(!m)return "";const h=+(m[1]||m[3]),mi=+(m[2]||m[4]||0);return h<24&&mi<60?String(h).padStart(2,"0")+":"+String(mi).padStart(2,"0"):""}
 function inUrlaub(d){const k=typeof d==="string"?d:ymd(d);return urlaube().find(u=>reiseSt(u)!=="traum"&&u.from&&k>=u.from&&k<=(u.to||u.from))||null}
 function ymdD(x){return new Date(x+"T12:00:00")}
+// Ferien und Feiertage Bayern (Florian 15.11.2026): Feiertage gerechnet, Schulferien aus ferien.json (monatlich per Lauf von openholidaysapi.org)
+function easterSun(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),da=(h+l-7*m+114)%31+1;return new Date(y,mo-1,da,12)}
+const FT_FIX=[["01-01","Neujahr"],["01-06","Heilige Drei Könige"],["05-01","Tag der Arbeit"],["08-15","Mariä Himmelfahrt"],["10-03","Tag der Deutschen Einheit"],["11-01","Allerheiligen"],["12-25","1. Weihnachtstag"],["12-26","2. Weihnachtstag"]],FT_EAST=[[-2,"Karfreitag"],[1,"Ostermontag"],[39,"Christi Himmelfahrt"],[50,"Pfingstmontag"],[60,"Fronleichnam"]],_ftc={};
+function feiertage(y){if(_ftc[y])return _ftc[y];const o={},e=easterSun(y);FT_FIX.forEach(f=>{o[y+"-"+f[0]]=f[1]});FT_EAST.forEach(f=>{o[ymd(addDays(e,f[0]))]=f[1]});return _ftc[y]=o}
+function feiertag(d){const k=typeof d==="string"?d:ymd(d);return feiertage(+k.slice(0,4))[k]||""}
+function ferienList(){return ((S.ferien&&S.ferien.ferien)||[]).filter(f=>f&&f.from&&f.to)}
+function ferienAt(d){const k=typeof d==="string"?d:ymd(d);return ferienList().find(f=>k>=f.from&&k<=f.to)||null}
+// Freie Tage ab heute (Feiertage und Ferienbeginn), für Urlaube und Ausflüge
+function freiNext(n,days){const out=[],t=new Date();for(let i=0;i<(days||400)&&out.length<n;i++){const d=addDays(t,i),k=ymd(d),ft=feiertag(k),fe=ferienList().find(f=>f.from===k);if(fe)out.push({k,d,name:fe.name,ic:"🏖️",to:fe.to});if(ft)out.push({k,d,name:ft,ic:"🎉",bridge:d.getDay()===4?"Fr":d.getDay()===2?"Mo":""})}return out}
+const WD2=["So","Mo","Di","Mi","Do","Fr","Sa"];
+function freiLine(x){return x.ic==="🏖️"?`🏖️ ${esc(x.name)} ${rDate(x.k)}–${rDate(x.to)}`:`🎉 ${WD2[x.d.getDay()]} ${rDate(x.k)} ${esc(x.name)}${x.bridge?` · Brückentag ${x.bridge}`:""}`}
 const CAL_SRC=[
   (a,z)=>{const out=[];termine().forEach(x=>{if(!x.date)return;if(!x.rep){if(x.to&&x.to>x.date){let d=ymdD(x.date),n=0;while(ymd(d)<=x.to&&n<60){const k=ymd(d);if(k>=a&&k<=z)out.push({d:k,t:k===x.date?x.time||"":"",name:x.name+(n?" (Tag "+(n+1)+")":""),icon:"📅",src:"own",id:x.id,who:x.who||"",note:x.note||"",remind:x.remind||false});d=addDays(d,1);n++}return}if(x.date>=a&&x.date<=z)out.push({d:x.date,t:x.time||"",name:x.name,icon:"📅",src:"own",id:x.id,who:x.who||"",note:x.note||"",remind:x.remind||false});return}
     let d=ymdD(x.date);const end=ymdD(z);let n=0;while(d<=end&&n<800){const k=ymd(d);if(k>=a)out.push({d:k,t:x.time||"",name:x.name,icon:x.rep==="y"?"🎂":"🔁",src:"own",id:x.id,who:x.who||"",note:x.note||"",remind:x.remind||false});d=x.rep==="w"?addDays(d,7):x.rep==="m"?new Date(d.getFullYear(),d.getMonth()+1,d.getDate(),12):new Date(d.getFullYear()+1,d.getMonth(),d.getDate(),12);n++}});return out},
@@ -42,7 +57,9 @@ const CAL_SRC=[
   // Familywall (Florian 15.11.2026): nur lesend, stündlich vom Lauf im privaten Sicherungs-Repo nach food/ext/fw geschrieben; gleiche Termine wie in der App nur einmal
   (a,z)=>{const fw=S.food&&S.food.ext&&S.food.ext.fw;if(!fw||!fw.items)return [];const own=new Set(termine().map(x=>(x.name||"").trim().toLowerCase()+"|"+x.date)),out=[];
     Object.keys(fw.items).forEach(id=>{const x=fw.items[id];if(!x||!x.date||!x.name||own.has(x.name.trim().toLowerCase()+"|"+x.date))return;const to=x.to&&x.to>x.date?x.to:x.date;if(to<a||x.date>z)return;let d=ymdD(x.date),n=0;
-      while(ymd(d)<=to&&n<60){const k=ymd(d);if(k>=a&&k<=z)out.push({d:k,t:k===x.date?x.time||"":"",name:x.name+(n?" (Tag "+(n+1)+")":""),icon:"👪",src:"ext",note:"Aus Familywall"+(x.end?", bis "+x.end:"")+(x.place?" · "+x.place:"")+". Ändern geht in Familywall."});d=addDays(d,1);n++}});return out}];
+      while(ymd(d)<=to&&n<60){const k=ymd(d);if(k>=a&&k<=z)out.push({d:k,t:k===x.date?x.time||"":"",name:x.name+(n?" (Tag "+(n+1)+")":""),icon:"👪",src:"ext",note:"Aus Familywall"+(x.end?", bis "+x.end:"")+(x.place?" · "+x.place:"")+". Ändern geht in Familywall."});d=addDays(d,1);n++}});return out},
+  (a,z)=>{const out=[];for(let d=ymdD(a);ymd(d)<=z;d=addDays(d,1)){const k=ymd(d),ft=feiertag(k);if(ft)out.push({d:k,t:"",name:ft,icon:"🎉",src:"frei",note:"Feiertag in Bayern. Die Kita hat zu."})}
+    ferienList().forEach(f=>{if(f.from>=a&&f.from<=z)out.push({d:f.from,t:"",name:f.name+" beginnen",icon:"🏖️",src:"frei",note:"Schulferien Bayern bis "+rDate(f.to)+"."});if(f.to!==f.from&&f.to>=a&&f.to<=z)out.push({d:f.to,t:"",name:"Letzter Tag "+f.name,icon:"🏖️",src:"frei"})});return out}];
 // Was der Kalender zeigt (Filter nach Bereich und Person). dayStress und Rückseite nutzen calEvents ungefiltert.
 function calShown(a,z){const off=S.calOff||[],w=S.calWho||"";return calEvents(a,z).filter(e=>!off.includes(CAL_LBL.some(l=>l[0]===e.src)?e.src:"own")&&(!w||!e.who||e.who==="both"||e.who===w))}
 function calEvents(a,z){const out=[];CAL_SRC.forEach(f=>{try{out.push(...f(a,z))}catch(_){}});return out.sort((x,y)=>(x.d+(x.t||"99")+(x.src==="food"?"1":"0"))<(y.d+(y.t||"99")+(y.src==="food"?"1":"0"))?-1:1)}
@@ -108,18 +125,13 @@ function renderWeek(){
     tasks().forEach(t=>{if(group(t.freq)!=="week")return;const k=t.owner==="rot"?(ownerFor(t,mon,split)===S.me?"rot":null):(t.owner===S.me?"fix":null);if(!k)return;
       const n=slotsOf(t);for(let i=0;i<n;i++){m[k][0]+=tk[t.id+"__"+i]?1:0;m[k][1]++}});
     const d=m.rot[0]+m.fix[0],n=m.rot[1]+m.fix[1];
-    h+=`<section class="board" aria-label="Mein Wochenstand">
-    <button class="who" data-jump="rot" aria-label="Wechsel-Aufgaben gebündelt anzeigen"><span class="name">Im Wechsel ›</span><span class="pts num">${m.rot[0]}<small>/${m.rot[1]}</small></span><span class="sub">diese Woche erledigt</span></button>
-    <div class="ring">${ring(n?d/n:0)}<div class="lbl num">${d}/${n}<small>${esc(pname(S.me))}</small></div></div>
-    <button class="who right" data-jump="fix" aria-label="Feste Aufgaben gebündelt anzeigen"><span class="name">Feste Aufgaben ›</span><span class="pts num">${m.fix[0]}<small>/${m.fix[1]}</small></span><span class="sub">diese Woche erledigt</span></button>
-  </section>`;
+    h+=`<section class="campback dash wkpanel" aria-label="Mein Wochenstand">${panelHead("Mein Stand · KW "+w,n-d>0?`Noch ${n-d} offen`:"Alles erledigt",esc(pname(S.me))+", Wechsel und feste Aufgaben",panelRing(d,n,"gesamt",'data-jump="rot" aria-label="Gebündelt anzeigen"'))}
+    <div class="bcnts" style="grid-template-columns:repeat(2,1fr)">${panelTile(m.rot[0]+"/"+m.rot[1],"im Wechsel ›",'data-jump="rot"')}${panelTile(m.fix[0]+"/"+m.fix[1],"feste Aufgaben ›",'data-jump="fix"')}</div></section>`;
     if(n&&d>=n)h+=`<div class="celebrate">Du hast alle deine Aufgaben für diese Woche erledigt.</div>`;
   }else{
-  h+=`<section class="board" aria-label="Wochenstand">
-    <button class="who" data-jump="rot" aria-label="Wechsel-Aufgaben gebündelt anzeigen"><span class="name">${esc(pname("p0"))}</span><span class="pts num">${cnt.p0[0]}<small>/${cnt.p0[1]}</small></span><span class="sub">Wechsel-Aufgaben ›</span></button>
-    <div class="ring">${ring(pct)}<div class="lbl num">${cnt.all[0]}/${cnt.all[1]}<small>im Wechsel</small></div></div>
-    <button class="who right" data-jump="rot" aria-label="Wechsel-Aufgaben gebündelt anzeigen"><span class="name">${esc(pname("p1"))}</span><span class="pts num">${cnt.p1[0]}<small>/${cnt.p1[1]}</small></span><span class="sub">Wechsel-Aufgaben ›</span></button>
-  </section>`;
+  const fx=[0,0];tasks().forEach(t=>{if(group(t.freq)!=="week"||t.owner==="rot")return;const n=slotsOf(t);for(let i=0;i<n;i++){fx[0]+=tk[t.id+"__"+i]?1:0;fx[1]++}});const op=cnt.all[1]-cnt.all[0];
+  h+=`<section class="campback dash wkpanel" aria-label="Wochenstand">${panelHead("Wochenstand · KW "+w,op>0?`Noch ${op} offen`:"Alles erledigt","Wechsel-Aufgaben "+(isCur?"dieser Woche":mon<cur?"dieser Woche (Rückblick)":"(Vorschau)"),panelRing(cnt.all[0],cnt.all[1],"im Wechsel",'data-jump="rot" aria-label="Wechsel-Aufgaben gebündelt anzeigen"'))}
+    <div class="bcnts">${panelTile(cnt.p0[0]+"/"+cnt.p0[1],esc(pname("p0"))+" ›",'data-jump="rot"')}${panelTile(cnt.p1[0]+"/"+cnt.p1[1],esc(pname("p1"))+" ›",'data-jump="rot"')}${panelTile(fx[0]+"/"+fx[1],"feste Aufgaben ›",'data-jump="fix"')}</div></section>`;
   if(cnt.all[1]&&cnt.all[0]>=cnt.all[1])h+=`<div class="celebrate">Alle Wechsel-Aufgaben dieser Woche sind erledigt.</div>`;}
   h+=scopeSwitch(`<button class="chipbtn neutral" data-act="hidedone" aria-pressed="${S.hideDone}">Erledigte ausblenden</button><button class="chipbtn neutral" data-act="groupby" aria-pressed="${S.groupBy==="art"}">Fest und Wechsel bündeln</button>`);
 
