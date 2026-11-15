@@ -93,6 +93,10 @@ git add -A && git commit && git push origin main
 - Einkauf nur an einem Ort (Florian 15.11.2026): Reiter Einkauf (Überschrift "Einkauf"); Essen hat keinen Einkauf-Chip mehr, nur Verlinkungen ("Noch einkaufen" bzw. "🛒 Einkauf: N offen" in Heute, Zutaten-Knöpfe). Doppeltipp auf Einkauf führt weiter zu Rezepte.
 - Startbild-Ausschnitt `HVB` (weniger Himmel, Himmelsdinge 13 tiefer), Spots über `spotPos`. Ghettoblaster hinten am Strand (Musik), Noten, wenn Playlists da sind. Rückseite: Zeitstrahl und Vorschau sind keine Links mehr (Tipp dreht zurück), Knöpfe "↺ Zum Bild" und "📅 Kalender ›", nur Zähler springen.
 
+- Gliederung (Florian 15.11.2026): `AREA_GROUPS` Alltag (Woche, Kita), Essen (Essen, Einkauf), Zuhause (Am Haus), Freizeit (Reisen und Ausflüge, Sport und Spiel, Musik), Wir (Partner, Ideen), Quer (Wichtig, Einstellungen, später Suche). `AREAS[i][6]` = Gruppe; Bereiche-Übersicht gruppiert danach, Kreis folgt der Reihenfolge (Woche, Kalender, Kita, Essen, Einkauf, Am Haus, Unterwegs, Sport, Musik, Partner, Ideen, Wichtig). Wischen: erst die 4 Reiter, dann die übrigen in Gruppen-Reihenfolge. Offene Abweichungen (Kita-Essen doppelt, Vorrat in Einstellungen, Erinnerungen doppelt, Kontakte zu anderen verwaist, Recherche-Orte) entscheidet Florian noch.
+- Projekt-Baustein Am Haus: Projekte (`food/hproj`, Feld `cat` wohnen|ordnung|haus|garten, fehlt = wohnen, `HCAT`) gibt es in allen vier Bereichen von Am Haus; alle teilen die Sammlung `area:"haus"` (Kinds jetzt auch Aufbewahrung, Werkzeug, Material).
+- Briefkasten ohne Nummer: `mboxAsk` fragt die Nummer direkt ab, speichert sie in `food/contact/<anderer>` und öffnet sofort WhatsApp.
+
 ## Offene Liste
 
 - Haus am Meer freischalten, wenn der Besitzer es sagt; dann App-Name und Symbol (bisher 🏕️🧹, Zelt im Start-Tab) und Farben anpassen (Plan: https://claude.ai/artifact/MzunYyXEYMKWLFxg56qyNr).
