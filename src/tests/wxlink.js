@@ -16,5 +16,5 @@ srv.listen(8765,async()=>{
   await put('food/pref/wxlink','https://wetter.example/ort');await A.waitForTimeout(400);r.own=await A.$$eval('.wxpanel a.wxlink',l=>l.map(a=>a.href));
   await nav('ausflug|tt:ideen');r.atip=await A.$eval('.atip',e=>e.innerText.replace(/\n/g,' '));await A.click('[data-atipwx=schnee]');await A.waitForTimeout(200);await A.click('[data-atipdauer]');await A.waitForTimeout(200);r.snow=await A.$eval('.atip',e=>e.innerText.replace(/\n/g,' '));
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&r.gid===1234567&&r.dash.length>=1&&r.dash.every(h=>h==='https://kachelmannwetter.com/de/wetter/1234567-teststadt')&&r.panel.length>=2&&r.own.every(h=>h==='https://wetter.example/ort')&&/Schlitten/.test(r.atip)&&/Drachen/.test(r.atip)&&/Rodelhügel/.test(r.snow)&&!/Drachenwiese/.test(r.snow);
+  const ok=!errs.length&&r.gid===1234567&&r.dash.length>=1&&r.dash.every(h=>/^https:\/\/kachelmannwetter\.com\/de\/(wetter\/1234567-teststadt|vorhersage\/1234567-teststadt\/kompakt)$/.test(h))&&r.panel.some(h=>/14-tage-trend$/.test(h))&&r.panel.some(h=>/kompakt$/.test(h))&&r.panel.length>=2&&r.own.every(h=>h==='https://wetter.example/ort')&&/Schlitten/.test(r.atip)&&/Drachen/.test(r.atip)&&/Rodelhügel/.test(r.snow)&&!/Drachenwiese/.test(r.snow);
   console.error(ok?'WXLINK OK':'WXLINK FAIL');await b.close();srv.close();process.exit(0)});
