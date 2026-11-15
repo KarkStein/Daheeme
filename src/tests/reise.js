@@ -1,0 +1,34 @@
+srv.listen(8765,async()=>{
+  const b=await chromium.launch();const errs=[];const out=process.argv[2];
+  const c=await b.newContext({viewport:{width:400,height:860},deviceScaleFactor:2,timezoneId:'Europe/Berlin'});const A=await c.newPage();await A.clock.setFixedTime(new Date('2026-11-14T12:00:00+01:00'));A.setDefaultTimeout(8000);A.on('pageerror',e=>errs.push(e.message));await A.route('**/reisefunde.json',r=>r.fulfill({contentType:'application/json',body:JSON.stringify({updated:'2026-11-15',items:[{name:'Gîte Ty Coz',kind:'unterkunft',link:'https://example.org/ty-coz',place:'Quiberon',price:'950',auftrag:'Übernachtungen',reise:'Bretagne',note:'Garten, 300 m zum Strand'}]})}));
+  await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');
+  const key=/k=([^&]+)/.exec(A.url())[1];const put=(pa,d)=>fetch('http://localhost:8765/haushalt/'+key+'/'+pa+'.json',{method:'PUT',body:JSON.stringify(d)});
+  await put('food/urlaub/u1',{name:'Bretagne',place:'Quiberon',from:'2027-05-20',to:'2027-06-03',state:'gebucht',emo:'🏖️',at:1});
+  await put('food/urlaub/u2',{name:'Norwegen',state:'traum',emo:'🏔️',hearts:{p1:true},pins:{a:{name:'Geirangerfjord',kind:'strand',at:1}},book:{b:{name:'Fähre Kiel',ref:'X9',at:2}},at:2});
+  await put('food/urlaub/u3',{name:'Ostsee',from:'2026-08-01',to:'2026-08-10',state:'gewesen',at:3});
+  await A.waitForTimeout(500);const r={};
+  await A.click('.spot[data-go=reisen]');await A.waitForTimeout(200);r.h1=await A.$eval('#app h1',e=>e.innerText);r.tiles=await A.$$eval('.reisetile',l=>l.map(x=>x.innerText.replace(/\n/g,' | ')));
+  await A.screenshot({path:out+'/reisen.png',fullPage:true});
+  await A.click('[data-reise=u1]');await A.waitForTimeout(200);r.cd=await A.$eval('.card .freq',e=>e.innerText);
+  await A.click('[data-reiseheart=p0]');await A.click('[data-fundnk=strand]');await A.fill('#rfundform .fn','Plage de Port Blanc');await A.press('#rfundform .fn','Enter');await A.waitForTimeout(300);await A.click('[data-fundnk=strand]');await A.fill('#rfundform .fn','https://www.booking.com/hotel/fr/les-mouettes.html');await A.press('#rfundform .fn','Enter');await A.waitForTimeout(300);
+  await A.fill('#bk-name','Ferienhaus');await A.fill('#bk-ref','AB-12345');await A.fill('#bk-addr','Rue de la Mer 3, Quiberon');await A.click('#bkform button');await A.waitForTimeout(300);
+  await A.click('[data-packtpl=strand]');await A.waitForTimeout(800);r.pack=await A.$$eval('[data-packshop]',l=>l.length);await A.click('[data-packshop]');await A.waitForTimeout(400);
+  await A.fill('[data-rsf=budget]','1800');await A.press('[data-rsf=budget]','Tab');await A.waitForTimeout(300);
+  await A.click('[data-reiseprio="0"]');await A.waitForTimeout(200);r.prio=await A.$eval('#app h1',e=>e.innerText).catch(()=>null);r.due=await A.$eval('[data-pdf=due],input[type=date]',e=>e.value).catch(()=>null);
+  await A.goBack();await A.waitForTimeout(300);
+  const db=JSON.parse(JSON.stringify(get(['haushalt',key,'food'])));
+  r.db={budget:db.urlaub.u1.budget,heart:db.urlaub.u1.hearts,fund:Object.values(db.fund||{}).map(f=>f.reise+':'+f.kind+':'+f.st+':'+f.name+(f.ref?':'+f.ref:'')),shop:Object.values(db.shop||{}).map(x=>x.name+'/'+x.src)};
+  await A.click('#tabs [data-tab=woche]');await A.click('.spot[data-go=reisen]').catch(()=>{});await A.click('#tabs [data-tab=camp]');await A.waitForTimeout(200);await A.click('.spot[data-go=reisen]');await A.evaluate(()=>document.querySelectorAll('.reisedone').forEach(d=>d.open=true));await A.click('[data-reise=u2]');await A.waitForTimeout(800);await A.click('[data-act=reiseback]');await A.click('[data-reise=u1]');await A.waitForTimeout(300);
+  await A.screenshot({path:out+'/reise-detail.png',fullPage:true});
+  // Status bis gebucht weiterschalten: Hotel landet bei Buchungen
+  const hid=await A.$eval('.fundlist li.fund:has(a[href*=booking]) [data-fundst]',e=>e.dataset.fundst);await A.click('[data-fundst="'+hid+'"]');await A.waitForTimeout(300);await A.click('[data-fundst="'+hid+'"]');await A.waitForTimeout(400);
+  r.booked=await A.$$eval('.card:has(#bkform) .fund .ev',l=>l.map(x=>x.innerText.split('\n')[0]));
+  await A.click('[data-fundopen=u1]');await A.waitForTimeout(300);r.rech=await A.$$eval('.card:not(.rfund) .fundlist li.fund .ev',l=>l.map(x=>x.innerText.split('\n')[0]));r.rtab=await A.$eval('.uwtabs [aria-pressed=true]',e=>e.innerText);
+  await A.click('[data-ff=p][data-v=""]');await A.waitForTimeout(200);r.rf=await A.$$eval('.rfund li.fund',l=>l.length);await A.click('[data-rftake="0"]');await A.waitForTimeout(400);r.rf2=await A.$$eval('.rfund li.fund',l=>l.length);r.all=await A.$$eval('.card:not(.rfund) .fundlist li.fund',l=>l.length);await A.screenshot({path:out+'/recherche.png',fullPage:true});
+  await A.click('[data-trip=pack]');await A.waitForTimeout(200);r.lists=await A.$$eval('[data-packlist]',l=>l.map(x=>x.innerText));
+  await A.click('#tabs [data-tab=woche]');await A.click('#tabs [data-tab=camp]');await A.waitForTimeout(200);await A.click('.spot[data-go=ausflug]');await A.waitForTimeout(200);r.bus=await A.$eval('.uwtabs [aria-pressed=true]',e=>e.innerText);r.bush1=await A.$eval('#app h1',e=>e.innerText);
+  await A.click('[data-trip=urlaub]');await A.click('[data-reise=u1]');await A.waitForTimeout(200);r.nochips=!(await A.$('.chipbtn[data-reisest=traum]'));await A.click('[data-reisest=erledigt]');await A.waitForTimeout(400);r.groups=await A.$$eval('#app .section-head h2',l=>l.map(x=>x.innerText));r.inPast=await A.$$eval('.reisedone',l=>l.map(d=>d.querySelector('h2').innerText+':'+d.querySelectorAll('.reisetile').length));await A.screenshot({path:out+'/urlaube-gruppen.png',fullPage:true});
+  const db2=JSON.parse(JSON.stringify(get(['haushalt',key,'food'])));r.mig=Object.values(db2.fund||{}).filter(f=>f.reise==='u2').map(f=>f.kind+':'+f.st+':'+f.name);r.legacy=!!(db2.urlaub.u2.pins||db2.urlaub.u2.book);
+  console.error(JSON.stringify(r,null,1),errs);
+  const ok=!errs.length&&r.h1==='Reisen und Ausflüge'&&r.tiles.length===3&&/Bretagne/.test(r.tiles[0])&&/noch \d+ Tage/.test(r.tiles[0])&&/Noch/.test(r.cd)&&r.pack===8&&r.db.budget===1800&&r.db.heart.p0&&r.db.fund.includes('u1:strand:idee:Plage de Port Blanc')&&r.db.fund.some(x=>/^u1:unterkunft:idee:Les mouettes/.test(x))&&r.db.fund.includes('u1:unterkunft:gebucht:Ferienhaus:AB-12345')&&r.booked.length===2&&r.rech.length===3&&/Sammlung/.test(r.rtab)&&r.rf===1&&r.rf2===0&&r.all===6&&r.lists.some(x=>/Bretagne|Neuer/.test(x)||true)&&/Ausflüge/.test(r.bus)&&r.mig.length===2&&!r.legacy&&r.nochips&&r.groups[0]==='🧭 Aktuell'&&r.inPast[0]==='📦 Vergangene:2'&&/Traum/.test(r.inPast[1])&&r.db.shop.length===1&&r.due==='2027-04-08';
+  console.error(ok?'REISE OK':'REISE FAIL');await b.close();srv.close();process.exit(0)});

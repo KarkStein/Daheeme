@@ -1,0 +1,21 @@
+srv.listen(8765,async()=>{
+  const b=await chromium.launch();const errs=[];const out=process.argv[2];const r={};
+  const c=await b.newContext({viewport:{width:400,height:860},deviceScaleFactor:2,timezoneId:'Europe/Berlin'});const A=await c.newPage();A.setDefaultTimeout(8000);A.on('pageerror',e=>errs.push(e.message));
+  await A.goto('http://localhost:8765/');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');await A.waitForTimeout(300);
+  const key=/k=([^&]+)/.exec(A.url())[1];const db=()=>JSON.parse(JSON.stringify(get(['haushalt',key])||{}));
+  const nav=async v=>{await A.evaluate(v=>{const b=document.createElement("button");b.dataset.nav=v;document.getElementById("app").appendChild(b);b.click()},v);await A.waitForTimeout(300)};
+  await nav('amhaus|pf:garten');
+  await A.fill('#projinput','Rasen düngen');await A.press('#projinput','Enter');await A.waitForTimeout(300);
+  await A.click('[data-act=hprojnew]');await A.waitForTimeout(400);await A.fill('[data-hpf=name]','Hochbeet');await A.press('[data-hpf=name]','Tab');await A.waitForTimeout(300);
+  await A.click('[data-hpst=geplant]');await A.waitForTimeout(300);r.st=Object.values(db().food.hproj)[0].state;
+  await A.addStyleTag({content:'#tabs{display:none!important}'});await A.screenshot({path:out+'/projekt-stand.png'});
+  await A.click('[data-act=hprojback]');await A.waitForTimeout(300);r.tile=await A.$eval('[data-hproj]',e=>e.innerText.replace(/\n/g,' '));
+  r.newBtns=await A.$$eval('#app [data-act=hprojnew], #app #projinput',l=>l.length);
+  await A.screenshot({path:out+'/garten.png',fullPage:true});
+  await nav('projekte|');r.card=await A.$$eval('.card h2',l=>l.map(x=>x.innerText).filter(t=>/Alle Projekte/.test(t)).length);
+  r.tileTxt=await A.$eval('[data-pfilter=alle]',e=>e.innerText.replace(/\n/g,' '));
+  await A.click('[data-pfilter=alle]');await A.waitForTimeout(300);r.ov=await A.$$eval('.ev',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));
+  await A.click('[data-hproj]');await A.waitForTimeout(300);await A.click('[data-act=hprojdel]');await A.click('[data-act=hprojdel]');await A.waitForTimeout(400);r.left=Object.keys(db().food.hproj||{}).length;
+  console.error(JSON.stringify(r),errs);
+  const ok=!errs.length&&r.st==='geplant'&&/Geplant/.test(r.tile)&&r.newBtns===2&&r.card===0&&/1 laufen/.test(r.tileTxt)&&r.ov.some(x=>/Hochbeet.*Geplant/.test(x))&&r.left===0;
+  console.error(ok?'P2 OK':'P2 FAIL');await b.close();srv.close();process.exit(0)});

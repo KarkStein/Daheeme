@@ -1,0 +1,22 @@
+srv.listen(8765,async()=>{
+  const b=await chromium.launch();const errs=[];const out=process.argv[2];
+  const c=await b.newContext({viewport:{width:400,height:860},deviceScaleFactor:2,timezoneId:'Europe/Berlin'});const A=await c.newPage();A.setDefaultTimeout(8000);await A.clock.setFixedTime(new Date('2026-11-16T10:00:00+01:00'));A.on('pageerror',e=>errs.push(e.message));
+  await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');
+  const key=/k=([^&]+)/.exec(A.url())[1];const r={};
+  await A.click('[data-go=bereiche]');await A.waitForTimeout(300);await A.click('[data-nav="musik|"]');await A.waitForTimeout(300);
+  r.h1=await A.$eval('#app h1',e=>e.innerText);
+  await A.fill('#musin','https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq3LiO?si=abc');await A.press('#musin','Enter');await A.waitForTimeout(400);
+  await A.fill('#musin','Kochen am Sonntag https://music.apple.com/de/playlist/kochen-am-sonntag/pl.u-abc');await A.press('#musin','Enter');await A.waitForTimeout(400);
+  await A.fill('#musin','https://www.youtube.com/playlist?list=PLx Kinderlieder');await A.press('#musin','Enter');await A.waitForTimeout(400);
+  let db=JSON.parse(JSON.stringify(get(['haushalt',key,'food'])));r.m=Object.values(db.music).map(m=>[m.name,m.svc,m.occ||''].join('/'));
+  const sid=Object.entries(db.music).find(([k,m])=>m.svc==='Spotify')[0];
+  await A.click('[data-musedit="'+sid+'"]');await A.fill('#mu-name','Roadtrip');await A.click('[data-musocc=auto]');await A.click('[data-act=mussave]');await A.waitForTimeout(400);
+  await A.click('[data-musfav="'+sid+'"]');await A.waitForTimeout(300);
+  r.tiles=await A.$$eval('.muslist li',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));
+  await A.screenshot({path:out+'/musik.png',fullPage:true});
+  await A.click('#tabs [data-tab=essen]');await A.waitForTimeout(300);r.koch=await A.$$eval('.musrow',l=>l.map(x=>x.innerText));
+  await A.click('#tabs [data-tab=camp]');await A.waitForTimeout(300);await A.click('.spot[data-go=ausflug]');await A.waitForTimeout(300);r.auto=await A.$$eval('.musrow',l=>l.map(x=>x.innerText));
+  await A.click('#tabs [data-tab=essen]');await A.waitForTimeout(300);await A.click('[data-food=rezepte]');await A.waitForTimeout(300);r.rdb=await A.$$eval('[data-act=rdbopen]',l=>l.length);
+  console.error(JSON.stringify(r,null,1),errs);
+  const ok=!errs.length&&/Musik/.test(r.h1)&&r.m.some(x=>/^Spotify-Playlist\/Spotify/.test(x))&&r.m.includes('Kochen am Sonntag/Apple Music/kochen')&&r.m.some(x=>/YouTube\/kinder/.test(x))&&/Roadtrip/.test(r.tiles[0])&&/⭐/.test(r.tiles[0])&&r.koch.some(x=>/Kochen am Sonntag/.test(x))&&r.auto.some(x=>/Roadtrip/.test(x))&&r.rdb===1;
+  console.error(ok?'MUS OK':'MUS FAIL');await b.close();srv.close();process.exit(0)});

@@ -1,0 +1,25 @@
+srv.listen(8765,async()=>{
+  const b=await chromium.launch();const errs=[];const out=process.argv[2];
+  const c=await b.newContext({viewport:{width:400,height:860},deviceScaleFactor:2,timezoneId:'Europe/Berlin'});const A=await c.newPage();A.setDefaultTimeout(8000);await A.clock.setFixedTime(new Date('2026-11-16T10:00:00+01:00'));A.on('pageerror',e=>errs.push(e.message));
+  await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');
+  const key=/k=([^&]+)/.exec(A.url())[1];const put=(pa,d)=>fetch('http://localhost:8765/haushalt/'+key+'/'+pa+'.json',{method:'PUT',body:JSON.stringify(d)});
+  await put('food/rec/old1',{name:'Kürbissuppe mit Ingwer',ing:'800 g Hokkaido-Kürbis\n1 Zwiebel\n1 Stück Ingwer\n400 ml Kokosmilch',note:'',at:1});
+  await put('food/rec/old2',{name:'Spaghetti Bolognese',ing:'500 g Spaghetti\n400 g Hackfleisch\n1 Dose Tomaten',note:'',at:2});
+  await A.waitForTimeout(300);const r={};
+  await A.click('#tabs [data-tab=essen]');await A.click('[data-food=rezepte]');await A.waitForTimeout(200);
+  await A.click('[data-act=recnew]');await A.fill('#rec-name','Linsen-Dal mit Reis');await A.fill('#rec-ing','250 g rote Linsen\n200 g Reis\n400 ml Kokosmilch\n1 Zwiebel');await A.press('#rec-ing','Tab');await A.waitForTimeout(200);
+  r.pre=await A.$$eval('.tagbox [data-rtag][aria-pressed=true]',l=>l.map(x=>x.dataset.rtag));
+  await A.click('[data-rtag="Region|asiatisch"]');await A.fill('#rtagown','Lieblingsessen');await A.click('[data-act=rtagown]');await A.waitForTimeout(200);
+  await A.screenshot({path:out+'/rdb-form.png',fullPage:true});
+  await A.click('[data-act=recsave]');await A.waitForTimeout(400);
+  const db=JSON.parse(JSON.stringify(get(['haushalt',key,'food'])));const nr=Object.values(db.rec).find(x=>/Dal/.test(x.name));r.saved=nr.tags;
+  await A.click('[data-act=rdbopen]');await A.waitForTimeout(300);r.all=await A.$$eval('.rdblist li',l=>l.length);
+  await A.evaluate(()=>{const d=document.querySelector('.rdbfilt');d.open=true});
+  await A.click('[data-rdbt="Ernährung|vegetarisch"]');await A.waitForTimeout(200);r.veg=await A.$$eval('.rdblist li',l=>l.map(x=>x.innerText.split('\n')[0]));
+  await A.click('[data-act=rdbreset]');await A.waitForTimeout(200);
+  await A.fill('#rdbq','kokos');await A.waitForTimeout(300);r.q=await A.$$eval('.rdblist li',l=>l.map(x=>x.innerText.split('\n')[0]));
+  await A.fill('#rdbq','');await A.waitForTimeout(200);await A.evaluate(()=>{const d=document.querySelector('.rdbfilt');d.open=true});
+  await A.screenshot({path:out+'/rdb.png',fullPage:true});
+  console.error(JSON.stringify(r,null,1),errs);
+  const ok=!errs.length&&r.pre.includes('Ernährung|vegetarisch')&&r.pre.includes('Grundlage|Reis')&&r.pre.includes('Familie|gut haltbar')&&r.pre.some(t=>/^Zutaten\|Linsen?/.test(t))&&!r.saved.includes('Region|asiatisch')&&r.saved.includes('Eigene|Lieblingsessen')&&r.all===3&&r.veg.length===2&&!r.veg.some(x=>/Bolognese/.test(x))&&r.q.length===2;
+  console.error(ok?'RDB OK':'RDB FAIL');await b.close();srv.close();process.exit(0)});

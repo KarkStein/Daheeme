@@ -1,0 +1,20 @@
+srv.listen(8765,async()=>{
+  const b=await chromium.launch();const errs=[];const out=process.argv[2];
+  const c=await b.newContext({viewport:{width:400,height:860},deviceScaleFactor:2});const A=await c.newPage();await A.clock.setFixedTime(new Date('2026-11-14T12:00:00'));A.on('pageerror',e=>errs.push(e.message));
+  await A.route('**/wochenideen.json*',r=>r.fulfill({contentType:'application/json',body:JSON.stringify({items:[{name:'Gemüse mit Lachs aus dem Ofen',ing:['600 g Lachsfilet','800 g Kartoffeln','2 Fenchel','Rosmarin'],min:40,wx:'kalt'}]})}));
+  await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');
+  const key=/k=([^&]+)/.exec(A.url())[1];const put=(pa,d)=>fetch('http://localhost:8765/haushalt/'+key+'/'+pa+'.json',{method:'PUT',body:JSON.stringify(d)});
+  await put('food/rec/r1',{name:'Gemüse mit Lachs aus dem Ofen',ing:'Lachsfilet\nKartoffeln\nFenchel\nRosmarin',at:1});
+  await put('food/plan/2026-W46/d3',{text:'Gemüse mit Lachs aus dem Ofen',ing:'Lachsfilet\nKartoffeln\nFenchel',at:1});
+  await A.waitForTimeout(400);
+  await A.click('[data-tab=essen]');await A.click('[data-food=rezepte]');await A.waitForTimeout(300);
+  await A.reload();await A.waitForTimeout(800);
+  const t1=await A.$eval('[data-food=rezepte]',e=>e.getAttribute('aria-selected')||e.className).catch(()=>'none');const h1a=await A.$eval('h1',e=>e.textContent);const hasRec=!!(await A.$('[data-rec=r1]'));
+  await A.click('[data-rec=r1]');await A.click('[data-recshop]');await A.click('[data-pickmode=alle]');await A.waitForTimeout(500);
+  await A.click('#tabs [data-tab=einkauf]');const shop=await A.$$eval('.shop .nm',l=>l.map(x=>x.innerText.split('\n')[0]));
+  await A.reload();await A.waitForTimeout(800);const h1b=await A.$eval('h1',e=>e.textContent);
+  await A.click('.brandbtn');await A.click('.spot[data-go=kita]');await A.reload();await A.waitForTimeout(800);const h1c=await A.$eval('h1',e=>e.textContent);
+  await A.goBack();await A.waitForTimeout(400);const h1d=await A.$eval('h1',e=>e.textContent).catch(()=>'start');const start=!!(await A.$('.camp'));
+  console.log({t1,h1a,hasRec,shop,h1b,h1c,h1d,start,errs});
+  const ok=!errs.length&&hasRec&&shop.some(x=>/800 g Kartoffeln/.test(x))&&shop.some(x=>/2 Fenchel/.test(x))&&/Einkauf/.test(h1b)&&h1c==='Kita'&&start;
+  console.log(ok?'RELOAD OK':'RELOAD FAIL');await b.close();srv.close();process.exit(0)});

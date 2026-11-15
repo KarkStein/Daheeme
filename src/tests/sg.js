@@ -1,0 +1,21 @@
+srv.listen(8765,async()=>{
+  const b=await chromium.launch();const errs=[];const out=process.argv[2];
+  const c=await b.newContext({viewport:{width:400,height:860},deviceScaleFactor:2,timezoneId:'Europe/Berlin'});const A=await c.newPage();A.setDefaultTimeout(8000);A.on('pageerror',e=>errs.push(e.message));
+  await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');await A.waitForTimeout(300);
+  await A.evaluate(()=>{const b=document.createElement("button");b.dataset.nav="kita|ks:tasche";b.id="zz";document.getElementById("app").appendChild(b)});await A.click("#zz");await A.waitForTimeout(300);
+  const r={};
+  await A.fill('#kitainput','Lieblingsbuch');await A.press('#kitainput','Enter');await A.waitForTimeout(400);
+  await A.click('[data-kitaadd="Windeln"]');await A.waitForTimeout(400);
+  const rm=await A.$$('[data-kitarm]');await rm[0].click();await A.waitForTimeout(400);
+  r.chips=await A.$$eval('[data-kitaadd]',l=>l.map(x=>x.dataset.kitaadd));
+  await A.click('[data-suggedit=kita]');await A.waitForTimeout(200);
+  await A.click('[data-sugghide="kita|Sonnenhut"]');await A.waitForTimeout(300);
+  const inp=await A.$('[data-suggold="Matschhose"]');await inp.fill('Matschhose und Regenjacke');await inp.press('Tab');await A.waitForTimeout(400);
+  await A.fill('[data-suggform=kita] input','Schnuller');await A.press('[data-suggform=kita] input','Enter');await A.waitForTimeout(400);
+  await A.screenshot({path:out+'/kita-tasche-vorschlaege.png',fullPage:true});
+  await A.click('[data-suggedit=kita]');await A.waitForTimeout(200);
+  r.chips2=await A.$$eval('[data-kitaadd]',l=>l.map(x=>x.dataset.kitaadd));
+  await A.screenshot({path:out+'/kita-tasche.png',fullPage:true});
+  console.error(JSON.stringify(r),errs);
+  const ok=!errs.length&&r.chips[0]==='Lieblingsbuch'&&!r.chips.includes('Windeln')&&!r.chips2.includes('Sonnenhut')&&r.chips2.includes('Matschhose und Regenjacke')&&!r.chips2.includes('Matschhose')&&r.chips2.includes('Schnuller');
+  console.error(ok?'SG OK':'SG FAIL');await b.close();srv.close();process.exit(0)});

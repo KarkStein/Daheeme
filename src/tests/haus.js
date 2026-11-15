@@ -1,0 +1,20 @@
+srv.listen(8765,async()=>{
+  const b=await chromium.launch();const errs=[];const out=process.argv[2];
+  const c=await b.newContext({viewport:{width:400,height:860},deviceScaleFactor:2,timezoneId:'Europe/Berlin'});const A=await c.newPage();A.setDefaultTimeout(8000);await A.clock.setFixedTime(new Date('2026-11-16T10:00:00+01:00'));A.on('pageerror',e=>errs.push(e.message));
+  await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');
+  const key=/k=([^&]+)/.exec(A.url())[1];const put=(pa,d)=>fetch('http://localhost:8765/haushalt/'+key+'/'+pa+'.json',{method:'PUT',body:JSON.stringify(d)});
+  await put('food/fund/r1',{name:'Ferienhaus',kind:'unterkunft',st:'idee',reise:'u1',at:1});await A.waitForTimeout(300);const r={};
+  await A.click('.spot[aria-label="Am Haus: Lampe"]');await A.click('[data-pfilter=wohnen]');await A.waitForTimeout(200);r.tiles=await A.$$eval('[data-act=hprojnew]',l=>l.length);
+  await A.click('[data-act=hprojnew]');await A.waitForTimeout(400);await A.fill('[data-hpf=name]','Kinderzimmer');await A.press('[data-hpf=name]','Tab');await A.fill('[data-hpf=budget]','800');await A.press('[data-hpf=budget]','Tab');await A.waitForTimeout(300);
+  await A.fill('#hpfundform .fn','https://www.ikea.com/de/de/p/kallax-regal-weiss-80275887/');await A.press('#hpfundform .fn','Enter');await A.waitForTimeout(300);
+  await A.click('[data-fundnk=licht]');await A.fill('#hpfundform .fn','Wolkenlampe');await A.press('#hpfundform .fn','Enter');await A.waitForTimeout(300);
+  const db=JSON.parse(JSON.stringify(get(['haushalt',key,'food'])));const hf=Object.entries(db.fund).filter(([k,f])=>f.area==='haus');
+  for(const [k] of hf.filter(([k,f])=>/Kallax/i.test(f.name)))await put('food/fund/'+k+'/price','69');await A.waitForTimeout(300);
+  const kid=hf.find(([k,f])=>/Kallax/i.test(f.name))[0];await A.click('[data-fundst="'+kid+'"]');await A.waitForTimeout(250);await A.click('[data-fundst="'+kid+'"]');await A.waitForTimeout(400);
+  r.funds=hf.map(([k,f])=>f.kind+':'+f.name+':'+(f.proj?'P':'-'));r.budget=await A.$eval('.card .freq',e=>e.innerText);
+  await A.screenshot({path:out+'/einrichtung-projekt.png',fullPage:true});
+  await A.click('[data-fundopen][data-ar=haus]');await A.waitForTimeout(300);r.samm=await A.$$eval('.card:not(.rfund) .fundlist li.fund',l=>l.length);r.reiseNot=!(await A.$eval('#app',e=>/Ferienhaus/.test(e.innerText)));await A.screenshot({path:out+'/einrichtung-sammlung.png',fullPage:true});
+  await A.click('[data-act=hsammback]');await A.waitForTimeout(200);r.tileTxt=await A.$$eval('[data-hproj]',l=>l.map(x=>x.innerText.replace(/\n/g,' | ')));await A.screenshot({path:out+'/einrichtung.png',fullPage:true});
+  console.error(JSON.stringify(r,null,1),errs);
+  const ok=!errs.length&&r.funds.length===2&&r.funds.some(x=>/^moebel:Kallax/i.test(x))&&r.funds.includes('licht:Wolkenlampe:P')&&/69 € gekauft von 800 €/.test(r.budget)&&r.samm===2&&r.reiseNot&&/Kinderzimmer/.test(r.tileTxt[0]);
+  console.error(ok?'HAUS OK':'HAUS FAIL');await b.close();srv.close();process.exit(0)});

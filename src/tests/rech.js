@@ -1,0 +1,24 @@
+srv.listen(8765,async()=>{
+  const b=await chromium.launch();const errs=[];const out=process.argv[2];
+  const c=await b.newContext({viewport:{width:400,height:860},deviceScaleFactor:2,timezoneId:'Europe/Berlin'});
+  await c.route('**/auftraege.json',r=>r.fulfill({contentType:'application/json',body:fs.readFileSync('/home/user/Daheeme/auftraege.json')}));
+  await c.route('**/ideen.json',r=>r.fulfill({contentType:'application/json',body:fs.readFileSync('/home/user/Daheeme/ideen.json')}));
+  const A=await c.newPage();A.setDefaultTimeout(8000);await A.clock.setFixedTime(new Date('2026-11-16T10:00:00+01:00'));A.on('pageerror',e=>errs.push(e.message));
+  await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');
+  const key=/k=([^&]+)/.exec(A.url())[1];const r={};
+  await A.click('#tabs [data-tab=camp]');await A.waitForTimeout(400);
+  const bx=await A.$('.camp svg');const bb=await bx.boundingBox();await A.mouse.click(bb.x+bb.width*0.72,bb.y+bb.height*0.45);await A.waitForTimeout(700);
+  r.back=await A.$$eval('.bfoot button',l=>l.map(x=>x.innerText));
+  await A.click('.bfoot [data-go=recherchen]');await A.waitForTimeout(400);
+  r.h1=await A.$eval('#app h1',e=>e.innerText);r.auftr=await A.$$eval('.rauftr li',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));r.inbox=await A.$$eval('.rinbox li',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));
+  await A.click('[data-act=rwnew]');await A.selectOption('[data-rwf=area]','reisen');await A.fill('[data-rwf=what]','Ferienwohnungen Ostsee für 4 mit Kleinkind');await A.selectOption('[data-rwf=rhythm]','monatlich');await A.click('[data-act=rwsave]');await A.waitForTimeout(500);
+  r.wish=await A.$$eval('.rwlist li',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));r.copy=await A.$eval('#rcopy',e=>e.value).catch(()=>'(clipboard)');
+  await A.screenshot({path:out+'/recherchen.png',fullPage:true});
+  await A.click('[data-rgo=ideen]');await A.waitForTimeout(400);r.after=await A.$eval('#app h1',e=>e.innerText);
+  await A.click('[data-go=wichtig]');await A.waitForTimeout(300);r.wInbox=await A.$$eval('.rinbox',l=>l.length);
+  await A.click('[data-go=settings]');await A.waitForTimeout(300);r.set=await A.$$eval('[data-go=recherchen]',l=>l.length);
+  await A.click('[data-go=bereiche]');await A.waitForTimeout(300);r.area=await A.$$eval('[data-nav="recherchen|"]',l=>l.length);
+  const db=JSON.parse(JSON.stringify(get(['haushalt',key,'food'])));r.db={seen:db.rseen,w:Object.values(db.rwunsch||{}).map(w=>w.area+'/'+w.rhythm+'/'+w.state)};
+  console.error(JSON.stringify(r,null,1),errs);
+  const ok=!errs.length&&/Recherchen/.test(r.h1)&&r.auftr.length===2&&r.inbox.length>=1&&r.back.some(x=>/neu/.test(x))&&r.wish.some(x=>/offen/.test(x))&&r.wInbox===0&&r.set>=1&&r.area===1&&r.db.w[0]==='reisen/monatlich/offen'&&r.db.seen&&r.db.seen.ideen;
+  console.error(ok?'RECH OK':'RECH FAIL');await b.close();srv.close();process.exit(0)});

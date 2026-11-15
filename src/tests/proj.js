@@ -1,0 +1,28 @@
+srv.listen(8765,async()=>{
+  const b=await chromium.launch();const errs=[];const out=process.argv[2];
+  const mk=async()=>{const c=await b.newContext({viewport:{width:400,height:860},deviceScaleFactor:2});const p=await c.newPage();await p.clock.setFixedTime(new Date('2026-11-14T12:00:00'));p.on('pageerror',e=>errs.push(e.message));return p};
+  const A=await mk();await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');
+  const link=A.url();const B=await mk();await B.goto(link.replace('/#','/?bild=haus#'));await B.waitForSelector('[data-me=p1]');await B.click('[data-me=p1]');
+  // Leuchtturm: nur Geschenke und Sonstiges
+  await A.click('.spot[data-go=projekte]');await A.waitForSelector('.tiles');const lt=await A.$$eval('.tile',l=>l.map(x=>x.dataset.pfilter));
+  await A.fill('#projinput','Fotobuch fürs Wohnzimmer');await A.press('#projinput','Enter');await A.waitForTimeout(200);
+  await A.screenshot({path:out+'/leuchtturm.png',fullPage:true});
+  // Werkzeugkoffer
+  await A.click('.brandbtn');await A.click('.spot[data-go=amhaus]');await A.waitForSelector('.tiles');const ht=await A.$$eval('.tile',l=>l.map(x=>x.dataset.pfilter));
+  const quick=!!(await A.$('#projinput'));
+  await A.click('.tile[data-pfilter=ordnung]');await A.fill('#projinput','Keller: Regale ausmisten');await A.press('#projinput','Enter');await A.waitForTimeout(200);
+  await A.click('[data-pfilter=""]');await A.waitForTimeout(200);await A.screenshot({path:out+'/amhaus.png',fullPage:true});
+  // Lampe springt direkt zu Einrichtung
+  await A.click('.brandbtn');await A.click('.spot[data-go=amhaus]');await A.waitForSelector('.tiles');await A.click('.tile[data-pfilter=wohnen]');const h2=await A.$eval('h2',e=>e.textContent);
+  await A.fill('#projinput','Lampe im Flur tauschen');await A.press('#projinput','Enter');await A.waitForTimeout(200);
+  await B.click('.spot[data-go=amhaus]');await B.waitForSelector('.tiles');const cnt=await B.$$eval('.tile .tc',l=>l.map(x=>x.textContent));
+  await B.goBack();await B.waitForTimeout(200);
+  // Spielplatz-Karte
+  await B.click('.spot[data-go=spiel]');await B.click('[data-act=plmapedit]');await B.fill('#pl-mapurl','https://www.google.com/maps/d/viewer?mid=1AbCdEfGhIjKlMnOpQ');await B.click('[data-act=plmapsave]');await B.waitForTimeout(300);
+  const ifr=!!(await B.$('iframe.mapframe'));
+  await B.click('[data-act=playnew]');await B.fill('#pl-name','Spielplatz am Hafen');await B.click('[data-act=playsave]');await B.waitForTimeout(300);
+  const mapHref=await B.$eval('ul.shop a.catbtn',e=>e.href);
+  await B.screenshot({path:out+'/spielplatz-karte.png',fullPage:true});
+  console.log({lt,ht,quick,h2,cnt,ifr,mapHref,errs});
+  const ok=!errs.length&&lt.join()==='geschenk,sonst,advent,alle'&&ht.join()==='wohnen,ordnung,haus,garten'&&!quick&&/Einrichtung/.test(h2)&&cnt[0]==='1 offen'&&cnt[1]==='1 offen'&&ifr&&/maps\/search/.test(mapHref);
+  console.log(ok?'PROJ OK':'PROJ FAIL');await b.close();srv.close();process.exit(0)});

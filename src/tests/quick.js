@@ -1,0 +1,30 @@
+srv.listen(8765,async()=>{
+  const b=await chromium.launch();const errs=[];const out=process.argv[2];
+  const I=(name,cat,extra)=>Object.assign({name,cat,source:'test.de',link:'https://example.org/'+encodeURIComponent(name),ing:['500 g '+name.split(' ')[0],'1 Zwiebel'],note:'Notiz'},extra||{});
+  const ideas={updated:'2026-11-14',items:[I('Linsen-Dal','gesund'),I('Rührei mit Brot','schnell'),I('Kürbis-Risotto','saisonal')],
+    emmi:[I('Emmis Nudelauflauf',null,{source:'emmikochteinfach.de',min:50,wx:'kalt',haupt:'Nudeln',art:'ofen'}),I('Emmis Kartoffelsuppe',null,{source:'emmikochteinfach.de',min:35,wx:'kalt',haupt:'Kartoffeln',art:'suppe'}),I('Emmis Gemüsepfanne',null,{source:'emmikochteinfach.de',min:20,wx:'egal',haupt:'Gemüse',art:'pfanne'})]};
+  const c=await b.newContext({viewport:{width:400,height:860},deviceScaleFactor:2});const A=await c.newPage();await A.clock.setFixedTime(new Date('2026-11-14T20:00:00'));A.on('pageerror',e=>errs.push(e.message));
+  await A.route('**/ideen.json*',r=>r.fulfill({contentType:'application/json',body:JSON.stringify(ideas)}));
+  await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');
+  await A.click('[data-tab=essen]');await A.click('[data-food=plan]');await A.waitForTimeout(300);
+  await A.click('[data-meal=d1]');await A.waitForTimeout(200);
+  const tips=await A.$$eval('[data-mealtip]',l=>l.map(x=>x.innerText));
+  await A.screenshot({path:out+'/schnellwahl.png',fullPage:true});
+  await A.click('[data-mealtip="3"]');await A.click('[data-act=mealsave]');await A.waitForTimeout(400);
+  const d1=await A.evaluate(()=>0);
+  await A.click('[data-meal=d2]');await A.fill('#mealinput','emmi kart');await A.waitForTimeout(200);
+  const mem=await A.$$eval('[data-mealmem]',l=>l.map(x=>x.innerText));
+  await A.screenshot({path:out+'/gedaechtnis.png',fullPage:true});
+  await A.click('[data-mealmem="0"]');await A.click('[data-act=mealsave]');await A.waitForTimeout(400);
+  await A.click('[data-meal=d3]');await A.fill('#mealinput','auf');await A.waitForTimeout(200);
+  const mem2=await A.$$eval('[data-mealmem]',l=>l.map(x=>x.innerText));await A.click('[data-act=mealcancel]');
+  const plan=await A.$$eval('ul.meals li',l=>l.map(x=>x.innerText.replace(/\n/g,' | ')));
+  const links=await A.$$eval('ul.meals a.stressbtn',l=>l.length);
+  await A.click('[data-food=rezepte]');await A.waitForTimeout(200);
+  await A.click('[data-idea="0"]');await A.waitForTimeout(400);
+  const emmi=await A.$$eval('section.card',l=>l.map(x=>x.innerText).filter(t=>/🍳 emmi/i.test(t)&&/📚 kochbuch/i.test(t)&&/tagesrezepte/i.test(t)));
+  await A.click('[data-food=plan]');await A.click('[data-meal=d4]');await A.waitForTimeout(200);const tips2=await A.$$eval('[data-mealtip]',l=>l.map(x=>x.innerText));await A.click('[data-food=rezepte]');await A.waitForTimeout(200);
+  await A.screenshot({path:out+'/emmi-rezepte.png',fullPage:true});
+  console.log({tips2,tips,mem,mem2,plan,links,emmi,errs});
+  const ok=!errs.length&&tips.length===4&&/🍳/.test(tips[3])&&mem.some(x=>/Kartoffelsuppe/.test(x))&&plan.join().includes('Emmis')&&links>=2&&emmi.length===1&&tips2.some(x=>/📚/.test(x))&&mem2.some(x=>/Nudelauflauf/.test(x));
+  console.log(ok?'QUICK OK':'QUICK FAIL');await b.close();srv.close();process.exit(0)});

@@ -1,0 +1,22 @@
+srv.listen(8765,async()=>{
+  const b=await chromium.launch();const errs=[];const out=process.argv[2];
+  const c=await b.newContext({viewport:{width:400,height:860},deviceScaleFactor:2,timezoneId:'Europe/Berlin',acceptDownloads:true});const A=await c.newPage();A.setDefaultTimeout(8000);A.on('pageerror',e=>errs.push(e.message));
+  await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');
+  const key=/k=([^&]+)/.exec(A.url())[1];const r={};
+  await A.click('[data-go=settings]');await A.waitForTimeout(300);
+  r.cards=await A.$$eval('.setcard h2',l=>l.map(x=>x.innerText));r.quick=await A.$$eval('.setquick button',l=>l.map(x=>x.innerText));for(const k of ['aussehen','bedienung','essen','wir','daten'])await A.click('[data-setsum='+k+']');
+  await A.screenshot({path:out+'/einstellungen.png',fullPage:true});
+  await A.click('[data-theme-set=dark]');r.theme=await A.evaluate(()=>document.documentElement.dataset.theme);
+  await A.click('[data-gest=swipe]');r.gest=await A.evaluate(()=>localStorage.getItem('hq-gest'));
+  await A.click('[data-gest=veg]');await A.waitForTimeout(300);
+  await A.fill('[data-pname="1"]','Jule');await A.press('[data-pname="1"]','Tab');await A.waitForTimeout(400);
+  let db=JSON.parse(JSON.stringify(get(['haushalt',key])));r.veg=db.food.pref;r.names=db.config.persons;
+  r.nummer=await A.$eval('.setcard .fld span',e=>e.innerText);
+  const [dl]=await Promise.all([A.waitForEvent('download'),A.click('[data-act=backup]')]);const p=out+'/backup.json';await dl.saveAs(p);const bk=JSON.parse(fs.readFileSync(p));r.bk=[bk.app,bk.config.persons[1],!!bk.food];
+  await A.click('[data-gest=veg]');await A.waitForTimeout(300);
+  await A.setInputFiles('#restorefile',p);await A.waitForTimeout(300);r.restoreAsk=await A.$$eval('[data-act=restoredo]',l=>l.length);await A.click('[data-act=restoredo]');await A.waitForTimeout(400);
+  db=JSON.parse(JSON.stringify(get(['haushalt',key])));r.after=db.food.pref;
+  await A.click('#tabs [data-tab=woche]');await A.waitForTimeout(200);
+  console.error(JSON.stringify(r),errs);
+  const ok=!errs.length&&r.cards.length===6&&r.quick.length===4&&r.theme==='dark'&&/"swipe":false/.test(r.gest)&&r.veg&&r.veg.veg===false&&r.names[1]==='Jule'&&/Jule/.test(r.nummer)&&r.bk[0]==='Daheeme'&&r.restoreAsk===1&&r.after&&r.after.veg===false;
+  console.error(ok?'SET2 OK':'SET2 FAIL');await b.close();srv.close();process.exit(0)});

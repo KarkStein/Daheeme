@@ -1,0 +1,20 @@
+srv.listen(8765,async()=>{
+  const b=await chromium.launch();const errs=[];const out=process.argv[2];
+  const c=await b.newContext({viewport:{width:400,height:860},deviceScaleFactor:2,timezoneId:'Europe/Berlin'});const A=await c.newPage();A.setDefaultTimeout(8000);A.on('pageerror',e=>errs.push(e.message));
+  await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');
+  const key=/k=([^&]+)/.exec(A.url())[1];const r={};
+  setAt(['haushalt',key,'food','rec','r1'],{name:'Kürbissuppe',ing:'500 g Kürbis\n1 Zwiebel',at:1});setAt(['haushalt',key,'food','termin','t1'],{name:'Zahnarzt',date:'2026-11-20',time:'9:00',at:1});
+  setAt(['haushalt',key,'food','lunch','l1'],{name:'Kürbis-Café',at:1});setAt(['haushalt',key,'food','shop','s1'],{name:'Kürbiskerne',done:false,at:1});
+  await A.reload();await A.waitForTimeout(800);
+  r.icons=await A.$$eval('.appbar .appleft:last-child button',l=>l.map(x=>x.getAttribute('aria-label')));
+  await A.click('[data-go=suche]');await A.waitForTimeout(200);r.focus=await A.evaluate(()=>document.activeElement&&document.activeElement.id);
+  await A.keyboard.type('kürbis');await A.waitForTimeout(300);
+  r.hits=await A.$$eval('#app .todayrow',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));
+  await A.screenshot({path:out+'/suche.png',fullPage:true});
+  await A.click('[data-openrec=r1]');await A.waitForTimeout(300);r.rec=await A.$eval('#app h1',e=>e.innerText);
+  await A.click('[data-go=suche]');await A.fill('#sq','wetter');await A.waitForTimeout(300);r.set=await A.$$eval('#app .todayrow',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));
+  await A.click('[data-setgo=ort]');await A.waitForTimeout(300);r.h1=await A.$eval('#app h1',e=>e.innerText);
+  await A.click('[data-go=suche]');await A.fill('#sq','zahnarzt');await A.waitForTimeout(300);r.t=await A.$$eval('#app .todayrow',l=>l.length);
+  console.error(JSON.stringify(r,null,1),errs);
+  const ok=!errs.length&&r.focus==='sq'&&r.hits.some(x=>/Kürbissuppe/.test(x))&&r.hits.some(x=>/Kürbiskerne/.test(x))&&!r.hits.some(x=>/Café/.test(x))&&/Essen/.test(r.rec)&&r.set.some(x=>/Wetter-Ort/.test(x))&&/Einstellungen/.test(r.h1)&&r.t===1;
+  console.error(ok?'SUCHE OK':'SUCHE FAIL');await b.close();srv.close();process.exit(0)});

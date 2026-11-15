@@ -1,0 +1,34 @@
+srv.listen(8765,async()=>{
+  const b=await chromium.launch();const errs=[];const out=process.argv[2];
+  const c=await b.newContext({viewport:{width:400,height:860},deviceScaleFactor:2,timezoneId:'Europe/Berlin'});const A=await c.newPage();A.setDefaultTimeout(8000);await A.clock.setFixedTime(new Date('2026-11-16T10:00:00+01:00'));A.on('pageerror',e=>errs.push(e.message));
+  await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');
+  const key=/k=([^&]+)/.exec(A.url())[1];const put=(pa,d)=>fetch('http://localhost:8765/haushalt/'+key+'/'+pa+'.json',{method:'PUT',body:JSON.stringify(d)});
+  await put('food/urlaub/u1',{name:'Bretagne',emo:'🏝️',state:'aktuell',from:'2026-11-27',to:'2026-11-30',at:1});
+  await put('food/trip/t1',{name:'Wildpark',kind:'tiere',pack:'main',date:'2026-11-21',at:1,done:false});
+  await put('food/play/s1',{name:'Kinderturnen',sec:'sport',when:'dienstags 16:30 Uhr',at:1});
+  await put('food/kita/k1',{name:'Laternenfest',sec:'termine',date:'2026-11-19',kind:'fest',at:1});
+  await A.waitForTimeout(300);const r={};
+  await A.click('#tabs [data-tab=woche]');await A.waitForTimeout(80);await A.click('#tabs [data-tab=woche]');
+  await A.waitForTimeout(300);
+  r.hasQuick=!!(await A.$('#calq'));
+  await A.fill('#calq','Do 15 Uhr Kinderarzt Kind');await A.press('#calq','Enter');await A.waitForTimeout(400);
+  await A.fill('#calq','Geburtstag Oma 25.11. jedes Jahr');await A.press('#calq','Enter');await A.waitForTimeout(400);
+  const db=JSON.parse(JSON.stringify(get(['haushalt',key,'food'])));r.ter=Object.values(db.termin||{}).map(t=>[t.name,t.date,t.time||'',t.who||'',t.rep||''].join('/'));
+  await A.click('[data-calm="0"]').catch(()=>{});await A.click('[data-calday="2026-11-17"]');await A.waitForTimeout(200);
+  r.di=await A.$$eval('.evlist li',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));
+  r.vbtn=await A.$$eval('[data-calview]',l=>l.map(x=>x.outerHTML.slice(0,90)+' '+getComputedStyle(x).backgroundColor));r.urlaubDays=await A.$$eval('.cal button.urlaub',l=>l.length);
+  await A.screenshot({path:out+'/kal-monat.png',fullPage:true});
+  await A.click('[data-calview=woche]');await A.waitForTimeout(200);r.week=await A.$$eval('.calwd',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));
+  await A.screenshot({path:out+'/kal-woche.png',fullPage:true});
+  await A.click('[data-calview=liste]');await A.waitForTimeout(200);r.list=await A.$$eval('.evlist li',l=>l.length);
+  await A.click('[data-act=calfilt]');await A.click('[data-calwho=p1]');await A.waitForTimeout(200);r.listP1=await A.$$eval('.evlist li',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));
+  await A.click('[data-calwho=""]');await A.click('[data-caloff=food]');await A.click('[data-caloff=reise]');await A.waitForTimeout(200);r.listNoFood=await A.$$eval('.evlist li',l=>l.length);
+  await A.screenshot({path:out+'/kal-liste.png',fullPage:true});
+  // vacation: reminders
+  await A.click('#tabs [data-tab=camp]');await A.waitForTimeout(300);await A.click('.spot[data-go=reisen]');await A.waitForTimeout(300);await A.click('[data-reise=u1]');await A.waitForTimeout(300);
+  r.vor=await A.$$eval('[data-reiseprio]',l=>l.length);
+  await A.screenshot({path:out+'/urlaub-vorher.png',fullPage:true});
+  r.stress=['Wildpark'];r.sugg=[];
+  console.error(JSON.stringify(r,null,1),errs);
+  const ok=!errs.length&&r.hasQuick&&r.ter.includes('Kinderarzt/2026-11-19/15:00/kid/')&&r.ter.some(t=>/^Geburtstag Oma\/2026-11-25\/\/\/y$/.test(t))&&r.di.some(x=>/Kinderturnen/.test(x)&&/16:30/.test(x))&&r.urlaubDays===4&&r.week.length===7&&r.listP1.every(x=>!/Kinderturnen|Kinderarzt|Laternen/.test(x))&&r.listNoFood<r.list&&r.vor===6&&r.stress.some(x=>/Wildpark/.test(x))&&!r.sugg.some(k=>['d4','d5','d6'].includes(k));
+  console.error(ok?'HUB OK':'HUB FAIL');await b.close();srv.close();process.exit(0)});
