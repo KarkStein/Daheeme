@@ -79,6 +79,11 @@ git add -A && git commit && git push origin main
 - Ähnliche Gerichte (Woche vorschlagen und Tagesrezepte): ausgeschlossen wird auch, was Hauptzutat (`HAUPT_KW`) oder Soße (`SAUCE_KW`, `sauceOf`: Sahnesoße, Tomatensoße, Pilze, Curry, Käse, Pesto) mit dem Kita-Mittag teilt; dieselbe Soße wie am Vorabend zählt weniger; vegetarisch (`isVeg`, `MEAT_RX`) bekommt überall einen Bonus.
 - Die Zurück-Taste geht in der App schrittweise zurück (History-Einträge je Bereich, siehe `syncNav`).
 
+- Sammlung allgemein (`FAREA`, 15.11.2026): dieselbe Infrastruktur für Reisen (`reise`, Kinds `FUND_KIND`, Projekt-Feld `reise`, Ergebnisdatei `reisefunde.json`) und Einrichtung (`haus`, Kinds `HAUS_KIND`, Feld `proj`, Status "Gekauft" statt gebucht, Datei `hausfunde.json`); Funde in `food/fund` mit `area:"haus"` (fehlt = reise). Preis-Feld an Funden im Projekt (`data-fundpr`).
+- Einrichtungs-Projekte (Am Haus › Einrichtung): `food/hproj/<id>` `{name,emo,room,state,budget,note}` (`renderHProj`): Budget-Balken aus Preisen der Funde, Ideen und Funde, Gekauft, Eckdaten, Abschließen. Sammlung über "In der Sammlung" (`S.hsamm`).
+- Rezept-Datenbank (Rezepte › "🔎 Datenbank", `renderRecDb`): Suche plus Filter. Tags als "Gruppe|Name"; Gruppen in `REC_TAGS` (Ernährung, Zeit, Grundlage, Art, Region, Saison, Familie inkl. "gut haltbar", Quelle Kochbuch/Recherche/eigene; Emmi bewusst keine eigene Quelle), dazu Zutaten und Eigene. `recAuto` wählt per Wortlisten vor (Region und Saison am unsichersten), übernimmt `tags` aus der Recherche; Rezept speichert `tags`, `tagsOff`, `tagsOwn`; alte Rezepte ohne `tags` bekommen die Vorauswahl beim Anzeigen. Eigene Filter-Tags je Gruppe in `food/rectag/<id>` `{g,name}`. Die feste Liste für die Recherche steht in `rectags.txt` (Wurzel): bei neuen Tags dort und in `REC_TAGS` nachtragen, die Aufträge lesen die Datei. "📋 Rezept oder Link einfügen": nur ein Link ergibt Name plus Link.
+- Recherche-Aufträge (neu angelegt 15.11.2026): täglich `trig_01H6SQf4cFk1BmKGYFmKfp28`, wöchentlich `trig_01FgDXGKAP56RUFVUmaqpqEz`; beide liefern `tags` nach `rectags.txt`.
+
 ## Offene Liste
 
 - Haus am Meer freischalten, wenn der Besitzer es sagt; dann App-Name und Symbol (bisher 🏕️🧹, Zelt im Start-Tab) und Farben anpassen (Plan: https://claude.ai/artifact/MzunYyXEYMKWLFxg56qyNr).
