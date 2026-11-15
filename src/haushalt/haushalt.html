@@ -93,6 +93,9 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .slot:active{transform:scale(.9)}
 .slot.today{border-style:solid;border-color:var(--ink);color:var(--ink)}
 .slot.future{opacity:.35}
+.quicklist{display:grid;gap:8px;margin-top:6px}
+.quickbtn{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;font:inherit;font-weight:600;color:var(--fg)}
+.quickbtn .qi{font-size:1.3rem;width:28px;text-align:center}
 .suggedit .shop li{display:flex;align-items:center;gap:8px}
 .suggin{flex:1;min-width:0;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--surface);color:var(--fg);font:inherit}
 .ghost.small{padding:4px 10px;font-size:.82rem}
@@ -904,7 +907,7 @@ function renderCamp(){if(scene()==="haus")loadWx();
   let h=`<div><div class="eyebrow">${SEASON_NAME[sea]} ${place}</div><h1>Hallo${S.me?" "+esc(pname(S.me)):""}</h1></div>${S.me?"":meChooser()}
    <div class="flipbox"><div class="flipin${haus&&S.flip?" flipped":""}"><div class="camp">${haus?houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:openW>0,shop:openS>0,post:briefe().length>0},{ph:skyPh,wx:S.wx&&S.wx.cur!=null&&Date.now()-S.wx.at<3*3600e3?wxKind(S.wx.cur):""})+spot(166,196,50,48,"woche","Woche: offene Aufträge")+spot(119,148,42,96,"essen","Essen",mealTxt?"plan":"")+spot(112,212,26,22,"einkauf","Einkauf: Korb mit Baguette")+spot(208,203,24,30,"kita","Kita")+spot(80,243,40,24,"ausflug","Ausflüge: Fahrrad")+spot(62,214,20,22,"woche","Kalender: Aushang am Baum").replace('data-go="woche"','data-nav="woche|wp:3"')+spot(318,80,34,64,"projekte","Ideen")+spot(38,122,70,42,"privat","Partner: Klippen")+spot(24,244,18,26,"post","Briefkasten")+spot(155,168,22,20,"amhaus","Am Haus: Lampe")+spot(58,176,60,52,"amhaus","Garten: Baum").replace('data-go="amhaus"','data-go="amhaus" data-pf="garten"')+spot(240,238,26,26,"spiel","Sport und Spiel")+spot(322,196,56,66,"reisen","Urlaube: Segelboot")+spot(254,189,22,22,"musik","Musik: Ghettoblaster")+(()=>{const y=(night?40:(skyPh==="dusk"||skyPh==="dawn")?98:44)+13,x=night?52:56;return `<button class="spot" style="${spotPos(x,y,46,46,haus)}" data-act="wxpop" aria-expanded="${!!S.wxPop}" aria-label="${night?"Mond":"Sonne"}: Wetter">${S.labels?`<span class="lab">Wetter</span>`:""}</button>`})()+"</div>"+(haus?renderBack(night):"")+"</div>"
        :campScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:openW>0,shop:openS>0})+spot(176,172,124,104,"woche","Woche: offene Aufträge")+spot(268,222,64,48,"essen","Essen",mealTxt?"plan":"")+spot(340,200,44,46,"einkauf","Einkaufsliste")+spot(208,244,46,36,"alle","Übersicht und Plan")}</div>
-   <div class="freq" style="text-align:center;margin-top:-6px">${haus?"Tippt ins Bild, auf Sonne oder Mond fürs Wetter. Ein Tipp auf eine freie Stelle dreht das Bild um, lange drücken öffnet alle Bereiche im Kreis.":"Tippt ins Bild: Besen am Zelt, Lagerfeuer, Aushang oder das Holzschild am Rand."}</div>
+   <div class="freq" style="text-align:center;margin-top:-6px">${haus?"Tippt ins Bild, auf Sonne oder Mond fürs Wetter. Ein Tipp auf eine freie Stelle dreht das Bild um, lange auf ein Ding drücken zeigt Abkürzungen.":"Tippt ins Bild: Besen am Zelt, Lagerfeuer, Aushang oder das Holzschild am Rand."}</div>
    ${haus&&S.wxPop?wxPanel(night):""}
    <section class="card today"><h2>Heute</h2>
      <button class="todayrow" data-go="woche"><span>🧹</span><span>${openW?"Offene Aufträge":"Alles erledigt, was gerade ansteht"}</span><i>›</i></button>
@@ -1283,6 +1286,23 @@ function mboxOpen(){S.mboxAt=Date.now();if(document.getElementById("mbox"))retur
   document.body.appendChild(el);
   el.addEventListener("click",e=>{const b=e.target.closest("[data-mbox]");if(b){mboxClose();goNav(b.dataset.mbox);return}if(e.target.closest("a")){setTimeout(mboxClose,50);return}if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose()})}
 function mboxClose(){const el=document.getElementById("mbox");if(el)el.remove()}
+// ---------- Schnellmenü im Startbild: lange auf ein Bildelement drücken (Florian 15.11.2026) ----------
+// Eintrag: [Symbol, Text, {nav, fn?, click?, focus?, scroll?}]; ein einziger Eintrag startet sofort.
+const QUICK={
+  einkauf:["🧺 Einkauf",[["➕","Artikel hinzufügen",{nav:"einkauf",focus:"#shopinput"}],["📋","Offene Posten",{nav:"einkauf",scroll:".shop"}]]],
+  essen:["🍲 Essen",[["🔗","Rezept aus Link speichern",{nav:"essen|ft:rezepte",click:'[data-act="recpaste"]'}]]],
+  woche:["🧹 Woche",[["🙋","Meine offenen Aufgaben",{nav:"woche|wp:1",fn:()=>{S.wmwWho=S.me||"p0";S.wmwView="zeit"}}],["✅","Aufgabe abhaken",{nav:"woche"}],["🏠","Homeoffice eintragen",{nav:"woche",scroll:".hoslot"}]]],
+  kalender:["📅 Kalender",[["➕","Neuer Termin",{nav:"woche|wp:3",focus:"#calq"}],["🗓️","Heute und morgen",{nav:"woche|wp:3",fn:()=>{S.calView="liste"}}]]],
+  kita:["🎒 Kita",[["🎒","Tasche für morgen",{nav:"kita|ks:tasche"}],["🍽️","Kita-Essen heute",{nav:"kita|ks:essen",fn:()=>{S.foodWeek=null;S.kitaEdit=false},scroll:".kmday.today"}]]],
+  amhaus:["🏠 Am Haus",[["➕","Neues Projekt",{nav:"amhaus|pf:wohnen",click:'[data-act="hprojnew"]'}],["🔧","Reparatur notieren",{nav:"amhaus|pf:haus",focus:"#projinput"}],["📍","Sammlung",{nav:"amhaus|pf:wohnen",click:'[data-act="hsamm"]'}]]]
+};
+function quickKey(el){if(!el||!el.classList.contains("spot"))return null;if(el.dataset.go==="post")return "post";if(el.dataset.nav==="woche|wp:3")return "kalender";if(el.dataset.pf)return null;const g=el.dataset.go;if(g==="amhaus"&&!/Lampe/.test(el.getAttribute("aria-label")||""))return null;return QUICK[g]?g:null}
+function quickRun(a){mboxClose();goNav(a.nav);if(a.fn){a.fn();render()}
+  setTimeout(()=>{if(a.click){const el=document.querySelector(a.click);if(el)el.click()}setTimeout(()=>{const f=a.focus&&document.querySelector(a.focus);if(f){f.focus();f.scrollIntoView({block:"center"})}const sc=a.scroll&&document.querySelector(a.scroll);if(sc)sc.scrollIntoView({block:"center"})},60)},30)}
+function quickOpen(k){S.mboxAt=Date.now();if(k==="post"){mboxOpen();return}const q=QUICK[k];if(!q||document.getElementById("mbox"))return;if(q[1].length===1){quickRun(q[1][0][2]);return}
+  const el=document.createElement("div");el.id="mbox";el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="${esc(q[0])}"><div class="section-head"><h2>${esc(q[0])}</h2></div><div class="quicklist">${q[1].map((x,i)=>`<button class="quickbtn" data-quick="${i}"><span class="qi" aria-hidden="true">${x[0]}</span><span>${esc(x[1])}</span></button>`).join("")}</div></div>`;
+  document.body.appendChild(el);
+  el.addEventListener("click",e=>{const b=e.target.closest("[data-quick]");if(b){quickRun(q[1][+b.dataset.quick][2]);return}if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose()})}
 function pantryCard(){const pl=pantry();return `<section class="card"><button class="rechead" data-act="pantrytoggle" aria-expanded="${!!S.pantryOpen}"><span class="nm">🧂 Immer im Haus</span><span class="freq">${pl.length} Sachen ${S.pantryOpen?"▴":"▾"}</span></button>${S.pantryOpen?`<div class="freq" style="margin:8px 0">Kommt ein Rezept auf die Liste, bleiben diese Zutaten weg. Im Rezept stehen sie weiter.</div><div class="unl">${pl.map(x=>`<button class="chipbtn" data-pantryrm="${esc(x)}" aria-label="${esc(x)} aus dem Vorrat nehmen">${esc(x)} ✕</button>`).join("")}</div><form class="addrow" id="pantryform" style="margin-top:8px"><input type="text" id="pantryinput" placeholder="z. B. Senf" autocomplete="off" aria-label="Zum Vorrat hinzufügen"><button class="primary" type="submit">+</button></form>`:""}</section>`}
 function wxPlaceRow(){const pl=S.food&&S.food.wxplace;return `<div class="freq" style="margin-top:8px">📍 Wetter für: ${pl&&pl.name?`<b>${esc(pl.name)}</b> <button class="linkish" data-act="wxedit">ändern</button>`:`<button class="linkish" data-act="wxedit">Ort eintragen</button>`}</div>${S.wxEdit?`<form class="addrow" id="wxform" style="margin-top:6px"><input type="text" id="wxinput" placeholder="z. B. München" autocomplete="off" aria-label="Ort fürs Wetter"><button class="primary" type="submit">Suchen</button></form>`:""}`}
 // ---------- Bereiche: alle Kategorien mit Unterbereichen (Symbol oben rechts neben dem Zahnrad) ----------
@@ -1568,7 +1588,7 @@ function renderPack(){const L=curPack(),items=packs().filter(i=>(i.list||"main")
   {const ur=L.id.startsWith("u_")&&urlaube().find(u=>"u_"+u.id===L.id);h+=`<div class="unl">${[["basis","🎒 Basis"],["strand","🏖️ Strand"],["winter","❄️ Winter"],["kind","🧸 Kleinkind"]].map(t=>`<button class="chipbtn neutral" data-packtpl="${t[0]}" data-pl="${esc(L.id)}">+ ${t[1]}</button>`).join("")}${ur?`<button class="chipbtn neutral" data-reise="${esc(ur.id)}">${esc(ur.emo||"⛵")} Zum Urlaub ›</button>`:""}</div>`}
   if(S.packListNew)h+=`<form class="addrow" id="packlistform"><input type="text" id="packlistinput" placeholder="Zum Beispiel Strand oder Übernachtung" maxlength="40" autocomplete="off" enterkeyhint="done" aria-label="Name der Liste"><button class="primary" type="submit">Anlegen</button></form>`;
   h+=`<form class="addrow" id="packform"><input type="text" id="packinput" placeholder="Was kommt in den Rucksack?" value="${esc(S.packText)}" autocomplete="off" enterkeyhint="done" aria-label="Gegenstand"><button class="primary" type="submit">Hinzufügen</button></form>`;
-  if(sug.length)h+=`<div><div class="eyebrow" style="margin-bottom:6px">Vorschläge</div><div class="unl">${sug.map(n=>`<button class="chipbtn" data-packadd="${esc(n)}">+ ${esc(n)}</button>`).join("")}</div></div>`;
+  h+=suggBlock("pack",have,"data-packadd");
   h+=items.length?`<section class="card"><div class="section-head"><h2>${esc(L.name)}</h2><span class="freq num">${packed} von ${items.length} eingepackt</span></div><ul class="shop">${items.map(li).join("")}</ul>${packed?`<div><button class="ghost" data-act="packreset">Alles wieder auspacken</button></div>`:""}<div class="freq">Die Liste bleibt für den nächsten Ausflug. Beim Packen abhaken, danach wieder auspacken.</div></section>`
     :`<div class="empty"><h2>Die Liste „${esc(L.name)}“ ist leer</h2><div>Tippt Vorschläge an oder schreibt eigene Dinge dazu. Die Liste bleibt für jeden Ausflug.</div></div>`;
   if(L.id!=="main")h+=`<div><button class="ghost danger" data-act="packlistdel">Liste „${esc(L.name)}“ löschen</button></div>`;
@@ -1582,18 +1602,18 @@ async function suggRemember(list,name){name=(name||"").trim();if(!name)return;co
 async function suggHide(list,name){try{await S.store.setPath("food/sugg/"+list+"/"+favKey(name),{name,hide:true,at:Date.now()})}catch(_){toast("Konnte nicht speichern.")}}
 async function suggRename(list,old,nw){nw=(nw||"").trim().slice(0,60);if(!nw||nw===old)return;const o=suggList(list,SUGG_DEFS[list]).find(x=>x.name===old)||{};
   try{await S.store.setPath("food/sugg/"+list+"/"+favKey(old),{name:old,hide:true,at:Date.now()});if(favKey(nw)!==favKey(old))await S.store.setPath("food/sugg/"+list+"/"+favKey(nw),{name:nw,n:o.n||0,at:Date.now()});else await S.store.setPath("food/sugg/"+list+"/"+favKey(nw),{name:nw,n:o.n||0,at:Date.now()})}catch(_){toast("Konnte nicht speichern.")}}
-const SUGG_DEFS={get kita(){return KITA_BAG}};
+const SUGG_DEFS={get kita(){return KITA_BAG},get pack(){return PACK_IDEAS}};
 function suggBlock(list,have,addAttr){const all=suggList(list,SUGG_DEFS[list]),ed=S.suggEdit===list,sug=all.filter(x=>!have.has(x.name.toLowerCase()));
   if(ed)return `<section class="card suggedit"><div class="section-head"><h2>Vorschläge bearbeiten</h2><button class="ghost" data-suggedit="${list}">Fertig</button></div>
     <div class="freq">Antippen und umschreiben, ✕ nimmt den Vorschlag weg. Was ihr eintippt, merkt sich die App automatisch; Häufiges steht vorn.</div>
     <ul class="shop">${all.map(x=>`<li><input type="text" class="suggin" data-sugglist="${list}" data-suggold="${esc(x.name)}" value="${esc(x.name)}" maxlength="60" aria-label="Vorschlag umbenennen">${x.n?`<span class="freq num">${x.n}×</span>`:""}<button class="rm" data-sugghide="${list}|${esc(x.name)}" aria-label="${esc(x.name)} entfernen">✕</button></li>`).join("")}</ul>
     <form class="addrow" data-suggform="${list}"><input type="text" placeholder="Neuer Vorschlag" maxlength="60" autocomplete="off" aria-label="Neuer Vorschlag"><button class="ghost" type="submit">+ Dazu</button></form>
     ${Object.values(suggRaw(list)).some(v=>v&&v.hide)?`<div><button class="ghost" data-suggreset="${list}">Entfernte Vorschläge zurückholen</button></div>`:""}</section>`;
-  return `<div><div class="section-head" style="margin-bottom:6px"><div class="eyebrow">Vorschläge</div><button class="ghost small" data-suggedit="${list}">✏️ Bearbeiten</button></div>${sug.length?`<div class="unl">${sug.map(x=>`<button class="chipbtn" ${addAttr}="${esc(x.name)}">+ ${esc(x.name)}</button>`).join("")}</div>`:`<div class="freq">Alles aus den Vorschlägen ist schon in der Tasche.</div>`}</div>`}
+  return `<div><div class="section-head" style="margin-bottom:6px"><div class="eyebrow">Vorschläge</div><button class="ghost small" data-suggedit="${list}">✏️ Bearbeiten</button></div>${sug.length?`<div class="unl">${sug.map(x=>`<button class="chipbtn" ${addAttr}="${esc(x.name)}">+ ${esc(x.name)}</button>`).join("")}</div>`:`<div class="freq">Alle Vorschläge sind schon drin.</div>`}</div>`}
 async function kitaAdd(name){name=(name||"").trim().slice(0,60);if(!name)return;if(kitas().some(i=>i.sec==="tasche"&&i.name.toLowerCase()===name.toLowerCase())){toast("Steht schon drauf");return}
   try{await S.store.setPath("food/kita/"+newId("c"),{name,sec:"tasche",done:false,at:Date.now()});suggRemember("kita",name)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}
 async function packAdd(name){name=(name||"").trim().slice(0,60);if(!name)return;if(packs().some(i=>(i.list||"main")===curPack().id&&i.name.toLowerCase()===name.toLowerCase())){toast("Steht schon auf der Packliste");return}
-  try{const L=curPack(),v={name,done:false,at:Date.now()};if(L.id!=="main")v.list=L.id;await S.store.setPath("food/pack/"+newId("k"),v)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}
+  try{const L=curPack(),v={name,done:false,at:Date.now()};if(L.id!=="main")v.list=L.id;await S.store.setPath("food/pack/"+newId("k"),v);suggRemember("pack",name)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}
 async function tripAddUnused(name){name=(name||"").trim().slice(0,80);if(!name)return;
   try{await S.store.setPath("food/trip/"+newId("t"),{name,done:false,at:Date.now(),by:S.me||""})}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}
 // ---------- Ideen und Projekte (Leuchtturm) ----------
@@ -2028,8 +2048,8 @@ function ringEnd(){const r=S.ring;if(!r)return;if(r.sel>=0){const v=RING[r.sel][
  // Kreis im Bild abgeschaltet (Florian 15.11.2026): Menü kommt jetzt über langes Drücken auf den Reiter Start (fanOpen)
  app.addEventListener("touchmove",e=>{if(S.ring){e.preventDefault();const p=e.touches[0];ringMove(p.clientX,p.clientY);return}if(lp){const p=e.touches[0];if(Math.hypot(p.clientX-lp.x,p.clientY-lp.y)>10){clearTimeout(lp.timer);lp=null}}},{passive:false});
  const end=()=>{if(lp){clearTimeout(lp.timer);lp=null}if(S.ring)ringEnd()};app.addEventListener("touchend",end,{passive:true});app.addEventListener("touchcancel",end,{passive:true});
- app.addEventListener("contextmenu",e=>{if(e.target.closest(".camp"))e.preventDefault();if(prioOn()&&e.target.closest('.spot[data-go="post"]'))mboxOpen()})
- {let mt=null;app.addEventListener("touchstart",e=>{const t=e.target.closest&&e.target.closest('.spot[data-go="post"]');if(!t||!prioOn()||e.touches.length!==1)return;const p=e.touches[0];mt={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{mt=null;mboxOpen()},450)}},{passive:true});
+ app.addEventListener("contextmenu",e=>{if(e.target.closest(".camp"))e.preventDefault();const k=prioOn()&&quickKey(e.target.closest(".spot"));if(k)quickOpen(k)})
+ {let mt=null;app.addEventListener("touchstart",e=>{const k=prioOn()&&e.touches.length===1&&e.target.closest&&quickKey(e.target.closest(".spot"));if(!k)return;const p=e.touches[0];mt={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{mt=null;quickOpen(k)},450)}},{passive:true});
   app.addEventListener("touchmove",e=>{if(mt){const p=e.touches[0];if(Math.hypot(p.clientX-mt.x,p.clientY-mt.y)>10){clearTimeout(mt.timer);mt=null}}},{passive:true});
   const me=()=>{if(mt){clearTimeout(mt.timer);mt=null}if(document.getElementById("mbox"))S.mboxAt=Date.now()};app.addEventListener("touchend",me,{passive:true});app.addEventListener("touchcancel",me,{passive:true})}
  // Kurzer Tipp auf eine freie Stelle im Bild: Dashboard auf/zu
@@ -2076,6 +2096,7 @@ document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.cl
   if(t==="essen"&&prioOn()&&S.tab!=="essen")S.foodTab="heute";S.tab=t;if(S.tab!=="plan")S.draft=null;if(S.tab!=="camp")S.campDraft=null;render();window.scrollTo(0,0)});
 app.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;
+  if(b.classList.contains("spot")&&b.dataset.go!=="post"&&Date.now()-(S.mboxAt||0)<700)return;
   if(b.dataset.stress){const k=b.dataset.stress,wk=wkKey(planWeek()),on=!!(planX(planWeek())[k]&&planX(planWeek())[k].stress);try{await S.store.setPath("food/planx/"+wk+"/"+k+"/stress",on?null:true)}catch(_){toast("Konnte nicht speichern.")}if(S.sugg){S.sugg=suggestWeek(planWeek(),S.sugg);render()}return}
   if(b.dataset.planrec||b.dataset.sugrec){const k=b.dataset.planrec||b.dataset.sugrec,wk=wkKey(planWeek()),m=b.dataset.planrec?planDays(planWeek())[k]:(S.sugg&&S.sugg[k]);if(!m)return;const name=String(m.text||m.name||"").slice(0,80);const ex=recs().find(r=>(r.name||"").toLowerCase()===name.toLowerCase());const id=ex?ex.id:newId("r");
     try{if(!ex)await S.store.setPath("food/rec/"+id,{name,ing:Array.isArray(m.ing)?m.ing.join("\n"):(m.ing||""),note:m.note||"",link:m.link||"",at:Date.now()});if(b.dataset.planrec)await S.store.setPath("food/plan/"+wk+"/"+k+"/rec",id);else{m.rec=id;m.src="rezept"}toast(ex?"Steht schon bei euren Rezepten":"Zu euren Rezepten hinzugefügt");render()}catch(_){toast("Konnte nicht speichern.")}return}
