@@ -1260,7 +1260,7 @@ function safeLink(u){u=(u||"").trim();return /^https?:\/\//i.test(u)?u:""}
 const urlaube=()=>listOf(S.food&&S.food.urlaub).sort((a,b)=>(a.at||0)-(b.at||0));
 // Reisen (Meer im Bild): oberste Ebene = Urlaube als Kacheln; alles andere liegt im jeweiligen Urlaub. Daten in food/urlaub/<id>.
 // Urlaube in drei Gruppen (Florian 15.11.2026): Aktuell, Traum, Erledigt; alte Werte geplant/gebucht zählen als aktuell, gewesen als erledigt
-const REISE_ST=[["aktuell","🧭","Aktuell"],["traum","💭","Traum"],["erledigt","📸","Erledigt"]];
+const REISE_ST=[["aktuell","🧭","Aktuell"],["traum","💭","Traum"],["erledigt","📦","Vergangene"]];
 const reiseSt=x=>{const v=x&&x.state;return v==="geplant"||v==="gebucht"||v==="aktuell"?"aktuell":v==="gewesen"||v==="erledigt"?"erledigt":"traum"};
 const REISE_EMO=["🏝️","🏖️","🏔️","🏕️","🏙️","🌲","⛵","🚗","✈️","🚆","🏰","🌍"];
 const PIN_KIND=[["unterkunft","🏠","Unterkunft"],["strand","🏖️","Strand"],["spielplatz","🛝","Spielplatz"],["essen","🍽️","Essen"],["ausflug","🚌","Ausflug"],["sonst","📍","Sonstiges"]];
@@ -1317,8 +1317,8 @@ function renderReisen(){const l=urlaube();if(S.reiseOpen&&l.find(x=>x.id===S.rei
   const A=grp("aktuell",(a,b)=>String(a.from||"9").localeCompare(String(b.from||"9"))),T=grp("traum",(a,b)=>hearts(b)-hearts(a)||(a.at||0)-(b.at||0)),E=grp("erledigt",(a,b)=>String(b.from||"").localeCompare(String(a.from||"")));
   const add=(st,t,c)=>`<button class="tile add" data-act="reisenew" data-st="${st}"><span class="te">＋</span><span class="tn">${t}</span><span class="tc">${c}</span></button>`;
   let h=`<div class="section-head"><h2>🧭 Aktuell</h2><span class="freq num">${A.length}</span></div><div class="tiles">${A.map(tile).join("")}${add("aktuell","Neuer Urlaub","geplant oder gebucht")}</div>
-    <div class="section-head"><h2>💭 Traum</h2><span class="freq num">${T.length}</span></div><div class="tiles">${T.map(tile).join("")}${add("traum","Neuer Traum","❤️ von beiden zählt")}</div>
-    ${E.length?`<details class="reisedone"${S.reiseDoneOpen?" open":""}><summary class="section-head"><h2>📸 Erledigt</h2><span class="freq num">${E.length} ▾</span></summary><div class="tiles">${E.map(tile).join("")}</div></details>`:""}`;
+    ${E.length?`<details class="reisedone"><summary class="section-head"><h2>📦 Vergangene</h2><span class="freq num">${E.length} ▾</span></summary><div class="tiles">${E.map(tile).join("")}</div></details>`:""}
+    <details class="reisedone"><summary class="section-head"><h2>💭 Traum</h2><span class="freq num">${T.length} ▾</span></summary><div class="tiles">${T.map(tile).join("")}${add("traum","Neuer Traum","❤️ von beiden zählt")}</div></details>`;
   const mu=(S.food&&S.food.reisemap)||"",emb=mapsEmbed(mu);
   h+=`<details class="card reisemap"${S.reiseMapOpen?" open":""}><summary>🗺️ Alle Ziele auf einer Karte</summary>${emb?`<div class="mapwrap"><iframe src="${esc(emb)}" loading="lazy" title="Karte mit allen Zielen"></iframe></div>`:mu?`<a href="${esc(mu)}" target="_blank" rel="noopener">Karte öffnen</a>`:""}
     <div class="freq">Legt in Google Maps unter „Meine Karten“ eine Karte an und fügt den Link hier ein, dann erscheint sie hier.</div><form class="addrow" id="reisemapform"><input type="url" id="reisemapinput" value="${esc(mu)}" placeholder="Link zur Karte" autocomplete="off"><button class="primary" type="submit">OK</button></form></details>`;
@@ -1326,8 +1326,8 @@ function renderReisen(){const l=urlaube();if(S.reiseOpen&&l.find(x=>x.id===S.rei
 function renderReise(x){const st=reiseSt(x),cd=reiseDays(x),hc=x.hearts||{},pins=reiseSub(x,"pins"),bk=reiseSub(x,"book"),pl="u_"+x.id,items=packs().filter(i=>i.list===pl),pr=prios().filter(p=>p.ref===x.id);
   const fld=(k,lab,type,ph)=>`<label class="fld"><span>${lab}</span><input ${type?`type="${type}"`:""} data-rsf="${k}" value="${esc(x[k]||"")}" placeholder="${ph||""}" autocomplete="off"></label>`;
   let h=`<div><button class="ghost" data-act="reiseback">‹ Alle Urlaube</button></div><div><div class="eyebrow">${esc(x.emo||"🏝️")} Urlaub</div><h1>${esc(x.name)}</h1></div>
-    <div class="unl">${REISE_ST.map(s=>`<button class="chipbtn" data-reisest="${s[0]}" aria-pressed="${st===s[0]}">${s[1]} ${s[2]}</button>`).join("")}</div>`;
-  h+=`<section class="card"><div class="freq" style="font-size:1rem">${cd&&cd.n?`⏳ Noch <b>${cd.n}</b> ${cd.n===1?"Tag":"Tage"}`:cd&&cd.now?"🌞 Läuft gerade":cd&&cd.past?"Schon vorbei":"Noch kein Datum"}${x.place?` · <a href="${esc(mapsQ(x.place))}" target="_blank" rel="noopener">📍 ${esc(x.place)}</a>`:""}</div>
+    ${st==="erledigt"?`<div class="freq">📦 Archiviert unter Vergangene</div>`:st==="traum"?`<div class="freq">💭 Steht unter Traum</div>`:""}`;
+  h+=`<section class="card">${st==="aktuell"&&cd&&cd.past?`<div class="btnrow" style="margin-bottom:8px"><button class="primary" data-reisest="erledigt">📦 Vorbei: archivieren</button></div>`:""}<div class="freq" style="font-size:1rem">${cd&&cd.n?`⏳ Noch <b>${cd.n}</b> ${cd.n===1?"Tag":"Tage"}`:cd&&cd.now?"🌞 Läuft gerade":cd&&cd.past?"Schon vorbei":"Noch kein Datum"}${x.place?` · <a href="${esc(mapsQ(x.place))}" target="_blank" rel="noopener">📍 ${esc(x.place)}</a>`:""}</div>
     <div style="margin-top:8px">${["p0","p1"].map(p=>`<button class="chipbtn neutral" data-reiseheart="${p}" aria-pressed="${!!hc[p]}">${hc[p]?"❤️":"🤍"} ${esc(pname(p))}</button>`).join(" ")}</div></section>`;
   h+=`<section class="card"><div class="section-head"><h2>✏️ Eckdaten</h2></div>${fld("name","Name")}${fld("place","Ort oder Region","","z. B. Bretagne")}
     <div style="display:flex;gap:8px"><div style="flex:1">${fld("from","Von","date")}</div><div style="flex:1">${fld("to","Bis","date")}</div></div>
@@ -1349,7 +1349,7 @@ function renderReise(x){const st=reiseSt(x),cd=reiseDays(x),hc=x.hearts||{},pins
   h+=`<section class="card"><div class="section-head"><h2>🔔 Erinnerungen</h2></div>${pr.length?`<ul class="evlist">${pr.map(p=>`<li><span class="t">${p.due?esc(dLabel(p.due)):""}</span><span class="ev">${esc(p.name)}</span></li>`).join("")}</ul>`:""}
     <div class="unl">${REISE_PRIO.map((n,i)=>`<button class="chipbtn neutral" data-reiseprio="${i}">＋ ${esc(n)}</button>`).join("")}</div><div class="freq">Mit Tag und Uhrzeit in der Maske, sie erscheinen unter Wichtig.</div></section>`;
   h+=`<section class="card"><div class="section-head"><h2>📝 Rückblick</h2></div><label class="fld"><span>${st==="erledigt"?"Wie war es? Was nehmen wir mit?":"Füllt ihr nach dem Urlaub aus."}</span><textarea data-rsf="review" rows="3">${esc(x.review||"")}</textarea></label></section>`;
-  h+=`<div class="btnrow"><button class="ghost danger" data-act="reisedel">Urlaub löschen</button></div>`;
+  h+=`<div class="btnrow">${st==="erledigt"?`<button class="ghost" data-reisest="aktuell">↩ Zurückholen</button>`:`<button class="ghost" data-reisest="erledigt">📦 Archivieren</button>`}${st==="traum"?`<button class="ghost" data-reisest="aktuell">🧭 Jetzt planen</button>`:""}<button class="ghost danger" data-act="reisedel">Urlaub löschen</button></div>`;
   return h}
 function renderUrlaub(){return `<section class="card"><div class="section-head"><h2>🏝️ Urlaub</h2></div><div class="freq">Urlaube haben jetzt einen eigenen Bereich: Reisen, im Bild das Meer.</div><div class="btnrow" style="margin-top:8px"><button class="primary" data-go="reisen">Zu Reisen ›</button></div></section>`}
 function renderTrips(){const T=["urlaub","ideen","pack","recherche"].includes(S.tripTab)?S.tripTab:"urlaub";S.tripTab=T;
@@ -1734,7 +1734,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.fundst){const f=funde().find(y=>y.id===b.dataset.fundst);if(f){const o=["idee","favorit","gebucht"],nx=o[(o.indexOf(f.st||"idee")+1)%3];await S.store.setPath("food/fund/"+f.id+"/st",nx).catch(()=>toast("Konnte nicht speichern."))}return}
   if(b.dataset.fundrm){if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Löschen?";return}await S.store.setPath("food/fund/"+b.dataset.fundrm,null).catch(()=>toast("Konnte nicht speichern."));return}
   if(S.reiseOpen){const base="food/urlaub/"+S.reiseOpen+"/",x=urlaube().find(y=>y.id===S.reiseOpen);
-    if(b.dataset.reisest){await S.store.setPath(base+"state",b.dataset.reisest).catch(()=>toast("Konnte nicht speichern."));return}
+    if(b.dataset.reisest){const v=b.dataset.reisest;try{await S.store.setPath(base+"state",v);if(v==="erledigt"){S.reiseOpen=null;toast("Archiviert unter Vergangene");render();window.scrollTo(0,0)}else toast(v==="aktuell"?"Steht wieder unter Aktuell":"Gespeichert")}catch(_){toast("Konnte nicht speichern.")}return}
     if(b.dataset.reiseemo){await S.store.setPath(base+"emo",b.dataset.reiseemo).catch(()=>{});return}
     if(b.dataset.reiseheart){const p=b.dataset.reiseheart;await S.store.setPath(base+"hearts/"+p,x&&x.hearts&&x.hearts[p]?null:true).catch(()=>{});return}
     if(b.dataset.pinkind){S.pinKind=b.dataset.pinkind;render();return}
