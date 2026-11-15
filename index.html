@@ -197,6 +197,14 @@ details.reisemap summary{cursor:pointer;font-weight:600}
 #ring .ringi span{font-size:1.35rem;line-height:1}#ring .ringi b{font-size:.58rem;font-weight:600;white-space:nowrap}
 #ring .ringi.on{transform:translate(-50%,-50%) scale(1.25);background:var(--ink);color:var(--surface)}
 @media (prefers-reduced-motion:reduce){#ring .ringi{transition:none}}
+#fan{position:fixed;inset:0;z-index:60;touch-action:none;-webkit-user-select:none;user-select:none}#fan .fanbg{position:absolute;inset:0;background:rgba(10,20,25,.5);backdrop-filter:blur(2px)}
+#fan .fanarc{position:absolute;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:#fff;box-shadow:0 0 0 8px rgba(255,255,255,.25)}
+#fan .fani{position:absolute;transform:translate(-50%,-50%);width:56px;height:56px;border-radius:50%;border:none;background:var(--surface);color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;box-shadow:0 4px 14px rgba(0,0,0,.25);transition:transform .12s;font:inherit;padding:0}
+#fan .fani span{font-size:1.35rem;line-height:1}#fan .fani b{font-size:.58rem;font-weight:600;white-space:nowrap}#fan .fang{width:60px;height:60px}
+#fan .fanstem{position:absolute;width:2px;margin-left:-1px;background:rgba(255,255,255,.45)}#fan .fani.on{transform:translate(-50%,-50%) scale(1.2);background:var(--ink);color:var(--surface)}#fan .fanline{position:absolute;height:2px;margin-top:-1px;background:rgba(255,255,255,.55)}
+#tabs{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+@media (prefers-reduced-motion:reduce){#fan .fani{transition:none}}
+
 .spot:focus-visible{outline:3px solid #fff;outline-offset:-3px}
 .hot{position:absolute;transform:translate(-50%,-50%);background:var(--surface);color:var(--fg);border:none;border-radius:999px;padding:5px 11px;font-weight:700;font-size:.76rem;box-shadow:0 2px 8px rgba(0,0,0,.28);display:flex;gap:6px;align-items:center;white-space:nowrap;opacity:.94}
 .hot.big{font-size:.92rem;padding:7px 12px;opacity:1}
@@ -801,7 +809,7 @@ function houseScene(has,light,night,extras,sea,guests,dots,amb){dots=dots||{};am
    if(sea==="spring"){g+=crown("#8fcf7a","#79b866");[[-12,-40],[-4,-50],[6,-46],[12,-36],[-8,-30],[3,-34],[9,-28],[-14,-33],[0,-40]].forEach(p=>{g+=`<circle cx="${tx+p[0]}" cy="${tb+p[1]}" r="2" fill="#f7c1d6"/><circle cx="${tx+p[0]}" cy="${tb+p[1]}" r=".7" fill="#e0a030"/>`})}
    else if(sea==="summer"){g+=crown("#4f9a5a","#3f8550");[[-7,-38],[8,-33],[-1,-46]].forEach(p=>{g+=`<circle cx="${tx+p[0]}" cy="${tb+p[1]}" r="1.8" fill="#d6453d"/>`})}
    else if(sea==="autumn"){g+=crown("#e0a030","#c96a2a");[[-6,-44,"#b3402a"],[9,-38,"#b3402a"],[-11,-32,"#e0a030"]].forEach(p=>{g+=`<circle cx="${tx+p[0]}" cy="${tb+p[1]}" r="3" fill="${p[2]}" opacity="${dk}"/>`});[[-16,-6,"#d9792b",30],[14,-2,"#b3402a",-20],[20,-14,"#e0a030",60]].forEach(p=>{g+=`<ellipse cx="${tx+p[0]}" cy="${tb+p[1]}" rx="2.6" ry="1.3" fill="${p[2]}" transform="rotate(${p[3]} ${tx+p[0]} ${tb+p[1]})"/>`})}
-   else g+=`<path d="M${tx-9} ${tb-36} l-5 -6 M${tx-9} ${tb-36} l-1 -8 M${tx+1} ${tb-40} l-4 -8 M${tx+1} ${tb-40} l5 -7 M${tx+10} ${tb-33} l5 -5 M${tx+10} ${tb-33} l0 -7" stroke="${tr}" stroke-width="1.4" stroke-linecap="round"/><path d="M${tx-12} ${tb-37.5} l4 -.8 M${tx-2} ${tb-42} l5 -.6 M${tx+8} ${tb-34.6} l4 -.6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>`;treeSvg=`<g transform="translate(${tx} ${tb}) scale(1.3) translate(${-tx} ${-tb})">`+g.slice(st0)+`</g>`;g=g.slice(0,st0)}
+   else g+=`<path d="M${tx-9} ${tb-36} l-5 -6 M${tx-9} ${tb-36} l-1 -8 M${tx+1} ${tb-40} l-4 -8 M${tx+1} ${tb-40} l5 -7 M${tx+10} ${tb-33} l5 -5 M${tx+10} ${tb-33} l0 -7" stroke="${tr}" stroke-width="1.4" stroke-linecap="round"/><path d="M${tx-12} ${tb-37.5} l4 -.8 M${tx-2} ${tb-42} l5 -.6 M${tx+8} ${tb-34.6} l4 -.6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>`;treeSvg=`<g transform="translate(${tx} ${tb}) scale(1.5) translate(${-tx} ${-tb})">`+g.slice(st0)+`</g>`;g=g.slice(0,st0)}
   // Haus
   const H=`<path d="M112 104h12v20h-12z M186 104h12v20h-12z" fill="${C.wall}"/><path d="M110 102h16v4h-16z M184 102h16v4h-16z" fill="${C.stone}"/>`
    +`<path d="M94 160 L114 118 H196 L216 160Z" fill="${C.roof}"/><path d="M114 118 H196" stroke="#2c3540" stroke-width="2"/><path d="M104 140 H206 M99 150 H211 M109 129 H201" stroke="#3a4552" stroke-width=".8" opacity=".7"/>`
@@ -910,7 +918,7 @@ function renderCamp(){if(scene()==="haus")loadWx();
   const spot=(x,y,w,hh,go,label,ft)=>`<button class="spot" style="${spotPos(x,y,w,hh,haus)}" data-go="${go}"${ft?` data-ft="${ft}"`:""} aria-label="${label}">${S.labels?`<span class="lab">${label.split(":")[0].replace(" mit dem Bus","").replace("Einkaufsliste","Einkauf")}</span>`:""}</button>`;
   const G=haus?HOUSE_GUESTS:GUESTS,place=haus?"am Meer":"auf dem Zeltplatz";
   let h=`<div><div class="eyebrow">${SEASON_NAME[sea]} ${place}</div><h1>Hallo${S.me?" "+esc(pname(S.me)):""}</h1></div>${S.me?"":meChooser()}
-   <div class="flipbox"><div class="flipin${haus&&S.flip?" flipped":""}"><div class="camp">${haus?houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:openW>0,shop:openS>0,post:briefe().length>0},{ph:skyPh,wx:S.wx&&S.wx.cur!=null&&Date.now()-S.wx.at<3*3600e3?wxKind(S.wx.cur):""})+spot(166,196,50,48,"woche","Woche: offene Aufträge")+spot(119,148,42,96,"essen","Essen",mealTxt?"plan":"")+spot(112,212,26,22,"einkauf","Einkauf: Korb mit Baguette")+spot(208,203,24,30,"kita","Kita")+spot(80,243,40,24,"ausflug","Ausflüge: Fahrrad")+spot(318,80,34,64,"projekte","Ideen")+spot(38,122,70,42,"privat","Partner: Klippen")+spot(24,244,18,26,"post","Briefkasten")+spot(155,168,22,20,"amhaus","Am Haus: Lampe")+spot(60,186,52,50,"amhaus","Garten: Baum").replace('data-go="amhaus"','data-go="amhaus" data-pf="garten"')+spot(240,238,26,26,"spiel","Sport und Spiel")+spot(322,196,56,66,"reisen","Urlaube: Segelboot")+spot(254,189,22,22,"musik","Musik: Ghettoblaster")+(()=>{const y=(night?40:(skyPh==="dusk"||skyPh==="dawn")?98:44)+13,x=night?52:56;return `<button class="spot" style="${spotPos(x,y,46,46,haus)}" data-act="wxpop" aria-expanded="${!!S.wxPop}" aria-label="${night?"Mond":"Sonne"}: Wetter">${S.labels?`<span class="lab">Wetter</span>`:""}</button>`})()+"</div>"+(haus?renderBack(night):"")+"</div>"
+   <div class="flipbox"><div class="flipin${haus&&S.flip?" flipped":""}"><div class="camp">${haus?houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:openW>0,shop:openS>0,post:briefe().length>0},{ph:skyPh,wx:S.wx&&S.wx.cur!=null&&Date.now()-S.wx.at<3*3600e3?wxKind(S.wx.cur):""})+spot(166,196,50,48,"woche","Woche: offene Aufträge")+spot(119,148,42,96,"essen","Essen",mealTxt?"plan":"")+spot(112,212,26,22,"einkauf","Einkauf: Korb mit Baguette")+spot(208,203,24,30,"kita","Kita")+spot(80,243,40,24,"ausflug","Ausflüge: Fahrrad")+spot(318,80,34,64,"projekte","Ideen")+spot(38,122,70,42,"privat","Partner: Klippen")+spot(24,244,18,26,"post","Briefkasten")+spot(155,168,22,20,"amhaus","Am Haus: Lampe")+spot(58,180,60,60,"amhaus","Garten: Baum").replace('data-go="amhaus"','data-go="amhaus" data-pf="garten"')+spot(240,238,26,26,"spiel","Sport und Spiel")+spot(322,196,56,66,"reisen","Urlaube: Segelboot")+spot(254,189,22,22,"musik","Musik: Ghettoblaster")+(()=>{const y=(night?40:(skyPh==="dusk"||skyPh==="dawn")?98:44)+13,x=night?52:56;return `<button class="spot" style="${spotPos(x,y,46,46,haus)}" data-act="wxpop" aria-expanded="${!!S.wxPop}" aria-label="${night?"Mond":"Sonne"}: Wetter">${S.labels?`<span class="lab">Wetter</span>`:""}</button>`})()+"</div>"+(haus?renderBack(night):"")+"</div>"
        :campScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:openW>0,shop:openS>0})+spot(176,172,124,104,"woche","Woche: offene Aufträge")+spot(268,222,64,48,"essen","Essen",mealTxt?"plan":"")+spot(340,200,44,46,"einkauf","Einkaufsliste")+spot(208,244,46,36,"alle","Übersicht und Plan")}</div>
    <div class="freq" style="text-align:center;margin-top:-6px">${haus?"Tippt ins Bild, auf Sonne oder Mond fürs Wetter. Ein Tipp auf eine freie Stelle dreht das Bild um, lange drücken öffnet alle Bereiche im Kreis.":"Tippt ins Bild: Besen am Zelt, Lagerfeuer, Aushang oder das Holzschild am Rand."}</div>
    ${haus&&S.wxPop?wxPanel(night):""}
@@ -1297,7 +1305,7 @@ function wxPlaceRow(){const pl=S.food&&S.food.wxplace;return `<div class="freq" 
 // Zentrale Bereichsliste (15.11.2026): Bereiche-Übersicht, Kreismenü und Wischen werden daraus gebaut.
 // [Symbol, Name, Tab, Kurzname im Kreis (leer = nicht im Kreis), Sprung im Kreis, Unterbereiche()]
 // Gliederung (Florian 15.11.2026): Alltag, Essen, Zuhause, Freizeit, Wir, Quer. Die 4 Reiter unten bleiben Abkürzungen.
-const AREA_GROUPS=[["essen","🍲","Essen"],["alltag","🗓️","Alltag"],["wir","🫶","Wir"],["zuhause","🏡","Zuhause"],["freizeit","🌊","Freizeit"],["quer","🧭","Quer durch alles"]];
+const AREA_GROUPS=[["essen","🍲","Essen"],["alltag","🗓️","Alltag"],["wir","🫶","Wir"],["zuhause","🏡","Zuhause"],["freizeit","🌊","Freizeit"],["quer","🧩","Quer durch alles"]];
 // [Symbol, Name, Tab, Kurzname im Kreis (leer = nicht im Kreis), Sprung im Kreis, Unterbereiche(), Gruppe]
 const AREAS=[["🏠","Start","camp","","",()=>[],""],["🧹","Woche","woche","Woche","woche|",()=>[["Diese Woche","wp:0"],["Kalender","wp:3"],["Wer macht was","wp:1"],["Übersicht","wp:2"]],"alltag"],
   ["🎒","Kita","kita","Kita","kita|",()=>KITA_SECS.map(k=>[k[2]==="Essen"?"Kita-Essen":k[2],"ks:"+k[0]]),"alltag"],
@@ -1373,7 +1381,7 @@ function renderSettings(){const per=(S.config&&S.config.persons)||[];const hs=sc
   h+=card("🎨 Aussehen",`<div class="freq">Startbild</div><div class="unl"><button class="chipbtn neutral" data-bild="haus" aria-pressed="${hs}">🏠 Haus am Meer (Entwurf)</button><button class="chipbtn neutral" data-bild="zelt" aria-pressed="${!hs}">🏕️ Zeltplatz</button></div>
     <div class="freq" style="margin-top:10px">Hell oder dunkel</div><div class="unl">${[["","Wie das Handy"],["light","☀️ Hell"],["dark","🌙 Dunkel"]].map(x=>`<button class="chipbtn neutral" data-theme-set="${x[0]}" aria-pressed="${th===x[0]}">${x[1]}</button>`).join("")}</div>
     ${hs?`<div style="margin-top:8px">${sw("labels","Beschriftungen im Bild zeigen",!!S.labels)}</div>`:""}<div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy. Das Haus ist noch nicht für beide freigeschaltet.</div>`,"aussehen");
-  h+=card("👆 Bedienung",`${sw("tap","Mehrfach tippen blättert weiter",G.tap,"zweimal auf Woche = Kalender")}${sw("swipe","Wischen wechselt den Bereich",G.swipe)}${hs?sw("ring","Kreismenü im Startbild",G.ring,"lange auf eine freie Stelle drücken"):""}<div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy.</div>`,"bedienung");
+  h+=card("👆 Bedienung",`${sw("tap","Mehrfach tippen blättert weiter",G.tap,"zweimal auf Woche = Kalender")}${sw("swipe","Wischen wechselt den Bereich",G.swipe)}${sw("ring","Menü: lange auf Start drücken",G.ring,"erst Gruppen, dann Bereiche")}<div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy.</div>`,"bedienung");
   h+=card("🍲 Essen",`${sw("veg","Mehr Vegetarisches bei Vorschlägen",vegW()>0,"für beide")}<div class="freq" style="margin:6px 0">Mengen sind für 4 Personen. Die Recherche achtet aufs Kleinkind. Ändern: schreib es Claude.</div>${go('data-nav="essen|ft:rezepte"',"🏷️","Rezepte, Filter und eigene Tags")}`,"essen");
   h+=card("",go('data-go="recherchen"',"🤖","<b>Recherchen</b> · alle festen Aufträge, Neues und eure Wünsche"));
   h+=card("",go('data-go="wichtig"',"🔔","<b>Wichtig</b> · alle Erinnerungen. Mitteilungen aufs Handy kommen später."));
@@ -1876,7 +1884,7 @@ function renderResearch(){if(!S.auftrLoad){S.auftrLoad=1;try{fetch("auftraege.js
   return h+`</section>`}
 // ---------- Suche (Lupe in der Kopfzeile, Entwurf 15.11.2026). Partner (Mittagessen, Briefe, Kontakte) bewusst nicht. ----------
 const SET_ITEMS=[["aussehen","🎨","Startbild","haus zelt bild motiv"],["aussehen","🎨","Hell oder dunkel","dunkel hell nacht modus farbe"],["aussehen","🏷️","Beschriftungen im Bild","beschriftung namen bild"],
-  ["bedienung","👆","Mehrfach tippen","doppeltipp tippen"],["bedienung","👆","Wischen","wischen swipe"],["bedienung","👆","Kreismenü","kreis ring sternzeichen menü"],["essen","🥗","Mehr Vegetarisches","vegetarisch veggie fleisch"],
+  ["bedienung","👆","Mehrfach tippen","doppeltipp tippen"],["bedienung","👆","Wischen","wischen swipe"],["bedienung","👆","Menü auf Start","kreis ring sternzeichen menü fächer lang drücken"],["essen","🥗","Mehr Vegetarisches","vegetarisch veggie fleisch"],
   ["ort","🌦️","Wetter-Ort","ort wetter stadt"],["wir","🫶","Ich bin","person ich"],["wir","🫶","Namen","name namen"],["wir","📮","Nummer für WhatsApp","handy telefon nummer whatsapp"],["wir","🔗","Einladungs-Link","einladen einladung link teilen schlüssel"],
   ["daten","💾","Sicherung und Wiederherstellen","sicherung backup export daten wiederherstellen"]];
 const sNorm=t=>String(t||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
@@ -1964,7 +1972,7 @@ function ringMove(x,y){const r=S.ring;if(!r)return;const dx=x-r.cx,dy=y-r.cy,d=M
 function ringClose(){S.ringAt=Date.now();S.ring=null;const el=document.getElementById("ring");if(el)el.remove()}
 function ringEnd(){const r=S.ring;if(!r)return;if(r.sel>=0){const v=RING[r.sel][2];ringClose();goNav(v)}else if(r.moved)ringClose();else{r.endAt=Date.now();S.ringAt=Date.now()}}
 {let lp=null;
- app.addEventListener("touchstart",e=>{if(!prioOn()||S.tab!=="camp"||e.touches.length!==1||!S.gest.ring)return;const t=e.target;if(!t.closest(".camp")||t.closest(".spot"))return;const p=e.touches[0];const o={x:p.clientX,y:p.clientY};o.timer=setTimeout(()=>{lp=null;ringOpen(o.x,o.y)},450);lp=o},{passive:true});
+ // Kreis im Bild abgeschaltet (Florian 15.11.2026): Menü kommt jetzt über langes Drücken auf den Reiter Start (fanOpen)
  app.addEventListener("touchmove",e=>{if(S.ring){e.preventDefault();const p=e.touches[0];ringMove(p.clientX,p.clientY);return}if(lp){const p=e.touches[0];if(Math.hypot(p.clientX-lp.x,p.clientY-lp.y)>10){clearTimeout(lp.timer);lp=null}}},{passive:false});
  const end=()=>{if(lp){clearTimeout(lp.timer);lp=null}if(S.ring)ringEnd()};app.addEventListener("touchend",end,{passive:true});app.addEventListener("touchcancel",end,{passive:true});
  app.addEventListener("contextmenu",e=>{if(e.target.closest(".camp"))e.preventDefault();if(prioOn()&&e.target.closest('.spot[data-go="post"]'))mboxOpen()})
@@ -1979,6 +1987,37 @@ S.gest={tap:true,swipe:true,ring:true};try{const g=JSON.parse(localStorage.getIt
 try{S.theme=localStorage.getItem("hq-theme")||"";if(S.theme)document.documentElement.dataset.theme=S.theme}catch(_){}
 // Reiter unten (Entwurf, Wunsch 14.11.2026): ein Tipp = erste Seite; schnell mehrfach tippen blättert je Tipp eine Seite weiter (TAP_SEQ)
 const TAP_SEQ={camp:[()=>{S.tab="camp"},()=>{S.tab="wichtig"}],woche:[0,3,1,2].map(p=>()=>{S.tab="woche";S.weekPage=p}),essen:["heute","plan","rezepte","kita"].map(f=>()=>{if(f==="kita"){S.tab="kita";S.kitaSec="essen";return}S.tab="essen";S.foodTab=f}),einkauf:[()=>{S.tab="einkauf"},()=>{S.tab="essen";S.foodTab="rezepte"}]};
+// ---------- Fächer-Menü (Florian 15.11.2026): lange auf den Reiter Start drücken. Stufe 1 Gruppen, Stufe 2 Bereiche der Gruppe ----------
+function fanGroups(){return AREA_GROUPS.map(g=>{const L=[];AREAS.filter(a=>a[6]===g[0]).forEach(a=>{L.push([a[0],a[3]||a[1],a[4]||a[2]+"|"]);if(a[2]==="woche")L.push(["📅","Kalender","woche|wp:3"])});
+  if(g[0]==="quer")L.push(["🔍","Suche","suche|"],["🗂️","Bereiche","bereiche|"]);return {id:g[0],ic:g[1],name:g[2]==="Quer durch alles"?"Quer":g[2],items:L}})}
+// Aufbau: Gruppen als Säule über dem Start-Reiter (Essen unten, nah am Daumen), Bereiche der gewählten Gruppe als Reihe nach rechts
+function fanPos(f){const W=innerWidth,gx=f.ox,top=f.oy-74;const G=f.G.map((g,i)=>[gx,top-i*66]);let I=[];
+  if(f.g>=0){const n=f.G[f.g].items.length,x0=gx+78,sp=n>1?Math.min(70,(W-34-x0)/(n-1)):0,y=G[f.g][1];I=f.G[f.g].items.map((_,j)=>[x0+j*sp,y])}return {G,I}}
+function fanOpen(ox,oy){if(S.fan)return;const G=fanGroups();S.fan={ox:Math.max(40,ox),oy,G,g:-1,sel:-1,moved:false};
+  const el=document.createElement("div");el.id="fan";document.body.appendChild(el);fanDraw();
+  el.addEventListener("click",e=>{const f=S.fan;if(!f)return;S.fanEat=0;const gb=e.target.closest("[data-fg]"),ib=e.target.closest("[data-fi]");
+    if(ib){const v=f.G[f.g].items[+ib.dataset.fi][2];fanClose();goNav(v);return}
+    if(gb){f.g=+gb.dataset.fg;f.sel=-1;fanDraw();return}
+    if(f.endAt&&Date.now()-f.endAt<350)return;fanClose()});
+  try{navigator.vibrate&&navigator.vibrate(12)}catch(_){}}
+function fanDraw(){const f=S.fan,el=document.getElementById("fan");if(!f||!el)return;const P=fanPos(f);
+  let h=`<div class="fanbg"></div><div class="fanarc" style="left:${f.ox}px;top:${f.oy}px"></div><i class="fanstem" style="left:${f.ox}px;top:${P.G[P.G.length-1][1]}px;height:${f.oy-P.G[P.G.length-1][1]}px"></i>`;
+  if(f.g>=0&&P.I.length){const y=P.G[f.g][1];h+=`<i class="fanline" style="left:${f.ox}px;top:${y}px;width:${(P.I[P.I.length-1][0]-f.ox).toFixed(0)}px"></i>`}
+  f.G.forEach((g,i)=>{h+=`<button class="fani fang${f.g===i?" on":""}" data-fg="${i}" style="left:${P.G[i][0]}px;top:${P.G[i][1]}px" aria-label="${esc(g.name)}"><span>${g.ic}</span><b>${esc(g.name)}</b></button>`});
+  P.I.forEach((p,i)=>{const it=f.G[f.g].items[i];h+=`<button class="fani fanit${f.sel===i?" on":""}" data-fi="${i}" style="left:${p[0].toFixed(0)}px;top:${p[1]}px" aria-label="${esc(it[1])}"><span>${it[0]}</span><b>${esc(it[1])}</b></button>`});
+  el.innerHTML=h}
+function fanMove(x,y){const f=S.fan;if(!f)return;const dx=x-f.ox,dy=y-f.oy;if(Math.hypot(dx,dy)<36)return;f.moved=true;const P=fanPos(f);
+  if(dx<44){let best=-1,bd=1e9;P.G.forEach((p,i)=>{const t=Math.abs(p[1]-y);if(t<bd){bd=t;best=i}});if(best!==f.g||f.sel!==-1){f.g=best;f.sel=-1;fanDraw()}}
+  else if(f.g>=0&&P.I.length){let best=-1,bd=1e9;P.I.forEach((p,i)=>{const t=Math.abs(p[0]-x);if(t<bd){bd=t;best=i}});if(best!==f.sel){f.sel=best;fanDraw()}}}
+function fanEnd(){const f=S.fan;if(!f)return;S.fanEat=Date.now();if(f.g>=0&&f.sel>=0){const v=f.G[f.g].items[f.sel][2];fanClose();goNav(v);return}f.endAt=Date.now()}
+function fanClose(){S.fan=null;S.fanAt=Date.now();const el=document.getElementById("fan");if(el)el.remove()}
+{let lp=null;const tabs=document.getElementById("tabs");
+ const startBtn=t=>t&&t.closest&&t.closest('#tabs [data-tab="camp"]');
+ tabs.addEventListener("touchstart",e=>{const b=startBtn(e.target);if(!b||!prioOn()||!S.gest.ring||e.touches.length!==1)return;const r=b.getBoundingClientRect(),p=e.touches[0];lp={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{lp=null;fanOpen(r.left+r.width/2,r.top+r.height/2)},450)}},{passive:true});
+ document.addEventListener("touchmove",e=>{if(S.fan){e.preventDefault();const p=e.touches[0];fanMove(p.clientX,p.clientY);return}if(lp){const p=e.touches[0];if(Math.hypot(p.clientX-lp.x,p.clientY-lp.y)>12){clearTimeout(lp.timer);lp=null}}},{passive:false});
+ const end=()=>{if(lp){clearTimeout(lp.timer);lp=null}if(S.fan)fanEnd()};document.addEventListener("touchend",end,{passive:true});document.addEventListener("touchcancel",end,{passive:true});
+ tabs.addEventListener("contextmenu",e=>{const b=startBtn(e.target);if(!b)return;e.preventDefault();if(prioOn()&&S.gest.ring&&!S.fan){const r=b.getBoundingClientRect();fanOpen(r.left+r.width/2,r.top+r.height/2)}});
+ tabs.addEventListener("click",e=>{if(S.fanEat&&Date.now()-S.fanEat<600&&startBtn(e.target)){S.fanEat=0;e.stopImmediatePropagation();e.preventDefault()}},true)}
 document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("button[data-tab]");if(!b)return;const t=b.dataset.tab,now=Date.now();
   if(prioOn()&&TAP_SEQ[t]){const lt=S.lastTap,n=S.gest.tap&&lt&&lt.t===t&&now-lt.at<450?lt.n+1:0;S.lastTap={t,at:now,n};const q=TAP_SEQ[t];if(S.tab!==t||n)S.prev=S.tab;q[n%q.length]();S.draft=S.campDraft=null;S.flip=false;render();window.scrollTo(0,0);return}
   if(t==="essen"&&prioOn()&&S.tab!=="essen")S.foodTab="heute";S.tab=t;if(S.tab!=="plan")S.draft=null;if(S.tab!=="camp")S.campDraft=null;render();window.scrollTo(0,0)});
