@@ -1,7 +1,7 @@
 // Builds web/index.html (standalone, Firebase REST sync) from the artifact source.
 const fs=require('fs'),path=require('path');
 const dir=__dirname;
-let s=fs.readFileSync(path.join(dir,'haushalt/haushalt.html'),'utf8');
+const T=path.join(dir,'haushalt/teile');let s=fs.readdirSync(T).filter(f=>/^\d\d-/.test(f)).sort().map(f=>fs.readFileSync(path.join(T,f),'utf8')).join('');
 const syncUrl=(process.argv[2]||'').replace(/\/+$/,'');
 function rep(a,b){if(!s.includes(a))throw new Error('missing: '+a.slice(0,60));s=s.replace(a,b)}
 

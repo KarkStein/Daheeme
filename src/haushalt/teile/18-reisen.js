@@ -1,0 +1,211 @@
+// ---------- Ausflüge ----------
+const PACK_IDEAS=["Wasser","Brotzeit","Regenjacke","Sonnencreme","Pflaster","Powerbank","Taschenmesser","Mütze","Sitzkissen","Taschentücher"];
+function listOf(m){m=m||{};return Object.keys(m).filter(k=>m[k]&&m[k].name).map(k=>Object.assign({id:k},m[k]))}
+const trips=()=>listOf(S.food&&S.food.trip),packs=()=>listOf(S.food&&S.food.pack).sort((a,b)=>(a.at||0)-(b.at||0));
+const newId=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+function safeLink(u){u=(u||"").trim();if(/^(www\.)?[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}(\/\S*)?$/i.test(u))u="https://"+u;return /^https?:\/\/\S+$/i.test(u)?u:""}
+// Urlaub: erst einmal eine einfache Liste, wird später verfeinert
+const urlaube=()=>listOf(S.food&&S.food.urlaub).sort((a,b)=>(a.at||0)-(b.at||0));
+// Reisen (Meer im Bild): oberste Ebene = Urlaube als Kacheln; alles andere liegt im jeweiligen Urlaub. Daten in food/urlaub/<id>.
+// Urlaube in drei Gruppen (Florian 15.11.2026): Aktuell, Traum, Erledigt; alte Werte geplant/gebucht zählen als aktuell, gewesen als erledigt
+const REISE_ST=[["aktuell","🧭","Aktuell"],["traum","💭","Traum"],["erledigt","📦","Vergangene"]];
+const reiseSt=x=>{const v=x&&x.state;return v==="geplant"||v==="gebucht"||v==="aktuell"?"aktuell":v==="gewesen"||v==="erledigt"?"erledigt":"traum"};
+const REISE_EMO=["⛵","🏖️","🏔️","🏕️","🏙️","🌲","⛵","🚗","✈️","🚆","🏰","🌍"];
+const PIN_KIND=[["unterkunft","🏠","Unterkunft"],["strand","🏖️","Strand"],["spielplatz","🛝","Spielplatz"],["essen","🍽️","Essen"],["ausflug","🚲","Ausflug"],["sonst","📍","Sonstiges"]];
+const PACK_TPL={strand:["Sonnencreme","Sonnenhut","Badesachen","Strandtuch","Sandspielzeug","Schwimmwindeln","Sonnenbrille","Strandmuschel"],winter:["Schneeanzug","Mütze","Handschuhe","Thermounterwäsche","Schlitten","Lippenpflege","Wollsocken"],kind:["Windeln","Feuchttücher","Kuscheltier","Schnuller","Fieberthermometer","Kinderreisebett","Lieblingsbuch","Snacks für die Fahrt","Wechselkleidung"],basis:["Ausweise","Krankenkassenkarten","Ladekabel","Medikamente","Zahnbürsten","Kleidung","Regenjacke"]};
+const REISE_PRIO=["Pässe prüfen","Auto checken lassen","Kita abmelden","Packen","Unterkunft bestätigen","Haustür- und Blumen-Plan"];
+const reiseSub=(x,k)=>listOf(x&&x[k]);
+// Gemeinsame Sammlung (Recherche) für alle Urlaube und Ausflüge: food/fund/<id> {name,kind,st,link,place,note,ref?,addr?,price?,reise?,trip?,at,by}
+const FUND_KIND=[["unterkunft","🏠","Unterkunft"],["anreise","🚆","Anreise"],["erleben","🎡","Erleben"],["strand","🏖️","Strand"],["spielplatz","🛝","Spielplatz"],["essen","🍽️","Essen"],["sonst","📍","Sonstiges"]];
+const FUND_ST=[["idee","💡","Idee"],["favorit","⭐","Favorit"],["gebucht","✅","Gebucht"]];
+function kindGuess(name,link){const t=((link||"")+" "+(name||"")).toLowerCase();
+  if(/booking\.com|airbnb|fewo|ferienhaus|ferienwohnung|hotel|vrbo|holidu|hometogo|camping|pension|unterkunft|appartement|ferienpark|center ?parcs|landal/.test(t))return "unterkunft";
+  if(/bahn\.de|\bdb\b|flixbus|ryanair|lufthansa|eurowings|condor|easyjet|ferry|ferries|fähre|faehre|mietwagen|sixt|europcar|flug|zug|autozug|maut/.test(t))return "anreise";
+  if(/strand|beach|plage/.test(t))return "strand";if(/spielplatz|playground/.test(t))return "spielplatz";if(/restaurant|café|cafe|crêpe|creperie|bistro|essen/.test(t))return "essen";
+  if(/zoo|museum|park|tour|ticket|aquarium|schwimmbad|therme|wanderung|tripadvisor|getyourguide/.test(t))return "erleben";return ""}
+function nameFromLink(u){try{const x=new URL(u),seg=x.pathname.split("/").filter(Boolean).pop()||"";const n=decodeURIComponent(seg).replace(/\.[a-z]+$/i,"").replace(/[-_+]+/g," ").replace(/\b\d{4,}\b/g,"").trim();return n.length>2?n.charAt(0).toUpperCase()+n.slice(1):x.hostname.replace(/^www\./,"")}catch(_){return ""}}
+async function fundMigrate(x){S.fundMig=S.fundMig||{};if(S.fundMig[x.id])return;S.fundMig[x.id]=1;const base="food/urlaub/"+x.id+"/";let n=0;
+  try{for(const p of reiseSub(x,"pins")){await S.store.setPath("food/fund/"+newId("f"),{name:p.name,kind:p.kind==="ausflug"?"erleben":FUND_KIND.some(c=>c[0]===p.kind)?p.kind:"sonst",st:"idee",link:p.link||null,reise:x.id,at:p.at||Date.now()});n++}
+    for(const b of reiseSub(x,"book")){await S.store.setPath("food/fund/"+newId("f"),{name:b.name,kind:kindGuess(b.name,b.link)||"unterkunft",st:"gebucht",ref:b.ref||null,addr:b.addr||null,link:b.link||null,reise:x.id,at:b.at||Date.now()});n++}
+    if(n){await S.store.setPath(base+"pins",null);await S.store.setPath(base+"book",null)}}catch(_){S.fundMig[x.id]=0}}
+// Sammlung allgemein (Florian 15.11.2026: "Datenbank wie bei Reisen" auch für Am Haus): ein Bereich = Arten, Status, Projekte, Ergebnisdatei.
+// Funde liegen alle in food/fund; area fehlt = reise. Projekt-Feld: reise (Urlaub) bzw. proj (Einrichtungsprojekt food/hproj).
+const HAUS_KIND=[["moebel","🛋️","Möbel"],["licht","💡","Licht"],["textil","🧶","Textil"],["deko","🖼️","Deko"],["farbe","🎨","Farbe und Wand"],["pflanze","🪴","Pflanzen und Saat"],["aufbew","📦","Aufbewahrung"],["werkzeug","🧰","Werkzeug"],["material","🧱","Material"],["handwerk","🔨","Handwerk"],["sonst","📍","Sonstiges"]];
+// Gemeinsamer Projekt-Baustein für alle Bereiche von Am Haus (15.11.2026): Projekt hat cat (fehlt = wohnen), Funde teilen sich eine Sammlung.
+const HCAT={wohnen:["Einrichtung","🛋️","z. B. Kinderzimmer"],ordnung:["Aufräumen","📦","z. B. Keller"],haus:["Reparieren","🔨","z. B. Dachrinne"],garten:["Garten","🌱","z. B. Hochbeet"]};
+const hprojCat=x=>x&&HCAT[x.cat]?x.cat:"wohnen";
+function kindGuessHaus(name,link){const t=((link||"")+" "+(name||"")).toLowerCase();
+  if(/lampe|leuchte|licht|strahler|led/.test(t))return "licht";if(/teppich|vorhang|gardine|kissen|decke|bettwäsche|textil|stoff/.test(t))return "textil";if(/farbe|tapete|wand|putz|lack/.test(t))return "farbe";if(/pflanze|topf|monstera|ficus|blumen/.test(t))return "pflanze";
+  if(/sofa|couch|tisch|stuhl|regal|schrank|bett|kommode|sessel|sideboard|möbel|moebel|ikea|garderobe/.test(t))return "moebel";if(/bild|poster|rahmen|vase|deko|spiegel|kerze/.test(t))return "deko";if(/kiste|box|korb|aufbewahr|ordnungs|sortier/.test(t))return "aufbew";if(/werkzeug|bohr|säge|schrauber|spaten|harke|schere|rasenmäher/.test(t))return "werkzeug";if(/holz|schraube|dübel|silikon|fliese|kabel|erde|dünger|kies|baumarkt|obi|hornbach|bauhaus/.test(t))return "material";if(/saat|samen|zwiebel|setzling|hochbeet|beet|strauch|hecke/.test(t))return "pflanze";if(/handwerk|montage|maler|schreiner|elektriker|installateur|dachdecker|gärtner/.test(t))return "handwerk";return ""}
+const FAREA={
+  reise:{kinds:FUND_KIND,st:FUND_ST,key:"reise",projs:()=>urlaube(),emo:"⛵",word:"Urlaub",allP:"Alle Urlaube",none:"Noch ohne Urlaub",noneSel:"keinem Urlaub",open:"reise",guess:kindGuess,rf:"rfunde",title:"📍 Sammlung",
+    intro:"Eine gemeinsame Sammlung für alle Urlaube und Ausflüge: Unterkünfte, Anreise, Erlebnisse, Strände, Spielplätze, Essen. Jeder Fund kann zu einem Urlaub gehören und erscheint dann dort unter Orte oder Buchungen. Die Recherche-Hilfe dazu planen wir gerade.",
+    rfHint:"Hier landen später Vorschläge fester Recherche-Aufträge (z. B. Übernachtungen für einen Urlaub), so wie die Tagesrezepte. ＋ übernimmt einen Vorschlag in eure Sammlung und ordnet ihn dem Urlaub zu.",linkHint:"Mit Link erkennt die App meist die Art (z. B. Booking, Airbnb, Bahn, Fähre)."},
+  haus:{kinds:HAUS_KIND,st:[["idee","💡","Idee"],["favorit","⭐","Favorit"],["gebucht","✅","Gekauft"]],key:"proj",projs:()=>hprojs(),emo:"🛋️",word:"Projekt",allP:"Alle Projekte",none:"Noch ohne Projekt",noneSel:"keinem Projekt",open:"hproj",guess:kindGuessHaus,rf:"hfunde",title:"📍 Sammlung",
+    intro:"Eine gemeinsame Sammlung für alle Projekte am Haus (Einrichtung, Aufräumen, Reparieren, Garten): Möbel, Licht, Pflanzen, Werkzeug, Material, Handwerker und mehr. Jeder Fund kann zu einem Projekt gehören und erscheint dann dort. Mit Preis rechnet das Projekt sein Budget mit.",
+    rfHint:"Hier landen später Vorschläge fester Recherche-Aufträge (z. B. Lampen bis 100 € für ein Projekt). ＋ übernimmt einen Vorschlag in eure Sammlung.",linkHint:"Mit Link erkennt die App oft die Art (z. B. Lampe, Teppich, Regal)."}};
+const funde=(ar)=>listOf(S.food&&S.food.fund).filter(f=>(f.area||"reise")===(ar||"reise")).sort((a,b)=>(b.at||0)-(a.at||0));
+const fundKind=(k,ar)=>{const K=FAREA[ar||"reise"].kinds;return K.find(c=>c[0]===k)||K[K.length-1]};
+const fundStL=(st,ar)=>FAREA[ar||"reise"].st.find(s=>s[0]===st)||FAREA[ar||"reise"].st[0];
+const fundFilt=ar=>{S.ff=S.ff||{};return S.ff[ar]||(S.ff[ar]={k:"",p:"",s:""})};
+// Eine Zeile der Sammlung; ctx="proj" blendet das Projekt aus
+function fundLi(f,ctx,ar){ar=ar||f.area||"reise";const A=FAREA[ar],k=fundKind(f.kind,ar),st=f.st||"idee",S0=fundStL(st,ar),u=safeLink(f.link),pid=f[A.key],r=pid&&A.projs().find(y=>y.id===pid),t=f.trip&&trips().find(y=>y.id===f.trip),maps=mapsQ(f.addr||(f.name+" "+(f.place||(r&&r.place)||"")));
+  return `<li class="fund st-${st}"><span class="fk">${k[1]}</span><span class="ev">${u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(f.name)}</a>`:esc(f.name)}<br><span class="freq">${k[2]}${st!=="idee"?" · "+S0[1]+" "+S0[2]:""}${f.ref?" · Nr. "+esc(f.ref):""}${ctx==="proj"?` · <input class="fprice" data-fundpr="${esc(f.id)}" inputmode="decimal" value="${esc(f.price||"")}" placeholder="Preis" maxlength="10" aria-label="Preis von ${esc(f.name)} in Euro"> €`:f.price?" · "+esc(f.price)+" €":""}${ar==="reise"?` · <a href="${esc(maps)}" target="_blank" rel="noopener">🗺️</a>`:""}${ctx!=="proj"&&r?` · <button class="linkbtn" data-${A.open}="${esc(r.id)}">${esc(r.emo||A.emo)} ${esc(r.name)}</button>`:""}${t?` · 🚲 ${esc(t.name)}`:""}</span></span>
+    <button class="catbtn" data-fundst="${esc(f.id)}" data-ar="${ar}" aria-label="Status von ${esc(f.name)} weiterschalten" title="${A.st.map(s=>s[2]).join(", ")}">${S0[1]}</button><button class="rm" data-fundrm="${esc(f.id)}" aria-label="${esc(f.name)} entfernen">✕</button></li>`}
+function fundForm(id,proj,ar){ar=ar||"reise";const A=FAREA[ar];S.fundNewKind=S.fundNewKind||{};const k=S.fundNewKind[ar]||"";return `<div class="unl" style="margin-top:6px">${A.kinds.map(c=>`<button class="chipbtn neutral" data-fundnk="${c[0]}" data-ar="${ar}" aria-pressed="${k===c[0]}">${c[1]} ${c[2]}</button>`).join("")}</div>
+  <form class="addrow fundform" id="${id}" data-ar="${ar}" data-proj="${esc(proj||"")}" novalidate><input class="fn" placeholder="Name oder Link einfügen" maxlength="300" autocomplete="off" aria-label="Name oder Link"><button class="primary" type="submit">+</button></form><div class="freq">${A.linkHint}</div>`}
+// Feste Recherche-Aufträge schreiben eine Ergebnisdatei (Wurzel), wie ideen.json bei Rezepten: reisefunde.json bzw. hausfunde.json
+// {updated, items:[{name,kind,link,place?,price?,note,source,auftrag?,reise?|proj? (Name oder Id)}]}. Übernehmen legt einen Fund an.
+function rfItems(ar){ar=ar||"reise";const j=S[FAREA[ar].rf];if(!j||!Array.isArray(j.items))return [];const have=new Set(funde(ar).map(f=>(f.link||f.name||"").toLowerCase()));return j.items.filter(i=>i&&i.name&&!have.has((safeLink(i.link)||i.name).toLowerCase()))}
+function rfProj(i,ar){ar=ar||"reise";const v=i[FAREA[ar].key];if(!v)return null;const U=FAREA[ar].projs();return U.find(u=>u.id===v)||U.find(u=>u.name.toLowerCase()===String(v).toLowerCase())||null}
+const rfReise=i=>rfProj(i,"reise");
+function rfundCard(fk,fr,ar){ar=ar||"reise";const A=FAREA[ar],J=S[A.rf],L=rfItems(ar).map(i=>[i,J.items.indexOf(i)]).filter(([i])=>(!fk||i.kind===fk)&&(!fr||fr==="-"||(rfProj(i,ar)||{}).id===fr));
+  return `<section class="card rfund"><div class="section-head"><h2>🤖 Aus der Recherche</h2>${J&&J.updated?`<span class="freq">${esc(J.updated)}</span>`:""}</div>
+    ${L.length?`<ul class="evlist fundlist">${L.map(([i,ix])=>{const k=fundKind(i.kind,ar),r=rfProj(i,ar),u=safeLink(i.link);return `<li class="fund"><span class="fk">${k[1]}</span><span class="ev">${u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(i.name)}</a>`:esc(i.name)}<br><span class="freq">${k[2]}${i.place?" · "+esc(i.place):""}${i.price?" · "+esc(i.price)+" €":""}${i.auftrag?" · "+esc(i.auftrag):""}${r?" · "+esc(r.emo||A.emo)+" "+esc(r.name):""}</span>${i.note?`<br><span class="freq">${esc(i.note)}</span>`:""}</span><button class="catbtn" data-rftake="${ix}" data-ar="${ar}" aria-label="${esc(i.name)} übernehmen">＋</button></li>`}).join("")}</ul>`
+      :`<div class="freq">${A.rfHint}</div>`}</section>`}
+function renderSammlung(ar){ar=ar||"reise";const A=FAREA[ar],ff=fundFilt(ar),fk=ff.k,fr=ff.p,fs=ff.s,U=A.projs(),all=funde(ar);
+  const L=all.filter(f=>(!fk||f.kind===fk)&&(!fr||(fr==="-"?!f[A.key]:f[A.key]===fr))&&(!fs||(f.st||"idee")===fs));
+  const chip=(f,v,on,txt)=>`<button class="chipbtn neutral" data-ff="${f}" data-v="${esc(v)}" data-ar="${ar}" aria-pressed="${on}">${txt}</button>`;
+  let h=`<section class="card"><div class="section-head"><h2>${A.title}</h2><span class="freq num">${all.length}</span></div><div class="freq">${A.intro}</div></section>`;
+  h+=`<div class="unl">${chip("k","",!fk,"Alle Arten")}${A.kinds.map(c=>chip("k",c[0],fk===c[0],c[1]+" "+c[2])).join("")}</div>
+   <div class="unl">${chip("p","",!fr,A.allP)}${U.map(u=>chip("p",u.id,fr===u.id,esc(u.emo||A.emo)+" "+esc(u.name))).join("")}${chip("p","-",fr==="-",A.none)}</div>
+   <div class="unl">${chip("s","",!fs,"Jeder Status")}${A.st.map(c=>chip("s",c[0],fs===c[0],c[1]+" "+c[2])).join("")}</div>`;
+  h+=`<section class="card"><div class="section-head"><h2>＋ Neuer Fund</h2></div>${fundForm(ar==="reise"?"fundform":"hfundform",fr&&fr!=="-"?fr:"",ar)}</section>`;
+  h+=rfundCard(fk,fr,ar);
+  h+=L.length?`<section class="card"><ul class="evlist fundlist">${L.map(f=>fundLi(f,"",ar)+(U.length?`<li class="fundmeta"><label class="freq">Gehört zu <select data-fundto="${esc(f.id)}" data-ar="${ar}"><option value="">${A.noneSel}</option>${U.map(u=>`<option value="${esc(u.id)}"${f[A.key]===u.id?" selected":""}>${esc(u.emo||A.emo)} ${esc(u.name)}</option>`).join("")}</select></label></li>`:"")).join("")}</ul></section>`
+    :`<div class="empty"><h2>${all.length?"Nichts Passendes":"Noch nichts gesammelt"}</h2><div>Fügt oben Links oder Namen ein. Filter oben grenzen ein.</div></div>`;
+  return h}
+const renderRecherche=()=>renderSammlung("reise");
+function reiseDays(x){if(!x.from)return null;const t=startOfDay(new Date()),a=startOfDay(new Date(x.from+"T12:00:00")),b=x.to?startOfDay(new Date(x.to+"T12:00:00")):a;const n=Math.round((a-t)/864e5);return t>b?{past:true}:n<=0?{now:true}:{n}}
+function reiseWhen(x){const f=d=>{const z=new Date(d+"T12:00:00");return z.getDate()+"."+(z.getMonth()+1)+"."+(String(z.getFullYear()).slice(2))};return x.from?f(x.from)+(x.to&&x.to!==x.from?" bis "+f(x.to):""):""}
+function mapsQ(q){return "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q)}
+function renderReisen(){const l=urlaube();if(S.reiseOpen&&l.find(x=>x.id===S.reiseOpen))return renderReise(l.find(x=>x.id===S.reiseOpen));S.reiseOpen=null;
+  const hearts=x=>Object.values(x.hearts||{}).filter(Boolean).length;
+  const tile=x=>{const st=reiseSt(x),cd=reiseDays(x),hc=x.hearts||{},nf=funde().filter(f=>f.reise===x.id).length;return `<button class="tile reisetile st-${st}" data-reise="${esc(x.id)}"><span class="te">${esc(x.emo||"⛵")}</span><span class="tn">${esc(x.name)}</span>${x.place?`<span class="tc">📍 ${esc(x.place)}</span>`:""}${x.from?`<span class="tc">${esc(reiseWhen(x))}</span>`:""}${st==="aktuell"&&cd&&cd.n?`<span class="tc">⏳ noch ${cd.n} ${cd.n===1?"Tag":"Tage"}</span>`:cd&&cd.now&&st!=="erledigt"?`<span class="tc">🌞 läuft gerade</span>`:""}${nf?`<span class="tc">🔎 ${nf} ${nf===1?"Fund":"Funde"}</span>`:""}${st==="traum"?`<span class="tc">${hc.p0?"❤️":"🤍"}${hc.p1?"❤️":"🤍"}</span>`:""}</button>`};
+  const grp=(k,sort)=>l.filter(x=>reiseSt(x)===k).sort(sort);
+  const A=grp("aktuell",(a,b)=>String(a.from||"9").localeCompare(String(b.from||"9"))),T=grp("traum",(a,b)=>hearts(b)-hearts(a)||(a.at||0)-(b.at||0)),E=grp("erledigt",(a,b)=>String(b.from||"").localeCompare(String(a.from||"")));
+  const add=(st,t,c)=>`<button class="tile add" data-act="reisenew" data-st="${st}"><span class="te">＋</span><span class="tn">${t}</span><span class="tc">${c}</span></button>`;
+  let h=`<div class="section-head"><h2>🧭 Aktuell</h2><span class="freq num">${A.length}</span></div><div class="tiles">${A.map(tile).join("")}${add("aktuell","Neuer Urlaub","geplant oder gebucht")}</div>
+    ${E.length?`<details class="reisedone"><summary class="section-head"><h2>📦 Vergangene</h2><span class="freq num">${E.length} ▾</span></summary><div class="tiles">${E.map(tile).join("")}</div></details>`:""}
+    <details class="reisedone"><summary class="section-head"><h2>💭 Traum</h2><span class="freq num">${T.length} ▾</span></summary><div class="tiles">${T.map(tile).join("")}${add("traum","Neuer Traum","❤️ von beiden zählt")}</div></details>`;
+  const mu=(S.food&&S.food.reisemap)||"",emb=mapsEmbed(mu);
+  h+=`<details class="card reisemap"${S.reiseMapOpen?" open":""}><summary>🗺️ Alle Ziele auf einer Karte</summary>${emb?`<div class="mapwrap"><iframe src="${esc(emb)}" loading="lazy" title="Karte mit allen Zielen"></iframe></div>`:mu?`<a href="${esc(mu)}" target="_blank" rel="noopener">Karte öffnen</a>`:""}
+    <div class="freq">Legt in Google Maps unter „Meine Karten“ eine Karte an und fügt den Link hier ein, dann erscheint sie hier.</div><form class="addrow" id="reisemapform" novalidate><input type="url" id="reisemapinput" value="${esc(mu)}" placeholder="Link zur Karte" autocomplete="off"><button class="primary" type="submit">OK</button></form></details>`;
+  return h}
+function renderReise(x){const st=reiseSt(x),cd=reiseDays(x),hc=x.hearts||{},pins=reiseSub(x,"pins"),bk=reiseSub(x,"book"),pl="u_"+x.id,items=packs().filter(i=>i.list===pl),pr=prios().filter(p=>p.ref===x.id);
+  const fld=(k,lab,type,ph)=>`<label class="fld"><span>${lab}</span><input ${type?`type="${type}"`:""} data-rsf="${k}" value="${esc(x[k]||"")}" placeholder="${ph||""}" autocomplete="off"></label>`;
+  let h=`<div><button class="ghost" data-act="reiseback">‹ Alle Urlaube</button></div><div><div class="eyebrow">${esc(x.emo||"⛵")} Urlaub</div><h1>${esc(x.name)}</h1></div>
+    ${st==="erledigt"?`<div class="freq">📦 Archiviert unter Vergangene</div>`:st==="traum"?`<div class="freq">💭 Steht unter Traum</div>`:""}`;
+  h+=`<section class="card">${st==="aktuell"&&cd&&cd.past?`<div class="btnrow" style="margin-bottom:8px"><button class="primary" data-reisest="erledigt">📦 Vorbei: archivieren</button></div>`:""}<div class="freq" style="font-size:1rem">${cd&&cd.n?`⏳ Noch <b>${cd.n}</b> ${cd.n===1?"Tag":"Tage"}`:cd&&cd.now?"🌞 Läuft gerade":cd&&cd.past?"Schon vorbei":"Noch kein Datum"}${x.place?` · <a href="${esc(mapsQ(x.place))}" target="_blank" rel="noopener">📍 ${esc(x.place)}</a>`:""}</div>
+    <div style="margin-top:8px">${["p0","p1"].map(p=>`<button class="chipbtn neutral" data-reiseheart="${p}" aria-pressed="${!!hc[p]}">${hc[p]?"❤️":"🤍"} ${esc(pname(p))}</button>`).join(" ")}</div></section>`;
+  h+=`<section class="card"><div class="section-head"><h2>✏️ Eckdaten</h2></div>${fld("name","Name")}${fld("place","Ort oder Region","","z. B. Bretagne")}
+    <div style="display:flex;gap:8px"><div style="flex:1">${fld("from","Von","date")}</div><div style="flex:1">${fld("to","Bis","date")}</div></div>
+    <div class="fld"><span>Symbol</span><div class="unl">${REISE_EMO.map(e=>`<button class="chipbtn neutral" data-reiseemo="${e}" aria-pressed="${(x.emo||"⛵")===e}">${e}</button>`).join("")}</div></div>
+    ${fld("budget","💶 Budget grob (€)","number","z. B. 1500")}<label class="fld"><span>Notiz</span><textarea data-rsf="note" rows="2">${esc(x.note||"")}</textarea></label><div class="freq">Wird beim Verlassen eines Feldes gespeichert.</div></section>`;
+  {const mz=musLinks("auto",3);if(mz)h+=`<section class="card"><div class="section-head"><h2>🚗 Musik für die Fahrt</h2></div>${mz}</section>`}
+  if(pins.length||bk.length)fundMigrate(x);
+  const F=funde().filter(f=>f.reise===x.id),fo=F.filter(f=>(f.st||"idee")!=="gebucht"),fb=F.filter(f=>f.st==="gebucht");
+  h+=`<section class="card"><div class="section-head"><h2>📍 Orte und Ideen</h2><span>${x.place?`<a class="ghost btnlink" href="${esc(mapsQ(x.place))}" target="_blank" rel="noopener">🗺️ Karte</a>`:""}<button class="ghost" data-fundopen="${esc(x.id)}" data-ar="reise">📍 In der Sammlung</button></span></div>
+    ${fo.length?`<ul class="evlist fundlist">${fo.map(f=>fundLi(f,"proj","reise")).join("")}</ul>`:`<div class="freq">Unterkunft, Anreise, Strände, Spielplätze, Restaurants. Alles hier steht auch in der Recherche. ⭐ merkt vor, ✅ heißt gebucht.</div>`}
+    ${fundForm("rfundform",x.id,"reise")}</section>`;
+  h+=`<section class="card"><div class="section-head"><h2>📄 Buchungen und Dokumente</h2></div>
+    ${fb.length?`<ul class="evlist fundlist">${fb.map(f=>fundLi(f,"proj","reise")).join("")}</ul>`:`<div class="freq">Tippt bei einem Ort auf 💡 oder ⭐, bis ✅ erscheint, dann steht er hier. Oder tragt eine Buchung direkt ein. Bleibt nur in euren gemeinsamen Daten.</div>`}
+    <form id="bkform" class="bkform" novalidate><input id="bk-name" placeholder="Was (z. B. Ferienhaus, Fähre)" maxlength="80" autocomplete="off"><input id="bk-ref" placeholder="Buchungsnummer" maxlength="60" autocomplete="off"><input id="bk-link" type="url" placeholder="Link" autocomplete="off"><input id="bk-addr" placeholder="Adresse oder Anfahrt" maxlength="160" autocomplete="off"><button class="primary" type="submit">Hinzufügen</button></form></section>`;
+  const done=items.filter(i=>i.done).length;
+  h+=`<section class="card"><div class="section-head"><h2>🧳 Packliste</h2><span>${items.length?`<span class="freq num">${done} von ${items.length}</span> `:""}<button class="ghost" data-gopack="${esc(pl)}">Alle Packlisten ›</button></span></div>
+    <div class="unl">${[["basis","🎒 Basis"],["strand","🏖️ Strand"],["winter","❄️ Winter"],["kind","🧸 Kleinkind"]].map(t=>`<button class="chipbtn neutral" data-packtpl="${t[0]}">+ ${t[1]}</button>`).join("")}</div>
+    ${items.length?`<ul class="shop">${items.map(i=>`<li class="${i.done?"done":""}"><button class="tick" data-pack="${esc(i.id)}" aria-pressed="${!!i.done}" aria-label="${esc(i.name)} eingepackt"></button><span class="nm" style="flex:1">${esc(i.name)}</span><button class="catbtn" data-packshop="${esc(i.id)}" aria-label="${esc(i.name)} auf die Einkaufsliste" style="background:none;border:none">🧺</button><button class="rm" data-packrm="${esc(i.id)}" aria-label="${esc(i.name)} entfernen">✕</button></li>`).join("")}</ul>`:`<div class="freq">Wählt oben Vorlagen. 🧺 setzt Fehlendes auf die Einkaufsliste.</div>`}
+    <form class="addrow" id="rpackform" novalidate><input id="rpackinput" placeholder="Noch etwas einpacken" maxlength="60" autocomplete="off"><button class="primary" type="submit">+</button></form></section>`;
+  h+=`<section class="card"><div class="section-head"><h2>🔔 Erinnerungen</h2></div>${pr.length?`<ul class="evlist">${pr.map(p=>`<li><span class="t">${p.due?esc(dLabel(p.due)):""}</span><span class="ev">${esc(p.name)}</span></li>`).join("")}</ul>`:""}
+    <div class="unl">${REISE_PRIO.map((n,i)=>`<button class="chipbtn neutral" data-reiseprio="${i}">＋ ${esc(n)}</button>`).join("")}</div><div class="freq">Mit Tag und Uhrzeit in der Maske, sie erscheinen unter Wichtig.</div></section>`;
+  h+=`<section class="card"><div class="section-head"><h2>📝 Rückblick</h2></div><label class="fld"><span>${st==="erledigt"?"Wie war es? Was nehmen wir mit?":"Füllt ihr nach dem Urlaub aus."}</span><textarea data-rsf="review" rows="3">${esc(x.review||"")}</textarea></label></section>`;
+  {const sc=splitChips("urlaub:"+x.id);h+=`<section class="card"><div class="section-head"><h2>💶 Ausgaben</h2><button class="ghost" data-go="ausgaben">Ausgaben ›</button></div>${sc}${splitAddForm("urlaub:"+x.id)}</section>`}
+  h+=`<div class="btnrow">${st==="erledigt"?`<button class="ghost" data-reisest="aktuell">↩ Zurückholen</button>`:`<button class="ghost" data-reisest="erledigt">📦 Archivieren</button>`}${st==="traum"?`<button class="ghost" data-reisest="aktuell">🧭 Jetzt planen</button>`:""}<button class="ghost danger" data-act="reisedel">Urlaub löschen</button></div>`;
+  return h}
+function renderUrlaub(){return `<section class="card"><div class="section-head"><h2>⛵ Urlaub</h2></div><div class="freq">Urlaube haben jetzt einen eigenen Bereich: Reisen, im Bild das Meer.</div><div class="btnrow" style="margin-top:8px"><button class="primary" data-go="reisen">Zu Reisen ›</button></div></section>`}
+function renderTrips(){const T=["urlaub","ideen","pack","recherche"].includes(S.tripTab)?S.tripTab:"urlaub";S.tripTab=T;
+  if(T==="urlaub"&&S.reiseOpen&&urlaube().find(x=>x.id===S.reiseOpen))return renderReisen();
+  let h=`<div><div class="eyebrow">Gemeinsam unterwegs</div><h1>Reisen und Ausflüge</h1></div>${bellRow(T==="urlaub"?"reisen":"ausflug")}
+   <div class="filters uwtabs" role="group" aria-label="Bereich">${[["urlaub","⛵ Urlaube"],["ideen","🚲 Ausflüge"],["pack","🧳 Packlisten"],["recherche","📍 Sammlung"]].map(t=>`<button class="chipbtn neutral" data-trip="${t[0]}" aria-pressed="${T===t[0]}">${t[1]}</button>`).join("")}</div>`;
+  return h+(T==="pack"?renderPack():T==="recherche"?renderRecherche():T==="urlaub"?renderReisen():renderTripIdeas())}
+const TRIP_KIND=[["wandern","🥾","Wandern"],["wasser","🏖️","Baden und Strand"],["stadt","🏛️","Stadt und Museum"],["tiere","🐐","Tiere"],["spiel","🛝","Spielplatz"],["rad","🚲","Radtour"],["essen","🍽️","Einkehren"],["sonst","✨","Sonstiges"]];
+const TRIP_WX=[["sonne","☀️","Nur bei schönem Wetter"],["egal","🌧️","Geht auch bei Regen"]];
+const TRIP_DUR=[["kurz","Ein paar Stunden"],["halb","Halber Tag"],["ganz","Ganzer Tag"],["nacht","Mit Übernachtung"]];
+const TRIP_KID=[["wagen","Kinderwagen geht"],["wickeln","Wickeln möglich"],["spiel","Spielplatz da"],["einkehr","Einkehr in der Nähe"]];
+const TRIP_COST=[["0","Kostenlos"],["1","€"],["2","€€"],["3","€€€"]];
+const TRIP_SEA=[["spring","Frühling"],["summer","Sommer"],["autumn","Herbst"],["winter","Winter"]];
+const csv=v=>(v||"").split(",").filter(Boolean);
+const lab=(L,k)=>(L.find(x=>x[0]===k)||[])[L[0].length===3?2:1]||"";
+function tripTags(x){const k=TRIP_KIND.find(c=>c[0]===x.kind),out=[];if(x.date&&!x.done)out.push("📅 "+dLabel(x.date));if(k)out.push(k[1]+" "+k[2]);if(x.wx==="egal")out.push("🌧️ auch bei Regen");if(x.dur)out.push("⏱️ "+lab(TRIP_DUR,x.dur));if(x.drive)out.push("🚗 "+x.drive+" min");if(x.cost)out.push(lab(TRIP_COST,x.cost));
+  csv(x.kid).forEach(c=>out.push("👶 "+lab(TRIP_KID,c)));const se=csv(x.season);if(se.length&&se.length<4)out.push("📅 "+se.map(c=>lab(TRIP_SEA,c)).join(", "));return out}
+// Was ist los: Ergebnis der Ausflugs-Recherche (ausflugtipps.json, Florian 15.11.2026)
+// {updated, region, items:[{name,where:stadt|umland,io:draussen|drinnen,cat:natur|kultur|markt|tiere,date?|from?,to?,time?,place?,travel?,link?,kid?,price?,note?,kind?}]}
+const ATIP_WO=[["stadt","🏙️","In München"],["umland","🚆","Umland"]];
+const ATIP_IO=[["draussen","☀️","Draußen"],["drinnen","🏠","Drinnen"]];
+const ATIP_CAT=[["floh","🧺","Flohmärkte"],["fest","🎪","Feste und Märkte"],["spiel","🛝","Spielplätze"],["kinder","🎭","Kinderprogramm"],["kultur","🏛️","Museum und Kultur"],["natur","🌳","Natur und Bewegung"],["tiere","🐐","Tiere"],["markt","🎪","Märkte"]];
+// Passt zum Wetter: Tage der nächsten Woche nach Vorhersage; Einträge mit wx:["schnee"|"wind"|"regen"|"sonne"]
+const ATIP_WX=[["schnee","❄️","Schnee","Schlitten fahren, Schneemann"],["wind","🪁","Wind","Drachen steigen"],["regen","🌧️","Regen","Drinnen spielen"],["sonne","☀️","Sonne","Spielplatz, Tierpark"]];
+function atipWxDays(){const D=S.wx&&S.wx.days;if(!D)return {};const out={},DN=["So","Mo","Di","Mi","Do","Fr","Sa"];for(let n=0;n<7;n++){const d=addDays(startOfDay(new Date()),n),k=ymd(d),x=D[k];if(!x)continue;const kd=wxKind(x.c);
+  const tags=[];if((x.s||0)>0||kd==="schnee")tags.push("schnee");if((x.w||0)>=28&&(x.r||0)<1)tags.push("wind");if((x.r||0)>=2||kd==="regen"||kd==="gewitter")tags.push("regen");else if((kd===""||kd==="wolkig")&&(x.t||0)>=6)tags.push("sonne");
+  tags.forEach(t=>{(out[t]=out[t]||[]).push(n===0?"heute":n===1?"morgen":DN[d.getDay()])})}return out}
+function atipItems(){const j=S.atipps;if(!j||!Array.isArray(j.items))return [];const t=ymd(new Date()),have=new Set(trips().map(x=>(x.name||"").toLowerCase()));
+  return j.items.filter(i=>i&&i.name&&((i.to||i.date||"9999")>=t)&&!have.has(String(i.name).toLowerCase()))}
+function atipWhen(i){const f=i.date||i.from,t=i.to;const d=x=>{const m=String(x||"").match(/(\d{4})-(\d\d)-(\d\d)/);return m?`${+m[3]}.${+m[2]}.`:""};return f?(t&&t!==f?d(f)+"–"+d(t):d(f))+(i.time?" "+i.time:""):"laufend"}
+function atipCard(){const all=atipItems(),z=S.atipZ||"woche",c=S.atipC||"",io=S.atipIO||"",wo=S.atipWO||"",wx=S.atipWX||"",fr=!!S.atipFree,wd=atipWxDays(),t=ymd(new Date()),end=ymd(addDays(new Date(),z==="woche"?7:31));
+  const L=all.filter(i=>(!wx||(Array.isArray(i.wx)?i.wx:[i.wx]).includes(wx))&&(!fr||i.free||/^(frei|kostenlos|gratis|0)/i.test(String(i.price||"")))&&(!c||i.cat===c)&&(!io||i.io===io||i.io==="beides")&&(!wo||i.where===wo)&&((i.date||i.from||t)<=end)).sort((a,b)=>(a.date||a.from||"")<(b.date||b.from||"")?-1:1);
+  const chip=(k,v,on,txt)=>`<button class="chipbtn neutral" data-${k}="${v}" aria-pressed="${on}">${txt}</button>`;
+  let h=`<section class="card atip"><div class="section-head"><h2>🗓️ Was ist los</h2>${S.atipps&&S.atipps.updated?`<span class="freq">${esc(rDate(S.atipps.updated)||S.atipps.updated)}${S.atipps.region?" · "+esc(S.atipps.region):""}</span>`:""}</div>
+  ${Object.keys(wd).length?`<div class="freq" style="margin-top:4px">Passt zum Wetter</div><div class="unl">${ATIP_WX.filter(a=>wd[a[0]]).map(a=>chip("atipwx",a[0],wx===a[0],a[1]+" "+a[3]+" · "+wd[a[0]].slice(0,3).join(", "))).join("")}${wx?chip("atipwx","",false,"✕"):""}</div>`:""}
+  <div class="unl">${chip("atipz","woche",z==="woche","Diese Woche")}${chip("atipz","monat",z==="monat","Diesen Monat")}<button class="chipbtn neutral" data-atipfree="1" aria-pressed="${fr}">🆓 Kostenlos</button></div>
+  <div class="unl">${chip("atipwo","",!wo,"Stadt und Umland")}${ATIP_WO.map(a=>chip("atipwo",a[0],wo===a[0],a[1]+" "+a[2])).join("")}</div>
+  <div class="unl">${chip("atipio","",!io,"Draußen und drinnen")}${ATIP_IO.map(a=>chip("atipio",a[0],io===a[0],a[1]+" "+a[2]+(a[0]==="drinnen"&&S.wx&&S.wx.cur!=null&&/regen|gewitter|schnee/.test(wxKind(S.wx.cur))?" (passt heute)":""))).join("")}</div>
+  <div class="unl">${chip("atipc","",!c,"Alle")}${ATIP_CAT.map(a=>chip("atipc",a[0],c===a[0],a[1]+" "+a[2])).join("")}</div>`;
+  if(!S.atipps||!S.atipps.items||!S.atipps.items.length)return h+`<div class="freq">Hier erscheint, was in München und im Umland los ist (höchstens 1:30 mit Zug oder Auto), kindertauglich: Flohmärkte, Feste, Spielplätze, Kinderprogramm, Museen, Natur, Tiere, dazu Ideen passend zum Wetter. Wochentipps donnerstags, Monatsüberblick vor Monatsbeginn.</div></section>`;
+  if(!L.length)return h+`<div class="freq">Für diese Auswahl gerade nichts. Probiert „Diesen Monat“ oder „Alle“.</div></section>`;
+  const LD=L.filter(i=>!i.dauer),LP=L.filter(i=>i.dauer),by={};LD.forEach(i=>{(by[i.cat]=by[i.cat]||[]).push(i)});
+  ATIP_CAT.concat([["sonst","✨","Sonstiges"]]).forEach(a=>{const g=a[0]==="sonst"?LD.filter(i=>!ATIP_CAT.some(x=>x[0]===i.cat)):by[a[0]];if(!g||!g.length)return;
+    h+=`<div class="freq" style="margin-top:8px">${a[1]} ${a[2]}</div><ul class="evlist">${g.map(i=>{const u=safeLink(i.link),ix=S.atipps.items.indexOf(i);return `<li><span class="ev">${i.top?"⭐ Spielplatz der Woche: ":""}${u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(i.name)}</a>`:esc(i.name)}<br><span class="freq">${esc(atipWhen(i))}${i.free?" · 🆓":""}${i.where==="stadt"?" · 🏙️":i.where==="umland"?" · 🚆":""}${i.io==="drinnen"?" · 🏠":i.io==="draussen"?" · ☀️":""}${i.place?" · "+esc(i.place):""}${i.travel?" · "+esc(i.travel):""}${i.price?" · "+esc(i.price):""}${i.kid?" · 🧒 "+esc(i.kid===true?"kindertauglich":i.kid):""}</span>${i.note?`<br><span class="freq">${esc(i.note)}</span>`:""}</span><button class="ghost small" data-atiptake="${ix}">🚲 Merken</button></li>`}).join("")}</ul>`});
+  if(LP.length)h+=`<button class="setsum atipdauer" data-atipdauer="1" aria-expanded="${!!S.atipDauer}" style="margin-top:8px"><span>📍 Feste Orte (${LP.length})</span><i>${S.atipDauer?"▾":"›"}</i></button>`+(S.atipDauer?`<ul class="evlist">${LP.map(i=>{const u=safeLink(i.link),ix=S.atipps.items.indexOf(i),k=ATIP_CAT.find(x=>x[0]===i.cat);return `<li><span class="ev">${k?k[1]+" ":""}${u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(i.name)}</a>`:esc(i.name)}<br><span class="freq">${i.place?esc(i.place):""}${i.travel?" · "+esc(i.travel):""}${i.note?" · "+esc(i.note):""}</span></span><button class="ghost small" data-atiptake="${ix}">🚲 Merken</button></li>`}).join("")}</ul>`:"");
+  return h+`</section>`}
+function renderTripIdeas(){const d=S.tripDraft;
+  if(d){const one=(f,L)=>`<div class="unl">${L.map(c=>`<button class="chipbtn" data-tset="${f}" data-v="${c[0]}" aria-pressed="${d[f]===c[0]}">${c.length===3?c[1]+" "+c[2]:c[1]}</button>`).join("")}</div>`;
+    const many=(f,L)=>`<div class="unl">${L.map(c=>`<button class="chipbtn" data-ttog="${f}" data-v="${c[0]}" aria-pressed="${csv(d[f]).includes(c[0])}">${c[1]}</button>`).join("")}</div>`;
+    const lists=packLists();
+    return `<section class="card tripform"><h2>${d.id?"Ausflug bearbeiten":"Neue Ausflugsidee"}</h2>
+    <label class="fld"><span>Wohin?</span><input type="text" id="tr-name" data-tf="name" value="${esc(d.name)}" maxlength="80" placeholder="Zum Beispiel Wasserfall im Wald" autocomplete="off"></label>
+    <div class="fld"><span>Was macht man dort?</span>${one("kind",TRIP_KIND)}</div>
+    <div class="fld"><span>Wetter</span>${one("wx",TRIP_WX)}</div>
+    <div class="fld"><span>Wie lange?</span>${one("dur",TRIP_DUR)}</div>
+    <label class="fld"><span>Geplant am (optional, steht dann im Kalender)</span><input type="date" id="tr-date" data-tf="date" value="${esc(d.date||"")}"></label>
+    <label class="fld"><span>Fahrzeit in Minuten</span><input type="number" min="0" max="999" id="tr-drive" data-tf="drive" value="${esc(d.drive)}" placeholder="30" style="width:110px"></label>
+    <div class="fld"><span>Mit Kleinkind</span>${many("kid",TRIP_KID)}</div>
+    <div class="fld"><span>Kosten</span>${one("cost",TRIP_COST)}</div>
+    <div class="fld"><span>Beste Jahreszeit (nichts gewählt heißt ganzjährig)</span>${many("season",TRIP_SEA)}</div>
+    <div class="fld"><span>Welche Packliste?</span><div class="unl">${lists.map(l=>`<button class="chipbtn" data-tset="pack" data-v="${esc(l.id)}" aria-pressed="${d.pack===l.id}">🎒 ${esc(l.name)}</button>`).join("")}</div></div>
+    <label class="fld"><span>Link (Karte oder Webseite)</span><input type="url" id="tr-link" data-tf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off"></label>
+    <label class="fld"><span>Notiz</span><textarea id="tr-note" data-tf="note" rows="3" placeholder="Parkplatz, Eintritt, was man nicht vergessen darf">${esc(d.note)}</textarea></label>
+    <div class="btnrow"><button class="primary" data-act="tripsave">Speichern</button><button class="ghost" data-act="tripcancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="tripdel">Löschen</button>`:""}</div></section>`}
+  const mz=musLinks("auto",3);
+  const all=trips(),F=S.tripFilter||"",match=x=>!F||(F==="regen"?x.wx==="egal":x.kind===F);
+  const open=all.filter(x=>!x.done&&match(x)).sort((a,b)=>(a.at||0)-(b.at||0)),done=all.filter(x=>x.done).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0));
+  const card=x=>{const l=safeLink(x.link),tg=tripTags(x),pl=x.pack&&packLists().find(p=>p.id===x.pack);return `<li class="${x.done?"done":""}"><button class="item" data-tripdone="${esc(x.id)}" aria-pressed="${!!x.done}" aria-label="${esc(x.name)}: ${x.done?"doch noch nicht gemacht":"waren wir"}"><span class="box">${x.done?"✓":""}</span><span class="nm">${esc(x.name)}${!x.done&&tg.length?`<br><span class="freq">${tg.map(x=>`<span style="white-space:nowrap">${esc(x)}</span>`).join(" · ")}</span>`:""}${x.note&&!x.done?`<br><span class="freq">${esc(x.note)}</span>`:""}${x.done&&x.doneAt?`<br><span class="freq">Gemacht am ${new Date(x.doneAt).toLocaleDateString("de-DE")}</span>`:""}</span></button>${pl&&!x.done?`<button class="catbtn" data-gopack="${esc(pl.id)}" aria-label="Packliste ${esc(pl.name)} öffnen">🎒</button>`:""}${x.adv&&!x.done?`<button class="catbtn" data-advgo="${esc(x.adv)}" aria-label="Zum Adventskalender">🎄</button>`:""}${(sp=>sp&&safeLink(sp.link)?`<a class="catbtn" href="${esc(safeLink(sp.link))}" target="_blank" rel="noopener" aria-label="Ausgaben in Splitwise">💶</a>`:"")(splitFor("trip:"+x.id)[0])}${l?`<a class="catbtn" href="${esc(l)}" target="_blank" rel="noopener" aria-label="Link öffnen">🗺️</a>`:""}<button class="rm" data-tripedit="${esc(x.id)}" aria-label="${esc(x.name)} bearbeiten">✎</button></li>`};
+  const kinds=TRIP_KIND.filter(k=>all.some(x=>!x.done&&x.kind===k[0]));
+  let h=`<div class="btnrow"><button class="primary" data-act="tripnew">+ Neue Ausflugsidee</button></div>`+mz+atipCard();
+  if(kinds.length||all.some(x=>!x.done&&x.wx==="egal"))h+=`<div class="unl"><button class="chipbtn" data-tfilter="" aria-pressed="${!F}">Alle</button>${all.some(x=>!x.done&&x.wx==="egal")?`<button class="chipbtn" data-tfilter="regen" aria-pressed="${F==="regen"}">🌧️ Bei Regen</button>`:""}${kinds.map(k=>`<button class="chipbtn" data-tfilter="${k[0]}" aria-pressed="${F===k[0]}">${k[1]} ${k[2]}</button>`).join("")}</div>`;
+  h+=open.length?`<section class="card"><div class="section-head"><h2>Wollen wir mal hin</h2><span class="freq num">${open.length}</span></div><ul class="shop">${open.map(card).join("")}</ul><div class="freq">Tippt auf ein Ziel, wenn ihr dort wart. Mit ✎ bearbeitet ihr es.</div></section>`
+    :`<div class="empty"><h2>${F?"Nichts Passendes":"Noch keine Ideen"}</h2><div>${F?"Für diesen Filter gibt es noch kein Ziel.":"Legt mit dem Knopf oben eure erste Ausflugsidee an. Ihr seht beide dieselbe Liste."}</div></div>`;
+  if(done.length)h+=`<section class="card"><div class="section-head"><h2>Schon gemacht</h2><span class="freq num">${done.length}</span></div><ul class="shop">${done.map(card).join("")}</ul></section>`;
+  return h}
+function packLists(){const m=(S.food&&S.food.packlist)||{};const l=Object.keys(m).filter(k=>m[k]&&m[k].name).map(k=>({id:k,name:m[k].name,at:m[k].at||0})).sort((a,b)=>a.at-b.at);return [{id:"main",name:"Tagesausflug",at:0}].concat(l)}
+const curPack=()=>{const l=packLists();return l.find(x=>x.id===S.packList)||l[0]};
+function renderPack(){const L=curPack(),items=packs().filter(i=>(i.list||"main")===L.id),have=new Set(items.map(i=>i.name.toLowerCase())),sug=PACK_IDEAS.filter(n=>!have.has(n.toLowerCase())),packed=items.filter(i=>i.done).length;
+  const li=i=>`<li class="${i.done?"done":""}"><button class="item" data-pack="${esc(i.id)}" aria-pressed="${!!i.done}"><span class="box">${i.done?"✓":""}</span><span class="nm">${esc(i.name)}</span></button><button class="catbtn" data-packshop="${esc(i.id)}" aria-label="${esc(i.name)} auf die Einkaufsliste" style="background:none;border:none">🧺</button><button class="catbtn" data-packwear="${esc(i.id)}" aria-pressed="${buys().some(y=>y.ref==="pack:"+i.id&&!y.done)}" aria-label="${esc(i.name)} fehlt: auf Einkauf › Kleidung" style="background:none;border:none;${buys().some(y=>y.ref==="pack:"+i.id&&!y.done)?"":"opacity:.45"}">👕</button><button class="rm" data-packrm="${esc(i.id)}" aria-label="${esc(i.name)} entfernen">✕</button></li>`;
+  let h=`<div class="unl">${packLists().map(l=>`<button class="chipbtn" data-packlist="${esc(l.id)}" aria-pressed="${l.id===L.id}">🎒 ${esc(l.name)}</button>`).join("")}<button class="chipbtn" data-act="packlistnew">+ Neue Liste</button></div>`;
+  {const ur=L.id.startsWith("u_")&&urlaube().find(u=>"u_"+u.id===L.id);h+=`<div class="unl">${[["basis","🎒 Basis"],["strand","🏖️ Strand"],["winter","❄️ Winter"],["kind","🧸 Kleinkind"]].map(t=>`<button class="chipbtn neutral" data-packtpl="${t[0]}" data-pl="${esc(L.id)}">+ ${t[1]}</button>`).join("")}${ur?`<button class="chipbtn neutral" data-reise="${esc(ur.id)}">${esc(ur.emo||"⛵")} Zum Urlaub ›</button>`:""}</div>`}
+  if(S.packListNew)h+=`<form class="addrow" id="packlistform" novalidate><input type="text" id="packlistinput" placeholder="Zum Beispiel Strand oder Übernachtung" maxlength="40" autocomplete="off" enterkeyhint="done" aria-label="Name der Liste"><button class="primary" type="submit">Anlegen</button></form>`;
+  h+=`<form class="addrow" id="packform" novalidate><input type="text" id="packinput" placeholder="Was kommt in den Rucksack?" value="${esc(S.packText)}" autocomplete="off" enterkeyhint="done" aria-label="Gegenstand"><button class="primary" type="submit">Hinzufügen</button></form>`;
+  h+=suggBlock("pack",have,"data-packadd");
+  h+=items.length?`<section class="card"><div class="section-head"><h2>${esc(L.name)}</h2><span class="freq num">${packed} von ${items.length} eingepackt</span></div><ul class="shop">${items.map(li).join("")}</ul>${packed?`<div><button class="ghost" data-act="packreset">Alles wieder auspacken</button></div>`:""}<div class="freq">Die Liste bleibt für den nächsten Ausflug. Beim Packen abhaken, danach wieder auspacken. 🧺 setzt etwas auf die Einkaufsliste, 👕 auf Einkauf › Kleidung.</div></section>`
+    :`<div class="empty"><h2>Die Liste „${esc(L.name)}“ ist leer</h2><div>Tippt Vorschläge an oder schreibt eigene Dinge dazu. Die Liste bleibt für jeden Ausflug.</div></div>`;
+  if(L.id!=="main")h+=`<div><button class="ghost danger" data-act="packlistdel">Liste „${esc(L.name)}“ löschen</button></div>`;
+  return h}
