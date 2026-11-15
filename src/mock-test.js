@@ -31,7 +31,7 @@ srv.listen(8765,async()=>{
   await A.waitForSelector('[data-task=bad][data-slot="0"].on.chk');
   await B.click('[data-task=einkaufen][data-slot="0"]');
   await A.waitForSelector('[data-task=einkaufen][data-slot="0"]:not(.on)');
-  await A.click('[data-go=alle]');await A.click('[data-go=plan]');await A.click('[data-act=swap]');await B.waitForTimeout(300);
+  await A.evaluate(()=>{const b=document.createElement('button');b.dataset.nav='woche|wp:1';b.id='zznav';document.getElementById('app').appendChild(b);b.click()});await A.waitForTimeout(300);await A.click('[data-wmwsec=pakete]');await A.click('[data-act=swap]');await B.waitForTimeout(300);
   await A.click('.appbar [data-go]');await A.click('[data-tab=einkauf]');await B.click('[data-tab=einkauf]');
   await A.fill('#shopinput','Milch');await A.press('#shopinput','Enter');await A.fill('#shopinput','Brot');await A.click('#shopform button');
   await B.waitForSelector(':nth-match(.shop li, 2)');await B.click(':nth-match(.shop li .item, 1)');
@@ -41,8 +41,8 @@ srv.listen(8765,async()=>{
   await A.click('[data-food=plan]');await A.waitForSelector('.mealrow .tag');await A.click('[data-meal=d2]');await A.fill('#mealinput','Reste');await A.press('#mealinput','Enter');
   await B.waitForSelector('text=Reste');await B.click('[data-act=mealshop]');await B.click('[data-pickmode=alle]');await A.click('[data-tab=einkauf]');await A.waitForSelector(':nth-match(.shop li, 2)');
   await A.click(':nth-match(.shop .catbtn, 1)');await A.click('[data-setcat=tk]');await B.click('[data-tab=einkauf]');await B.waitForSelector('text=Tiefkühl');
-  await A.click('[data-tab=camp]');await B.click('[data-tab=camp]');await A.click('[data-go=privat]');await A.click('[data-act=lunew]');await A.fill('#lu-name','Trattoria');await A.fill('#lu-dishes','Pizza\nPasta');await A.click('[data-act=lusave]');
-  await B.click('[data-go=privat]');await B.click('[data-lunch]');await B.click('button.star:nth-child(4)');await A.waitForSelector('.star.on');
+  await A.click('[data-tab=camp]');await B.click('[data-tab=camp]');await A.evaluate(()=>{const b=document.createElement('button');b.dataset.nav='privat|pv:lunch';b.id='zznav';document.getElementById('app').appendChild(b);b.click()});await A.waitForTimeout(300);await A.click('[data-act=lunew]');await A.fill('#lu-name','Trattoria');await A.fill('#lu-dishes','Pizza\nPasta');await A.click('[data-act=lusave]');
+  await B.evaluate(()=>{const b=document.createElement('button');b.dataset.nav='privat|pv:lunch';b.id='zznav';document.getElementById('app').appendChild(b);b.click()});await B.waitForTimeout(300);await B.click('[data-lunch]');await B.click('button.star:nth-child(4)');await A.waitForSelector('.star.on');
   console.log('shop',JSON.stringify(Object.values(tree.haushalt)[0].food));
   console.log('rotOffset',tree.haushalt[Object.keys(tree.haushalt)[0]].config.rotOffset,'ticks',JSON.stringify(Object.values(tree.haushalt)[0].weeks));
   await A.evaluate(()=>scrollTo(0,9999));await A.screenshot({path:path.join(__dirname,'web-plan.png')});

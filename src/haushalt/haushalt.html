@@ -763,7 +763,8 @@ function renderAll(){
 const CAMP=[["tent","Zelt",3],["pit","Feuerstelle",8],["tree1","Tanne",15],["chairs","Campingstühle",25],["tree2","Zweite Tanne",40],["lantern","Laterne",60],["hammock","Hängematte",80],["lights","Lichterkette",105],["hills","Berge",135],["lake","See",170],["canoe","Kanu",210],["flags","Wimpelkette",260],["fox","Fuchs",320]];
 const HOUSE=[["haus","Haus",0],["leucht","Leuchtturm",0],["hortensia","Hortensien",15],["bench","Gartenbank",25],["boat","Fischerboot",40],["wall","Steinmauer",60],["strandkorb","Strandkorb",80],["flags","Wimpelkette",105],["isles","Inseln",135],["sail","Segelboot",210],["kite","Drachen",260],["seal","Robbe",320]];
 const HOUSE_GUESTS={spring:["🦋","🐌","🐚"],summer:["🦀","🐚","🦋"],autumn:["🦀","🍄","🦔"],winter:["🦭","🐚","🦉"]};
-function scene(){const q=/[?&]bild=(haus|zelt)/.exec(location.search);if(q){try{localStorage.setItem("hq-bild",q[1])}catch(_){}return q[1]}try{return localStorage.getItem("hq-bild")==="haus"?"haus":"zelt"}catch(_){return "zelt"}}
+// Haus am Meer ist seit 15.11.2026 für beide das Startbild (Florian: "Haus ist das zentrale Element"); das Zelt gibt es nur noch mit ?bild=zelt, bis der Zelt-Code entfernt ist
+function scene(){return /[?&]bild=zelt/.test(location.search)?"zelt":"haus"}
 const SC=()=>scene()==="haus"?HOUSE:CAMP;
 // ---------- Himmel: echte Sonnenzeiten, Mondphase, Wetter ----------
 function sunTimes(d,lat,lon){const r=Math.PI/180,start=new Date(d.getFullYear(),0,0),n=Math.floor((d-start)/864e5),dec=23.44*Math.sin(2*Math.PI*(284+n)/365)*r,B=2*Math.PI*(n-81)/364,eot=9.87*Math.sin(2*B)-7.53*Math.cos(B)-1.5*Math.sin(B);
