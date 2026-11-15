@@ -384,23 +384,21 @@
    "run": "woche"
   },
   {
-   "name": "Tierpark Hellabrunn im Winter",
+   "name": "Tierpark Hellabrunn",
    "where": "stadt",
    "io": "beides",
    "cat": "tiere",
    "wx": [
     "sonne"
    ],
-   "from": "2026-11-15",
-   "to": "2026-11-25",
-   "time": "täglich 9–17 Uhr",
    "place": "Thalkirchen",
    "travel": "🚌 Bus 52 oder 🚋 Tram 25 Tiroler Platz (U3 bis 28.11. teils Ersatzbus)",
    "price": "24 € Erw., Kinder 4–14 J. 10 €",
    "kid": "kinderwagentauglich, viele Tierhäuser zum Aufwärmen",
    "link": "https://www.hellabrunn.de/en/park-visit/general-information/opening-hours-and-directions",
    "note": "Im Winter leerer, mit warmen Tierhäusern für zwischendurch.",
-   "run": "woche"
+   "dauer": true,
+   "season": "immer"
   },
   {
    "name": "Wildpark Poing",
@@ -411,16 +409,14 @@
     "sonne",
     "schnee"
    ],
-   "from": "2026-11-15",
-   "to": "2026-11-25",
-   "time": "täglich 9–16 Uhr (Winter)",
    "place": "Poing",
    "travel": "🚆 S2 Poing",
    "price": "Kinder ab 3 J. 7,50 €",
    "kid": "Streichelzoo, Spielplatz, Rehe füttern",
    "link": "https://www.muenchen.de/freizeit/wildpark-poing",
    "note": "Rehe aus der Hand füttern, Rundweg gut mit Trage oder Buggy.",
-   "run": "woche"
+   "dauer": true,
+   "season": "immer"
   },
   {
    "name": "BergTierPark Blindham",
@@ -431,16 +427,14 @@
     "sonne",
     "regen"
    ],
-   "from": "2026-11-15",
-   "to": "2026-11-25",
-   "time": "Winter 10–16 Uhr",
    "place": "Aying",
    "travel": "🚗 ca. 35 Min",
    "price": "Kinder ab 1 J. 10 €, nur bar",
    "kid": "überdachte Spielscheune",
    "link": "https://www.in-muenchen.de/kids/outdoor-kinder-muenchen-winter.html",
    "note": "Kleiner Tierpark mit überdachter Spielscheune, auch bei Schmuddelwetter.",
-   "run": "woche"
+   "dauer": true,
+   "season": "immer"
   },
   {
    "name": "Kinderreich im Deutschen Museum",
@@ -459,7 +453,8 @@
    "price": "Kinder bis 5 frei, Erw. 18 €",
    "kid": "für 3 bis 8 Jahre, Erwachsene nur mit Kind",
    "link": "https://www.deutsches-museum.de/museumsinsel/besuch",
-   "note": "Riesiger Spielbereich zum Bauen und Ausprobieren, perfekt bei Regen."
+   "note": "Riesiger Spielbereich zum Bauen und Ausprobieren, perfekt bei Regen.",
+   "season": "immer"
   },
   {
    "name": "Eisgaudi im Hirschgarten",
@@ -478,7 +473,10 @@
    "price": "unter 4 J. 5 € inkl. Schuhe und Eisrutscherl",
    "kid": "Eisrutscherl für die Kleinsten, Reservierung per Mail empfohlen",
    "link": "https://www.in-muenchen.de/stadtleben/schlittschuhlaufen-eisflaechen-eislauf-bahnen-hallen.html",
-   "note": "Kleine Eisbahn im Biergarten, mit Rutscherl ideal für erste Versuche."
+   "note": "Kleine Eisbahn im Biergarten, mit Rutscherl ideal für erste Versuche.",
+   "season": [
+    "winter"
+   ]
   },
   {
    "name": "Walderlebniszentrum Grünwald (Sauschütt)",
@@ -498,7 +496,8 @@
    "free": true,
    "kid": "barrierefreier Sinnespfad",
    "link": "https://www.in-muenchen.de/kids/outdoor-kinder-muenchen-winter.html",
-   "note": "Wildschweine im Wald beobachten, kostenlos und direkt an der Stadtgrenze."
+   "note": "Wildschweine im Wald beobachten, kostenlos und direkt an der Stadtgrenze.",
+   "season": "immer"
   },
   {
    "name": "Rodelhang am Monopteros",
@@ -516,7 +515,10 @@
    "free": true,
    "kid": "die flacheren Hänge weiter unten sind für Kleine geeignet",
    "link": "https://www.muenchen.de/freizeit/rodeln-schlittenfahren",
-   "note": "Klassiker zum Schlittenfahren, wenn Schnee liegt."
+   "note": "Klassiker zum Schlittenfahren, wenn Schnee liegt.",
+   "season": [
+    "winter"
+   ]
   },
   {
    "name": "Rodelhügel in der Aubinger Lohe",
@@ -533,7 +535,10 @@
    "free": true,
    "kid": "mehrere kleine Hügel, ruhiger als die Innenstadt",
    "link": "https://www.muenchen.de/freizeit/rodeln-schlittenfahren",
-   "note": "Kleine, wenig volle Hügel, gut für erste Schlittenfahrten."
+   "note": "Kleine, wenig volle Hügel, gut für erste Schlittenfahrten.",
+   "season": [
+    "winter"
+   ]
   },
   {
    "name": "Drachenwiese im Riemer Park",
@@ -552,7 +557,29 @@
    "free": true,
    "kid": "weite Wiese, im Winter Rodelhügel daneben",
    "link": "https://www.muenchen.de/veranstaltungen/familie-kinder/drachenfest-im-riemer-park",
-   "note": "Große offene Wiese, auf der sogar das Drachenfest stattfindet."
+   "note": "Große offene Wiese, auf der sogar das Drachenfest stattfindet.",
+   "season": [
+    "autumn",
+    "spring"
+   ]
+  },
+  {
+   "name": "Englischer Garten",
+   "dauer": true,
+   "season": "immer",
+   "where": "stadt",
+   "io": "draussen",
+   "cat": "natur",
+   "wx": [
+    "sonne"
+   ],
+   "place": "Schwabing, Lehel",
+   "travel": "🚇 U3/U6 Universität",
+   "price": "frei",
+   "free": true,
+   "kid": "kinderwagentauglich, Spielplätze und Wiesen",
+   "link": "https://www.schloesser.bayern.de/deutsch/garten/objekte/mu_engl.htm",
+   "note": "Großer Park mitten in der Stadt, Enten am Kleinhesseloher See, im Winter Rodeln am Monopteros."
   }
  ]
 }

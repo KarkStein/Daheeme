@@ -43,8 +43,20 @@ function renderAreas(){let h=`<div><div class="eyebrow">Alles auf einen Blick</d
   const T=AREA_TREE();h+=T.filter(a=>!a[4]).map(card).join("");
   AREA_GROUPS.forEach(g=>{const L=T.filter(a=>a[4]===g[0]);if(L.length)h+=`<div class="section-head areagrp"><h2>${g[1]} ${esc(g[2])}</h2></div>`+L.map(card).join("")});
   return h}
-function goNav(v){const [tab,sub]=v.split("|"),[k,val]=(sub||"").split(":");S.prev=S.tab;S.tab=tab;S.weekPage=0;if(tab==="essen")S.foodTab="heute";if(tab==="projekte"||tab==="amhaus")S.projFilter="";
-  if(k==="wp")S.weekPage=+val||0;if(k==="ft")S.foodTab=val;if(tab==="kita")S.kitaSec=k==="ks"?val:"termine";if(tab==="musik")S.musFilter="";if(tab==="ausflug"||tab==="reisen"){S.reiseOpen=null;S.tripTab=tab==="reisen"?"urlaub":"ideen"}if(k==="tt")S.tripTab=val;if(k==="pf")S.projFilter=val;if(k==="sp")S.tab=val;if(k==="bl"){S.tab="listen";if(val)(S.buyOpen||(S.buyOpen={}))[val]=true;setTimeout(()=>{const el=document.getElementById("buy-"+val);if(el)el.scrollIntoView({block:"start"})},40)}if(k==="ps")S.playSec=val;if(tab==="privat")S.privSec=k==="pv"&&val!=="kontakte"?val:"";render();window.scrollTo(0,0);if(k==="pv"&&val==="kontakte")setTimeout(()=>{const el=document.getElementById("kontakte");if(el)el.scrollIntoView({block:"start"})},30)}
+// Zeit mitdenken (Florian 15.11.2026): Sprünge aus einer Ansicht mit Woche (Woche, Kalender, Wochenplan, Kita-Essen, Kind) zeigen am Ziel dieselbe Woche
+function focusWeek(){const cm=mondayOf(new Date()),wp=S.weekPage|0;
+  if(S.tab==="woche"&&wp===0)return mondayOf(S.view||cm);
+  if(S.tab==="woche"&&wp===3){if(S.calDay)return mondayOf(ymdD(S.calDay));if(S.calMonth){const t=new Date(),c=S.calMonth;return c.getMonth()===t.getMonth()&&c.getFullYear()===t.getFullYear()?cm:mondayOf(new Date(c.getFullYear(),c.getMonth(),1,12))}return cm}
+  if((S.tab==="essen"&&S.foodTab==="plan")||(S.tab==="kita"&&S.kitaSec==="essen"))return planWeek();
+  if(S.tab==="kind")return addDays(cm,7*(S.kidWk|0));
+  return null}
+function focusApply(m){if(!m)return;const cm=mondayOf(new Date()),cur=+m===+cm,n=Math.round((m-cm)/(7*864e5)),wp=S.weekPage|0;
+  if(S.tab==="woche"&&wp===0){S.view=n>4?addDays(cm,28):m;S.wkEdit=null}
+  if(S.tab==="woche"&&wp===3){if(cur){S.calDay=null;S.calMonth=null}else{S.calDay=ymd(m);S.calMonth=new Date(m.getFullYear(),m.getMonth(),1,12)}}
+  if((S.tab==="essen"&&S.foodTab==="plan")||(S.tab==="kita"&&S.kitaSec==="essen"))S.foodWeek=cur?null:m;
+  if(S.tab==="kind")S.kidWk=Math.max(-1,Math.min(2,n))}
+function goNav(v){const fw=focusWeek(),[tab,sub]=v.split("|"),[k,val]=(sub||"").split(":");S.prev=S.tab;S.tab=tab;S.weekPage=0;if(tab==="essen")S.foodTab="heute";if(tab==="projekte"||tab==="amhaus")S.projFilter="";
+  if(k==="wp")S.weekPage=+val||0;if(k==="ft")S.foodTab=val;if(tab==="kita")S.kitaSec=k==="ks"?val:"termine";if(tab==="musik")S.musFilter="";if(tab==="ausflug"||tab==="reisen"){S.reiseOpen=null;S.tripTab=tab==="reisen"?"urlaub":"ideen"}if(k==="tt")S.tripTab=val;if(k==="pf")S.projFilter=val;if(k==="sp")S.tab=val;if(k==="bl"){S.tab="listen";if(val)(S.buyOpen||(S.buyOpen={}))[val]=true;setTimeout(()=>{const el=document.getElementById("buy-"+val);if(el)el.scrollIntoView({block:"start"})},40)}if(k==="ps")S.playSec=val;if(tab==="privat")S.privSec=k==="pv"&&val!=="kontakte"?val:"";focusApply(fw);render();window.scrollTo(0,0);if(k==="pv"&&val==="kontakte")setTimeout(()=>{const el=document.getElementById("kontakte");if(el)el.scrollIntoView({block:"start"})},30)}
 // ---------- Einstellungen (Zahnrad oben rechts, Entwurf) ----------
 const ALL_AREAS=[["🧹","Woche",{go:"woche"}],["👥","Wer macht was",{go:"woche",wp:1}],["🍲","Essen heute",{go:"essen",ft:"heute"}],["📅","Wochenplan",{go:"essen",ft:"plan"}],["📖","Rezepte und Kochbücher",{go:"essen",ft:"rezepte"}],["🎒","Kita-Essen",{go:"essen",ft:"kita"}],["🧺","Einkauf",{go:"einkauf"}],["🎒","Kita",{go:"kita"}],["🚲","Ausflüge",{go:"ausflug",tt:"ideen"}],["🧳","Packliste",{go:"ausflug",tt:"pack"}],["⛵","Urlaub",{go:"ausflug",tt:"urlaub"}],["💡","Ideen",{go:"projekte"}],["🏠","Am Haus",{go:"amhaus"}],["⚽","Sport und Spiel",{go:"spiel"}],["💞","Privat",{go:"privat"}],["📮","Briefkasten",{go:"post"}],["🔔","Wichtig",{go:"wichtig"}]];
 // Rückseite des Startbilds (Medaille/Postkarte, Florian 15.11.2026): kurzer Tipp auf eine freie Stelle dreht das Bild um. Entwurf.

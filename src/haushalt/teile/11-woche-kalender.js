@@ -23,7 +23,7 @@ const termine=()=>listOf(S.food&&S.food.termin);
 try{S.calOff=JSON.parse(localStorage.getItem("hq-caloff")||"[]")}catch(_){}
 const CAL_COL={own:"var(--ink)",kita:"#c7442f",prio:"#e0a030",ext:"#3f6fa8",food:"#8aa38b",reise:"#2f8fa3",trip:"#6a9a3a",play:"#8a5cc2"};
 // Filter-Chips im Kalender: Quelle -> [Symbol, Name]
-const CAL_LBL=[["own","📅","Termine"],["kita","🎒","Kita"],["prio","🔔","Erinnerungen"],["food","🍲","Essen"],["reise","⛵","Urlaub"],["trip","🚲","Ausflüge"],["play","⚽","Sport"],["advent","🎄","Advent"]];
+const CAL_LBL=[["own","📅","Termine"],["kita","🎒","Kita"],["prio","🔔","Erinnerungen"],["food","🍲","Essen"],["reise","⛵","Urlaub"],["trip","🚲","Ausflüge"],["play","⚽","Sport"],["advent","🎄","Advent"],["ext","👪","Familywall"]];
 const WD_RX=[["so","sonntag"],["mo","montag"],["di","dienstag"],["mi","mittwoch"],["do","donnerstag"],["fr","freitag"],["sa","samstag"]];
 function whenDays(t){t=" "+String(t||"").toLowerCase()+" ";const out=[];WD_RX.forEach((w,i)=>{if(new RegExp("[\\s,(/]("+w[1]+"s?|"+w[0]+"\\.?)(?=[\\s,/)]|$)").test(t))out.push(i)});return out}
 function whenTime(t){const m=String(t||"").match(/(\d{1,2})(?:[:.](\d{2}))?\s*uhr|(\d{1,2})[:.](\d{2})/i);if(!m)return "";const h=+(m[1]||m[3]),mi=+(m[2]||m[4]||0);return h<24&&mi<60?String(h).padStart(2,"0")+":"+String(mi).padStart(2,"0"):""}
@@ -39,7 +39,10 @@ const CAL_SRC=[
   (a,z)=>trips().filter(x=>x.date&&!x.done&&x.date>=a&&x.date<=z).map(x=>{const pl=x.pack&&packLists().find(p=>p.id===x.pack);return {d:x.date,t:"",name:"Ausflug: "+x.name,icon:"🚲",src:"trip",note:pl?"🎒 Packliste: "+pl.name:"",nav:pl?"ausflug|tt:pack":"ausflug|tt:ideen",pack:pl?pl.id:""}}),
   (a,z)=>{const out=[];plays().filter(x=>x.sec==="sport"&&x.when).forEach(x=>{const wd=whenDays(x.when);if(!wd.length)return;const t=whenTime(x.when);for(let d=ymdD(a);ymd(d)<=z;d=addDays(d,1)){if(wd.includes(d.getDay())&&!inUrlaub(d))out.push({d:ymd(d),t,name:x.name,icon:"⚽",src:"play",who:"kid",nav:"spiel|ps:sport"})}});return out},
   (a,z)=>{const out=[];advCals().forEach(c=>{Object.values(advDoors(c.id)).forEach(x=>{if(x.kind!=="aktiv"||advHidden(c,x.day))return;const k=(c.year||advYear())+"-12-"+String(x.day).padStart(2,"0");if(k>=a&&k<=z)out.push({d:k,t:"",name:x.name+" (Türchen "+x.day+")",icon:"🎄",src:"advent",who:c.for==="kid"?"kid":"",attr:'data-advgo="'+esc(c.id)+'"'})})});return out},
-  (a,z)=>(S.calExt||[]).filter(x=>x.d>=a&&x.d<=z)];
+  // Familywall (Florian 15.11.2026): nur lesend, stündlich vom Lauf im privaten Sicherungs-Repo nach food/ext/fw geschrieben; gleiche Termine wie in der App nur einmal
+  (a,z)=>{const fw=S.food&&S.food.ext&&S.food.ext.fw;if(!fw||!fw.items)return [];const own=new Set(termine().map(x=>(x.name||"").trim().toLowerCase()+"|"+x.date)),out=[];
+    Object.keys(fw.items).forEach(id=>{const x=fw.items[id];if(!x||!x.date||!x.name||own.has(x.name.trim().toLowerCase()+"|"+x.date))return;const to=x.to&&x.to>x.date?x.to:x.date;if(to<a||x.date>z)return;let d=ymdD(x.date),n=0;
+      while(ymd(d)<=to&&n<60){const k=ymd(d);if(k>=a&&k<=z)out.push({d:k,t:k===x.date?x.time||"":"",name:x.name+(n?" (Tag "+(n+1)+")":""),icon:"👪",src:"ext",note:"Aus Familywall"+(x.end?", bis "+x.end:"")+(x.place?" · "+x.place:"")+". Ändern geht in Familywall."});d=addDays(d,1);n++}});return out}];
 // Was der Kalender zeigt (Filter nach Bereich und Person). dayStress und Rückseite nutzen calEvents ungefiltert.
 function calShown(a,z){const off=S.calOff||[],w=S.calWho||"";return calEvents(a,z).filter(e=>!off.includes(CAL_LBL.some(l=>l[0]===e.src)?e.src:"own")&&(!w||!e.who||e.who==="both"||e.who===w))}
 function calEvents(a,z){const out=[];CAL_SRC.forEach(f=>{try{out.push(...f(a,z))}catch(_){}});return out.sort((x,y)=>(x.d+(x.t||"99")+(x.src==="food"?"1":"0"))<(y.d+(y.t||"99")+(y.src==="food"?"1":"0"))?-1:1)}
@@ -91,7 +94,7 @@ function renderWeek(){
   const today=isCur?(new Date().getDay()+6)%7:(mon<cur?7:-1);
   const sc=weekScore(wk),split=rotSplit(),tk=ticksOf(wk);
   const {w}=isoWeek(mon);
-  let h=`<div class="top"><div><div class="eyebrow">KW ${w} · ${fmt(mon,{day:"numeric",month:"short"})} – ${fmt(addDays(mon,6),{day:"numeric",month:"short"})}</div><h1>${isCur?"Diese Woche":(mon<cur?"Rückblick":"Vorschau")}</h1></div>
+  let h=`<div class="top"><div><h1>${isCur?"Diese Woche":(mon<cur?"Rückblick":"Vorschau")}</h1><div class="wkdate">KW ${w} · ${fmt(mon,{day:"numeric",month:"short"})} – ${fmt(addDays(mon,6),{day:"numeric",month:"short"})}</div></div>
    <div class="weeknav"><button class="iconbtn" data-prionew="woche" aria-label="Erinnerung anlegen">🔔</button><button class="iconbtn" data-wknav="-1" aria-label="Vorige Woche">‹</button>${isCur?"":`<button class="ghost" data-wknav="0">Heute</button>`}<button class="iconbtn" data-wknav="1" aria-label="Nächste Woche" ${+mon>=+addDays(cur,28)?"disabled":""}>›</button></div></div>`;
   if(!isCur)h+=`<div class="wkro">${mon<cur?(S.wkEdit===wk?`✏️ Nachtragen ist an. <button class="ghost" data-act="wkedit">Fertig</button>`:`📦 Archiv: diese Woche ist nur zum Ansehen. <button class="ghost" data-act="wkedit">✏️ Nachtragen</button>`):`🔭 Vorschau: Homeoffice kannst du schon eintragen, abhaken geht erst in der Woche selbst.`}</div>`;
   const hoTop=true;

@@ -22,7 +22,7 @@
       "id": "ausflug-woche",
       "area": "reisen",
       "name": "Was ist los: Wochentipps",
-      "what": "25 bis 40 kindertaugliche Tipps für die nächsten 10 Tage, Schwerpunkt Stadt München (Flohmärkte, Feste, Spielplatz der Woche, Kinderprogramm, Museen, Kostenloses), dazu Umland bis 1:30; mit Wetter-Passung und festen Orten",
+      "what": "20 bis 40 aktuelle, kindertaugliche Termine für die nächsten 10 Tage, getrennt In der Stadt und Ausflüge ins Umland (bis 1:30), auch aus Blogs und von muenchen.de; Dauerbrenner nur als feste Orte (Geht immer, Jahreszeit)",
       "rhythm": "donnerstags 5:29",
       "file": "ausflugtipps.json"
     },
@@ -30,7 +30,7 @@
       "id": "ausflug-monat",
       "area": "reisen",
       "name": "Was ist los: Monatsüberblick",
-      "what": "30 bis 50 kindertaugliche Tipps für den kommenden Monat, gleiche Rubriken, Schwerpunkt Stadt München",
+      "what": "30 bis 50 aktuelle, kindertaugliche Termine für den kommenden Monat, Stadt und Umland getrennt, Dauerbrenner nur als feste Orte",
       "rhythm": "am 27. jedes Monats 5:37",
       "file": "ausflugtipps.json"
     }
