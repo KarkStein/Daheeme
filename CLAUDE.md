@@ -97,6 +97,8 @@ git add -A && git commit && git push origin main
 - Projekt-Baustein Am Haus: Projekte (`food/hproj`, Feld `cat` wohnen|ordnung|haus|garten, fehlt = wohnen, `HCAT`) gibt es in allen vier Bereichen von Am Haus; alle teilen die Sammlung `area:"haus"` (Kinds jetzt auch Aufbewahrung, Werkzeug, Material).
 - Briefkasten ohne Nummer: `mboxAsk` fragt die Nummer direkt ab, speichert sie in `food/contact/<anderer>` und öffnet sofort WhatsApp.
 
+- Aufgeräumt (Florian 15.11.2026): Kita-Essen lebt nur bei Kita (`kita|ks:essen`); in Essen ist der Chip "🎒 Kita-Essen ›" nur ein Sprung dorthin, ebenso "Kita heute" und der 4. Tipp auf Essen. Vorrat "Immer im Haus" nur unter Einkauf, Einstellungen verlinken. Erinnerungen: nur die Seite Wichtig, Einstellungen verlinken. Mittagessen bleibt bei Partner. Kontakte zu anderen: wartet.
+
 ## Offene Liste
 
 - Haus am Meer freischalten, wenn der Besitzer es sagt; dann App-Name und Symbol (bisher 🏕️🧹, Zelt im Start-Tab) und Farben anpassen (Plan: https://claude.ai/artifact/MzunYyXEYMKWLFxg56qyNr).

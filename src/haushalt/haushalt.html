@@ -889,7 +889,7 @@ function renderCamp(){if(scene()==="haus")loadWx();
       <div class="card">${SC().filter(c=>c[2]).map(c=>`<label class="sm" style="justify-content:space-between"><span style="color:var(--fg);font-size:.95rem">${c[1]}</span><span><input type="number" min="0" max="9999" id="ck-${c[0]}" data-ck="${c[0]}" value="${dr.costs[c[0]]|0}"> Häkchen</span></label>`).join("")}</div>
       <div class="line" style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" data-act="campsave">Speichern</button><button class="ghost" data-act="campcancel">Abbrechen</button></div></section>`}
   return h}
-const FOODTABS=[["plan","Wochenplan"],["rezepte","Rezepte"],["kita","🎒 Kita"]];
+const FOODTABS=[["plan","Wochenplan"],["rezepte","Rezepte"],["kita","🎒 Kita-Essen ›"]];
 function shopItems(){const m=(S.food&&S.food.shop)||{};return Object.keys(m).filter(k=>m[k]).map(k=>Object.assign({id:k},m[k])).sort((a,b)=>(a.at||0)-(b.at||0))}
 function shopFavs(){const f=(S.food&&S.food.fav)||{};const open=new Set(shopItems().filter(i=>!i.done).map(i=>i.name.toLowerCase()));
   return Object.keys(f).filter(k=>f[k]&&f[k].n>0&&!open.has((f[k].name||"").toLowerCase())).sort((a,b)=>f[b].n-f[a].n).slice(0,14).map(k=>f[k].name)}
@@ -1171,7 +1171,7 @@ function renderFood(){
   if(S.foodTab==="plan")return h+renderMealPlan();
   if(S.foodTab==="rezepte"&&S.recDb&&!S.recDraft)return h+renderRecDb();
   if(S.foodTab==="rezepte")return h+(S.recDraft?"":renderIdeas())+renderRecipes()+(S.recDraft?"":`<section class="card"><button class="todayrow" data-act="rdbopen"><span>🔎</span><span><b>Rezept-Datenbank</b><br><span class="freq">Alle ${recs().length} Rezepte durchsuchen und filtern</span></span><i>›</i></button></section>`+renderSuggest(planWeek(),true));
-  if(S.foodTab==="kita")return h+renderKitaMeals();
+  if(S.foodTab==="kita"){S.foodTab="heute"}
   return h+renderMealPlan()}
 // ---------- Essen: Überblick für heute (Entwurf) ----------
 function prepHint(name,ing){const t=(name||"")+"\n"+(ing||[]).join("\n"),out=[];
@@ -1253,8 +1253,8 @@ function wxPlaceRow(){const pl=S.food&&S.food.wxplace;return `<div class="freq" 
 const AREA_GROUPS=[["alltag","🗓️","Alltag"],["essen","🍲","Essen"],["zuhause","🏡","Zuhause"],["freizeit","🌊","Freizeit"],["wir","🫶","Wir"],["quer","🧭","Quer durch alles"]];
 // [Symbol, Name, Tab, Kurzname im Kreis (leer = nicht im Kreis), Sprung im Kreis, Unterbereiche(), Gruppe]
 const AREAS=[["🏠","Start","camp","","",()=>[],""],["🧹","Woche","woche","Woche","woche|",()=>[["Diese Woche","wp:0"],["Kalender","wp:3"],["Wer macht was","wp:1"],["Übersicht","wp:2"]],"alltag"],
-  ["🎒","Kita","kita","Kita","kita|",()=>KITA_SECS.filter(k=>k[0]!=="essen").map(k=>[k[2],"ks:"+k[0]]),"alltag"],
-  ["🍲","Essen","essen","Essen","essen|",()=>[["Heute","ft:heute"],["Wochenplan","ft:plan"],["Rezepte und Kochbücher","ft:rezepte"],["Kita-Essen","ft:kita"]],"essen"],
+  ["🎒","Kita","kita","Kita","kita|",()=>KITA_SECS.map(k=>[k[2]==="Essen"?"Kita-Essen":k[2],"ks:"+k[0]]),"alltag"],
+  ["🍲","Essen","essen","Essen","essen|",()=>[["Heute","ft:heute"],["Wochenplan","ft:plan"],["Rezepte und Kochbücher","ft:rezepte"]],"essen"],
   ["🛒","Einkauf","einkauf","Einkauf","einkauf|",()=>[],"essen"],
   ["🏠","Am Haus","amhaus","Am Haus","amhaus|",()=>PROJ_CATS.filter(c=>["wohnen","ordnung","haus","garten"].includes(c[0])).map(c=>[c[2],"pf:"+c[0]]),"zuhause"],
   ["🧭","Reisen und Ausflüge","ausflug","Unterwegs","ausflug|tt:urlaub",()=>[["Urlaube","tt:urlaub"],["Ausflüge","tt:ideen"],["Packlisten","tt:pack"],["Recherche","tt:recherche"]],"freizeit"],
@@ -1321,7 +1321,7 @@ function renderSettings(){const per=(S.config&&S.config.persons)||[];const hs=sc
   h+=`<section class="card"><div class="section-head"><h2>Ich bin</h2></div><div class="unl">${["p0","p1"].map((p,i)=>`<button class="chipbtn neutral" data-me="${p}" aria-pressed="${S.me===p}">${esc((per[i]&&(per[i].name||per[i]))||(i?"Person 2":"Person 1"))}</button>`).join("")}</div><div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy.</div></section>`;
   {const ct=(S.food&&S.food.contact)||{};h+=`<section class="card"><div class="section-head"><h2>📮 Handynummern für WhatsApp</h2></div><div class="freq">Für den Knopf im Briefkasten. Die Nummern liegen nur in euren gemeinsamen Daten, nicht im Code.</div>${["p0","p1"].map((p,i)=>`<div class="fld"><span>${esc(per[i]||(i?"Person 2":"Person 1"))}</span>${telField(p,ct[p]||"",per[i]||"")}</div>`).join("")}</section>`}
   h+=`<section class="card"><div class="section-head"><h2>🌦️ Wetter</h2></div><div class="freq">Für den Wochenvorschlag: bei Kälte eher Warmes, bei Hitze eher Leichtes.</div>${wxPlaceRow()}</section>`;
-  h+=pantryCard();
+  h+=`<section class="card"><button class="todayrow" data-go="einkauf"><span>🧂</span><span>Immer im Haus: steht jetzt unter Einkauf</span><i>›</i></button></section>`;
   h+=`<section class="card"><div class="section-head"><h2>🖼️ Startbild</h2></div><div class="unl"><button class="chipbtn neutral" data-bild="haus" aria-pressed="${hs}">🏠 Haus am Meer (Entwurf)</button><button class="chipbtn neutral" data-bild="zelt" aria-pressed="${!hs}">🏕️ Zeltplatz</button></div><div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy. Das Haus ist noch nicht für beide freigeschaltet.</div></section>`;
   h+=`<section class="card"><div class="section-head"><h2>👥 Plan, Aufgaben, Einladung</h2></div><div class="freq">Aufgaben, Wechsel-Pakete, Kosten der Dinge im Bild und der Einladungs-Link stehen unter Woche › Wer macht was.</div><div class="btnrow" style="margin-top:8px"><button class="ghost" data-area="1">Öffnen</button></div></section>`;
   h+=`<section class="card"><div class="section-head"><h2>🔎 Rezept-Recherche</h2></div><div class="freq">Täglich ein Rezept pro Rubrik: ${IDEA_CATS.map(c=>esc(c[2]||c[1]||c[0])).join(", ")}. Dazu samstags die Wochenrezepte. Quellen und Vorlieben pflege ich für euch: schreib mir einfach, was dazu oder weg soll.</div></section>`;
@@ -1842,7 +1842,7 @@ function ringEnd(){const r=S.ring;if(!r)return;if(r.sel>=0){const v=RING[r.sel][
 // Doppeltipp auf einen der 4 Reiter springt auf seine zweite Seite (nur im Entwurf)
 try{S.labels=localStorage.getItem("hq-labels")==="1"}catch(_){}
 // Reiter unten (Entwurf, Wunsch 14.11.2026): ein Tipp = erste Seite; schnell mehrfach tippen blättert je Tipp eine Seite weiter (TAP_SEQ)
-const TAP_SEQ={camp:[()=>{S.tab="camp"},()=>{S.tab="wichtig"}],woche:[0,3,1,2].map(p=>()=>{S.tab="woche";S.weekPage=p}),essen:["heute","plan","rezepte","kita"].map(f=>()=>{S.tab="essen";S.foodTab=f}),einkauf:[()=>{S.tab="einkauf"},()=>{S.tab="essen";S.foodTab="rezepte"}]};
+const TAP_SEQ={camp:[()=>{S.tab="camp"},()=>{S.tab="wichtig"}],woche:[0,3,1,2].map(p=>()=>{S.tab="woche";S.weekPage=p}),essen:["heute","plan","rezepte","kita"].map(f=>()=>{if(f==="kita"){S.tab="kita";S.kitaSec="essen";return}S.tab="essen";S.foodTab=f}),einkauf:[()=>{S.tab="einkauf"},()=>{S.tab="essen";S.foodTab="rezepte"}]};
 document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("button[data-tab]");if(!b)return;const t=b.dataset.tab,now=Date.now();
   if(prioOn()&&TAP_SEQ[t]){const lt=S.lastTap,n=lt&&lt.t===t&&now-lt.at<450?lt.n+1:0;S.lastTap={t,at:now,n};const q=TAP_SEQ[t];if(S.tab!==t||n)S.prev=S.tab;q[n%q.length]();S.draft=S.campDraft=null;S.flip=false;render();window.scrollTo(0,0);return}
   if(t==="essen"&&prioOn()&&S.tab!=="essen")S.foodTab="heute";S.tab=t;if(S.tab!=="plan")S.draft=null;if(S.tab!=="camp")S.campDraft=null;render();window.scrollTo(0,0)});
@@ -2006,6 +2006,7 @@ app.addEventListener("click",async e=>{
     const id=d.id||newId("t"),base="food/trip/"+id+"/";
     try{await S.store.setPath(base+"name",name);await S.store.setPath(base+"note",(d.note||"").trim().slice(0,500)||null);await S.store.setPath(base+"link",safeLink(d.link)||null);for(const k of ["kind","wx","dur","kid","cost","season","pack"])await S.store.setPath(base+k,d[k]||null);await S.store.setPath(base+"date",/^\d{4}-\d{2}-\d{2}$/.test(d.date||"")?d.date:null);await S.store.setPath(base+"drive",Math.max(0,Math.min(999,parseInt(d.drive,10)||0))||null);await S.store.setPath(base+"by",S.me||"");if(!d.id){await S.store.setPath(base+"at",Date.now());await S.store.setPath(base+"done",false)}S.tripDraft=null;toast("Gespeichert");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.act==="tripdel"){try{await S.store.setPath("food/trip/"+S.tripDraft.id,null);S.tripDraft=null;toast("Gelöscht");render()}catch(_){toast("Konnte nicht speichern.")}return}
+  if(b.dataset.food==="kita"){S.tab="kita";S.kitaSec="essen";S.kitaDraft=null;render();window.scrollTo(0,0);return}
   if(b.dataset.food){S.tab="essen";S.lunchDraft=null;S.lunchMapEdit=false;S.shopCatEdit=null;S.recDraft=null;S.planEdit=null;S.foodTab=b.dataset.food;try{localStorage.setItem("hq-foodtab",S.foodTab)}catch(_){}render();return}
   if(b.dataset.shop){const ids=b.dataset.shop.split(","),all=shopItems();S.shopCatEdit=null;for(const id of ids){const i=all.find(x=>x.id===id);if(!i)continue;const v={name:i.name,done:!i.done,at:i.at||Date.now(),by:i.by||""};if(i.cat)v.cat=i.cat;if(i.src)v.src=i.src;if(v.done)v.doneAt=Date.now();try{await S.store.setPath("food/shop/"+i.id,v)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.");return}}return}
   if(b.dataset.shoprm){for(const id of b.dataset.shoprm.split(",")){try{await S.store.setPath("food/shop/"+id,null)}catch(_){toast("Konnte nicht speichern.");return}}return}
