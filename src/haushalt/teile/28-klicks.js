@@ -96,6 +96,8 @@ app.addEventListener("click",async e=>{
   if(b.dataset.gest){const k=b.dataset.gest;if(k==="labels"){S.labels=!S.labels;try{localStorage.setItem("hq-labels",S.labels?"1":"")}catch(_){}}
     else if(k==="veg"){try{await S.store.setPath("food/pref/veg",vegW()>0?false:null)}catch(_){toast("Konnte nicht speichern.")}}
     else{S.gest[k]=!S.gest[k];try{localStorage.setItem("hq-gest",JSON.stringify(S.gest))}catch(_){}}render();return}
+  if(b.dataset.motivSet!=null){try{localStorage.setItem("hq-motiv",b.dataset.motivSet)}catch(_){}render();return}
+  if(b.dataset.stilSet!=null){try{localStorage.setItem("hq-bildstil",b.dataset.stilSet)}catch(_){}render();return}
   if(b.dataset.themeSet!=null){S.theme=b.dataset.themeSet;try{localStorage.setItem("hq-theme",S.theme)}catch(_){}if(S.theme)document.documentElement.dataset.theme=S.theme;else delete document.documentElement.dataset.theme;render();return}
   if(b.dataset.act==="invitecopy"){const l=inviteLink();try{await navigator.clipboard.writeText(l);toast("Link kopiert")}catch(_){S.copyBox=l;toast("Kopieren ging nicht. Bitte nochmal versuchen.")}return}
   if(b.dataset.act==="backup"){const d={app:"Daheeme",at:new Date().toISOString(),config:S.config||null,weeks:S.weeks||{},food:S.food||{}};const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(d,null,1)],{type:"application/json"}));a.download="daheeme-sicherung-"+ymd(new Date())+".json";document.body.appendChild(a);a.click();a.remove();toast("Sicherung gespeichert");return}
