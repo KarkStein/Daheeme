@@ -10,7 +10,7 @@ srv.listen(8765,async()=>{
     o.later=await A.$$eval('.laterline',l=>l.map(x=>x.innerText).join(' | '));
     await A.click('.brand');await A.waitForTimeout(400);
     await A.click('.camp',{position:{x:120,y:60}});await A.waitForTimeout(400);
-    o.back=await A.$$eval('.tagcard .trow',l=>l.map(x=>x.innerText));
+    if(await A.$('[data-tagsum=auf]'))await A.click('[data-tagsum=auf]');await A.waitForTimeout(200);o.back=await A.$$eval('.tagcard .trow',l=>l.map(x=>x.innerText));
     if(shot){await A.addStyleTag({content:'#tabs{display:none!important}'});await A.waitForTimeout(800);await A.screenshot({path:out+'/'+shot});
       await A.click('.trow:has-text("roter Schrank") .tchk');await A.waitForTimeout(400);o.after=await A.$$eval('.tagcard .trow',l=>l.map(x=>x.innerText))}
     await c.close();return o};

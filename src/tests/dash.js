@@ -10,18 +10,18 @@ srv.listen(8765,async()=>{
   await A.waitForTimeout(600);const r={};
   r.heute=await A.$$eval('.today .todayrow,.today .priohead,.today li',l=>l.map(x=>x.innerText.replace(/\n/g,' ')).join(' / '));
   const box=await (await A.$('.camp')).boundingBox();await A.mouse.click(box.x+box.width*0.72,box.y+box.height*0.45);await A.waitForTimeout(600);
-  r.tagH1=await A.$eval('#app h1',e=>e.innerText);r.rows=await A.$$eval('.tagcard',l=>l.map(c=>[...c.querySelectorAll('.trow')].map(x=>x.innerText.replace(/\n/g,' '))));
+  r.tagH1=await A.$eval('#app h1',e=>e.textContent);r.dash=await A.$$eval('.campback.dash .bcnt',l=>l.length);r.line=await A.$$eval('.campback.dash .bline li',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));r.rows=await A.$$eval('.tagcard',l=>l.map(c=>[...c.querySelectorAll('.trow')].map(x=>x.innerText.replace(/\n/g,' '))));
   r.folds=await A.$$eval('.tagfold .setsum h2',l=>l.map(x=>x.innerText));r.bodies=await A.$$eval('.tagfold .setbody',l=>l.length);
   await A.addStyleTag({content:'#tabs{display:none!important}'});await A.screenshot({path:out+'/tag-und-woche.png',fullPage:true});
   await A.click('[data-tagsum=auf]');await A.waitForTimeout(200);r.aufOpen=await A.$$eval('.tagfold .setbody',l=>l.length);await A.screenshot({path:out+'/tag-und-woche-auf.png',fullPage:true});await A.addStyleTag({content:'#tabs{display:flex!important}'});
-  await A.click('.trow .ttx[data-nav="woche|wp:3"]');await A.waitForTimeout(400);r.inCal=await A.$$eval('.cal [data-calday]',l=>l.length);await A.goBack();await A.waitForTimeout(500);r.backTag=await A.$eval('#app h1',e=>e.innerText);
+  await A.click('.campback.dash .bcal');await A.waitForTimeout(400);r.inCal=await A.$$eval('.cal [data-calday]',l=>l.length);await A.goBack();await A.waitForTimeout(500);r.backTag=await A.$eval('#app h1',e=>e.textContent);
   await A.click('.pdot[data-go=camp]');await A.waitForTimeout(400);r.dotsRed=await A.$$eval('.camp circle[fill="#f25f5c"]',l=>l.length);
   await A.click('.spot[data-act=wxpop]');await A.waitForTimeout(300);r.hours=await A.$$eval('.wxhours li',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));await (await A.$('.wxpanel')).screenshot({path:out+'/wetter-heute.png'});
   // Mehrfachtipp
   const seq=async(t,n)=>{for(let i=0;i<n;i++)await A.click('#tabs [data-tab='+t+']');await A.waitForTimeout(150)};
   await seq('woche',3);r.w3=await A.$eval('.pdot[aria-pressed=true]',e=>e.innerText);await A.click('#tabs [data-tab=camp]');await seq('woche',1);r.w1=await A.$eval('.pdot[aria-pressed=true]',e=>e.innerText);
   await A.click('#tabs [data-tab=camp]');await seq('essen',3);r.e3=await A.$eval('[data-food][aria-pressed=true]',e=>e.innerText);
-  await seq('camp',2);r.s2=await A.$eval('#app h1',e=>e.innerText);await A.click('#tabs [data-tab=woche]');await seq('camp',3);r.s3=await A.$eval('#app h1',e=>e.innerText);
+  await seq('camp',2);r.s2=await A.$eval('#app h1',e=>e.textContent);await A.click('#tabs [data-tab=woche]');await seq('camp',3);r.s3=await A.$eval('#app h1',e=>e.innerText);
   console.error(JSON.stringify(r,null,1),errs);
-  const ok=!errs.length&&!/Partner|Mittag zu zweit/.test(r.heute)&&r.tagH1==='Tag und Woche'&&r.rows.length===2&&/Kinderarzt/.test(r.rows[0].join())&&/Kita/.test(r.rows[0].join())&&/Linsen/.test(r.rows[1].join())&&r.folds.length>=5&&r.bodies===0&&r.aufOpen===1&&r.inCal>=28&&r.backTag==='Tag und Woche'&&r.dotsRed===0&&r.hours.length>=5&&r.w3==='Wer macht was'&&r.w1==='Woche'&&/Rezepte/.test(r.e3)&&r.s2==='Tag und Woche'&&/Wichtig/.test(r.s3);
+  const ok=!errs.length&&!/Partner|Mittag zu zweit/.test(r.heute)&&r.tagH1==='Tag und Woche'&&r.dash===3&&/Kinderarzt/.test(r.line.join())&&/Kita/.test(r.line.join())&&r.rows.length===1&&!r.rows[0].some(x=>/monatlich|jährlich/.test(x))&&r.folds.length>=5&&r.bodies===0&&r.aufOpen===1&&r.inCal>=28&&r.backTag==='Tag und Woche'&&r.dotsRed===0&&r.hours.length>=5&&r.w3==='Wer macht was'&&r.w1==='Woche'&&/Rezepte/.test(r.e3)&&r.s2==='Tag und Woche'&&/Wichtig/.test(r.s3);
   console.error(ok?'DASH OK':'DASH FAIL');await b.close();srv.close();process.exit(0)});
