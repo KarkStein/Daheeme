@@ -503,7 +503,7 @@ function periodOf(freq,mon){const th=addDays(mon,3);const y=th.getFullYear(),m=t
 const fmt=(d,o)=>d.toLocaleDateString("de-DE",o);
 
 // ---------- Zustand ----------
-const S={key:null,kitaSec:"termine",kitaDraft:null,kitaText:"",playMapOpen:false,playMapEdit:false,playMapText:"",playDraft:null,playSec:"spielplatz",projFilter:"",projText:"",tripTab:"ideen",tripDraft:null,tripFilter:"",packList:"main",packListNew:false,packText:"",ideas:null,shopCatEdit:null,lunchDraft:null,lunchOpen:null,lunchMapOpen:false,lunchMapEdit:false,lunchMapText:"",recDraft:null,recOpen:null,planEdit:null,planText:"",planRec:null,foodWeek:null,food:{},foodTab:"plan",shopText:"",store:null,mode:"loading",config:null,weeks:{},view:mondayOf(new Date()),tab:"camp",campDraft:null,filter:"alle",hideDone:false,groupBy:"freq",me:null,draft:null,timedOut:false};
+const S={key:null,kitaSec:"termine",kitaDraft:null,kitaText:"",playMapOpen:false,playMapEdit:false,playMapText:"",playDraft:null,playSec:"spielplatz",projFilter:"",projText:"",tripTab:"ideen",tripDraft:null,tripFilter:"",packList:"main",packListNew:false,packText:"",ideas:null,shopCatEdit:null,lunchDraft:null,lunchOpen:null,lunchMapOpen:false,lunchMapEdit:false,lunchMapText:"",recDraft:null,recOpen:null,planEdit:null,planText:"",planRec:null,foodWeek:null,food:{},foodTab:"plan",shopText:"",store:null,mode:"loading",config:null,weeks:{},view:mondayOf(new Date()),tab:"camp",filter:"alle",hideDone:false,groupBy:"freq",me:null,draft:null,timedOut:false};
 try{const m=localStorage.getItem("hq-me");if(m==="p0"||m==="p1")S.me=m;const f=localStorage.getItem("hq-filter");if(f==="meine")S.filter="meine";S.hideDone=localStorage.getItem("hq-hidedone")==="1";if(localStorage.getItem("hq-groupby")==="art")S.groupBy="art";const ft=localStorage.getItem("hq-foodtab");if(ft&&ft!=="shop"&&ft!=="mittag")S.foodTab=ft;}catch(e){}
 
 // ---------- Speicher-Adapter ----------
@@ -631,11 +631,11 @@ const CLEAN_RX=/putz|wisch|saug|bad|klo|toilette|wc|küche|fenster|staub|fläche
 const CLEAN_ITEMS=[["Allzweckreiniger",/flächen|wisch|küche|putz/i],["Badreiniger",/bad|dusche/i],["WC-Reiniger",/klo|toilette|wc|bad/i],["Glasreiniger",/fenster|spiegel/i],["Spülmittel",/küche|spül/i],["Spülmaschinentabs",/spül|küche/i],["Schwämme",/küche|spül|bad|putz/i],["Mikrofasertücher",/staub|flächen|wisch|fenster|putz/i],["Bodenreiniger",/boden|wisch/i],["Staubsaugerbeutel",/saug/i],["Müllbeutel",/müll/i],["Waschmittel",/wäsche|bett/i],["Weichspüler",/wäsche/i],["Küchenrolle",/küche|putz/i]];
 function cleanPick(t){const n=(t&&t.name)||"",L=CLEAN_ITEMS.map(x=>x[0]);S.shopPick={blocks:[{src:"",lines:L}],mode:"nur",sel:{}};CLEAN_ITEMS.forEach((x,i)=>{if(x[1].test(n))S.shopPick.sel["0|"+i]=1});render()}
 const TASK_LINKS=[[/^bringen|kita/i,()=>{const n=kitaBring().length+kitaMitTermine().length;return `<button class="chipbtn tasklink" data-nav="kita|ks:tasche">📦 Mitbringen${n?": "+n:""} ›</button><button class="chipbtn tasklink" data-go="kind">🚸 Wer bringt und holt ›</button>`},()=>`<button class="tlink" data-nav="kita|ks:tasche" aria-label="Zu Mitbringen">📦›</button>`],[/einkauf|supermarkt|drogerie|wocheneinkauf/i,()=>{const n=shopItems().filter(i=>!i.done).length;return `<button class="chipbtn tasklink" data-go="einkauf">🧺 Einkaufsliste${n?": "+n+" offen":""} ›</button>`},()=>`<button class="tlink" data-go="einkauf" aria-label="Zur Einkaufsliste">🧺›</button>`]];
-function taskLink(t,small){if(!prioOn())return "";const n=(t&&t.name)||"",m=TASK_LINKS.find(x=>x[0].test(n));const cl=!m&&CLEAN_RX.test(n)?`<button class="tlink" data-cleanshop="${esc(t.id)}" aria-label="Putzmittel auf die Einkaufsliste">🧴</button>`:"";return m?m[small?2:1]():cl}
+function taskLink(t,small){const n=(t&&t.name)||"",m=TASK_LINKS.find(x=>x[0].test(n));const cl=!m&&CLEAN_RX.test(n)?`<button class="tlink" data-cleanshop="${esc(t.id)}" aria-label="Putzmittel auf die Einkaufsliste">🧴</button>`:"";return m?m[small?2:1]():cl}
 const hasSubs=t=>Array.isArray(t.subs)&&t.subs.length>0;
 async function toggle(btn){
   if(!S.me){toast("Wähle oben zuerst, wer du bist.");return}
-  if(prioOn()){const cm=mondayOf(new Date());const isHO=(tasks().find(x=>x.id===btn.dataset.task)||{}).owner==="ho";if(+S.view>+cm&&!isHO){toast("Vorschau: abhaken geht erst in der Woche selbst. Homeoffice kannst du schon eintragen.");return}if(+S.view<+cm&&S.wkEdit!==wkKey(S.view)){toast("Archiv: erst „✏️ Nachtragen“ antippen.");return}}
+  {const cm=mondayOf(new Date());const isHO=(tasks().find(x=>x.id===btn.dataset.task)||{}).owner==="ho";if(+S.view>+cm&&!isHO){toast("Vorschau: abhaken geht erst in der Woche selbst. Homeoffice kannst du schon eintragen.");return}if(+S.view<+cm&&S.wkEdit!==wkKey(S.view)){toast("Archiv: erst „✏️ Nachtragen“ antippen.");return}}
   const t=tasks().find(x=>x.id===btn.dataset.task);if(!t)return;
   let wk=wkKey(S.view),key,cur;
   if(btn.dataset.sub!=null&&hasSubs(t)){const base=t.id+"__"+btn.dataset.slot,sk=base+"_s"+btn.dataset.sub,tk=ticksOf(wk),nv=tk[sk]?null:{by:S.me,at:Date.now()};
@@ -742,9 +742,9 @@ function renderWeek(){
   const sc=weekScore(wk),split=rotSplit(),tk=ticksOf(wk);
   const {w}=isoWeek(mon);
   let h=`<div class="top"><div><div class="eyebrow">KW ${w} · ${fmt(mon,{day:"numeric",month:"short"})} – ${fmt(addDays(mon,6),{day:"numeric",month:"short"})}</div><h1>${isCur?"Diese Woche":(mon<cur?"Rückblick":"Vorschau")}</h1></div>
-   <div class="weeknav">${prioOn()?`<button class="iconbtn" data-prionew="woche" aria-label="Erinnerung anlegen">🔔</button>`:""}<button class="iconbtn" data-wknav="-1" aria-label="Vorige Woche">‹</button>${isCur?"":`<button class="ghost" data-wknav="0">Heute</button>`}<button class="iconbtn" data-wknav="1" aria-label="Nächste Woche" ${+mon>=+addDays(cur,28)?"disabled":""}>›</button></div></div>`;
+   <div class="weeknav"><button class="iconbtn" data-prionew="woche" aria-label="Erinnerung anlegen">🔔</button><button class="iconbtn" data-wknav="-1" aria-label="Vorige Woche">‹</button>${isCur?"":`<button class="ghost" data-wknav="0">Heute</button>`}<button class="iconbtn" data-wknav="1" aria-label="Nächste Woche" ${+mon>=+addDays(cur,28)?"disabled":""}>›</button></div></div>`;
   if(!isCur)h+=`<div class="wkro">${mon<cur?(S.wkEdit===wk?`✏️ Nachtragen ist an. <button class="ghost" data-act="wkedit">Fertig</button>`:`📦 Archiv: diese Woche ist nur zum Ansehen. <button class="ghost" data-act="wkedit">✏️ Nachtragen</button>`):`🔭 Vorschau: Homeoffice kannst du schon eintragen, abhaken geht erst in der Woche selbst.`}</div>`;
-  const hoTop=prioOn();
+  const hoTop=true;
   h+=meChooser();
   const cnt={all:[0,0],p0:[0,0],p1:[0,0]};
   tasks().forEach(t=>{if(group(t.freq)!=="week"||t.owner!=="rot")return;const o=ownerFor(t,mon,split);const n=slotsOf(t);
@@ -817,32 +817,8 @@ function renderScore(){
      <div class="freq">★ = Wochenziel (${Math.round(GOAL*100)} %) erreicht</div></section>`;
   return h}
 
-function renderAll(){
-  const mon=mondayOf(new Date()),next=addDays(mon,7),split=rotSplit();
-  const fl=t=>t.freq==="day"?"täglich":t.freq==="week"?(t.times||1)+"× pro Woche":FREQ_LABEL[t.freq];
-  const li=a=>a.length?`<ul class="alist">${a.map(t=>`<li><span>${esc(t.name)}</span><span class="freq">${fl(t)}</span></li>`).join("")}</ul>`:`<div class="freq">Nichts</div>`;
-  const block=(title,a)=>a.length?`<div><div class="eyebrow">${title}</div>${li(a)}</div>`:"";
-  const isW=t=>group(t.freq)==="week";
-  const mine=S.filter==="meine"&&S.me;const tk=ticksOf(wkKey(mon));
-  let h=`<div><div class="eyebrow">Zum Nachschauen</div><h1>${mine?"Mein Bereich":"Alle Aufgaben"}</h1></div>`+meChooser()+scopeSwitch();
-  if(mine){const open=[];tasks().forEach(t=>{if(group(t.freq)!=="week")return;const o=ownerFor(t,mon,split);if(o!==S.me)return;const n=slotsOf(t);let c=0;for(let i=0;i<n;i++)if(tk[t.id+"__"+i])c++;if(c<n)open.push({t,c,n})});
-    h+=`<section class="card"><h2>Noch offen diese Woche</h2>${open.length?`<ul class="alist">${open.map(x=>`<li><span>${esc(x.t.name)}</span><span class="freq num">${x.c}/${x.n} erledigt</span></li>`).join("")}</ul><div><button class="ghost" data-act="toweek">Zur Woche, abhaken</button></div>`:`<div class="freq">Nichts mehr offen. Alles erledigt.</div>`}</section>`}
-  (mine?[S.me]:["p0","p1"]).forEach(p=>{const rot=tasks().filter(t=>t.owner==="rot");
-    h+=`<section class="card"><h2><i class="dot ${p}"></i>${esc(pname(p))}</h2>
-      ${block("Im Wechsel, diese Woche (KW "+isoWeek(mon).w+")",rot.filter(t=>isW(t)&&ownerFor(t,mon,split)===p))}
-      ${block("Im Wechsel, nächste Woche (KW "+isoWeek(next).w+")",rot.filter(t=>isW(t)&&ownerFor(t,next,split)===p))}
-      ${block("Im Wechsel, aktuell bei "+esc(pname(p)),rot.filter(t=>!isW(t)&&ownerFor(t,mon,split)===p))}
-      ${block("Immer",tasks().filter(t=>t.owner===p))}</section>`});
-  const both=tasks().filter(t=>t.owner==="both"),ho=tasks().filter(t=>t.owner==="ho");
-  if(both.length)h+=`<section class="card"><h2><i class="dot both"></i>Beide</h2>${li(both)}</section>`;
-  if(ho.length)h+=`<section class="card"><h2><i class="dot ho"></i>Wer im Homeoffice ist</h2>${li(ho)}</section>`;
-  return h}
-const CAMP=[["tent","Zelt",3],["pit","Feuerstelle",8],["tree1","Tanne",15],["chairs","Campingstühle",25],["tree2","Zweite Tanne",40],["lantern","Laterne",60],["hammock","Hängematte",80],["lights","Lichterkette",105],["hills","Berge",135],["lake","See",170],["canoe","Kanu",210],["flags","Wimpelkette",260],["fox","Fuchs",320]];
 const HOUSE=[["haus","Haus",0],["leucht","Leuchtturm",0],["hortensia","Hortensien",15],["bench","Gartenbank",25],["boat","Fischerboot",40],["wall","Steinmauer",60],["strandkorb","Strandkorb",80],["flags","Wimpelkette",105],["isles","Inseln",135],["sail","Segelboot",210],["kite","Drachen",260],["seal","Robbe",320]];
 const HOUSE_GUESTS={spring:["🦋","🐌","🐚"],summer:["🦀","🐚","🦋"],autumn:["🦀","🍄","🦔"],winter:["🦭","🐚","🦉"]};
-// Haus am Meer ist seit 15.11.2026 für beide das Startbild (Florian: "Haus ist das zentrale Element"); das Zelt gibt es nur noch mit ?bild=zelt, bis der Zelt-Code entfernt ist
-function scene(){return /[?&]bild=zelt/.test(location.search)?"zelt":"haus"}
-const SC=()=>scene()==="haus"?HOUSE:CAMP;
 // ---------- Himmel: echte Sonnenzeiten, Mondphase, Wetter ----------
 function sunTimes(d,lat,lon){const r=Math.PI/180,start=new Date(d.getFullYear(),0,0),n=Math.floor((d-start)/864e5),dec=23.44*Math.sin(2*Math.PI*(284+n)/365)*r,B=2*Math.PI*(n-81)/364,eot=9.87*Math.sin(2*B)-7.53*Math.cos(B)-1.5*Math.sin(B);
   const cosH=(Math.sin(-0.833*r)-Math.sin(lat*r)*Math.sin(dec))/(Math.cos(lat*r)*Math.cos(dec));const H=Math.acos(Math.max(-1,Math.min(1,cosH)))/r;
@@ -858,7 +834,7 @@ function moonSvg(cx,cy,r,p,col,dark){const lit=(1-Math.cos(2*Math.PI*p))/2;let g
 function wxKind(code){if(code==null||code==="")return "";code=+code;if(isNaN(code))return "";if(code>=95)return "gewitter";if(code>=71&&code<=77||code===85||code===86)return "schnee";if(code>=51&&code<=67||code>=80&&code<=82)return "regen";if(code===45||code===48)return "nebel";if(code===3)return "bedeckt";if(code===2)return "wolkig";return ""}
 // Ausschnitt des Hausbilds (Florian 15.11.2026: weniger Himmel, Haus und Wiese größer). Spots rechnen damit.
 const HVB=[4,32,352,228];
-function spotPos(x,y,w,h,haus){const V=haus?HVB:[0,0,360,260];return `left:${((x-V[0])/V[2]*100).toFixed(1)}%;top:${((y-V[1])/V[3]*100).toFixed(1)}%;width:${(w/V[2]*100).toFixed(1)}%;height:${(h/V[3]*100).toFixed(1)}%`}
+function spotPos(x,y,w,h){const V=HVB;return `left:${((x-V[0])/V[2]*100).toFixed(1)}%;top:${((y-V[1])/V[3]*100).toFixed(1)}%;width:${(w/V[2]*100).toFixed(1)}%;height:${(h/V[3]*100).toFixed(1)}%`}
 function houseScene(has,light,night,extras,sea,guests,dots,amb){dots=dots||{};amb=amb||{};const ph=amb.ph||(night?"night":"day"),wk=amb.wx||"";const grey=/regen|gewitter|schnee|bedeckt|nebel/.test(wk);
   const C=night?{sky1:"#0e1d30",sky2:"#2a4560",sea1:"#1d3d5c",sea2:"#16314b",land:"#2d5040",land2:"#254436",sand:"#6f6a55",wall:"#7d7d7c",stone:"#666868",roof:"#283340",head:"#3a4a4a"}
                :{sky1:"#b8dcec",sky2:"#f3efe0",sea1:"#4f8fb8",sea2:"#2f6c97",land:"#8fbf7f",land2:"#7aae6c",sand:"#e8d8ac",wall:"#bdb8ad",stone:"#a39e93",roof:"#4b5866",head:"#8aa38b"};
@@ -956,55 +932,9 @@ function houseScene(has,light,night,extras,sea,guests,dots,amb){dots=dots||{};am
   return `<svg viewBox="${HVB.join(" ")}" role="img" aria-label="Euer Haus am Meer">${g}</svg>`}
 function campTotal(){let n=0;for(const wk in S.weeks){const tk=ticksOf(wk);for(const k in tk)if(tk[k])n++}return n}
 const SEASON_NAME={spring:"Frühling",summer:"Sommer",autumn:"Herbst",winter:"Winter"};
-const GUESTS={spring:["🐇","🐣","🦋"],summer:["🦆","🐸","🦋"],autumn:["🦔","🐿️","🍄"],winter:["⛄","🦌","🦉"]};
 function season(){const q=/[?&]saison=(spring|summer|autumn|winter)/.exec(location.search);if(q)return q[1];const m=new Date().getMonth();return m<2||m===11?"winter":m<5?"spring":m<8?"summer":"autumn"}
-function campScene(has,fire,night,extras,sea,guests,dots){dots=dots||{};
-  const C=night?{sky1:"#0f1f33",sky2:"#27425a",ground:"#2c5443",ground2:"#234537",hill:"#1d3a44",tree:"#1c4436",tree2:"#173a2e",lake:"#2b5d7a"}
-               :{sky1:"#bfe3ea",sky2:"#f6efd9",ground:"#8cc084",ground2:"#79b073",hill:"#9dbdb4",tree:"#2f6b5c",tree2:"#255748",lake:"#8fcbe0"};
-  Object.assign(C,(night?{spring:{ground:"#2f5a45",ground2:"#264a39"},autumn:{ground:"#4a4f33",ground2:"#3d422a"},winter:{ground:"#8fa3b3",ground2:"#7b90a1",hill:"#3d5466",lake:"#6f8ea3"}}
-    :{spring:{sky1:"#c9e8f0",sky2:"#fdf3e1",ground:"#9ccf8a",ground2:"#86c07a"},autumn:{sky1:"#cfdfe0",sky2:"#f8e2c0",ground:"#c2b46a",ground2:"#ad9c55",hill:"#a9a99a"},winter:{sky1:"#cfdde8",sky2:"#f1f3f4",ground:"#f2f6f8",ground2:"#e0e9ee",hill:"#b9c7d0",lake:"#d5e9f0"}})[sea]||{});
-  const snow=sea==="winter";
-  const tree=(x,b,h)=>`<rect x="${x-4}" y="${b-14}" width="8" height="16" fill="#7a5230"/><path d="M${x} ${b-h} L${x+26} ${b-h*0.45} H${x-26}Z M${x} ${b-h*0.72} L${x+32} ${b-h*0.2} H${x-32}Z M${x} ${b-h*0.45} L${x+38} ${b-10} H${x-38}Z" fill="${C.tree}"/>${snow?`<path d="M${x} ${b-h} L${x+14} ${b-h*0.71} Q${x} ${b-h*0.66} ${x-14} ${b-h*0.71}Z" fill="#fff"/>`:""}`;
-  let g=`<defs><linearGradient id="csky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${C.sky1}"/><stop offset="1" stop-color="${C.sky2}"/></linearGradient><radialGradient id="cglow"><stop offset="0" stop-color="#ffcf70" stop-opacity=".55"/><stop offset="1" stop-color="#ffcf70" stop-opacity="0"/></radialGradient></defs>
-  <rect width="360" height="260" fill="url(#csky)"/>`;
-  if(night){g+=`<circle cx="300" cy="44" r="16" fill="#f3ecd2"/><circle cx="293" cy="40" r="14" fill="${C.sky1}"/>`;
-    [[30,30],[80,58],[130,24],[178,50],[226,20],[252,66],[334,84],[52,92],[204,84]].forEach((p,i)=>{g+=`<circle class="twinkle" style="animation-delay:${i*0.3}s" cx="${p[0]}" cy="${p[1]}" r="1.6" fill="#fff"/>`})}
-  else g+=`<circle cx="300" cy="46" r="18" fill="#ffd66b"/><path d="M40 52h44a12 12 0 0 0-22-8 10 10 0 0 0-22 8z M190 34h36a10 10 0 0 0-18-6 8 8 0 0 0-18 6z" fill="#fff" opacity=".8"/>`;
-  if(has.hills)g+=`<path d="M-10 176 L70 86 L128 150 L200 64 L292 164 L370 150 V180Z" fill="${C.hill}"/><path d="M200 64 L214 80 L204 78 L198 86 L188 78Z M70 86 L82 100 L72 98 L64 104 L60 97Z" fill="#fff" opacity="${night?.5:.9}"/>`;
-  g+=`<path d="M0 172 Q180 146 360 172 V260 H0Z" fill="${C.ground}"/><path d="M0 214 Q180 196 360 218 V260 H0Z" fill="${C.ground2}"/>`;
-  if(sea==="spring")[[24,236,"#f7a8c4"],[96,250,"#fff"],[330,228,"#f7a8c4"],[70,256,"#ffd66b"],[250,200,"#fff"],[14,200,"#ffd66b"],[340,196,"#f7a8c4"]].forEach(p=>{g+=`<circle cx="${p[0]}" cy="${p[1]}" r="3.2" fill="${p[2]}"/><circle cx="${p[0]}" cy="${p[1]}" r="1.2" fill="#e0a030"/>`});
-  if(sea==="autumn")[[24,236,"#d9792b",20],[96,252,"#b3402a",-30],[330,226,"#e0a030",40],[70,256,"#e0a030",10],[250,198,"#b3402a",-15],[14,198,"#d9792b",60],[340,196,"#d9792b",-40],[130,246,"#b3402a",25],[300,200,"#e0a030",-10]].forEach(p=>{g+=`<ellipse cx="${p[0]}" cy="${p[1]}" rx="4.5" ry="2.2" fill="${p[2]}" transform="rotate(${p[3]} ${p[0]} ${p[1]})"/>`});
-  if(snow)[[24,40],[60,96],[98,22],[150,70],[186,30],[236,88],[270,26],[318,104],[346,60],[130,118],[210,128],[40,140],[330,140]].forEach((p,i)=>{g+=`<circle class="twinkle" style="animation-delay:${i*0.25}s" cx="${p[0]}" cy="${p[1]}" r="2" fill="#fff"/>`});
-  if(has.lake)g+=`<ellipse cx="292" cy="246" rx="78" ry="13" fill="${C.lake}"/><path d="M240 246h30M300 250h36" stroke="#fff" stroke-opacity=".5" stroke-width="2" stroke-linecap="round"/>`;
-  if(has.canoe)g+=`<path d="M262 240 Q292 254 324 240 Q292 247 262 240Z" fill="#c96a1e"/><path d="M288 228 L302 248" stroke="#7a5230" stroke-width="2.5" stroke-linecap="round"/>`;
-  if(has.tree1)g+=tree(40,206,92);
-  if(has.tree2)g+=tree(112,200,78);
-  if(has.hammock)g+=`<path d="M44 176 Q76 208 108 176" fill="none" stroke="#f4b860" stroke-width="7" stroke-linecap="round"/><path d="M44 176 Q76 200 108 176" fill="none" stroke="#d9792b" stroke-width="2"/>`;
-  if(has.tent)g+=`<path d="M118 218 L178 122 L238 218Z" fill="#f4b860"/><path d="M178 122 L178 218 L148 218Z" fill="#d9792b"/><path d="M178 162 L196 218 H162Z" fill="#1f4a40"/><path d="M171 112 L178 122 L185 112" fill="none" stroke="#f4b860" stroke-width="4" stroke-linecap="round"/>`;
-  if(has.lights){g+=`<path d="M112 128 Q146 150 178 122" fill="none" stroke="#3a2a1a" stroke-width="1.5"/>`;
-    [[122,134,"#f25f5c"],[134,139,"#ffd66b"],[147,140,"#70c1b3"],[160,135,"#f25f5c"],[170,129,"#ffd66b"]].forEach(p=>{g+=`<circle cx="${p[0]}" cy="${p[1]+3}" r="3.2" fill="${p[2]}"/>`})}
-  if(has.lantern)g+=`${night?'<circle cx="322" cy="176" r="26" fill="url(#cglow)"/>':""}<path d="M322 224 V166 h-10" fill="none" stroke="#5b4a3a" stroke-width="3" stroke-linecap="round"/><rect x="306" y="168" width="12" height="16" rx="3" fill="#ffd66b" stroke="#5b4a3a" stroke-width="2"/>`;
-  if(has.flags){g+=`<path d="M178 122 Q250 150 322 166" fill="none" stroke="#3a2a1a" stroke-width="1.5"/>`;
-    [[200,131,"#f25f5c"],[224,139,"#70c1b3"],[248,146,"#ffd66b"],[272,153,"#f25f5c"],[296,160,"#70c1b3"]].forEach(p=>{g+=`<path d="M${p[0]-5} ${p[1]} h10 l-5 11z" fill="${p[2]}"/>`})}
-  if(has.chairs)g+=`<path d="M226 232 l4 -14 h12 l4 14 M228 224 h16" fill="none" stroke="#c96a1e" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M286 232 l4 -14 h12 l4 14 M288 224 h16" fill="none" stroke="#1c8577" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>`;
-  if(has.pit){
-    if(fire>0)g+=`<circle cx="266" cy="222" r="${22+26*fire}" fill="url(#cglow)"/>`;
-    g+=`<path d="M254 234 l24 -8 M254 226 l24 8" stroke="#7a5230" stroke-width="5" stroke-linecap="round"/>`;
-    if(fire>0){const k=(0.55+0.85*fire).toFixed(2);g+=`<g transform="translate(266,230) scale(${k})"><g class="flame"><path d="M0 0 C-13 -8 -7 -22 0 -34 C7 -22 13 -8 0 0Z" fill="#f2792b"/><path d="M0 -2 C-6 -7 -3 -14 0 -20 C3 -14 6 -7 0 -2Z" fill="#ffd66b"/></g></g>`}
-    g+=`<ellipse cx="252" cy="236" rx="5" ry="3.5" fill="#8a8f8c"/><ellipse cx="266" cy="239" rx="5.5" ry="3.5" fill="#a3a8a5"/><ellipse cx="280" cy="236" rx="5" ry="3.5" fill="#8a8f8c"/>`}
-  if(has.fox)g+=`<path d="M52 246 q-14 -2 -16 -12 q10 2 14 8z" fill="#e07a3f"/><ellipse cx="66" cy="244" rx="14" ry="7" fill="#e07a3f"/><path d="M76 240 l10 -9 l1 8 l7 2 l-8 6z" fill="#e07a3f"/><path d="M87 245 l7 -4 l-3 6z" fill="#fff"/><circle cx="87" cy="239" r="1.1" fill="#1b2622"/>`;
-  if(snow&&has.tent)g+=`<path d="M178 122 L190 141 Q178 136 166 141Z" fill="#fff"/>`;
-  const dot=(x,y)=>`<circle cx="${x}" cy="${y}" r="5.5" fill="#f25f5c" stroke="#fff" stroke-width="2"/>`;
-  g+=`<path d="M127 224 L147 170" stroke="#7a5230" stroke-width="3.2" stroke-linecap="round"/><path d="M118 221 L132 215 L138 228 L122 234Z" fill="#e0a030"/><path d="M121 226 l3 6 M126 224 l3 7 M131 222 l3 7" stroke="#b5771c" stroke-width="1.2"/>${dots.woche?dot(149,167):""}`;
-  g+=`<rect x="338" y="184" width="4" height="38" rx="1" fill="#7a5230"/><path d="M322 184h26l9 7.5-9 7.5h-26z" fill="#d6a868" stroke="#b5854a" stroke-width="1"/><text x="337" y="195.5" font-size="10" text-anchor="middle">🧺</text>${dots.shop?dot(323,183):""}`;
-  g+=`<rect x="194" y="232" width="3" height="26" fill="#7a5230"/><rect x="219" y="232" width="3" height="26" fill="#7a5230"/><rect x="190" y="228" width="36" height="22" rx="2" fill="#b5854a"/><rect x="194" y="231" width="14" height="16" fill="#fff"/><path d="M196 235h10M196 239h10M196 243h6" stroke="#9aa5a0" stroke-width="1.2"/><rect x="211" y="232" width="11" height="9" fill="#ffd66b"/><path d="M213 236l2 2 4-4" fill="none" stroke="#2f7d5b" stroke-width="1.4"/>`;
-  [[84,222],[346,250],[14,236]].slice(0,guests|0).forEach((p,i)=>{g+=`<text x="${p[0]}" y="${p[1]}" font-size="22" text-anchor="middle">${GUESTS[sea][i]}</text>`});
-  const SPOTS=[[18,256],[100,244],[150,252],[240,206],[128,224],[304,256],[10,206],[60,226],[288,204]];
-  (extras||[]).forEach((e,i)=>{const sp=SPOTS[i%SPOTS.length];g+=`<text x="${sp[0]}" y="${sp[1]}" font-size="22" text-anchor="middle">${esc(e.emoji)}</text>`});
-  return `<svg viewBox="0 0 360 260" role="img" aria-label="Euer Zeltplatz">${g}</svg>`}
-const CAMP_IDEAS=["🦔","🦉","🐿️","🦌","🐇","🐸","🦆","🐕","🐈","🦋","🍄","🌻","🎸","🔭","⛄","🚲"];
 function campCfg(){const c=(S.config&&S.config.camp)||{};const ex=c.extras?(Array.isArray(c.extras)?c.extras:Object.values(c.extras)):[];return {costs:c.costs||{},extras:ex.filter(Boolean)}}
-function campItems(cc){cc=cc||campCfg();return SC().map(c=>({id:c[0],name:c[1],cost:c[2]===0||c[0]==="tent"||c[0]==="pit"?0:cc.costs[c[0]]!=null?(cc.costs[c[0]]|0):c[2]})).concat(cc.extras.map(e=>({id:e.id,name:e.name||e.emoji,cost:e.cost|0,emoji:e.emoji}))).sort((a,b)=>a.cost-b.cost)}
+function campItems(cc){cc=cc||campCfg();return HOUSE.map(c=>({id:c[0],name:c[1],cost:c[2]===0||c[0]==="tent"||c[0]==="pit"?0:cc.costs[c[0]]!=null?(cc.costs[c[0]]|0):c[2]})).concat(cc.extras.map(e=>({id:e.id,name:e.name||e.emoji,cost:e.cost|0,emoji:e.emoji}))).sort((a,b)=>a.cost-b.cost)}
 // Start hat drei Seiten (Florian 15.11.2026): Haus, Tag und Woche, Wichtig
 function startPager(p){return `<div class="pager" role="group" aria-label="Seiten von Start"><div class="pdots">${[["camp","Haus"],["tag","Tag und Woche"],["wichtig","Wichtig"]].map((x,i)=>`<button class="pdot" data-go="${x[0]}" aria-pressed="${i===p}"><b>${x[1]}</b></button>`).join("")}</div></div>`}
 function renderTag(){loadWx();const now=new Date(),today=ymd(now),tmw=ymd(addDays(startOfDay(now),1)),D=backDay(now),mon=mondayOf(now),sun=ymd(addDays(mon,6));
@@ -1043,47 +973,26 @@ function renderTag(){loadWx();const now=new Date(),today=ymd(now),tmw=ymd(addDay
   const WD=S.wx&&S.wx.days||{},wl=[];for(let i=0;i<7;i++){const d=addDays(startOfDay(now),i),x=WD[ymd(d)];if(x)wl.push([d,x])}
   if(wl.length)h+=fold("wx","⛅","Wetter",esc(WX_FMT(wl[0][1])),`<ul class="wxdays">${wl.map(([d,x],i)=>`<li><b>${i===0?"Heute":i===1?"Morgen":DN[d.getDay()].slice(0,2)}</b><span>${esc(WX_FMT(x))}</span></li>`).join("")}</ul>`);
   return h}
-function renderCamp(){S.flip=false;if(scene()==="haus")loadWx();
+function renderCamp(){S.flip=false;loadWx();
   const total=campTotal(),mon=mondayOf(new Date()),tk=ticksOf(wkKey(mon));
   let d=0,n=0;tasks().forEach(t=>{if(group(t.freq)!=="week"||t.owner!=="rot")return;const m=slotsOf(t);for(let i=0;i<m;i++){n++;if(tk[t.id+"__"+i])d++}});
   const fire=n?d/n:0,skyPh=skyPhase(),night=skyPh==="night";
-  const items=campItems(),has={};items.forEach(c=>{has[c.id]=total>=c.cost});const haus=scene()==="haus";if(haus)has.haus=has.leucht=true;else has.tent=has.pit=true;
-  const next=items.find(c=>total<c.cost),prev=Math.max(0,...items.filter(c=>total>=c.cost).map(c=>c.cost));
-  const sea=season(),guests=fire>=1?3:fire>=2/3?2:fire>=1/3?1:0,now=new Date(),di=(now.getDay()+6)%7,split=rotSplit();
+  const items=campItems(),has={};items.forEach(c=>{has[c.id]=total>=c.cost});has.haus=has.leucht=true;
+  const sea=season(),guests=fire>=1?3:fire>=2/3?2:fire>=1/3?1:0,di=(new Date().getDay()+6)%7,split=rotSplit();
   let openW=0;tasks().forEach(t=>{if(group(t.freq)!=="week")return;const o=t.owner==="rot"?ownerFor(t,mon,split):t.owner;if(S.me&&o!==S.me&&o!=="both")return;if(o==="ho")return;
     const chk=i=>{if(o==="both"){const leg=tk[t.id+"__"+i];if(S.me?!(tk[t.id+"__"+i+"_"+S.me]||(leg&&leg.by===S.me)):!leg)openW++}else if(!tk[t.id+"__"+i])openW++};
     if(t.freq==="day")chk(di);else for(let i=0;i<slotsOf(t);i++)chk(i)});
   const openS=shopItems().filter(i=>!i.done).length,meal=planDays(mon)["d"+di],mealTxt=meal?(meal.text||""):"";
-  const spot=(x,y,w,hh,go,label,ft)=>`<button class="spot" style="${spotPos(x,y,w,hh,haus)}" data-go="${go}"${ft?` data-ft="${ft}"`:""} aria-label="${label}">${S.labels?`<span class="lab">${label.split(":")[0].replace(" mit dem Bus","").replace("Einkaufsliste","Einkauf")}</span>`:""}</button>`;
-  const G=haus?HOUSE_GUESTS:GUESTS,place=haus?"am Meer":"auf dem Zeltplatz";
-  let h=`${haus?startPager(0):""}<div><div class="eyebrow">${SEASON_NAME[sea]} ${place}</div><h1>Hallo${S.me?" "+esc(pname(S.me)):""}</h1></div>${S.me?"":meChooser()}
-   <div class="flipbox"><div class="flipin${haus&&S.flip?" flipped":""}"><div class="camp">${haus?houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:false,shop:openS>0,post:briefe().length>0},{ph:skyPh,wx:S.wx&&S.wx.cur!=null&&Date.now()-S.wx.at<3*3600e3?wxKind(S.wx.cur):""})+spot(166,196,50,48,"woche","Woche: offene Aufträge")+spot(119,148,42,96,"essen","Essen",mealTxt?"plan":"")+spot(112,212,26,22,"einkauf","Einkauf: Korb mit Baguette")+spot(208,203,24,30,"kita","Kita")+spot(80,243,40,24,"ausflug","Ausflüge: Fahrrad")+spot(62,214,20,22,"woche","Kalender: Aushang am Baum").replace('data-go="woche"','data-nav="woche|wp:3"')+spot(318,80,34,64,"projekte","Ideen")+spot(38,122,70,42,"privat","Partner: Klippen")+spot(24,244,18,26,"post","Briefkasten")+spot(155,168,22,20,"amhaus","Am Haus: Lampe")+spot(58,176,60,52,"amhaus","Garten: Baum").replace('data-go="amhaus"','data-go="amhaus" data-pf="garten"')+spot(40,203,22,28,"kind","Kind: Schaukel")+spot(240,238,26,26,"spiel","Sport und Spiel")+spot(322,196,56,66,"reisen","Urlaube: Segelboot")+spot(254,189,22,22,"musik","Musik: Ghettoblaster")+(()=>{const y=(night?40:(skyPh==="dusk"||skyPh==="dawn")?98:44)+13,x=night?52:56;return `<button class="spot" style="${spotPos(x,y,46,46,haus)}" data-act="wxpop" aria-expanded="${!!S.wxPop}" aria-label="${night?"Mond":"Sonne"}: Wetter">${S.labels?`<span class="lab">Wetter</span>`:""}</button>`})()+"</div>"+(haus?renderBack(night):"")+"</div>"
-       :campScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:openW>0,shop:openS>0})+spot(176,172,124,104,"woche","Woche: offene Aufträge")+spot(268,222,64,48,"essen","Essen",mealTxt?"plan":"")+spot(340,200,44,46,"einkauf","Einkaufsliste")+spot(208,244,46,36,"alle","Übersicht und Plan")}</div>
-   <div class="freq" style="text-align:center;margin-top:-6px">${haus?"Tippt ins Bild, auf Sonne oder Mond fürs Wetter. Ein Tipp auf eine freie Stelle dreht das Bild um, lange auf ein Ding drücken zeigt Abkürzungen.":"Tippt ins Bild: Besen am Zelt, Lagerfeuer, Aushang oder das Holzschild am Rand."}</div>
-   ${haus&&S.wxPop?wxPanel(night):""}
-   <section class="card today"><h2>Heute${haus?`<span class="freq" style="font-weight:400;margin-left:8px">Tipp auf die Karte zeigt den Tag</span>`:""}</h2>
+  const spot=(x,y,w,hh,go,label,ft)=>`<button class="spot" style="${spotPos(x,y,w,hh)}" data-go="${go}"${ft?` data-ft="${ft}"`:""} aria-label="${label}">${S.labels?`<span class="lab">${label.split(":")[0].replace(" mit dem Bus","").replace("Einkaufsliste","Einkauf")}</span>`:""}</button>`;
+  let h=`${startPager(0)}<div><div class="eyebrow">${SEASON_NAME[sea]} am Meer</div><h1>Hallo${S.me?" "+esc(pname(S.me)):""}</h1></div>${S.me?"":meChooser()}
+   <div class="flipbox"><div class="flipin${S.flip?" flipped":""}"><div class="camp">${houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:false,shop:openS>0,post:briefe().length>0},{ph:skyPh,wx:S.wx&&S.wx.cur!=null&&Date.now()-S.wx.at<3*3600e3?wxKind(S.wx.cur):""})+spot(166,196,50,48,"woche","Woche: offene Aufträge")+spot(119,148,42,96,"essen","Essen",mealTxt?"plan":"")+spot(112,212,26,22,"einkauf","Einkauf: Korb mit Baguette")+spot(208,203,24,30,"kita","Kita")+spot(80,243,40,24,"ausflug","Ausflüge: Fahrrad")+spot(62,214,20,22,"woche","Kalender: Aushang am Baum").replace('data-go="woche"','data-nav="woche|wp:3"')+spot(318,80,34,64,"projekte","Ideen")+spot(38,122,70,42,"privat","Partner: Klippen")+spot(24,244,18,26,"post","Briefkasten")+spot(155,168,22,20,"amhaus","Am Haus: Lampe")+spot(58,176,60,52,"amhaus","Garten: Baum").replace('data-go="amhaus"','data-go="amhaus" data-pf="garten"')+spot(40,203,22,28,"kind","Kind: Schaukel")+spot(240,238,26,26,"spiel","Sport und Spiel")+spot(322,196,56,66,"reisen","Urlaube: Segelboot")+spot(254,189,22,22,"musik","Musik: Ghettoblaster")+(()=>{const y=(night?40:(skyPh==="dusk"||skyPh==="dawn")?98:44)+13,x=night?52:56;return `<button class="spot" style="${spotPos(x,y,46,46)}" data-act="wxpop" aria-expanded="${!!S.wxPop}" aria-label="${night?"Mond":"Sonne"}: Wetter">${S.labels?`<span class="lab">Wetter</span>`:""}</button>`})()+"</div>"+renderBack(night)+"</div>"}</div>
+   <div class="freq" style="text-align:center;margin-top:-6px">Tippt ins Bild, auf Sonne oder Mond fürs Wetter. Ein Tipp auf eine freie Stelle zeigt Tag und Woche, lange auf ein Ding drücken zeigt Abkürzungen.</div>
+   ${S.wxPop?wxPanel(night):""}
+   <section class="card today"><h2>Heute<span class="freq" style="font-weight:400;margin-left:8px">Tipp auf die Karte zeigt den Tag</span></h2>
      <button class="todayrow" data-go="woche"><span>🧹</span><span>${openW?"Offene Aufträge":"Alles erledigt, was gerade ansteht"}</span><i>›</i></button>
-     <button class="todayrow" data-go="essen" data-ft="${haus?(mealTxt?"heute":"rezepte"):"plan"}"${haus&&!mealTxt?' data-mealfor="1"':""}><span>🍲</span><span>${mealTxt?"Es gibt "+esc(mealTxt):"Für heute ist noch kein Essen geplant"}</span><i>›</i></button>${haus?(m=>m.length?`<button class="todayrow minialarm" data-go="einkauf"><span>🔔</span><span>Für heute noch einkaufen: ${esc(m.slice(0,3).join(", "))}${m.length>3?" und "+(m.length-3)+" mehr":""}</span><i>›</i></button>`:"")(todayMissing(meal)):""}
-     ${haus?"":`<button class="todayrow" data-go="einkauf"><span>🧺</span><span>${openS?openS+(openS===1?" Artikel steht":" Artikel stehen")+" auf der Einkaufsliste":"Die Einkaufsliste ist leer"}</span><i>›</i></button>`}${haus?"":`<button class="todayrow" data-go="privat"><span>🫶</span><span>Partner: Themen zu zweit</span><i>›</i></button>`}${haus?prioLinkRow():""}</section>`;
-  // "Als Nächstes" und "Ausstattung" sind im Haus gestrichen (Florian 15.11.2026); Leuchtturm und Gäste im Bild bleiben, weil sie den Wochenstand zeigen
-  const HO=homeOpen(),fold=(id,t,info,body)=>haus?"":0?`<section class="card setcard"><button class="setsum" data-homesum="${id}" aria-expanded="${!!HO[id]}"><h2>${t}</h2><span class="freq num" style="margin-left:auto;margin-right:8px">${info}</span><i>${HO[id]?"▾":"›"}</i></button>${HO[id]?`<div class="setbody">${body}</div>`:""}</section>`:`<section class="card"><h2>${t}</h2>${body}</section>`;
-  h+=fold("next",next?"Als Nächstes: "+esc(next.emoji?next.emoji+" "+next.name:next.name):(haus?"Euer Haus am Meer ist komplett":"Euer Zeltplatz ist komplett"),next?"noch "+(next.cost-total):"",`
-    ${next?`<div class="xpbar"><i style="width:${Math.round((total-prev)/Math.max(1,next.cost-prev)*100)}%"></i></div><div class="freq num">Noch ${next.cost-total} Häkchen bis dahin. Bisher habt ihr zusammen ${total} gesetzt.</div>`:`<div class="freq num">Ihr habt zusammen ${total} Häkchen gesetzt.</div>`}
-    <div class="freq">Gäste im ${SEASON_NAME[sea]}: ${G[sea].join(" ")} Sie kommen vorbei, sobald ein Drittel, zwei Drittel und alle Wechsel-Aufgaben der Woche erledigt sind. Gerade ${guests===0?"ist noch keiner":guests===1?"ist einer":"sind "+guests} da.</div>
-    <div class="notice">Jedes Häkchen von euch beiden zählt, egal für welche Aufgabe. ${haus?"Der Leuchtturm strahlt umso heller, je mehr Wechsel-Aufgaben dieser Woche erledigt sind ("+d+" von "+n+").":has.pit?"Das Lagerfeuer brennt umso höher, je mehr Wechsel-Aufgaben dieser Woche erledigt sind ("+d+" von "+n+").":"Sobald die Feuerstelle steht, brennt das Feuer umso höher, je mehr Wechsel-Aufgaben der Woche erledigt sind."}</div>`);
-  if(haus)S.campDraft=null;
-  if(!S.campDraft){
-    h+=fold("aus","Ausstattung",items.filter(c=>has[c.id]).length+" von "+items.length,`<div class="unl">${items.map(c=>`<span class="${has[c.id]?"":"lock"}">${has[c.id]?"✓ ":""}${c.emoji?esc(c.emoji)+" ":""}${esc(c.name)}${has[c.id]?"":" · ab "+c.cost}</span>`).join("")}</div>
-      <div><button class="ghost" data-act="campedit">Ausstattung bearbeiten</button></div>`);
-  }else{const dr=S.campDraft;
-    h+=`<section class="section"><div class="section-head"><h2>Eigenes hinzufügen</h2></div>
-      <div class="card"><div class="freq">Tippe ein Symbol an oder gib unten ein eigenes Emoji ein. Die Kosten sind die Zahl der Häkchen, ab der es ${haus?"am Haus":"auf dem Zeltplatz"} erscheint.</div>
-      <div class="unl">${CAMP_IDEAS.map(e=>`<button class="chipbtn" data-act="campadd" data-emoji="${e}" aria-label="${e} hinzufügen">${e}</button>`).join("")}<button class="chipbtn" data-act="campadd" data-emoji="⭐">+ Eigenes</button></div></div>
-      ${dr.extras.map((e,i)=>`<div class="editrow" data-cx="${i}"><div class="line"><input type="text" id="ce-${esc(e.id)}" data-f="emoji" value="${esc(e.emoji)}" aria-label="Emoji" style="flex:0 0 64px;text-align:center;font-size:1.2rem"><input type="text" id="cn-${esc(e.id)}" data-f="name" value="${esc(e.name||"")}" placeholder="Name" aria-label="Name"><button class="ghost danger" data-act="campdel" data-i="${i}" aria-label="Löschen">✕</button></div>
-        <div class="line"><label class="sm">Kosten <input type="number" min="0" max="9999" id="cc-${esc(e.id)}" data-f="cost" value="${e.cost|0}"> Häkchen</label></div></div>`).join("")}
-      <div class="section-head"><h2>Kosten der festen Teile</h2></div>
-      <div class="card">${SC().filter(c=>c[2]).map(c=>`<label class="sm" style="justify-content:space-between"><span style="color:var(--fg);font-size:.95rem">${c[1]}</span><span><input type="number" min="0" max="9999" id="ck-${c[0]}" data-ck="${c[0]}" value="${dr.costs[c[0]]|0}"> Häkchen</span></label>`).join("")}</div>
-      <div class="line" style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" data-act="campsave">Speichern</button><button class="ghost" data-act="campcancel">Abbrechen</button></div></section>`}
+     <button class="todayrow" data-go="essen" data-ft="${mealTxt?"heute":"rezepte"}"${!mealTxt?' data-mealfor="1"':""}><span>🍲</span><span>${mealTxt?"Es gibt "+esc(mealTxt):"Für heute ist noch kein Essen geplant"}</span><i>›</i></button>${(m=>m.length?`<button class="todayrow minialarm" data-go="einkauf"><span>🔔</span><span>Für heute noch einkaufen: ${esc(m.slice(0,3).join(", "))}${m.length>3?" und "+(m.length-3)+" mehr":""}</span><i>›</i></button>`:"")(todayMissing(meal))}
+     ${prioLinkRow()}</section>`;
+  // "Als Nächstes" und "Ausstattung" sind gestrichen (Florian 15.11.2026); Leuchtturm und Gäste im Bild bleiben, weil sie den Wochenstand zeigen
   return h}
 const FOODTABS=[["plan","Wochenplan"],["rezepte","Rezepte"],["kita","🎒 Kita-Essen ›"]];
 function shopItems(){const m=(S.food&&S.food.shop)||{};return Object.keys(m).filter(k=>m[k]).map(k=>Object.assign({id:k},m[k])).sort((a,b)=>(a.at||0)-(b.at||0))}
@@ -1366,12 +1275,12 @@ function renderLunch(){const d=S.lunchDraft,mapUrl=(S.food&&S.food.lunchmap)||""
       <input type="url" id="lu-mapurl" value="${esc(S.lunchMapText)}" placeholder="https://maps.app.goo.gl/…" autocomplete="off"><div class="btnrow"><button class="primary" data-act="lumapsave">Speichern</button><button class="ghost" data-act="lumapcancel">Abbrechen</button></div></section>`
     :`<div><button class="ghost" data-act="lumapedit">${mapOk(mapUrl)?"Google-Karte ändern":"Google-Karte verbinden"}</button></div>`;
   return h}
-function foodChips(){const shop=S.tab==="einkauf";return `<div class="filters" role="group" aria-label="Bereich">${(prioOn()?[["heute","Heute"],...FOODTABS]:FOODTABS).map(t=>`<button class="chipbtn neutral" data-food="${t[0]}" aria-pressed="${!shop&&S.foodTab===t[0]}">${t[1]}</button>`).join("")}</div>`}
+function foodChips(){const shop=S.tab==="einkauf";return `<div class="filters" role="group" aria-label="Bereich">${[["heute","Heute"],...FOODTABS].map(t=>`<button class="chipbtn neutral" data-food="${t[0]}" aria-pressed="${!shop&&S.foodTab===t[0]}">${t[1]}</button>`).join("")}</div>`}
 function renderFood(){
-  if(S.tab==="einkauf")return (prioOn()?shopPager(0):"")+renderShop();
+  if(S.tab==="einkauf")return shopPager(0)+renderShop();
   let h=`<div><div class="eyebrow">Gemeinsam planen</div><h1>Essen</h1></div>${bellRow("essen")}
    ${foodChips()}`;
-  if(S.foodTab==="heute"&&prioOn())return h+renderFoodToday();
+  if(S.foodTab==="heute")return h+renderFoodToday();
   if(S.foodTab==="plan")return h+renderMealPlan();
   if(S.foodTab==="rezepte"&&S.recDb&&!S.recDraft)return h+renderRecDb();
   if(S.foodTab==="rezepte")return h+(S.mealFor&&!S.recDraft?`<section class="card mealfor"><div class="section-head"><h2>🍲 Essen für heute aussuchen</h2><button class="iconbtn" data-act="mealforx" aria-label="Nicht für heute aussuchen">✕</button></div><div class="freq">Tippe bei einem Rezept auf „🍲 Kochen“ und wähle „Heute“ oder einen anderen Tag. Es landet im Wochenplan und damit überall, wo das Abendessen des Tages steht.</div></section>`:"")+(S.recDraft?"":renderIdeas())+renderRecipes()+(S.recDraft?"":`<section class="card"><button class="todayrow" data-act="rdbopen"><span>🔎</span><span><b>Rezept-Datenbank</b><br><span class="freq">Alle ${recs().length} Rezepte durchsuchen und filtern</span></span><i>›</i></button></section>`+renderSuggest(planWeek(),true));
@@ -1585,7 +1494,7 @@ function renderAreas(){let h=`<div><div class="eyebrow">Alles auf einen Blick</d
   const T=AREA_TREE();h+=T.filter(a=>!a[4]).map(card).join("");
   AREA_GROUPS.forEach(g=>{const L=T.filter(a=>a[4]===g[0]);if(L.length)h+=`<div class="section-head areagrp"><h2>${g[1]} ${esc(g[2])}</h2></div>`+L.map(card).join("")});
   return h}
-function goNav(v){const [tab,sub]=v.split("|"),[k,val]=(sub||"").split(":");S.prev=S.tab;S.tab=tab;S.weekPage=0;if(tab==="essen")S.foodTab=prioOn()?"heute":"plan";if(tab==="projekte"||tab==="amhaus")S.projFilter="";
+function goNav(v){const [tab,sub]=v.split("|"),[k,val]=(sub||"").split(":");S.prev=S.tab;S.tab=tab;S.weekPage=0;if(tab==="essen")S.foodTab="heute";if(tab==="projekte"||tab==="amhaus")S.projFilter="";
   if(k==="wp")S.weekPage=+val||0;if(k==="ft")S.foodTab=val;if(tab==="kita")S.kitaSec=k==="ks"?val:"termine";if(tab==="musik")S.musFilter="";if(tab==="ausflug"||tab==="reisen"){S.reiseOpen=null;S.tripTab=tab==="reisen"?"urlaub":"ideen"}if(k==="tt")S.tripTab=val;if(k==="pf")S.projFilter=val;if(k==="sp")S.tab=val;if(k==="bl"){S.tab="listen";if(val)(S.buyOpen||(S.buyOpen={}))[val]=true;setTimeout(()=>{const el=document.getElementById("buy-"+val);if(el)el.scrollIntoView({block:"start"})},40)}if(k==="ps")S.playSec=val;if(tab==="privat")S.privSec=k==="pv"&&val!=="kontakte"?val:"";render();window.scrollTo(0,0);if(k==="pv"&&val==="kontakte")setTimeout(()=>{const el=document.getElementById("kontakte");if(el)el.scrollIntoView({block:"start"})},30)}
 // ---------- Einstellungen (Zahnrad oben rechts, Entwurf) ----------
 const ALL_AREAS=[["🧹","Woche",{go:"woche"}],["👥","Wer macht was",{go:"woche",wp:1}],["🍲","Essen heute",{go:"essen",ft:"heute"}],["📅","Wochenplan",{go:"essen",ft:"plan"}],["📖","Rezepte und Kochbücher",{go:"essen",ft:"rezepte"}],["🎒","Kita-Essen",{go:"essen",ft:"kita"}],["🧺","Einkauf",{go:"einkauf"}],["🎒","Kita",{go:"kita"}],["🚲","Ausflüge",{go:"ausflug",tt:"ideen"}],["🧳","Packliste",{go:"ausflug",tt:"pack"}],["⛵","Urlaub",{go:"ausflug",tt:"urlaub"}],["💡","Ideen",{go:"projekte"}],["🏠","Am Haus",{go:"amhaus"}],["⚽","Sport und Spiel",{go:"spiel"}],["💞","Privat",{go:"privat"}],["📮","Briefkasten",{go:"post"}],["🔔","Wichtig",{go:"wichtig"}]];
@@ -1642,15 +1551,15 @@ function wxPanel(night){const pl=S.food&&S.food.wxplace,now=new Date(),lat=pl&&p
       if(H.length)h+=`<div class="freq" style="margin-top:8px"><b>Heute bis zum Abend</b></div>`+wxA(`<ul class="wxhours">${H.map(x=>`<li><b>${x.hh} Uhr</b><span>${(x.hh>=18||x.hh<7)&&wxKind(x.c)===""?"🌙":WI[wxKind(x.c)]||"⛅"}</span><span>${Math.round(x.t)}°</span>${x.p!=null?`<span class="freq">${x.p}% 💧</span>`:""}</li>`).join("")}</ul>`,"","std")}
     h+=l.length?wxA(`<ul class="wxdays">${l.map(([d,w],i)=>`<li><b>${i===0?"Heute":i===1?"Morgen":DAYN[(d.getDay()+6)%7].slice(0,2)}</b><span>${esc(WX_FMT(w))}</span></li>`).join("")}</ul>`,"","tage")+`<div class="btnrow">${wxA("🔗 Ausführliches Wetter ›","ghost btnlink","tage")}</div>`:`<div class="freq" style="margin-top:8px">Vorhersage wird geladen …</div>`}
   return h+`</section>`}
-function renderSettings(){const per=(S.config&&S.config.persons)||[];const hs=scene()==="haus",G=S.gest,th=S.theme||"";
+function renderSettings(){const per=(S.config&&S.config.persons)||[];const G=S.gest,th=S.theme||"";
   const SO=S.setOpen||(S.setOpen={}),card=(t,body,id)=>id?`<section class="card setcard" id="set-${id}"><button class="setsum" data-setsum="${id}" aria-expanded="${!!SO[id]}"><h2>${t}</h2><i>${SO[id]?"▾":"›"}</i></button>${SO[id]?`<div class="setbody">${body}</div>`:""}</section>`:`<section class="card setcard">${body}</section>`;
   const sw=(k,lab,on,hint)=>`<button class="todayrow setsw" data-gest="${k}" aria-pressed="${on}"><span>${on?"✅":"⬜"}</span><span>${lab}${hint?`<span class="freq"> · ${hint}</span>`:""}</span></button>`;
   const go=(attr,ic,lab)=>`<button class="todayrow" ${attr}><span>${ic}</span><span>${lab}</span><i>›</i></button>`;
   let h=`<div><div class="eyebrow">Für euch beide</div><h1>Einstellungen</h1></div>`;const TH={"":"🌗 Wie das Handy",light:"☀️ Hell",dark:"🌙 Dunkel"};
-  h+=`<section class="card setquick"><div class="unl"><button class="chipbtn neutral" data-act="themecycle" aria-label="Hell oder dunkel wechseln">${TH[th]}</button>${hs?`<button class="chipbtn neutral" data-gest="labels" aria-pressed="${!!S.labels}">🏷️ Beschriftungen</button>`:""}<button class="chipbtn neutral" data-act="backup">💾 Sicherung</button><button class="chipbtn neutral" data-go="recherchen">🤖 Recherchen</button></div></section>`;
+  h+=`<section class="card setquick"><div class="unl"><button class="chipbtn neutral" data-act="themecycle" aria-label="Hell oder dunkel wechseln">${TH[th]}</button><button class="chipbtn neutral" data-gest="labels" aria-pressed="${!!S.labels}">🏷️ Beschriftungen</button><button class="chipbtn neutral" data-act="backup">💾 Sicherung</button><button class="chipbtn neutral" data-go="recherchen">🤖 Recherchen</button></div></section>`;
   h+=card("🎨 Aussehen",`
     <div class="freq" style="margin-top:10px">Hell oder dunkel</div><div class="unl">${[["","Wie das Handy"],["light","☀️ Hell"],["dark","🌙 Dunkel"]].map(x=>`<button class="chipbtn neutral" data-theme-set="${x[0]}" aria-pressed="${th===x[0]}">${x[1]}</button>`).join("")}</div>
-    ${hs?`<div style="margin-top:8px">${sw("labels","Beschriftungen im Bild zeigen",!!S.labels)}</div>`:""}<div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy. Das Haus ist noch nicht für beide freigeschaltet.</div>`,"aussehen");
+    <div style="margin-top:8px">${sw("labels","Beschriftungen im Bild zeigen",!!S.labels)}</div><div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy. Das Haus ist noch nicht für beide freigeschaltet.</div>`,"aussehen");
   h+=card("👆 Bedienung",`${sw("tap","Mehrfach tippen blättert weiter",G.tap,"zweimal auf Woche = Kalender")}${sw("swipe","Wischen wechselt den Bereich",G.swipe)}${sw("ring","Menü: lange auf Start drücken",G.ring,"erst Gruppen, dann Bereiche")}<div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy.</div>`,"bedienung");
   h+=card("🍲 Essen",`${sw("veg","Mehr Vegetarisches bei Vorschlägen",vegW()>0,"für beide")}<div class="freq" style="margin:6px 0">Mengen sind für 4 Personen. Die Recherche achtet aufs Kleinkind. Ändern: schreib es Claude.</div>${go('data-nav="essen|ft:rezepte"',"🏷️","Rezepte, Filter und eigene Tags")}`,"essen");
   h+=card("",go('data-go="recherchen"',"🤖","<b>Recherchen</b> · alle festen Aufträge, Neues und eure Wünsche"));
@@ -2238,9 +2147,8 @@ const PRIO_AREAS=[["frei","📌","Allgemein"],["woche","🧹","Woche"],["essen",
 const PRIO_TPL={frei:["Anrufen","Termin ausmachen","Rechnung bezahlen","Geburtstag"],woche:["Bettwäsche wechseln","Fenster putzen","Müll rausstellen"],essen:["Fleisch auftauen","Für Rezept einkaufen","Brot backen","Essen vorkochen"],einkauf:["Wocheneinkauf","Pfand wegbringen","Drogerie"],kita:["Wechselkleidung mitgeben","Beitrag zahlen","Foto mitbringen","Abholung klären"],ausflug:["Tickets buchen","Wetter prüfen","Packliste durchgehen"],reisen:["Pässe prüfen","Auto checken lassen","Kita abmelden","Unterkunft bestätigen"],projekte:["Geschenk besorgen","Idee besprechen"],amhaus:["Handwerker anrufen","Filter wechseln","Pflanzen gießen"],spiel:["Kurs anmelden","Schwimmsachen packen"]};
 const TAB_FROM={reisen:"reisen",essen:"essen",einkauf:"einkauf",kita:"kita",ausflug:"ausflug",projekte:"projekte",amhaus:"amhaus",spiel:"spiel",woche:"woche"};
 const prios=()=>listOf(S.food&&S.food.prio).sort((a,b)=>((a.due||"")+(a.time||"")+(a.at||0))<((b.due||"")+(b.time||"")+(b.at||0))?-1:1);
-const prioOn=()=>scene()==="haus";
 const prioOf=(from,id)=>prios().find(p=>p.from===from&&p.ref===id);
-const bell=(from,x)=>{if(!prioOn())return"";const on=!!prioOf(from,x.id);return `<button class="catbtn bellbtn" data-prio="${from}|${esc(x.id)}" aria-pressed="${on}" aria-label="${on?"Nicht mehr wichtig":"Als wichtig auf die Startseite"}">🔔</button>`};
+const bell=(from,x)=>{const on=!!prioOf(from,x.id);return `<button class="catbtn bellbtn" data-prio="${from}|${esc(x.id)}" aria-pressed="${on}" aria-label="${on?"Nicht mehr wichtig":"Als wichtig auf die Startseite"}">🔔</button>`};
 function prioSrc(from,id){const L={essen:recs,rezepte:recs,mittag:lunches,kita:kitas,projekte:projs,amhaus:projs,ausflug:trips,spiel:plays,einkauf:shopItems}[from];return L?L().find(x=>x.id===id):null}
 function prioRow(x){const today=ymd(new Date()),e=S.prioEdit;const f=PRIO_FROM[x.from]||PRIO_FROM.frei,later=x.due&&x.due>today,due=x.due&&x.due<=today;
     return `<div class="prow${later?" later":due?" due":""}"><button class="pchk" data-priodone="${esc(x.id)}" aria-label="${esc(x.name)} erledigt"><span class="box"></span></button><button class="pnm"${prioTarget(x)}>${f[0]} ${esc(x.name)}${x.due?`<br><i>${later?"Erinnerung ab ":due&&x.due<today?"Seit ":"Heute, "}${esc(dLabel(x.due))}${x.time?" um "+esc(x.time):""}${x.rep?" · 🔁 "+({d:"jeden Tag",w:"jede Woche",m:"jeden Monat",y:"jedes Jahr"}[x.rep]||""):""}</i>`:f[1]?`<br><i>${f[1]}</i>`:""}${x.note?`<br><i>${esc(x.note)}</i>`:""}</button><button class="catbtn" data-prioedit="${esc(x.id)}" aria-expanded="${e===x.id}" aria-label="Erinnerung für ${esc(x.name)}" style="background:none;border:none;font-size:1.1rem">⏰</button></div>${e===x.id?`<div class="tripform" style="padding:4px 0 10px"><label class="fld"><span>Erinnern am</span><input type="date" id="pr-date" value="${esc(x.due||"")}"></label><label class="fld"><span>Uhrzeit (wenn ihr wollt)</span><input type="time" id="pr-time" value="${esc(x.time||"")}"></label><div class="btnrow"><button class="primary" data-act="priosave">Speichern</button>${x.due?`<button class="ghost" data-act="prioclear">Ohne Erinnerung</button>`:""}</div><div class="freq">Bis dahin steht der Eintrag blass hier. Am Tag selbst wird er fett.</div></div>`:""}`}
@@ -2270,8 +2178,8 @@ function parseWhen(txt,now){now=now||new Date();let t=" "+String(txt||"")+" ",du
 const AREA_KW=[["kita",["kita","krippe","kindergarten","erzieher","laterne","elternabend","wechselkleidung"]],["einkauf",["einkaufen","kaufen","supermarkt","drogerie","pfand","besorgen für"]],["essen",["kochen","rezept","auftauen","essen","backen","grillen","vorkochen"]],["ausflug",["ausflug","zoo","tickets","museum","wandern","urlaub","tierpark"]],["projekte",["geschenk","geburtstag","idee"]],["amhaus",["handwerker","reparieren","garten","lampe","streichen","keller","dachrinne","heizung","filter","rasen"]],["spiel",["sport","schwimm","kurs","spielplatz","turnen","fußball"]],["woche",["putzen","müll","wäsche","staubsaugen","bettwäsche","aufräumen"]]];
 function detectArea(txt){const t=String(txt||"").toLowerCase();const a=AREA_KW.find(x=>x[1].some(w=>t.includes(w)));return a?a[0]:""}
 function prioFromLine(line){const r=parseWhen(line),name=(r.rest||line).trim().slice(0,80);if(!name)return null;return Object.assign({name,from:detectArea(line)||"frei",at:Date.now(),by:S.me||""},r.due?{due:r.due}:{},r.due&&r.time?{time:r.time}:{})}
-function prioNew(from,extra){S.prioDraft=Object.assign({name:"",from:from||"frei",ref:"",due:"",time:"",rep:"",note:""},extra||{});S.prioBack=S.tab;if(S.tab!=="wichtig"&&S.tab!=="plan"&&S.tab!=="alle")S.prev=S.tab;S.tab="wichtig";render();window.scrollTo(0,0)}
-function bellRow(from){return prioOn()?`<div class="bellrow"><button class="chipbtn neutral" data-prionew="${from}">🔔 Erinnerung</button></div>`:""}
+function prioNew(from,extra){S.prioDraft=Object.assign({name:"",from:from||"frei",ref:"",due:"",time:"",rep:"",note:""},extra||{});S.prioBack=S.tab;if(S.tab!=="wichtig")S.prev=S.tab;S.tab="wichtig";render();window.scrollTo(0,0)}
+function bellRow(from){return `<div class="bellrow"><button class="chipbtn neutral" data-prionew="${from}">🔔 Erinnerung</button></div>`}
 function prioRefOptions(from){const L=from==="essen"?recs().map(x=>[x.id,"📖 "+x.name]):from==="einkauf"?shopItems().filter(x=>!x.done).map(x=>[x.id,x.name]):from==="kita"?kitas().filter(x=>x.sec!=="tasche").map(x=>[x.id,x.name+(x.date?" ("+dLabel(x.date)+")":"")]):from==="reisen"?urlaube().map(x=>[x.id,(x.emo||"⛵")+" "+x.name]):from==="ausflug"?trips().filter(x=>!x.done).map(x=>[x.id,x.name]):from==="projekte"||from==="amhaus"?projs().filter(x=>!x.done&&(PROJ_GROUPS[from].cats.includes(projCat(x)))).map(x=>[x.id,x.name]):from==="spiel"?plays().map(x=>[x.id,x.name]):[];return L.slice(0,60)}
 function pmHint(d){const r=parseWhen(d.name),a=!d.areaSet&&(d.from||"frei")==="frei"?detectArea(d.name):"",bits=[];if(r.due&&!d.due)bits.push(dLabel(r.due)+(r.time?" um "+r.time:""));if(a)bits.push("Bereich "+PRIO_AREAS.find(x=>x[0]===a)[2]);return bits.length?"Erkannt: "+esc(bits.join(", "))+". Wird beim Speichern übernommen.":"Tipp: Schreibt „morgen“, „Freitag“, „24.12.“ oder „um 9“ dazu, dann füllt die App Tag und Uhrzeit aus. Wörter wie „Kita“ oder „kaufen“ wählen den Bereich."}
 const BULK_CARD=`<section class="card"><h2>📋 Mehrere einlesen</h2><div class="freq">Eine Erinnerung pro Zeile, zum Beispiel aus einer Nachricht oder Notiz kopiert. Die App erkennt Tag, Uhrzeit und Bereich.</div><textarea id="pm-bulk" rows="4" placeholder="Morgen 9 Uhr Kinderarzt anrufen&#10;Freitag Wechselkleidung in die Kita&#10;24.12. Geschenk für Oma besorgen" aria-label="Erinnerungen einlesen"></textarea><div class="btnrow"><button class="primary" data-act="pmbulk">Einlesen</button></div></section>`;
@@ -2347,31 +2255,6 @@ function renderKita(){const d=S.kitaDraft,sec=KITA_SECS.find(s=>s[0]===S.kitaSec
   h+=`<div class="btnrow"><button class="primary" data-act="kitanew">+ Neue Info</button></div>`;
   h+=all.length?all.sort((a,b)=>(a.name||"").localeCompare(b.name||"","de")).map(li).join(""):`<div class="empty"><h2>Noch keine Infos</h2><div>Zum Beispiel Telefonnummer der Gruppe, Namen der Erzieherinnen, wer abholen darf.</div></div>`;
   return h}
-function renderPlan(){
-  const d=S.draft||(S.draft=JSON.parse(JSON.stringify(S.config)));
-  const mon=mondayOf(new Date()),split=rotSplit();
-  const rot={p0:[],p1:[]};tasks().filter(t=>t.owner==="rot").forEach(t=>rot[ownerFor(t,mon,split)].push(t));
-  const li=a=>a.map(t=>`<li>${esc(t.name)} <span class="freq">(${t.freq==="week"?(t.times||1)+"×/Woche":FREQ_LABEL[t.freq]})</span></li>`).join("")||"<li>nichts</li>";
-  let h=`<div><div class="eyebrow">Fairer Plan</div><h1>Wer macht was</h1></div>
-   <section class="card"><h2>Wechsel-Aufgaben, aktuell</h2>
-   <div class="freq">Wöchentliche Wechsel-Aufgaben sind in Paket A und Paket B geteilt. In geraden Kalenderwochen hat ${esc(pname("p0"))} Paket A, in ungeraden ${esc(pname("p1"))}. Monatliche Wechsel-Aufgaben: gerader Monat ${esc(pname("p0"))}, ungerader ${esc(pname("p1"))}. Jährliche: gerades Jahr ${esc(pname("p0"))}, ungerades ${esc(pname("p1"))}.</div>
-   <div class="rotlist"><div class="r0"><b>${esc(pname("p0"))}</b><ul>${li(rot.p0)}</ul></div><div class="r1"><b>${esc(pname("p1"))}</b><ul>${li(rot.p1)}</ul></div></div>
-   <div><button class="ghost" data-act="swap">Pakete tauschen</button></div>
-   <div class="notice">Grundregel: Ihr könnt immer gemeinsam abweichen und den Plan anpassen.</div></section>`;
-  if(S.mode==="web")h+=`<section class="card"><h2>Einladungs-Link</h2><div class="freq">Schick diesen Link an ${esc(pname("p1"))}. Wer ihn öffnet, sieht denselben Plan. Tipp: im Browser „Zum Home-Bildschirm“ wählen, dann startet die App wie eine normale App.</div><input type="text" id="invite" readonly value="${esc(inviteLink())}"><div><button class="ghost" data-act="copy">Link kopieren</button></div></section>`;
-  h+=`<section class="section"><div class="section-head"><h2>Aufgaben bearbeiten</h2></div>
-   <div class="editrow"><div class="line"><label class="sm">Person 1 <input type="text" id="pn0" value="${esc(d.persons[0])}"></label><label class="sm">Person 2 <input type="text" id="pn1" value="${esc(d.persons[1])}"></label></div></div>`;
-  d.tasks.forEach((t,i)=>{
-    const ownOpts=[["p0",d.persons[0]],["p1",d.persons[1]],["rot","Im Wechsel"],["both","Beide"],["ho","Homeoffice"]].map(([v,l])=>`<option value="${v}" ${t.owner===v?"selected":""}>${esc(l)}</option>`).join("");
-    const fOpts=Object.keys(FREQ_LABEL).map(v=>`<option value="${v}" ${t.freq===v?"selected":""}>${v==="week"?"x-mal pro Woche":FREQ_LABEL[v]}</option>`).join("");
-    h+=`<div class="editrow" data-i="${i}"><div class="line"><input type="text" id="tn-${esc(t.id)}" data-f="name" value="${esc(t.name)}" aria-label="Aufgabe"><button class="ghost danger" data-del="${i}" aria-label="Löschen">✕</button></div>
-      <div class="line"><select id="to-${esc(t.id)}" data-f="owner" aria-label="Wer">${ownOpts}</select><select id="tf-${esc(t.id)}" data-f="freq" aria-label="Rhythmus">${fOpts}</select>
-      ${t.freq==="week"?`<label class="sm"><input type="number" min="1" max="14" id="tt-${esc(t.id)}" data-f="times" value="${t.times||1}">× </label>`:""}
-      ${t.owner==="rot"&&t.freq!=="month"&&t.freq!=="year"?`<select id="tk-${esc(t.id)}" data-f="pack" aria-label="Paket"><option value="" ${!t.pack?"selected":""}>Paket automatisch</option><option value="A" ${t.pack==="A"?"selected":""}>Paket A</option><option value="B" ${t.pack==="B"?"selected":""}>Paket B</option></select>`:""}
-      ${t.owner==="rot"&&group(t.freq)==="week"?`<label class="sm"><input type="number" min="0" max="50" id="tp-${esc(t.id)}" data-f="pts" value="${t.pts||0}"> Aufwand</label>`:""}</div></div>`});
-  h+=`<div class="line" style="display:flex;gap:8px;flex-wrap:wrap"><button class="ghost" data-act="add">+ Aufgabe</button><button class="primary" data-act="save">Plan speichern</button><button class="ghost" data-act="reset">Änderungen verwerfen</button></div></section>`;
-  return h}
-
 // ---------- Wer macht was (Florian 15.11.2026: Übersicht und Wer macht was in einer Seite). Oben Überblick, darunter ausklappbare Abschnitte ----------
 const WMW_FL=t=>t.freq==="day"?"täglich":t.freq==="week"?(t.times||1)+"× pro Woche":FREQ_LABEL[t.freq];
 const WMW_PER={month:"diesen Monat",half:"dieses Halbjahr",year:"dieses Jahr"};
@@ -2495,7 +2378,7 @@ function renderSearch(){const q=S.sq||"",H=searchHits(q);
 function render(){
   if(S.mode==="loading")return;
   if(S.tab==="reisen"){S.tab="ausflug";S.tripTab="urlaub"} // Reisen und Ausflüge sind ein Bereich
-  document.querySelectorAll("#tabs button").forEach(b=>{const hs=scene()==="haus";b.setAttribute("aria-selected",b.dataset.tab===S.tab||(b.dataset.tab==="camp"&&(S.tab==="tag"||S.tab==="wichtig"))||(b.dataset.tab==="einkauf"&&(S.tab==="listen"||S.tab==="ausgaben")));if(b.dataset.tab==="ausflug")b.hidden=true;if(b.dataset.tab==="einkauf")b.hidden=false});
+  document.querySelectorAll("#tabs button").forEach(b=>{b.setAttribute("aria-selected",b.dataset.tab===S.tab||(b.dataset.tab==="camp"&&(S.tab==="tag"||S.tab==="wichtig"))||(b.dataset.tab==="einkauf"&&(S.tab==="listen"||S.tab==="ausgaben")));if(b.dataset.tab==="ausflug")b.hidden=true;if(b.dataset.tab==="einkauf")b.hidden=false});
   let h="";
   if(S.mode==="setup"){app.innerHTML=renderSetup();return}
   if(S.mode==="web"&&S.dbError==="rules"&&!S.cfgConfirmed){app.innerHTML=`<section class="card"><h2>Die Datenbank lehnt den Zugriff ab</h2><div>In Firebase sind die Regeln noch nicht veröffentlicht. Öffne dort „Realtime Database“, Reiter „Regeln“, ersetze den gesamten Text durch die folgende Zeile und tippe auf „Veröffentlichen“.</div><input type="text" readonly id="rulesline" value='{"rules":{"haushalt":{"$key":{".read":true,".write":true}}}}'><div><button class="primary" data-act="reload">Erneut versuchen</button></div></section>`;return}
@@ -2504,10 +2387,8 @@ function render(){
   if(S.timedOut&&S.mode==="web")h+=`<div class="notice">Die gemeinsamen Daten sind gerade nicht erreichbar. Angezeigtes kann veraltet sein.</div>`;
   if(!S.config&&!S.cfgConfirmed&&!S.timedOut){app.innerHTML=h+`<div class="empty">Plan wird geladen …</div>`;return}
   if(!S.config){h+=`<div class="empty"><h2>Noch kein Haushaltsplan hinterlegt</h2><div>Legt euren Plan aus der Vorlage an (eure Liste mit Müll, Saugen, Wäsche und Co.). Danach könnt ihr alles unter „Plan“ anpassen.</div><button class="primary" data-act="template">Plan aus Vorlage anlegen</button></div>`;app.innerHTML=h;return}
-  const inSet=S.tab==="plan"||S.tab==="alle";
-  h+=inSet?`<div class="appbar"><button class="ghost" data-go="${S.prev||"camp"}">‹ Zurück</button><span class="brand">Euer Plan</span></div><div class="filters" role="group" aria-label="Ansicht"><button class="chipbtn neutral" data-go="alle" aria-pressed="${S.tab==="alle"}">Übersicht</button><button class="chipbtn neutral" data-go="plan" aria-pressed="${S.tab==="plan"}">Plan bearbeiten</button></div>`
-    :`<div class="appbar">${prioOn()?`<span class="appleft"><button class="iconbtn bellnav" data-go="wichtig" aria-label="Wichtig: alle Erinnerungen">🔔${(n=>n?`<b class="badge">${n}</b>`:"")(bellItems().n)}</button></span>`:`<button class="brand brandbtn" data-go="camp" aria-label="Zur Startseite">🏕️🧹</button>`}${prioOn()?`<span class="appleft">`:""}${prioOn()?`<button class="iconbtn" data-go="suche" aria-label="Suche"${S.tab==="suche"?' aria-pressed="true"':""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button>`:""}<button class="iconbtn" data-go="${prioOn()?"settings":"alle"}" aria-label="${prioOn()?"Einstellungen":"Übersicht und Plan"}"${prioOn()&&S.tab==="settings"?' aria-pressed="true"':""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button>${prioOn()?`<button class="iconbtn" data-go="bereiche" aria-label="Alle Bereiche"${S.tab==="bereiche"?' aria-pressed="true"':""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></svg></button></span>`:""}</div>`;
-  h+=S.tab==="tag"?startPager(1)+renderTag():S.tab==="ausgaben"?shopPager(1)+renderSplit():S.tab==="listen"?shopPager(2)+renderBuy():S.tab==="wichtig"&&prioOn()&&!S.prioDraft?startPager(2)+renderWichtig():S.tab==="bereiche"?renderAreas():S.tab==="settings"?renderSettings():S.tab==="wichtig"?renderWichtig():S.tab==="woche"?(prioOn()?weekPager()+[renderWeek,renderWmw,renderWmw,renderCal][S.weekPage|0]():renderWeek()):S.tab==="alle"?renderAll():S.tab==="camp"?renderCamp():S.tab==="essen"||S.tab==="einkauf"?renderFood():S.tab==="ausflug"?renderTrips():S.tab==="projekte"||S.tab==="amhaus"?renderProjects():S.tab==="spiel"?renderPlay():S.tab==="musik"?renderMusic():S.tab==="recherchen"?renderResearch():S.tab==="suche"?renderSearch():S.tab==="kita"?renderKita():S.tab==="privat"?wirPager(0)+renderPrivat():S.tab==="kind"?wirPager(1)+renderKind():S.tab==="post"?(S.tab="privat",S.privSec="briefe",wirPager(0)+renderPrivat()):S.tab==="reisen"?renderTrips():renderPlan();
+  h+=`<div class="appbar"><span class="appleft"><button class="iconbtn bellnav" data-go="wichtig" aria-label="Wichtig: alle Erinnerungen">🔔${(n=>n?`<b class="badge">${n}</b>`:"")(bellItems().n)}</button></span><span class="appleft"><button class="iconbtn" data-go="suche" aria-label="Suche"${S.tab==="suche"?' aria-pressed="true"':""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button><button class="iconbtn" data-go="settings" aria-label="Einstellungen"${S.tab==="settings"?' aria-pressed="true"':""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button><button class="iconbtn" data-go="bereiche" aria-label="Alle Bereiche"${S.tab==="bereiche"?' aria-pressed="true"':""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></svg></button></span></div>`;
+  h+=S.tab==="tag"?startPager(1)+renderTag():S.tab==="ausgaben"?shopPager(1)+renderSplit():S.tab==="listen"?shopPager(2)+renderBuy():S.tab==="wichtig"&&!S.prioDraft?startPager(2)+renderWichtig():S.tab==="bereiche"?renderAreas():S.tab==="settings"?renderSettings():S.tab==="wichtig"?renderWichtig():S.tab==="woche"?weekPager()+[renderWeek,renderWmw,renderWmw,renderCal][S.weekPage|0]():S.tab==="camp"?renderCamp():S.tab==="essen"||S.tab==="einkauf"?renderFood():S.tab==="ausflug"?renderTrips():S.tab==="projekte"||S.tab==="amhaus"?renderProjects():S.tab==="spiel"?renderPlay():S.tab==="musik"?renderMusic():S.tab==="recherchen"?renderResearch():S.tab==="suche"?renderSearch():S.tab==="kita"?renderKita():S.tab==="privat"?wirPager(0)+renderPrivat():S.tab==="kind"?wirPager(1)+renderKind():S.tab==="post"?(S.tab="privat",S.privSec="briefe",wirPager(0)+renderPrivat()):S.tab==="reisen"?renderTrips():renderCamp();
   const y=window.scrollY,ae=document.activeElement,fid=ae&&app.contains(ae)&&ae.id?ae.id:null,sel=fid&&ae.selectionStart!=null?[ae.selectionStart,ae.selectionEnd]:null;
   h+=renderPick();app.innerHTML=h;window.scrollTo(0,y);syncNav();
   if(fid){const el=document.getElementById(fid);if(el){el.focus({preventScroll:true});if(sel){try{el.setSelectionRange(sel[0],sel[1])}catch(_){}}}}
@@ -2515,11 +2396,11 @@ function render(){
 
 // ---------- Zurück-Taste ----------
 const NAV=[];let navBusy=false;
-function navKey(){return S.tab+"|"+(S.tab==="essen"?S.foodTab:S.tab==="ausflug"?S.tripTab:S.tab==="spiel"?S.playSec:S.tab==="kita"?S.kitaSec:S.tab==="privat"?(S.privSec||""):S.tab==="projekte"||S.tab==="amhaus"?S.projFilter:S.tab==="woche"&&S.weekPage?String(S.weekPage):"")+"|"+((S.recDraft||S.planEdit||S.lunchDraft||S.campDraft||S.lunchMapEdit||S.tripDraft||S.projDraft||S.playDraft||S.kitaDraft)?"d":"")}
+function navKey(){return S.tab+"|"+(S.tab==="essen"?S.foodTab:S.tab==="ausflug"?S.tripTab:S.tab==="spiel"?S.playSec:S.tab==="kita"?S.kitaSec:S.tab==="privat"?(S.privSec||""):S.tab==="projekte"||S.tab==="amhaus"?S.projFilter:S.tab==="woche"&&S.weekPage?String(S.weekPage):"")+"|"+((S.recDraft||S.planEdit||S.lunchDraft||S.lunchMapEdit||S.tripDraft||S.projDraft||S.playDraft||S.kitaDraft)?"d":"")}
 function applyNav(k){const p=k.split("|");S.tab=p[0];if(S.tab==="projekte"||S.tab==="amhaus")S.projFilter=p[1]||"";else if(p[1]){if(S.tab==="ausflug")S.tripTab=p[1];else if(S.tab==="spiel")S.playSec=p[1];else if(S.tab==="kita")S.kitaSec=p[1];else if(S.tab==="privat")S.privSec=p[1];else if(S.tab==="woche")S.weekPage=+p[1]||0;else S.foodTab=p[1]}if(S.tab==="woche"&&!p[1])S.weekPage=0}
 // Neu laden (am Handy herunterziehen): im selben Bereich bleiben. history.state überlebt das Neuladen, sessionStorage als Rückfall.
 function restoreNav(){try{S.flip=sessionStorage.getItem("hq-flip")==="1"}catch(_){}let st=null;try{st=history.state}catch(_){}let k=st&&typeof st.k==="string"?st.k:"";if(!k){try{k=sessionStorage.getItem("hq-nav")||""}catch(_){}}
-  const t=k.split("|")[0];if(!t||((t==="ausflug"||t==="wichtig")&&!prioOn()))return false;applyNav(k);
+  const t=k.split("|")[0];if(!t||t==="plan"||t==="alle")return false;applyNav(k);
   const i=st&&typeof st.k==="string"&&st.i>0?st.i:0;for(let j=0;j<i;j++)NAV.push("");const nk=navKey();NAV.push(nk);try{history.replaceState({i,k:nk},"")}catch(_){}return true}
 function syncNav(){if(!S.config)return;if(!NAV.length&&!S.navRestored){S.navRestored=true;if(restoreNav()){render();window.scrollTo(0,0);return}}const k=navKey();try{sessionStorage.setItem("hq-nav",k);sessionStorage.setItem("hq-flip",S.flip?"1":"")}catch(_){}try{
   if(!NAV.length){NAV.push(k);history.replaceState({i:0,k},"");return}
@@ -2527,16 +2408,16 @@ function syncNav(){if(!S.config)return;if(!NAV.length&&!S.navRestored){S.navRest
   if(NAV.length>1&&NAV[NAV.length-2]===k){NAV.pop();navBusy=true;history.back();return}
   NAV.push(k);history.pushState({i:NAV.length-1,k},"")}catch(_){}}
 window.addEventListener("popstate",e=>{if(navBusy){navBusy=false;return}const st=e.state;if(!st||typeof st.k!=="string")return;
-  applyNav(st.k);S.tripDraft=null;S.projDraft=null;S.playDraft=null;S.kitaDraft=null;S.recDraft=S.planEdit=S.lunchDraft=S.campDraft=null;S.lunchMapEdit=false;S.draft=null;
+  applyNav(st.k);S.tripDraft=null;S.projDraft=null;S.playDraft=null;S.kitaDraft=null;S.recDraft=S.planEdit=S.lunchDraft=null;S.lunchMapEdit=false;S.draft=null;
   NAV.length=Math.min(NAV.length,st.i);NAV[st.i]=navKey();render();window.scrollTo(0,0)});
 // ---------- Events ----------
 // Wischen links/rechts wechselt im Entwurf die Hauptbereiche: erst die 4 Reiter, dann weiter zu den übrigen Bereichen (keine Unterseiten)
 const SWIPE_TABS=["camp","woche","essen","einkauf"].concat(AREAS.map(a=>a[2]).filter(t=>!["camp","woche","essen","einkauf","wichtig","settings","recherchen","suche"].includes(t)));
 function swipeTo(dir){const i=SWIPE_TABS.indexOf(S.tab);if(i<0)return;const j=i+dir;if(j<0||j>=SWIPE_TABS.length)return;const t=SWIPE_TABS[j];
-  S.prev=S.tab;S.tab=t;S.draft=S.campDraft=S.tripDraft=S.projDraft=S.playDraft=S.kitaDraft=S.recDraft=S.planEdit=S.lunchDraft=null;S.shopPick=null;
+  S.prev=S.tab;S.tab=t;S.draft=S.tripDraft=S.projDraft=S.playDraft=S.kitaDraft=S.recDraft=S.planEdit=S.lunchDraft=null;S.shopPick=null;
   if(t==="woche")S.weekPage=0;if(t==="essen")S.foodTab="heute";if(t==="projekte"||t==="amhaus")S.projFilter="";
   render();window.scrollTo(0,0);app.classList.remove("swl","swr");void app.offsetWidth;app.classList.add(dir>0?"swl":"swr")}
-{let sx=null,sy=0,st=0;app.addEventListener("touchstart",e=>{const t=e.target;if(!prioOn()||e.touches.length!==1||t.closest("input,textarea,select,iframe,.pickwrap,.mapwrap")){sx=null;return}sx=e.touches[0].clientX;sy=e.touches[0].clientY;st=Date.now()},{passive:true});
+{let sx=null,sy=0,st=0;app.addEventListener("touchstart",e=>{const t=e.target;if(e.touches.length!==1||t.closest("input,textarea,select,iframe,.pickwrap,.mapwrap")){sx=null;return}sx=e.touches[0].clientX;sy=e.touches[0].clientY;st=Date.now()},{passive:true});
  app.addEventListener("touchend",e=>{if(sx==null)return;if(S.ring){sx=null;return}const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;sx=null;if(S.gest.swipe&&Date.now()-st<700&&Math.abs(dx)>70&&Math.abs(dy)<Math.abs(dx)*0.5)swipeTo(dx<0?1:-1)},{passive:true})}
 {let lp=null;
  // Kreis im Bild abgeschaltet (Florian 15.11.2026): Menü kommt jetzt über langes Drücken auf den Reiter Start (fanOpen)
@@ -2546,14 +2427,14 @@ function swipeTo(dir){const i=SWIPE_TABS.indexOf(S.tab);if(i<0)return;const j=i+
  {let ht=null;app.addEventListener("touchstart",e=>{const t=e.touches.length===1&&e.target.closest&&e.target.closest(".slot.hoslot");if(!t)return;const p=e.touches[0];ht={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{ht=null;hoPick(t)},450)}},{passive:true});
   app.addEventListener("touchmove",e=>{if(ht){const p=e.touches[0];if(Math.hypot(p.clientX-ht.x,p.clientY-ht.y)>10){clearTimeout(ht.timer);ht=null}}},{passive:true});
   const he=()=>{if(ht){clearTimeout(ht.timer);ht=null}if(document.getElementById("mbox"))S.mboxAt=Date.now()};app.addEventListener("touchend",he,{passive:true});app.addEventListener("touchcancel",he,{passive:true})}
- app.addEventListener("contextmenu",e=>{if(e.target.closest(".camp"))e.preventDefault();const k=prioOn()&&quickKey(e.target.closest(".spot"));if(k)quickOpen(k)})
- {let mt=null;app.addEventListener("touchstart",e=>{const k=prioOn()&&e.touches.length===1&&e.target.closest&&quickKey(e.target.closest(".spot"));if(!k)return;const p=e.touches[0];mt={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{mt=null;quickOpen(k)},450)}},{passive:true});
+ app.addEventListener("contextmenu",e=>{if(e.target.closest(".camp"))e.preventDefault();const k=quickKey(e.target.closest(".spot"));if(k)quickOpen(k)})
+ {let mt=null;app.addEventListener("touchstart",e=>{const k=e.touches.length===1&&e.target.closest&&quickKey(e.target.closest(".spot"));if(!k)return;const p=e.touches[0];mt={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{mt=null;quickOpen(k)},450)}},{passive:true});
   app.addEventListener("touchmove",e=>{if(mt){const p=e.touches[0];if(Math.hypot(p.clientX-mt.x,p.clientY-mt.y)>10){clearTimeout(mt.timer);mt=null}}},{passive:true});
   const me=()=>{if(mt){clearTimeout(mt.timer);mt=null}if(document.getElementById("mbox"))S.mboxAt=Date.now()};app.addEventListener("touchend",me,{passive:true});app.addEventListener("touchcancel",me,{passive:true})}
  // Kurzer Tipp auf eine freie Stelle im Bild: Dashboard auf/zu
  // Tipp in den Hintergrund der Karte Heute dreht das Bild auf die Rückseite (Florian 15.11.2026)
- app.addEventListener("click",e=>{if(!prioOn()||S.tab!=="camp")return;const c=e.target.closest(".card.today");if(!c||e.target.closest("button,a,input,form"))return;S.prev=S.tab;S.tab="tag";render();window.scrollTo(0,0)});
- app.addEventListener("click",e=>{if(!prioOn()||S.tab!=="camp"||S.ring)return;const c=e.target.closest(".camp,.campback");if(!c||e.target.closest(".spot,.bcnt,.bcal,.btask,a"))return;if(Date.now()-(S.ringAt||0)<600)return;S.prev=S.tab;S.tab="tag";render();window.scrollTo(0,0)})}
+ app.addEventListener("click",e=>{if(S.tab!=="camp")return;const c=e.target.closest(".card.today");if(!c||e.target.closest("button,a,input,form"))return;S.prev=S.tab;S.tab="tag";render();window.scrollTo(0,0)});
+ app.addEventListener("click",e=>{if(S.tab!=="camp"||S.ring)return;const c=e.target.closest(".camp,.campback");if(!c||e.target.closest(".spot,.bcnt,.bcal,.btask,a"))return;if(Date.now()-(S.ringAt||0)<600)return;S.prev=S.tab;S.tab="tag";render();window.scrollTo(0,0)})}
 // Doppeltipp auf einen der 4 Reiter springt auf seine zweite Seite (nur im Entwurf)
 try{S.labels=localStorage.getItem("hq-labels")==="1"}catch(_){}
 S.gest={tap:true,swipe:true,ring:true};try{const g=JSON.parse(localStorage.getItem("hq-gest")||"{}");Object.assign(S.gest,g)}catch(_){}
@@ -2586,14 +2467,14 @@ function fanEnd(){const f=S.fan;if(!f)return;S.fanEat=Date.now();if(f.g>=0&&f.se
 function fanClose(){S.fan=null;S.fanAt=Date.now();const el=document.getElementById("fan");if(el)el.remove()}
 {let lp=null;const tabs=document.getElementById("tabs");
  const startBtn=t=>t&&t.closest&&t.closest('#tabs [data-tab="camp"]');
- tabs.addEventListener("touchstart",e=>{const b=startBtn(e.target);if(!b||!prioOn()||!S.gest.ring||e.touches.length!==1)return;const r=b.getBoundingClientRect(),p=e.touches[0];lp={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{lp=null;fanOpen(r.left+r.width/2,r.top+r.height/2)},450)}},{passive:true});
+ tabs.addEventListener("touchstart",e=>{const b=startBtn(e.target);if(!b||!S.gest.ring||e.touches.length!==1)return;const r=b.getBoundingClientRect(),p=e.touches[0];lp={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{lp=null;fanOpen(r.left+r.width/2,r.top+r.height/2)},450)}},{passive:true});
  document.addEventListener("touchmove",e=>{if(S.fan){e.preventDefault();const p=e.touches[0];fanMove(p.clientX,p.clientY);return}if(lp){const p=e.touches[0];if(Math.hypot(p.clientX-lp.x,p.clientY-lp.y)>12){clearTimeout(lp.timer);lp=null}}},{passive:false});
  const end=()=>{if(lp){clearTimeout(lp.timer);lp=null}if(S.fan)fanEnd()};document.addEventListener("touchend",end,{passive:true});document.addEventListener("touchcancel",end,{passive:true});
- tabs.addEventListener("contextmenu",e=>{const b=startBtn(e.target);if(!b)return;e.preventDefault();if(prioOn()&&S.gest.ring&&!S.fan){const r=b.getBoundingClientRect();fanOpen(r.left+r.width/2,r.top+r.height/2)}});
+ tabs.addEventListener("contextmenu",e=>{const b=startBtn(e.target);if(!b)return;e.preventDefault();if(S.gest.ring&&!S.fan){const r=b.getBoundingClientRect();fanOpen(r.left+r.width/2,r.top+r.height/2)}});
  tabs.addEventListener("click",e=>{if(S.fanEat&&Date.now()-S.fanEat<600&&startBtn(e.target)){S.fanEat=0;e.stopImmediatePropagation();e.preventDefault()}},true)}
 document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("button[data-tab]");if(!b)return;const t=b.dataset.tab,now=Date.now();
-  if(prioOn()&&TAP_SEQ[t]){const lt=S.lastTap,n=S.gest.tap&&lt&&lt.t===t&&lt.on===S.tab&&now-lt.at<450?lt.n+1:0;const q=TAP_SEQ[t];if(S.tab!==t||n)S.prev=S.tab;q[n%q.length]();S.lastTap={t,at:now,n,on:S.tab};S.draft=S.campDraft=null;render();window.scrollTo(0,0);return}
-  if(t==="essen"&&prioOn()&&S.tab!=="essen")S.foodTab="heute";S.tab=t;if(S.tab!=="plan")S.draft=null;if(S.tab!=="camp")S.campDraft=null;render();window.scrollTo(0,0)});
+  if(TAP_SEQ[t]){const lt=S.lastTap,n=S.gest.tap&&lt&&lt.t===t&&lt.on===S.tab&&now-lt.at<450?lt.n+1:0;const q=TAP_SEQ[t];if(S.tab!==t||n)S.prev=S.tab;q[n%q.length]();S.lastTap={t,at:now,n,on:S.tab};S.draft=null;render();window.scrollTo(0,0);return}
+  if(t==="essen"&&S.tab!=="essen")S.foodTab="heute";S.tab=t;S.draft=null;render();window.scrollTo(0,0)});
 app.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;
   if(b.dataset.mealfor)S.mealFor=ymd(new Date());
@@ -2729,7 +2610,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="priosave"||b.dataset.act==="prioclear"){const id=S.prioEdit;if(!id)return;const clr=b.dataset.act==="prioclear",dv=clr?"":(document.getElementById("pr-date")||{}).value||"",tv=clr?"":(document.getElementById("pr-time")||{}).value||"";S.prioEdit=null;try{await S.store.setPath("food/prio/"+id+"/due",dv||null);await S.store.setPath("food/prio/"+id+"/time",dv&&tv?tv:null);toast(dv?"Erinnerung gesetzt":"Erinnerung entfernt")}catch(_){toast("Konnte nicht speichern.")}render();return}
   if(b.dataset.go==="post"){mboxTap();return}
   if(b.dataset.go==="suche"){S.prev=S.tab;S.tab="suche";render();window.scrollTo(0,0);const el=document.getElementById("sq");if(el)el.focus();return}
-  if(b.dataset.go){if(S.tab!=="plan"&&S.tab!=="alle")S.prev=S.tab;S.tab=b.dataset.go;if(S.tab==="reisen"||S.tab==="ausflug"){S.reiseOpen=null;S.tripTab=S.tab==="reisen"?"urlaub":"ideen"}if(S.tab==="woche")S.weekPage=0;if(S.tab==="essen"&&prioOn())S.foodTab="heute";if(S.tab==="kita")S.kitaSec="termine";if(S.tab==="musik")S.musFilter=b.dataset.musf||"";S.tripDraft=S.projDraft=S.playDraft=S.kitaDraft=null;S.hprojOpen=null;S.hsamm=false;if(S.tab==="projekte"||S.tab==="amhaus")S.projFilter=b.dataset.pf||"";if(b.dataset.ft&&b.dataset.ft!=="shop"){S.foodTab=b.dataset.ft;try{localStorage.setItem("hq-foodtab",S.foodTab)}catch(_){}}S.draft=null;S.campDraft=null;render();window.scrollTo(0,0);return}
+  if(b.dataset.go){S.prev=S.tab;S.tab=b.dataset.go;if(S.tab==="reisen"||S.tab==="ausflug"){S.reiseOpen=null;S.tripTab=S.tab==="reisen"?"urlaub":"ideen"}if(S.tab==="woche")S.weekPage=0;if(S.tab==="essen")S.foodTab="heute";if(S.tab==="kita")S.kitaSec="termine";if(S.tab==="musik")S.musFilter=b.dataset.musf||"";S.tripDraft=S.projDraft=S.playDraft=S.kitaDraft=null;S.hprojOpen=null;S.hsamm=false;if(S.tab==="projekte"||S.tab==="amhaus")S.projFilter=b.dataset.pf||"";if(b.dataset.ft&&b.dataset.ft!=="shop"){S.foodTab=b.dataset.ft;try{localStorage.setItem("hq-foodtab",S.foodTab)}catch(_){}}S.draft=null;render();window.scrollTo(0,0);return}
   if(b.dataset.kitasec){S.kitaDraft=null;S.kitaSec=b.dataset.kitasec;render();return}
   if(b.dataset.kset){const d=S.kitaDraft;if(d){const f=b.dataset.kset;d[f]=d[f]===b.dataset.v?"":b.dataset.v;render()}return}
   if(b.dataset.act==="kitanew"){S.kitaDraft={id:null,sec:S.kitaSec,name:"",date:"",kind:"",note:""};render();window.scrollTo(0,0);const el=document.getElementById("ki-name");if(el)el.focus();return}
@@ -2959,13 +2840,6 @@ app.addEventListener("click",async e=>{
   if(act==="copy"){const el=document.getElementById("invite");try{await navigator.clipboard.writeText(el.value);toast("Link kopiert")}catch(_){el.focus();el.select();toast("Link markiert, jetzt kopieren")}return}
   if(act==="template"){try{await S.store.saveConfig(JSON.parse(JSON.stringify(TEMPLATE)));toast("Plan angelegt")}catch(_){toast("Konnte den Plan nicht speichern.")}}
   if(act==="add"){S.draft.tasks.push({id:"t"+Date.now().toString(36),name:"Neue Aufgabe",owner:"rot",freq:"week",times:1,pts:2});render()}
-  if(act==="campedit"){const cc=campCfg(),costs={};campItems(cc).forEach(c=>{if(!c.emoji)costs[c.id]=c.cost});S.campDraft={costs,extras:JSON.parse(JSON.stringify(cc.extras))};render();return}
-  if(act==="campcancel"){S.campDraft=null;render();return}
-  if(act==="campadd"){const dr=S.campDraft;const mx=Math.max(campTotal(),...dr.extras.map(e=>e.cost|0));dr.extras.push({id:"x"+Date.now().toString(36),emoji:b.dataset.emoji,name:"",cost:mx+10});render();return}
-  if(act==="campdel"){S.campDraft.extras.splice(+b.dataset.i,1);render();return}
-  if(act==="campsave"){const dr=S.campDraft,c=JSON.parse(JSON.stringify(S.config));const costs=Object.assign({},campCfg().costs);SC().forEach(x=>{costs[x[0]]=Math.max(0,Math.min(9999,dr.costs[x[0]]|0))});
-    c.camp={costs,extras:dr.extras.filter(e=>(e.emoji||"").trim()).map(e=>({id:e.id,emoji:e.emoji.trim().slice(0,8),name:(e.name||"").trim().slice(0,30),cost:Math.max(0,Math.min(9999,e.cost|0))}))};
-    try{await S.store.saveConfig(c);S.campDraft=null;render();toast("Gespeichert")}catch(_){toast("Speichern nicht möglich. Bitte Verbindung prüfen.")}return}
   if(act==="wkedit"){const k=wkKey(S.view);S.wkEdit=S.wkEdit===k?null:k;render();return}
   if(act==="toweek"){S.tab="woche";S.weekPage=0;S.view=mondayOf(new Date());render();window.scrollTo(0,0);return}
   if(act==="reset"){S.draft=null;render()}
@@ -3046,7 +2920,6 @@ app.addEventListener("input",e=>{if(e.target.id==="shopinput"){S.shopText=e.targ
   if(e.target.id==="sq"){S.sq=e.target.value;const pos=e.target.selectionStart;render();const el=document.getElementById("sq");if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}return}
   if(e.target.id==="rdbq"){S.rdbQ=e.target.value;const pos=e.target.selectionStart;render();const el=document.getElementById("rdbq");if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}return}
   if(S.recDraft&&e.target.dataset.rf){S.recDraft[e.target.dataset.rf]=e.target.value;return}
-  if(S.campDraft){const el=e.target;if(el.dataset.ck){S.campDraft.costs[el.dataset.ck]=+el.value||0;return}const r=el.closest("[data-cx]");if(r&&el.dataset.f){const x=S.campDraft.extras[+r.dataset.cx];x[el.dataset.f]=el.dataset.f==="cost"?(+el.value||0):el.value;return}}
   const row=e.target.closest(".editrow[data-i]");if(!row||!S.draft)return;if(e.target.dataset.f==="name")S.draft.tasks[+row.dataset.i].name=e.target.value});
 
 // ---------- Start ----------

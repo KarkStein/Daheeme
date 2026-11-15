@@ -18,7 +18,7 @@ Live: https://karkstein.github.io/Daheeme/ (GitHub Pages aus `main`, Wurzel, bis
 - `node src/build-web.js <firebase-url>` baut `src/web/index.html` (Abgleich, Einladungs-Link, Kopfzeilen per Text-Anker; bricht ein Anker, meldet es `missing: …`). Das Ergebnis wird nach `index.html` in die Wurzel kopiert.
 - Abgleich: Firebase Realtime Database über REST und EventSource, ohne SDK. Basis `https://haushalt-32464-default-rtdb.europe-west1.firebasedatabase.app/haushalt/<Schlüssel>`. Regeln: `{"rules":{"haushalt":{"$key":{".read":true,".write":true}}}}`. Kein Konto; wer den Link hat, liest und schreibt.
 - `manifest.json` absichtlich ohne `start_url` (damit `#k=` bleibt). Icons: `src/icon.svg` über `src/make-icons.js`.
-- Startbild: Haus am Meer ist seit 15.11.2026 für beide das Startbild (`scene()` = "haus", `prioOn()` = true). Das alte Zeltbild gibt es nur noch mit `?bild=zelt`; der Zelt-Code (`renderAll`, `renderPlan`, Zelt-Szene, Ausstattung/Kosten) wird als eigener Schritt entfernt.
+- Startbild: Haus am Meer ist das einzige Startbild. Der Zelt-Code (`?bild=zelt`, `scene()`, `prioOn()`, `renderAll`, `renderPlan`, Zelt-Szene, Ausstattung bearbeiten) wurde am 15.11.2026 entfernt (Commit "Zelt-Code entfernt", per `git revert` rückholbar). Der Reiter heißt intern weiter `camp`, das Bild `.camp`; `campItems`/`campCfg` liefern die Haus-Dinge (Kosten aus `config.camp`, falls vorhanden).
 
 ## Testen und Veröffentlichen
 
@@ -36,7 +36,7 @@ node src/build-web.js http://localhost:8765   # danach wieder lokal bauen
 
 ## Navigation und Bedienung
 
-- Kopfzeile: links in der Ecke nur 🔔 (öffnet Wichtig; das 🏕️🧹-Symbol ist seit 15.11.2026 weg, nur noch im Zeltbild). Zum Start geht es über den Reiter Start. Mehrfachtipp zählt nur, wenn man seit dem letzten Tipp auf derselben Seite geblieben ist (`S.lastTap.on`). Zahl (`bellItems`, Florian 15.11.2026): Erinnerungen der nächsten 24 Stunden plus Überfälliges, Termine nur, wenn an ihnen 🔔 angetippt ist (`food/termin/<id>/remind`, Knopf `data-terbell` im Kalender; Wichtig zeigt sie oben als "Termine mit Glocke"); keine Aufgaben, kein Essen. Rechts: Lupe (Suche, Tab `suche`), Zahnrad (Einstellungen, `settings`), Kachel ganz in der Ecke (Bereiche, `bereiche`).
+- Kopfzeile: links in der Ecke nur 🔔 (öffnet Wichtig; das 🏕️🧹-Symbol ist seit 15.11.2026 weg). Zum Start geht es über den Reiter Start. Mehrfachtipp zählt nur, wenn man seit dem letzten Tipp auf derselben Seite geblieben ist (`S.lastTap.on`). Zahl (`bellItems`, Florian 15.11.2026): Erinnerungen der nächsten 24 Stunden plus Überfälliges, Termine nur, wenn an ihnen 🔔 angetippt ist (`food/termin/<id>/remind`, Knopf `data-terbell` im Kalender; Wichtig zeigt sie oben als "Termine mit Glocke"); keine Aufgaben, kein Essen. Rechts: Lupe (Suche, Tab `suche`), Zahnrad (Einstellungen, `settings`), Kachel ganz in der Ecke (Bereiche, `bereiche`).
 - Zentrale Bereichsliste `AREAS` (Gruppe in `AREAS[i][6]`, Reihenfolge nach `AREA_GROUPS`: Essen, Alltag, Wir, Zuhause, Freizeit, Quer). Daraus: Bereiche-Seite (`AREA_TREE`), Menü über Start und Wischen. Neuer Bereich = eine Zeile in `AREAS`.
 - Sprünge: `data-nav="tab|art:wert"` über `goNav` (art: `wp` Wochenseite, `ft` Essen-Reiter, `ks` Kita, `tt` Reisen, `pf` Ideen/Am Haus, `pv` Partner, `ps` Spiel). `data-go="<tab>"` öffnet einen Bereich.
 - Menü über Start: lange (450 ms) auf den Reiter Start → `#fan` (`fanOpen`): Gruppen als Säule, Bereiche nach rechts, ziehen und loslassen oder tippen. Schalter `S.gest.ring`.
@@ -130,7 +130,7 @@ node src/build-web.js http://localhost:8765   # danach wieder lokal bauen
 
 ## Datenmodell (unter dem Schlüssel)
 
-- `config`: `persons`, `rotOffset`, `tasks[{id,name,owner:p0|p1|rot|both|ho,freq:day|week|month|half|year,times,pts,pack?,subs?}]`, `mig`, `camp` (Zeltspiel, fällt weg).
+- `config`: `persons`, `rotOffset`, `tasks[{id,name,owner:p0|p1|rot|both|ho,freq:day|week|month|half|year,times,pts,pack?,subs?}]`, `mig`, `camp` (alte Kosten für Haus-Dinge, nur noch gelesen).
 - `weeks/<YYYY-Www>/ticks/<key>` = `{by,at,part?}`; Schlüssel `<id>__<slot>`, `<id>__p` (Monat und länger), `<id>__<slot>_p0/_p1` (zu zweit), `<id>__<slot>_s<j>` (Teilbereiche). Wochen bleiben dauerhaft (kein eigenes Archiv).
 - Unter `food` (damit der Abgleich nichts Neues braucht): `shop`, `fav`, `pantry`, `rec`, `book`, `plan/<wk>/d0..d6`, `planx`, `kitaplan/<wk>/d0..d4` `{text,fr?,na?,bz?}`, `kita` `{name,sec:termine|tasche|infos,date?,kind?,note?,done?}`, `lunch`, `lunchmap`, `trip` `{…,date?,adv?}`, `packlist`, `pack`, `urlaub`, `fund`, `hproj`, `idea`, `advent`, `adoor`, `play`, `playmap`, `music`, `prio`, `priotpl`, `termin`, `brief`, `contact`, `wxplace`, `pref`, `rectag`, `rwunsch`, `rseen`, `sugg`, `buy`, `buylist`, `split`, `kid` (`bh`, `rule`), `pref/kidname`.
 - Dateien in der Wurzel: `ideen.json`, `wochenideen.json`, `reisefunde.json`, `ausflugtipps.json`, `hausfunde.json`, `auftraege.json`, `quellen.txt`, `vorlieben.txt`, `rectags.txt`.
@@ -141,7 +141,7 @@ Einkauf (Bereich) / Einkaufsliste (die Liste), Packliste(n), Wochenplan (nie Ess
 
 ## Offene Liste
 
-- Zelt-Code entfernen (eigener, rückholbarer Schritt); danach App-Name/Symbol/Farben anpassen, aber vorher fragen. Plan: https://claude.ai/artifact/MzunYyXEYMKWLFxg56qyNr
+- Zelt-Code ist entfernt (15.11.2026); App-Name/Symbol/Farben anpassen erst nach Rückfrage. Plan: https://claude.ai/artifact/MzunYyXEYMKWLFxg56qyNr
 - Supervisorblick 15.11.2026: Mehrfachtipp und Wischen bleiben an (Florian: lassen, später vielleicht auf Stand bringen). Rückseite = die eine Tagesansicht (gebaut). Glocke als zentraler Ort ist umgesetzt. Offen: echte Handy-Benachrichtigung (braucht einen Dienst, z. B. Firebase Cloud Messaging plus geplanter GitHub-Lauf; mittlerer Aufwand, erst auf Florians Okay).
 - Wartet auf Florian: weitere Schnellmenüs (Baum, Fahrrad, Boot, Leuchtturm …), Personenfilter Ich/anderer/Kind, Kontakte zu anderen, Zufallsfoto, Reise-Recherche-Aufträge, Aufgaben mit Datum im Kalender, Bildelement für Musik geklärt (Ghettoblaster).
 - Test mit zwei echten Handys. Schriften selbst ausliefern statt Google Fonts. Pausiert: Minispiele.

@@ -52,8 +52,6 @@ rep(`if(S.mode==="local")h+=\`<div class="notice">Offline-Modus: Die Daten bleib
   if(S.mode==="web"&&S.dbError==="offline"&&!S.cfgConfirmed){app.innerHTML=\`<section class="card"><h2>Keine Verbindung zur Datenbank</h2><div>Entweder fehlt gerade das Internet, oder die Regeln in Firebase sind noch nicht veröffentlicht. Für den zweiten Fall: Öffne in Firebase „Realtime Database“, Reiter „Regeln“, ersetze den gesamten Text durch die folgende Zeile und tippe auf „Veröffentlichen“.</div><input type="text" readonly id="rulesline" value='{"rules":{"haushalt":{"$key":{".read":true,".write":true}}}}'><div><button class="primary" data-act="reload">Erneut versuchen</button></div></section>\`;return}
   if(S.mode==="local")h+=\`<div class="notice">Der Abgleich ist noch nicht eingerichtet. Die Daten bleiben vorerst nur auf diesem Gerät.</div>\`;`);
 rep('if(S.timedOut&&S.mode==="db")','if(S.timedOut&&S.mode==="web")');
-rep('<div class="notice">Grundregel: Ihr könnt immer gemeinsam abweichen und den Plan anpassen.</div></section>`;',
-    '<div class="notice">Grundregel: Ihr könnt immer gemeinsam abweichen und den Plan anpassen.</div></section>`;\n  if(S.mode==="web")h+=`<section class="card"><h2>Einladungs-Link</h2><div class="freq">Schick diesen Link an ${esc(pname("p1"))}. Wer ihn öffnet, sieht denselben Plan. Tipp: im Browser „Zum Home-Bildschirm“ wählen, dann startet die App wie eine normale App.</div><input type="text" id="invite" readonly value="${esc(inviteLink())}"><div><button class="ghost" data-act="copy">Link kopieren</button></div></section>`;');
 rep('  const act=b.dataset.act;',`  const act=b.dataset.act;
   if(act==="reload"){location.reload();return}
   if(act==="newhouse"){enter(newKey());return}
