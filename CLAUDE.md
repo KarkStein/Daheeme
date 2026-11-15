@@ -40,7 +40,7 @@ node src/build-web.js http://localhost:8765   # danach wieder lokal bauen
 - Zentrale Bereichsliste `AREAS` (Gruppe in `AREAS[i][6]`, Reihenfolge nach `AREA_GROUPS`: Essen, Alltag, Wir, Zuhause, Freizeit, Quer). Daraus: Bereiche-Seite (`AREA_TREE`), Menü über Start und Wischen. Neuer Bereich = eine Zeile in `AREAS`.
 - Sprünge: `data-nav="tab|art:wert"` über `goNav` (art: `wp` Wochenseite, `ft` Essen-Reiter, `ks` Kita, `tt` Reisen, `pf` Ideen/Am Haus, `pv` Partner, `ps` Spiel). `data-go="<tab>"` öffnet einen Bereich.
 - Menü über Start: lange (450 ms) auf den Reiter Start → `#fan` (`fanOpen`): Gruppen als Säule, Bereiche nach rechts, ziehen und loslassen oder tippen. Schalter `S.gest.ring`.
-- Mehrfachtipp auf die 4 Reiter (`TAP_SEQ`, unter 450 ms): Start → Tag und Woche → Wichtig; Woche → Kalender → Wer macht was; Essen → Wochenplan → Rezepte → Kita; Einkauf → Rezepte. Schalter `S.gest.tap`.
+- Mehrfachtipp auf die 4 Reiter (`TAP_SEQ`, unter 450 ms): Start → Tag und Woche → Wichtig; Einkauf → Ausgaben → Weitere Listen; Woche → Kalender → Wer macht was; Essen → Wochenplan → Rezepte → Kita. Schalter `S.gest.tap`.
 - Wischen links/rechts wechselt nur Hauptbereiche (`SWIPE_TABS`, erst die 4 Reiter, dann Gruppen-Reihenfolge, kein Umlauf). Schalter `S.gest.swipe`.
 - Neu laden bleibt im selben Bereich (`restoreNav`, `history.state`, sessionStorage `hq-nav`). Zurück-Taste geht schrittweise zurück (`syncNav`).
 
@@ -77,6 +77,10 @@ node src/build-web.js http://localhost:8765   # danach wieder lokal bauen
 - Nur hier lebt die Einkaufsliste. Zutaten kommen als Block (`src` = Rezept/Quelle) und gehen als Block (Leiste "Für …", ✕). Gleiche Zutaten verschiedener Rezepte werden zusammengerechnet (`shopGroups`, `parseQty`, `ingKey`).
 - Übertragen fragt immer `openPick`/`renderPick`: "Alles" (ohne Vorrat), "Alles bis auf …", "Nur das …". Der Dialog kann auch auf Adventskalender-Türchen übertragen (`S.shopPick.to`).
 - Vorrat "Immer im Haus" (`food/pantry`, `isPantry`) steht nur hier. Eigenes Gedächtnis `food/fav`. Die Filter-Überschrift führt zurück zur Quelle (`data-srclink`: Rezept, Plantag, Adventskalender, Kita-Mitbringen).
+
+- Einkauf hat drei Seiten (Florian 15.11.2026, `shopPager`, Mehrfachtipp auf Einkauf): Einkaufsliste (Lebensmittel und Drogerie), Ausgaben (Tab `ausgaben`), Weitere Listen (Tab `listen`).
+- Ausgaben (`renderSplit`): nur Links zu Splitwise-Gruppen, kein Nachbau, keine Beträge. `food/split/<id>` `{name,link,ref?}` mit `ref` = `urlaub:<id>`, `trip:<id>`, `hproj:<id>` (Auswahl "Gehört zu"). Verknüpft: Urlaub hat Karte "💶 Ausgaben" mit Link und Feld zum Verbinden (`splitAddForm`), Am-Haus-Projekt zeigt den Link im Budget, Ausflug 💶. Löschen von Urlaub/Ausflug/Projekt nimmt nur die Zuordnung weg (`splitDropRef`).
+- Weitere Listen (`renderBuy`, eingeklappte Karten `data-buysum`): feste `BUY_FIX` Kleidung, Geschenke, Spielsachen, Baumarkt plus eigene (`food/buylist`). Einträge `food/buy/<id>` `{name,list,for?,ref?,done}`; "Für" Florian/Judith/Kind. Verknüpft und live (`buyLinked`): Geschenk-Ideen auf Geplant/Sind dran erscheinen bei Geschenke (Haken = Idee erledigt), Adventstürchen "Kleinigkeit" mit Stand Idee bei Spielsachen (Haken = besorgt), Funde Werkzeug/Material in Am-Haus-Projekten bei Baumarkt (Haken = gekauft); 👕 an Packlisten-Einträgen schaltet sie auf Kleidung und zurück (`ref:"pack:<id>"`, Entfernen des Eintrags oder der Liste nimmt sie mit, `buyDropRef`). Rückwege: Ideen › Geschenke, Adventskalender, Am-Haus-Projekt, Packliste, Suche, Bereiche (`einkauf|bl:<liste>`, `sp:ausgaben`).
 
 ### Kita (Rucksack)
 - Reiter: Termine (Arten Fest, Kita zu, Elternabend, 📦 Etwas mitbringen), Essen (`renderKitaMeals`: je Tag Frühstück, Mittag mit Nachspeise, Brotzeit; Einfügen per `parseKitaPlan`), 📦 Mitbringen, Infos.
@@ -116,7 +120,7 @@ node src/build-web.js http://localhost:8765   # danach wieder lokal bauen
 
 - `config`: `persons`, `rotOffset`, `tasks[{id,name,owner:p0|p1|rot|both|ho,freq:day|week|month|half|year,times,pts,pack?,subs?}]`, `mig`, `camp` (Zeltspiel, fällt weg).
 - `weeks/<YYYY-Www>/ticks/<key>` = `{by,at,part?}`; Schlüssel `<id>__<slot>`, `<id>__p` (Monat und länger), `<id>__<slot>_p0/_p1` (zu zweit), `<id>__<slot>_s<j>` (Teilbereiche). Wochen bleiben dauerhaft (kein eigenes Archiv).
-- Unter `food` (damit der Abgleich nichts Neues braucht): `shop`, `fav`, `pantry`, `rec`, `book`, `plan/<wk>/d0..d6`, `planx`, `kitaplan/<wk>/d0..d4` `{text,fr?,na?,bz?}`, `kita` `{name,sec:termine|tasche|infos,date?,kind?,note?,done?}`, `lunch`, `lunchmap`, `trip` `{…,date?,adv?}`, `packlist`, `pack`, `urlaub`, `fund`, `hproj`, `idea`, `advent`, `adoor`, `play`, `playmap`, `music`, `prio`, `priotpl`, `termin`, `brief`, `contact`, `wxplace`, `pref`, `rectag`, `rwunsch`, `rseen`, `sugg`.
+- Unter `food` (damit der Abgleich nichts Neues braucht): `shop`, `fav`, `pantry`, `rec`, `book`, `plan/<wk>/d0..d6`, `planx`, `kitaplan/<wk>/d0..d4` `{text,fr?,na?,bz?}`, `kita` `{name,sec:termine|tasche|infos,date?,kind?,note?,done?}`, `lunch`, `lunchmap`, `trip` `{…,date?,adv?}`, `packlist`, `pack`, `urlaub`, `fund`, `hproj`, `idea`, `advent`, `adoor`, `play`, `playmap`, `music`, `prio`, `priotpl`, `termin`, `brief`, `contact`, `wxplace`, `pref`, `rectag`, `rwunsch`, `rseen`, `sugg`, `buy`, `buylist`, `split`.
 - Dateien in der Wurzel: `ideen.json`, `wochenideen.json`, `reisefunde.json`, `hausfunde.json`, `auftraege.json`, `quellen.txt`, `vorlieben.txt`, `rectags.txt`.
 
 ## Einheitliche Namen
