@@ -135,6 +135,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .slot.on{border-style:solid;color:#fff;font-size:.8rem}
 .slot.on.p0{background:var(--p0);border-color:var(--p0)}
 .slot.on.p1{background:var(--p1);border-color:var(--p1)}
+.slot.hoslot{-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
+.slot.on.x{background:var(--muted);border-color:var(--muted);color:var(--surface)}
 .slot.split{border-style:solid;color:var(--fg);background:linear-gradient(90deg,var(--L,transparent) 50%,var(--R,transparent) 50%)}
 .slot.split.h0{--L:var(--p0)}
 .slot.split.h1{--R:var(--p1)}
@@ -717,7 +719,7 @@ function renderWeek(){
         if(isBoth){const leg=tk[k],a=tk[k+"_p0"]||(leg&&leg.by==="p0"?leg:null),b=tk[k+"_p1"]||(leg&&leg.by==="p1"?leg:null);
           c+=(a?0.5:0)+(b?0.5:0);cls.push("split");if(a)cls.push("h0");if(b)cls.push("h1");if(a&&b)lbl="✓";on=!!(a&&b);
           aria=(a?" "+esc(pname("p0"))+" erledigt":"")+(b?" "+esc(pname("p1"))+" erledigt":"")}
-        else{const v=tk[k];if(v){c++;on=true;cls.push("on",isHO?v.by:"chk");lbl=isHO?esc(pname(v.by).charAt(0)):"✓";aria=" erledigt von "+esc(pname(v.by))}}
+        else{const v=tk[k];if(v){c++;on=true;cls.push("on",isHO?(v.by==="x"?"x":v.by):"chk");lbl=isHO?esc(v.by==="x"?(v.lbl||"X").slice(0,2):pname(v.by).charAt(0)):"✓";aria=" erledigt von "+esc(v.by==="x"?(v.lbl||"X"):pname(v.by))}}
         if(f==="day"){if(i===today)cls.push("today");if(i>today)cls.push("future");if(isHO)cls.push("hoslot")}
         slots+=`<button class="${cls.join(" ")}" data-task="${esc(t.id)}" data-slot="${i}" ${isBoth?'data-split="1"':""} ${f==="day"&&i>today&&!isHO?"disabled":""} aria-pressed="${on}" aria-label="${esc(t.name)} ${f==="day"?DAYS[i]:(i+1)+". Mal"}${aria}">${lbl}</button>`}
       doneAll=c>=n;pct=n?c/n:0;const cs=(c%1?String(c).replace(".",","):c);
@@ -1335,6 +1337,17 @@ function mboxOpen(){S.mboxAt=Date.now();if(document.getElementById("mbox"))retur
   document.body.appendChild(el);
   el.addEventListener("click",e=>{const b=e.target.closest("[data-mbox]");if(b){mboxClose();goNav(b.dataset.mbox);return}if(e.target.closest("a")){setTimeout(mboxClose,50);return}if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose()})}
 function homeOpen(){if(!S.homeOpen){try{S.homeOpen=JSON.parse(localStorage.getItem("hq-homeopen")||"{}")||{}}catch(_){S.homeOpen={}}}return S.homeOpen}
+// Homeoffice: lange auf einen Tag drücken = Auswahl, wer (Florian 15.11.2026)
+function hoCanEdit(){const cm=mondayOf(new Date());if(+S.view<+cm&&S.wkEdit!==wkKey(S.view)){toast("Archiv: erst „✏️ Nachtragen“ antippen.");return false}return true}
+function hoPick(btn){if(!hoCanEdit())return;S.mboxAt=Date.now();if(document.getElementById("mbox"))return;const t=tasks().find(x=>x.id===btn.dataset.task);if(!t)return;const wk=wkKey(S.view),key=t.id+"__"+btn.dataset.slot,cur=ticksOf(wk)[key];
+  const set=async v=>{mboxClose();try{await S.store.tick(wk,key,v)}catch(_){toast("Konnte nicht speichern. Bitte nochmal tippen.")}};
+  const el=document.createElement("div");el.id="mbox";el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="Homeoffice"><div class="section-head"><h2>🏠 ${esc(DAYS[+btn.dataset.slot]||"")}: wer ist im Homeoffice?</h2></div><div class="quicklist">
+    ${["p0","p1"].map(p=>`<button class="quickbtn" data-hop="${p}"><span class="qi">${esc(pname(p).charAt(0))}</span><span>${esc(pname(p))}</span></button>`).join("")}
+    <form class="addrow" id="hoxform"><input type="text" id="hoxin" maxlength="12" placeholder="X: eigener Eintrag" value="${cur&&cur.by==="x"?esc(cur.lbl||""):""}" aria-label="Eigener Eintrag" autocomplete="off"><button class="ghost" type="submit">Übernehmen</button></form>
+    ${cur?`<button class="quickbtn" data-hop="clear"><span class="qi">✕</span><span>Leeren</span></button>`:""}</div></div>`;
+  document.body.appendChild(el);
+  el.addEventListener("submit",e=>{e.preventDefault();const v=(document.getElementById("hoxin").value||"").trim().slice(0,12);set({by:"x",lbl:v||"X",at:Date.now(),who:S.me||""})});
+  el.addEventListener("click",e=>{const b=e.target.closest("[data-hop]");if(b){const p=b.dataset.hop;set(p==="clear"?null:{by:p,at:Date.now()});return}if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose()})}
 function mboxClose(){const el=document.getElementById("mbox");if(el)el.remove()}
 // ---------- Schnellmenü im Startbild: lange auf ein Bildelement drücken (Florian 15.11.2026) ----------
 // Eintrag: [Symbol, Text, {nav, fn?, click?, focus?, scroll?}]; ein einziger Eintrag startet sofort.
@@ -2102,6 +2115,10 @@ function ringEnd(){const r=S.ring;if(!r)return;if(r.sel>=0){const v=RING[r.sel][
  // Kreis im Bild abgeschaltet (Florian 15.11.2026): Menü kommt jetzt über langes Drücken auf den Reiter Start (fanOpen)
  app.addEventListener("touchmove",e=>{if(S.ring){e.preventDefault();const p=e.touches[0];ringMove(p.clientX,p.clientY);return}if(lp){const p=e.touches[0];if(Math.hypot(p.clientX-lp.x,p.clientY-lp.y)>10){clearTimeout(lp.timer);lp=null}}},{passive:false});
  const end=()=>{if(lp){clearTimeout(lp.timer);lp=null}if(S.ring)ringEnd()};app.addEventListener("touchend",end,{passive:true});app.addEventListener("touchcancel",end,{passive:true});
+ app.addEventListener("contextmenu",e=>{const ho=e.target.closest&&e.target.closest(".slot.hoslot");if(ho){e.preventDefault();hoPick(ho);return}});
+ {let ht=null;app.addEventListener("touchstart",e=>{const t=e.touches.length===1&&e.target.closest&&e.target.closest(".slot.hoslot");if(!t)return;const p=e.touches[0];ht={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{ht=null;hoPick(t)},450)}},{passive:true});
+  app.addEventListener("touchmove",e=>{if(ht){const p=e.touches[0];if(Math.hypot(p.clientX-ht.x,p.clientY-ht.y)>10){clearTimeout(ht.timer);ht=null}}},{passive:true});
+  const he=()=>{if(ht){clearTimeout(ht.timer);ht=null}if(document.getElementById("mbox"))S.mboxAt=Date.now()};app.addEventListener("touchend",he,{passive:true});app.addEventListener("touchcancel",he,{passive:true})}
  app.addEventListener("contextmenu",e=>{if(e.target.closest(".camp"))e.preventDefault();const k=prioOn()&&quickKey(e.target.closest(".spot"));if(k)quickOpen(k)})
  {let mt=null;app.addEventListener("touchstart",e=>{const k=prioOn()&&e.touches.length===1&&e.target.closest&&quickKey(e.target.closest(".spot"));if(!k)return;const p=e.touches[0];mt={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{mt=null;quickOpen(k)},450)}},{passive:true});
   app.addEventListener("touchmove",e=>{if(mt){const p=e.touches[0];if(Math.hypot(p.clientX-mt.x,p.clientY-mt.y)>10){clearTimeout(mt.timer);mt=null}}},{passive:true});
@@ -2150,7 +2167,7 @@ document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.cl
   if(t==="essen"&&prioOn()&&S.tab!=="essen")S.foodTab="heute";S.tab=t;if(S.tab!=="plan")S.draft=null;if(S.tab!=="camp")S.campDraft=null;render();window.scrollTo(0,0)});
 app.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;
-  if(b.classList.contains("spot")&&b.dataset.go!=="post"&&Date.now()-(S.mboxAt||0)<700)return;
+  if((b.classList.contains("spot")&&b.dataset.go!=="post"||b.classList.contains("hoslot"))&&Date.now()-(S.mboxAt||0)<700)return;
   if(b.dataset.stress){const k=b.dataset.stress,wk=wkKey(planWeek()),on=!!(planX(planWeek())[k]&&planX(planWeek())[k].stress);try{await S.store.setPath("food/planx/"+wk+"/"+k+"/stress",on?null:true)}catch(_){toast("Konnte nicht speichern.")}if(S.sugg){S.sugg=suggestWeek(planWeek(),S.sugg);render()}return}
   if(b.dataset.planrec||b.dataset.sugrec){const k=b.dataset.planrec||b.dataset.sugrec,wk=wkKey(planWeek()),m=b.dataset.planrec?planDays(planWeek())[k]:(S.sugg&&S.sugg[k]);if(!m)return;const name=String(m.text||m.name||"").slice(0,80);const ex=recs().find(r=>(r.name||"").toLowerCase()===name.toLowerCase());const id=ex?ex.id:newId("r");
     try{if(!ex)await S.store.setPath("food/rec/"+id,{name,ing:Array.isArray(m.ing)?m.ing.join("\n"):(m.ing||""),note:m.note||"",link:m.link||"",at:Date.now()});if(b.dataset.planrec)await S.store.setPath("food/plan/"+wk+"/"+k+"/rec",id);else{m.rec=id;m.src="rezept"}toast(ex?"Steht schon bei euren Rezepten":"Zu euren Rezepten hinzugefügt");render()}catch(_){toast("Konnte nicht speichern.")}return}
