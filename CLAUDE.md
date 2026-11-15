@@ -56,7 +56,7 @@ node src/build-web.js http://localhost:8765   # danach wieder lokal bauen
 
 ### Woche (Besen)
 - Seiten (`weekPager`, Segment-Umschalter, `WEEK_ORDER`): Diese Woche (`renderWeek`), Kalender (`renderCal`, `weekPage` 3), Wer macht was (`renderWmw`, `weekPage` 1; 2 leitet um). Neu öffnen landet immer auf Diese Woche.
-- Diese Woche: oben "🏠 Homeoffice" (`#sec-ho`, ohne Scrollen sichtbar), dann Ich bin, Wochenstand (nur Wechsel-Aufgaben), Filter, Abschnitte nach Rhythmus oder Art. Blättern ‹/Heute/› (`data-wknav`, bis 4 Wochen vor). Frühere Wochen nur ansehen, "✏️ Nachtragen" (`S.wkEdit`); künftige nur HO eintragen.
+- Diese Woche: Ich bin, Wochenstand (nur Wechsel-Aufgaben), Filter, dann als erster Abschnitt "🏠 Homeoffice" (`#sec-ho`; Florian 15.11.2026: unter dem Überblick, aber erste Aufgabe; Filter blenden es nicht aus, kommt nicht doppelt), danach Abschnitte nach Rhythmus oder Art. Blättern ‹/Heute/› (`data-wknav`, bis 4 Wochen vor). Frühere Wochen nur ansehen, "✏️ Nachtragen" (`S.wkEdit`); künftige nur HO eintragen.
 - Homeoffice: kurzer Tipp trägt mich ein/aus; lange (`hoPick`): je Person ganzer Tag, "1 von 2: holt nachmittags ab" (`part:"ab"`, F¹), "2 von 2: bringt morgens" (`part:"br"`, F²); eigene Person zuerst. Die Aufgabe hat, wenn nicht anders vereinbart, wer HO hat.
 - Teilbereiche: Aufgabe mit `subs:[…]` (nur Wochen-Rhythmus) zeigt einzelne Knöpfe (`<id>__<slot>_s<j>`); alle erledigt setzt das normale Häkchen. `migSaugen` (Flag `config.mig.saug1`): "Saugen (nach Bedarf)" und "Saugen komplett" (Treppe, 🤖, Oben).
 - Längere Rhythmen (Monat, Halbjahr, Jahr) erst ab Mitte des Zeitraums (`periodMid`, `periodDue`: 15. / 1.4. bzw. 1.10. / 1.7.); vorher nur Zeile "⏳ Erst ab Mitte …".
