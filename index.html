@@ -143,6 +143,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .slot.on{border-style:solid;color:#fff;font-size:.8rem}
 .slot.on.p0{background:var(--p0);border-color:var(--p0)}
 .slot.on.p1{background:var(--p1);border-color:var(--p1)}
+.hotop{margin-top:4px}.hotop .task{margin-bottom:0}
 .slot.hoslot{-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
 .hogrp{display:grid;gap:6px}.hohalf{display:grid;grid-template-columns:1fr 1fr;gap:6px}.hohalf .quickbtn{font-size:.85rem;font-weight:500;padding:10px}.quickbtn[aria-pressed=true]{border:2px solid var(--ink)}.slot sup{font-size:.55rem;margin-left:1px}
 .slot.on.x{background:var(--muted);border-color:var(--muted);color:var(--surface)}
@@ -704,6 +705,7 @@ function renderWeek(){
   let h=`<div class="top"><div><div class="eyebrow">KW ${w} · ${fmt(mon,{day:"numeric",month:"short"})} – ${fmt(addDays(mon,6),{day:"numeric",month:"short"})}</div><h1>${isCur?"Diese Woche":(mon<cur?"Rückblick":"Vorschau")}</h1></div>
    <div class="weeknav">${prioOn()?`<button class="iconbtn" data-prionew="woche" aria-label="Erinnerung anlegen">🔔</button>`:""}<button class="iconbtn" data-wknav="-1" aria-label="Vorige Woche">‹</button>${isCur?"":`<button class="ghost" data-wknav="0">Heute</button>`}<button class="iconbtn" data-wknav="1" aria-label="Nächste Woche" ${+mon>=+addDays(cur,28)?"disabled":""}>›</button></div></div>`;
   if(!isCur)h+=`<div class="wkro">${mon<cur?(S.wkEdit===wk?`✏️ Nachtragen ist an. <button class="ghost" data-act="wkedit">Fertig</button>`:`📦 Archiv: diese Woche ist nur zum Ansehen. <button class="ghost" data-act="wkedit">✏️ Nachtragen</button>`):`🔭 Vorschau: Homeoffice kannst du schon eintragen, abhaken geht erst in der Woche selbst.`}</div>`;
+  const hoTop=prioOn();if(hoTop)h+="<!--HOTOP-->";
   h+=meChooser();
   const cnt={all:[0,0],p0:[0,0],p1:[0,0]};
   tasks().forEach(t=>{if(group(t.freq)!=="week"||t.owner!=="rot")return;const o=ownerFor(t,mon,split);const n=slotsOf(t);
@@ -751,9 +753,11 @@ function renderWeek(){
   const secs=S.groupBy==="art"
     ?[["rot","Wechsel-Aufgaben",t=>t.owner==="rot"],["fix","Feste Aufgaben",t=>t.owner==="p0"||t.owner==="p1"],["gem","Gemeinsam und Homeoffice",t=>t.owner==="both"||t.owner==="ho"]]
     :[["day","Täglich",t=>t.freq==="day"],["week","Diese Woche",t=>t.freq==="week"],["month","Diesen Monat",t=>t.freq==="month"],["half","Dieses Halbjahr",t=>t.freq==="half"],["year","Dieses Jahr",t=>t.freq==="year"]];
-  secs.forEach(([id,title,fn])=>{const xs=tasks().filter(fn).map(card).filter(vis).sort(order);if(!xs.length)return;
+  if(hoTop){const ho=tasks().filter(t=>t.owner==="ho").map(card);
+    h=h.replace("<!--HOTOP-->",ho.length?`<section class="section hotop" id="sec-ho" aria-label="Homeoffice"><div class="section-head"><h2>🏠 Homeoffice</h2><span class="freq">wer an dem Tag zu Hause ist</span></div>${ho.map(x=>x.html).join("")}</section>`:"")}
+  secs.forEach(([id,title,fn0])=>{const fn=hoTop?t=>t.owner!=="ho"&&fn0(t):fn0;const xs=tasks().filter(fn).map(card).filter(vis).sort(order);if(!xs.length)return;
     const op=xs.filter(x=>!x.done),dn=xs.filter(x=>x.done);
-    h+=`<section class="section" id="sec-${id}"><div class="section-head"><h2>${title}</h2>${id==="day"||id==="gem"?`<span class="freq">„Homeoffice“ = wer an dem Tag zu Hause ist</span>`:""}</div>${op.map(x=>x.html).join("")}${dn.length?`<div class="donesep">Erledigt</div>`+dn.map(x=>x.html).join(""):""}</section>`});
+    h+=`<section class="section" id="sec-${id}"><div class="section-head"><h2>${title}</h2>${!hoTop&&(id==="day"||id==="gem")?`<span class="freq">„Homeoffice“ = wer an dem Tag zu Hause ist</span>`:""}</div>${op.map(x=>x.html).join("")}${dn.length?`<div class="donesep">Erledigt</div>`+dn.map(x=>x.html).join(""):""}</section>`});
   return h}
 
 function renderScore(){
