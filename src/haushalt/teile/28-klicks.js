@@ -134,7 +134,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.calwho!=null){S.calWho=b.dataset.calwho;render();return}
   if(b.dataset.act==="ternewgo"){S.prev=S.tab;S.tab="woche";S.weekPage=3;S.calDay=null;b.dataset.act="ternew"}
   if(b.dataset.act==="ternew"){S.terDraft={id:null,name:"",date:S.calDay||ymd(new Date()),time:"",who:"both",rep:"",note:""};render();window.scrollTo(0,0);const el=document.getElementById("ter-name");if(el)el.focus();return}
-  if(b.dataset.teredit){const x=termine().find(y=>y.id===b.dataset.teredit);if(x){S.terDraft={id:x.id,name:x.name||"",date:x.date||"",to:x.to||"",time:x.time||"",who:x.who||"both",rep:x.rep||"",note:x.note||"",place:x.place||"",remind:x.remind||null};render();window.scrollTo(0,0)}return}
+  if(b.dataset.teredit){const x=termine().find(y=>y.id===b.dataset.teredit);if(x){S.terDraft={id:x.id,name:x.name||"",date:x.date||"",to:x.to||"",time:x.time||"",who:x.who||"both",rep:x.rep||"",note:x.note||"",place:x.place||"",link:x.link||"",remind:x.remind||null};render();window.scrollTo(0,0)}return}
   if(b.dataset.terwho){S.terDraft.who=b.dataset.terwho;render();return}
   if(b.dataset.terrem!=null&&S.terDraft){S.terDraft.remind=b.dataset.terrem==="tag"?true:b.dataset.terrem||null;render();return}
   if(b.dataset.terrep!=null&&S.terDraft){S.terDraft.rep=b.dataset.terrep;render();return}
@@ -266,6 +266,10 @@ app.addEventListener("click",async e=>{
   if(b.dataset.atipdauer){const O=S.atipDauer&&typeof S.atipDauer==="object"?S.atipDauer:(S.atipDauer={}),k=b.dataset.atipdauer;O[k]=!O[k];render();return}
   if(b.dataset.atipwo!=null){S.atipWO=b.dataset.atipwo;render();return}
   if(b.dataset.atipio!=null){S.atipIO=b.dataset.atipio;render();return}
+  if(b.dataset.tripcal){const x=trips().find(y=>y.id===b.dataset.tripcal);if(!x)return;calDayPick(x.name,x.date||nextSat(),async k=>{try{await S.store.setPath("food/trip/"+x.id+"/date",k);toast("Steht am "+rDate(k)+" im Kalender")}catch(_){toast("Konnte nicht speichern.")}});return}
+  if(b.dataset.atipcal){const i=S.atipps&&S.atipps.items[+b.dataset.atipcal];if(!i)return;const tm=/^(\d{1,2})[:.](\d{2})/.exec(i.time||"");
+    calDayPick(i.name,i.date||i.from||nextSat(),async k=>{try{await S.store.setPath("food/termin/"+newId("t"),{name:String(i.name).slice(0,80),date:k,time:tm?tm[1].padStart(2,"0")+":"+tm[2]:null,place:String(i.place||i.name).slice(0,120),link:safeLink(i.link)||null,note:[i.travel,i.price].filter(Boolean).join(" · ").slice(0,200)||null,at:Date.now(),by:S.me||""});toast("Steht am "+rDate(k)+" im Kalender")}catch(_){toast("Konnte nicht speichern.")}});return}
+  if(b.dataset.act==="tripall"){S.tripAll=!S.tripAll;render();return}
   if(b.dataset.atiptake){const i=S.atipps&&S.atipps.items[+b.dataset.atiptake];if(!i)return;const k={natur:"wandern",kultur:"stadt",kinder:"stadt",tiere:"tiere",spiel:"spiel"}[i.cat]||"sonst";
     S.tripDraft={id:null,name:i.name||"",note:[i.place,i.travel,i.time,i.price,i.note].filter(Boolean).join(" · "),link:safeLink(i.link)||"",kind:TRIP_KIND.some(x=>x[0]===i.kind)?i.kind:k,dur:"",wx:i.io==="drinnen"?"egal":"",drive:"",kid:"",cost:"",season:"",pack:"",date:i.date||i.from||""};render();window.scrollTo(0,0);return}
   if(b.dataset.act==="tripnew"){S.tripDraft={id:null,name:"",note:"",link:"",kind:"",wx:"",dur:"",drive:"",kid:"",cost:"",season:"",pack:""};render();window.scrollTo(0,0);const el=document.getElementById("tr-name");if(el)el.focus();return}
