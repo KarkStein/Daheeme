@@ -9,5 +9,5 @@ srv.listen(8765,async()=>{
   await nav('camp|sp:tag');await A.click('.campback.dash .bcal[data-calopen=monat]');await A.waitForTimeout(300);r.mon=await A.$eval('[data-calview=monat]',e=>e.getAttribute('aria-pressed'));
   await nav('camp|sp:tag');await A.click('.campback.dash .bring');await A.waitForTimeout(300);r.week=await A.$eval('#app h1',e=>e.innerText);
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&/\d+\/\d+ Woche/.test(r.ring||'')&&r.list==='true'&&r.mon==='true'&&/Woche/.test(r.week);
+  const ok=!errs.length&&/\d+\/\d+ heute/.test(r.ring||'')&&r.list==='true'&&r.mon==='true'&&/Woche/.test(r.week);
   console.error(ok?'WRING OK':'WRING FAIL');await b.close();srv.close();process.exit(0)});

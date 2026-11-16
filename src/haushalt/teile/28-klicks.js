@@ -287,6 +287,8 @@ app.addEventListener("click",async e=>{
   if(b.dataset.atipc!=null){S.atipC=b.dataset.atipc;render();return}
   if(b.dataset.atipwx!=null){S.atipWX=b.dataset.atipwx;render();return}
   if(b.dataset.atipfree){S.atipFree=!S.atipFree;render();return}
+  if(b.dataset.atipfeat){const k=b.dataset.atipfeat;S.atipF=Object.assign({},S.atipF);S.atipF[k]=!S.atipF[k];render();return}
+  if(b.dataset.atiplk){S.atipLk=!S.atipLk;render();return}
   if(b.dataset.act==="gotasks"){goTasks();return}
   if(b.dataset.catman){catManage(b.dataset.catman);return}
   if(b.dataset.advren){const c=advCals().find(x=>x.id===b.dataset.advren);if(!c)return;editBox("Adventskalender",[{k:"name",label:"Name",type:"text",val:c.name},{k:"emo",label:"Symbol (optional)",type:"text",val:c.emo||""}],async V=>{const n=String(V.name||"").trim().slice(0,40);if(!n){toast("Bitte einen Namen eintragen.");return}await S.store.setPath("food/advent/"+c.id+"/name",n);await S.store.setPath("food/advent/"+c.id+"/emo",emoClean(V.emo));toast("Gespeichert")});return}

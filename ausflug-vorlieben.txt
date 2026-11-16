@@ -1,0 +1,26 @@
+# Für die Ausflugs-Recherche "Was ist los" (Wochentipps und Monatsüberblick).
+# Diese Ergänzungen (Florian 16.11.2026) gehen dem Text des Auftrags vor, wo sie abweichen. Keine Namen, keine Adressen: das Repo ist öffentlich.
+
+Alter: Kleinkind, 2 bis 3 Jahre. Angebote ab 3 Jahren passen. Im Zweifel aufnehmen und nicht aussortieren, nur weil die Altersangabe knapp darüber liegt; das Kind kann schon viel. Nennt der Veranstalter ein Mindestalter, als "age" (Zahl) eintragen.
+
+Gerade beliebt: Klettern, Hüpfen
+- Gezielt danach suchen, mindestens 3 passende Einträge je Lauf (Stadt und Umland), jeweils mit "like":["klettern"] bzw. ["hüpfen"] (kleingeschrieben, Wort von oben).
+
+Zusätzliche Rubriken (cat), neben floh, fest, spiel, kinder, kultur, natur, tiere:
+- klettern = Klettern und Hüpfen (Indoor-Spielplätze, Trampolin, Kinderbereiche in Kletter- und Boulderhallen, Bewegungslandschaften, offenes Kinderturnen, Eltern-Kind-Turnen)
+- wasser = Wasser (Schwimmbäder mit Kleinkindbecken, Wasserspielplätze, Planschen, Badetage mit Kinderprogramm)
+- fahrzeug = Fahrzeuge (Züge, Tram, Busse, Feuerwehr, Flughafen-Besucherpark, Bagger und große Baustellen zum Zuschauen mit Aussichtspunkt, Tage der offenen Tür in Depots und Wachen, Dampfzug- und Museumsbahnfahrten, Modellbahnen, Trambahnmuseum, Traktoren)
+- musik = Musik und Mitmachen (Kinderkonzerte, Krabbelkonzerte, Mitsingen, Mitmach- und Bastelangebote); Kinderkonzerte also hier statt unter kinder.
+
+Besonderes statt Standard:
+- Grundsatz (Florian 16.11.2026, gilt für alle Rubriken): Was immer geht, steht einmal fest unter "Geht immer" (dauer:true) und wird nicht jede Woche neu recherchiert. Beispiel: Besucherhügel am Flughafen ist ein fester Ort; als Termin kommt er nur, wenn dort etwas Besonderes ist (Tag der offenen Tür, Kinderfest, Flugtag). Gleiches gilt für Bäder, Indoor-Spielplätze, Trampolinhallen, Museen, Tierparks, Wildparks, Spielplätze, Baustellen-Aussichtspunkte.
+- Die Termin-Einträge sind fast nur Besonderes und Aktuelles, dazu genau ein Spielplatz der Woche ("top":true).
+- Klettern/Hüpfen und Wasser als Termin nur, wenn es etwas Besonderes ist (Eröffnung, Aktionstag, Kleinkind-Tag, Sonderöffnung, neue Halle). Die besten Standard-Adressen (Indoor-Spielplätze, Trampolinhallen, Kinderbereiche in Kletterhallen, Hallenbäder mit gutem Kleinkindbecken) gehören als feste Orte nach "Geht immer" (dauer:true, season "immer"; Badeseen und Wasserspielplätze ["summer"]). Nicht jede Woche dasselbe Standardbad.
+- Feste Orte bevorzugt für die Vorlieben, Wasser und Fahrzeuge ergänzen.
+- In jedem Lauf ist mindestens ein Indoor-Tipp dabei.
+
+Merkmale für die Filter der App, wo belegt oder klar erkennbar:
+- "dur":"kurz" (gut in bis zu 2 Stunden) oder "halb" (halber Tag oder mehr)
+- "pram":true (mit Kinderwagen gut machbar)
+- "cafe":true (Café, Kiosk oder Wickelplatz vor Ort)
+- "age":Zahl (Mindestalter laut Veranstalter)

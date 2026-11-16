@@ -1,6 +1,16 @@
 function backDay(d){const k=ymd(d),di=(d.getDay()+6)%7,ev=calEvents(k,k).filter(e=>e.src!=="food"&&e.src!=="reise"&&!(e.src==="prio"&&(e.from==="mittag"))),meal=mealInfo(planDays(mondayOf(d))["d"+di]),km=di<5&&!inUrlaub(d)?kitaMeals(mondayOf(d))["d"+di]:null;return {k,di,ev,meal,km}}
 // Wohin eine Erinnerung führt (Startseite, Wichtig, Rückseite)
 function prioTarget(x){return x.from==="mittag"?` data-go="privat"`:(x.from==="rezepte"||x.from==="essen")&&x.ref&&recs().some(r=>r.id===x.ref)?` data-openrec="${esc(x.ref)}"`:x.from==="rezepte"?` data-go="essen" data-ft="rezepte"`:x.ref&&String(x.ref).startsWith("advent:")?` data-advgo="${esc(x.ref.slice(7))}"`:x.from&&x.from!=="frei"?` data-go="${x.from}"`:` data-prioedit="${esc(x.id)}"`}
+// Aufgaben für heute (Florian 16.11.2026, statt „im Einkauf“): tägliche Aufgaben von heute plus offene Wochen-Aufgaben, für mich (ohne Ich bin: alle), ohne Hausdienst
+function tasksToday(){const r=tasksCount(true);return r.total?r:tasksCount(false)}
+// day=true: nur tägliche Aufgaben von heute; sonst alle Wochen-Aufgaben
+function tasksCount(day){const mon=mondayOf(new Date()),tk=ticksOf(wkKey(mon)),split=rotSplit(),di=(new Date().getDay()+6)%7;let open=0,total=0;
+  tasks().forEach(t=>{if(group(t.freq)!=="week"||(day&&t.freq!=="day"))return;const o=t.owner==="rot"?ownerFor(t,mon,split):t.owner;if(o==="ho"||(S.me&&o!==S.me&&o!=="both"))return;
+    const chk=i=>{total++;if(o==="both"){const leg=tk[t.id+"__"+i];if(S.me?!(tk[t.id+"__"+i+"_"+S.me]||(leg&&leg.by===S.me)):!leg)open++}else if(!tk[t.id+"__"+i])open++};
+    if(t.freq==="day")chk(di);else for(let i=0;i<slotsOf(t);i++)chk(i)});return {open,total}}
+// Hausdienst heute (Florian 16.11.2026, statt „im Einkauf“): Name, geteilt „F/J“ (vormittags/nachmittags), sonst –
+function hoToday(){const mon=mondayOf(new Date()),di=(new Date().getDay()+6)%7,hoT=tasks().find(t=>t.owner==="ho"),x=hoT?ticksOf(wkKey(mon))[hoT.id+"__"+di]:null;if(!x||!(x.by==="p0"||x.by==="p1"))return "–";
+  const o=x.by==="p0"?"p1":"p0";return x.half==="vm"?esc(pname(x.by).charAt(0)+"/"+pname(o).charAt(0)):esc(pname(x.by))}
 function renderBack(night,dash){const now=new Date(),today=ymd(now),D=backDay(now),pr=prios().filter(x=>x.from!=="mittag"),due=pr.filter(x=>x.due&&x.due<=today),shop=shopItems().filter(x=>!x.done),w=wxFor(now);
   const pl=S.food&&S.food.wxplace,lat=pl&&pl.lat!=null?+pl.lat:51.0,lon=pl&&pl.lon!=null?+pl.lon:10.4,t=sunTimes(now,lat,lon),hm=m=>{m=Math.round(m);return Math.floor(m/60)+":"+String(m%60).padStart(2,"0")};
   const DN=["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"],MN=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
@@ -31,7 +41,7 @@ function renderBack(night,dash){const now=new Date(),today=ymd(now),D=backDay(no
   // Zähler
   // Urlaub gehört nicht in die Tagesansicht (Florian 15.11.2026)
   const cnt=panelTile;
-  const counters=`<div class="bcnts">${cnt(due.length||pr.length,due.length?"fällig":"Erinnerungen",'data-go="wichtig"')}${cnt(shop.length,"im Einkauf",'data-go="einkauf"')}${cnt(D.ev.filter(e=>e.src!=="prio").length,"Termine heute",'data-nav="woche|wp:3" data-calopen="liste"')}</div>`;
+  const counters=`<div class="bcnts">${cnt(bellItems().n,due.length?"fällig":"🔔 in 24 Std.",'data-go="wichtig"')}${cnt(hoToday(),"Hausdienst heute",'data-go="woche"')}${cnt(D.ev.filter(e=>e.src!=="prio").length,"Termine heute",'data-nav="woche|wp:3" data-calopen="liste"')}</div>`;
   // Blick voraus
   const ahead=[1,2,3].map(i=>{const d=addDays(startOfDay(now),i),x=backDay(d),e=x.ev[0];return `<div class="bday3"><b>${i===1?"Morgen":DN[d.getDay()].slice(0,2)}</b><span>🍲 ${x.meal?esc(x.meal.name):"–"}</span>${e?`<span>${e.icon||"📅"} ${esc(e.name)}</span>`:""}</div>`}).join("");
   return `<div class="campback${night?" night":""}${dash?" dash":""}" aria-label="Der Tag auf einen Blick"><div class="brim"></div>
@@ -70,6 +80,7 @@ function renderSettings(){const per=(S.config&&S.config.persons)||[];const G=S.g
    h+=card("🫶 Wir",`<div class="freq">Ich bin (nur dieses Handy)</div><div class="unl">${["p0","p1"].map((p,i)=>`<button class="chipbtn neutral" data-me="${p}" aria-pressed="${S.me===p}">${nm(i)}</button>`).join("")}</div>
     <div class="freq" style="margin-top:10px">Namen</div><div class="telrow">${[0,1].map(i=>`<input data-pname="${i}" value="${nm(i)}" maxlength="20" aria-label="Name ${i+1}" autocomplete="off">`).join("")}</div>
     <label class="fld" style="margin-top:10px"><span>Name des Kindes (für die Seite Wir › Kind, bleibt nur bei euch)</span><input data-kidname="1" value="${esc(((S.food&&S.food.pref&&S.food.pref.kidname)||""))}" maxlength="20" placeholder="Kind" autocomplete="off"></label>
+    <label class="fld" style="margin-top:10px"><span>Gerade beliebt (für Ausflüge › Was ist los, mit Komma)</span><input data-kidlikes="1" value="${esc(kidLikes().join(", "))}" maxlength="80" placeholder="Klettern, Hüpfen" autocomplete="off"></label>
     <div class="fld" style="margin-top:10px"><span>Nummer von ${nm(oi)} für WhatsApp</span>${telField(o,ct[o]||"",per[oi]||"")}</div>
     ${typeof inviteLink==="function"&&S.key?`<div class="btnrow" style="margin-top:10px"><button class="ghost" data-act="invitecopy">🔗 Einladungs-Link kopieren</button></div><div class="freq">Der Link enthält euren geheimen Schlüssel. Nur an ${nm(oi)} schicken.</div>`:""}`,"wir")}
   h+=card("💾 Daten",`<div class="freq">Alles liegt in eurer gemeinsamen Datenbank (Firebase), erreichbar nur mit eurem Link. Im Code auf GitHub stehen keine Nummern und keine Einträge. Auf diesem Handy liegen nur Ich bin, Startbild, hell oder dunkel und Bedienung. Die Sicherung ist eine Datei mit allem; legt sie gut weg, sie enthält auch die Nummern.</div>
