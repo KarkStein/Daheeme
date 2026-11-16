@@ -458,3 +458,10 @@ h2{font-weight:700}
 .cal button{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 .caltoday .evlist{margin:0}.caltoday .tagcard{margin-top:var(--sp2)}
 .chipbtn .wdot,.freq .wdot,.wdot{width:8px!important;height:8px!important;min-width:8px;flex:0 0 8px!important;padding:0!important;display:inline-block}
+
+/* Kalender kompakt (Florian 16.11.2026): Monat passt auf den ersten Bildschirm */
+.calbars{display:flex;flex-direction:column;gap:6px}
+.calbars .calbar{margin:0;gap:6px}
+.calbars+.card{gap:var(--sp2);padding:var(--sp3)}
+.calbar .chipbtn{padding:4px 10px;min-height:32px}
+.cal button{min-height:40px;padding:4px 0 3px}

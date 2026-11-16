@@ -8,7 +8,7 @@ srv.listen(8765,async()=>{
   await put('food/ext/fw',{at:1,n:3,items:{f1:{name:'Zahnarzt',date:'2026-11-17',time:'09:00'},f2:{name:'Elternabend',date:'2026-11-18',time:'19:30',end:'21:00',place:'Kita'},f3:{name:'Oma zu Besuch',date:'2026-11-20',to:'2026-11-22'}}});
   const nav=async v=>{await A.evaluate(v=>{const b=document.createElement("button");b.dataset.nav=v;b.id="zz";document.getElementById("app").appendChild(b)},v);await A.click("#zz");await A.waitForTimeout(300)};
   await A.waitForTimeout(500);await nav('woche|wp:3');await A.click('[data-calview=liste]');await A.waitForTimeout(300);
-  const t=await A.$eval('#app',e=>e.innerText);const r={zahn:(t.match(/Zahnarzt/g)||[]).length,eltern:/👪\s*Elternabend/.test(t)||/Elternabend/.test(t),note:/Aus Familywall, bis 21:00 · Kita/.test(t),oma:(t.match(/Oma zu Besuch/g)||[]).length,chip:/Familywall/.test(await A.$eval('#app',e=>e.innerHTML))};
+  const t=await A.$eval('#app',e=>e.innerText);const r={zahn:(t.match(/Zahnarzt/g)||[]).length,eltern:/👪\s*Elternabend/.test(t)||/Elternabend/.test(t),note:!/Aus Familywall/.test(t)&&!/👪/.test(t.replace(/👪 Familywall/g,'')),oma:(t.match(/Oma zu Besuch/g)||[]).length,chip:/Familywall/.test(await A.$eval('#app',e=>e.innerHTML))};
   console.error(JSON.stringify(r),errs);
   const ok=!errs.length&&r.zahn===1&&r.eltern&&r.note&&r.oma===3;
   console.error(ok?'FW OK':'FW FAIL');await b.close();srv.close();process.exit(0)});
