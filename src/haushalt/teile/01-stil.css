@@ -477,4 +477,4 @@ h2{font-weight:700}
 .evlist li[data-who]{position:relative;padding-left:var(--sp3)}
 .evlist li[data-who]::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:5px;border-radius:3px;background:#7a8594}
 .evlist li[data-who=p0]::before{background:#2e7d6b}.evlist li[data-who=p1]::before{background:#b8862b}.evlist li[data-who=kid]::before{background:#8a5cc2}
-.cal .dots i{width:8px!important;height:4px!important;border-radius:2px!important}
+.cal .dots i{width:8px!important;height:4px!important;border-radius:2px!important}.catbtn.routebtn{background:none;border:none;padding:4px 6px;font-size:var(--fs-m);cursor:pointer}

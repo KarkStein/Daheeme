@@ -2,6 +2,7 @@ app.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;
   if(b.dataset.mealfor)S.mealFor=ymd(new Date());
   if(b.dataset.allar!=null){arOpen(false);return}
+  if(b.dataset.route){routePick(b.dataset.route);return}
   if(b.dataset.cook){cookStart(b.dataset.cook);return}
   if(b.dataset.act==="mealforx"){S.mealFor=null;render();return}
   if((b.classList.contains("spot")&&b.dataset.go!=="post"||b.classList.contains("hoslot"))&&Date.now()-(S.mboxAt||0)<700)return;
@@ -133,7 +134,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.calwho!=null){S.calWho=b.dataset.calwho;render();return}
   if(b.dataset.act==="ternewgo"){S.prev=S.tab;S.tab="woche";S.weekPage=3;S.calDay=null;b.dataset.act="ternew"}
   if(b.dataset.act==="ternew"){S.terDraft={id:null,name:"",date:S.calDay||ymd(new Date()),time:"",who:"both",rep:"",note:""};render();window.scrollTo(0,0);const el=document.getElementById("ter-name");if(el)el.focus();return}
-  if(b.dataset.teredit){const x=termine().find(y=>y.id===b.dataset.teredit);if(x){S.terDraft={id:x.id,name:x.name||"",date:x.date||"",to:x.to||"",time:x.time||"",who:x.who||"both",rep:x.rep||"",note:x.note||"",remind:x.remind||null};render();window.scrollTo(0,0)}return}
+  if(b.dataset.teredit){const x=termine().find(y=>y.id===b.dataset.teredit);if(x){S.terDraft={id:x.id,name:x.name||"",date:x.date||"",to:x.to||"",time:x.time||"",who:x.who||"both",rep:x.rep||"",note:x.note||"",place:x.place||"",remind:x.remind||null};render();window.scrollTo(0,0)}return}
   if(b.dataset.terwho){S.terDraft.who=b.dataset.terwho;render();return}
   if(b.dataset.terrem!=null&&S.terDraft){S.terDraft.remind=b.dataset.terrem==="tag"?true:b.dataset.terrem||null;render();return}
   if(b.dataset.terrep!=null&&S.terDraft){S.terDraft.rep=b.dataset.terrep;render();return}

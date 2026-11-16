@@ -82,6 +82,11 @@ function waNum(n){let d=String(n||"").replace(/[^\d+]/g,"");if(d.startsWith("+")
 // Kontakt: nur der andere (food/contact/p0|p1); Nummern nur in der Datenbank
 // Handynummern werden nie im Klartext gezeigt (Florian 15.11.2026): nur ••• und die letzten 3 Ziffern; neu eintippen ersetzt, 🗑 löscht
 const telMask=v=>{const d=String(v||"").replace(/\D/g,"");return d?"••• ••• "+d.slice(-3):""};
+// Nummern in Notizen (Florian 16.11.2026, 📞 Anrufen): immer versternt anzeigen; telA = ein Tipp wählt die erste Nummer, telNote(t,true) macht jede Nummer im Text antippbar
+const TEL_RX=/(?:\+|00)?\d[\d \-\/()]{6,}\d/g;
+const telNums=t=>(String(t||"").match(TEL_RX)||[]).filter(m=>{const d=m.replace(/\D/g,"");return d.length>=8&&d.length<=15&&!/^\d{4}\s*[-–]\s*\d{4}$/.test(m.trim())});
+function telNote(t,link){const s=String(t||""),N=telNums(s);if(!N.length)return esc(s);let out="",k=0;N.forEach(m=>{const i=s.indexOf(m,k);out+=esc(s.slice(k,i))+(link?`<a class="tellink" href="tel:+${waNum(m)}">📞 ${telMask(m)}</a>`:`📞 ${telMask(m)}`);k=i+m.length});return out+esc(s.slice(k))}
+const telA=t=>{const n=telNums(t)[0];return n?`<a class="catbtn routebtn" href="tel:+${waNum(n)}" aria-label="Anrufen">📞</a>`:""};
 function telField(p,raw,name){const m=telMask(raw);return `<div class="telrow"><input type="tel" data-contact="${esc(p)}" value="" placeholder="${m?esc(m)+"  (neu eintippen ersetzt)":"Handynummer, z. B. 0170 1234567"}" autocomplete="off" aria-label="Handynummer${name?" von "+esc(name):""}">${m?`<button class="rm" data-contactdel="${esc(p)}" aria-label="Nummer löschen">🗑</button>`:""}</div>`}
 function otherP(){return (S.me||"p0")==="p0"?"p1":"p0"}
 function contactList(){const per=(S.config&&S.config.persons)||[],ot=otherP(),ct=(S.food&&S.food.contact)||{};

@@ -42,6 +42,7 @@ document.addEventListener("pointerup",e=>{if(e.pointerType!=="touch"&&S.ar&&!S.a
 // ---------- Fenster schließen mit Zurück (Florian 16.11.2026): jedes Fenster (#mbox, #allar) legt einen eigenen Verlaufsschritt an ----------
 const OVL=["mbox","allar"];const ovlOpen=()=>OVL.some(id=>document.getElementById(id));
 function ovlCloseAll(){mboxClose();arClose()}
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&ovlOpen())ovlCloseAll()});
 new MutationObserver(()=>{const open=ovlOpen();
   if(open&&!S.ovl){S.ovl=true;try{if(!(history.state&&history.state.ov))history.pushState({ov:1},"")}catch(_){}}
   else if(!open&&S.ovl){S.ovl=false;setTimeout(()=>{try{if(!ovlOpen()&&history.state&&history.state.ov){navBusy=true;history.back()}}catch(_){}},0)}}).observe(document.body,{childList:true});
