@@ -378,6 +378,13 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="bookedit"){S.bookEdit=S.bookEdit?null:(S.book||"main");S.bookNew=false;render();const el=document.getElementById("bookinput");if(el)el.focus();return}
   if(b.dataset.act==="bookdel"){const id=S.book;if(!id||id==="main")return;const rs=recs().filter(r=>r.book===id);try{for(const r of rs)await S.store.setPath("food/rec/"+r.id+"/book",null);await S.store.setPath("food/book/"+id,null)}catch(_){toast("Konnte nicht speichern.");return}S.book="main";toast(rs.length?"Kochbuch gelöscht. "+rs.length+" Rezepte liegen jetzt in „Unsere Rezepte“":"Kochbuch gelöscht");render();return}
   if(b.dataset.recbook){if(S.recDraft){S.recDraft.book=b.dataset.recbook;render()}return}
+  if(b.dataset.act==="wishopen"){S.wishOpen=!S.wishOpen;render();if(S.wishOpen){const el=document.querySelector('[data-wish="lust"]');if(el)el.focus()}return}
+  if(b.dataset.act==="wishx"){S.wishOpen=false;S.wishCopy="";render();return}
+  if(b.dataset.act==="wishown"){const w=S.wish||(S.wish={own:true});w.own=!w.own;render();return}
+  if(b.dataset.act==="wishweb"){const w=S.wish||{};window.open("https://www.google.com/search?q="+encodeURIComponent(wishQuery(w,w.own)),"_blank","noopener");return}
+  if(b.dataset.act==="wishprompt"){const t=wishPrompt(S.wish||{});try{await navigator.clipboard.writeText(t);S.wishCopy="";toast("Kopiert. In Gemini oder ChatGPT einfügen.");return}catch(_){}S.wishCopy=t;render();toast("Bitte den Text unten markieren und kopieren.");return}
+  if(b.dataset.act==="wishsave"){const w=S.wish||{},sm=wishSummary(w);if(!sm)return;const id=newId("w"),v={area:"rezepte",what:("Rezepte suchen: "+sm).slice(0,600),name:("Rezepte: "+sm).slice(0,80),rhythm:"einmal",note:null,task:null,state:"offen",at:Date.now(),by:S.me||""};
+    try{await S.store.setPath("food/rwunsch/"+id,v);toast("Als Recherche-Wunsch gespeichert (Recherchen).")}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.act==="recpaste"){S.recDraft={id:null,name:"",ing:"",note:"",link:"",book:S.book||"main",paste:true,pasteText:""};render();window.scrollTo(0,0);const el=document.getElementById("rec-paste");if(el)el.focus();return}
   if(b.dataset.act==="recclip"){const el=document.getElementById("rec-paste");let t="";try{t=await navigator.clipboard.readText()}catch(_){}
     if(!t){toast("Einfügen ging nicht. Bitte lange ins Feld drücken und „Einfügen“ wählen.");if(el)el.focus();return}if(el)el.value=t;if(S.recDraft)S.recDraft.pasteText=t;const p=document.querySelector('[data-act="recparse"]');if(p)p.click();return}

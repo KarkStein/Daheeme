@@ -56,6 +56,7 @@ app.addEventListener("submit",async e=>{if(e.target.classList&&e.target.classLis
   if(e.target.id==="packform"){e.preventDefault();const v=S.packText;S.packText="";const el=document.getElementById("packinput");if(el)el.value="";packAdd(v);return}
   if(e.target.id!=="shopform")return;e.preventDefault();const v=S.shopText;S.shopText="";const el=document.getElementById("shopinput");if(el)el.value="";const u=!!S.shopUrg;S.shopUrg=false;shopAdd(v,u)});
 app.addEventListener("input",e=>{if(e.target.id==="shopinput"){S.shopText=e.target.value;const sg=document.getElementById("shopsugg");if(sg)sg.innerHTML=shopSuggHtml(S.shopText);return}
+  if(e.target.dataset&&e.target.dataset.wish){const w=S.wish||(S.wish={own:true});w[e.target.dataset.wish]=e.target.value;const r=document.getElementById("wishres");if(r)r.innerHTML=wishResHtml(w);const any=!!(w.lust||w.mit||w.ohne||w.wie);document.querySelectorAll(".wishweb .btnrow button").forEach(x=>{x.disabled=!any});const hn=document.querySelector(".wishweb .wishhint");if(hn)hn.hidden=any;return}
   if(e.target.id==="packinput"){S.packText=e.target.value;return}
   if(e.target.id==="prioinput"){S.prioText=e.target.value;return}
   if(e.target.id==="projinput"){S.projText=e.target.value;return}

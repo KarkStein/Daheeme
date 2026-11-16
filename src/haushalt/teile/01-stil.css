@@ -528,3 +528,5 @@ section[id^="sec-"]{scroll-margin-top:calc(var(--sp5)*3)}
 .shopsw{margin:var(--sp2) 0;display:flex;flex-wrap:wrap;gap:var(--sp2);align-items:center}
 .geldsrc{margin:var(--sp2) 0}
 .pastehow{margin:var(--sp1) 0;padding-left:1.2em}
+.wishcard .fld{margin-top:var(--sp2)}.wishweb{margin-top:var(--sp4);padding-top:var(--sp3);border-top:1px solid var(--line)}.wishweb .unl{margin:var(--sp2) 0}.wishweb .btnrow{margin-top:var(--sp2)}.wishweb .btnrow+.freq{margin-top:var(--sp2)}
+.wishlist{margin-top:var(--sp3)}.wishlist .n{flex:1;min-width:0;overflow-wrap:anywhere}.wishlist .n small{display:block;font-size:var(--fs-xs);color:var(--muted)}.wishlist .t{font-size:var(--fs-l);min-width:0}.wishbtns a{text-decoration:none}.wishbtns{display:flex;gap:var(--sp1)}.wishlist .linkbtn{background:none;border:none;padding:0;color:inherit;font:inherit;text-align:left;text-decoration:underline;text-underline-offset:3px}.wishnone{margin-top:var(--sp3)}.wishcopy{width:100%;box-sizing:border-box;margin-top:var(--sp2);font-size:var(--fs-s)}

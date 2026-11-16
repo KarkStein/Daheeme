@@ -547,6 +547,8 @@ section[id^="sec-"]{scroll-margin-top:calc(var(--sp5)*3)}
 .shopsw{margin:var(--sp2) 0;display:flex;flex-wrap:wrap;gap:var(--sp2);align-items:center}
 .geldsrc{margin:var(--sp2) 0}
 .pastehow{margin:var(--sp1) 0;padding-left:1.2em}
+.wishcard .fld{margin-top:var(--sp2)}.wishweb{margin-top:var(--sp4);padding-top:var(--sp3);border-top:1px solid var(--line)}.wishweb .unl{margin:var(--sp2) 0}.wishweb .btnrow{margin-top:var(--sp2)}.wishweb .btnrow+.freq{margin-top:var(--sp2)}
+.wishlist{margin-top:var(--sp3)}.wishlist .n{flex:1;min-width:0;overflow-wrap:anywhere}.wishlist .n small{display:block;font-size:var(--fs-xs);color:var(--muted)}.wishlist .t{font-size:var(--fs-l);min-width:0}.wishbtns a{text-decoration:none}.wishbtns{display:flex;gap:var(--sp1)}.wishlist .linkbtn{background:none;border:none;padding:0;color:inherit;font:inherit;text-align:left;text-decoration:underline;text-underline-offset:3px}.wishnone{margin-top:var(--sp3)}.wishcopy{width:100%;box-sizing:border-box;margin-top:var(--sp2);font-size:var(--fs-s)}
 </style>
 
 <div class="app" id="app">
@@ -1523,7 +1525,7 @@ function renderFood(){
   if(S.foodTab==="heute")return h+renderFoodToday();
   if(S.foodTab==="plan")return h+renderMealPlan();
   if(S.foodTab==="rezepte"&&S.recDb&&!S.recDraft)return h+renderRecDb();
-  if(S.foodTab==="rezepte")return h+(S.mealFor&&!S.recDraft?`<section class="card mealfor"><div class="section-head"><h2>🍲 Essen für heute aussuchen</h2><button class="iconbtn" data-act="mealforx" aria-label="Nicht für heute aussuchen">✕</button></div><div class="freq">Tippe bei einem Rezept auf „🍲 Kochen“ und wähle „Heute“ oder einen anderen Tag. Es landet im Wochenplan und damit überall, wo das Abendessen des Tages steht.</div>${mealTxtForm(S.mealFor)}</section>`:"")+(S.recDraft?"":`<div class="btnrow"><button class="ghost" data-act="recpaste">🔗 Rezept aus Link oder Seite</button><button class="ghost" data-act="recnew">＋ Neues Rezept</button></div>`+renderIdeas())+renderRecipes()+(S.recDraft?"":`<section class="card"><button class="todayrow" data-act="rdbopen"><span>🔎</span><span><b>Rezept-Datenbank</b><br><span class="freq">Alle ${recs().length} Rezepte durchsuchen und filtern</span></span><i>›</i></button></section>`+renderSuggest(planWeek(),true));
+  if(S.foodTab==="rezepte")return h+(S.mealFor&&!S.recDraft?`<section class="card mealfor"><div class="section-head"><h2>🍲 Essen für heute aussuchen</h2><button class="iconbtn" data-act="mealforx" aria-label="Nicht für heute aussuchen">✕</button></div><div class="freq">Tippe bei einem Rezept auf „🍲 Kochen“ und wähle „Heute“ oder einen anderen Tag. Es landet im Wochenplan und damit überall, wo das Abendessen des Tages steht.</div>${mealTxtForm(S.mealFor)}</section>`:"")+(S.recDraft?"":`<div class="btnrow"><button class="ghost" data-act="recpaste">🔗 Rezept aus Link oder Seite</button><button class="ghost" data-act="recnew">＋ Neues Rezept</button><button class="ghost" data-act="wishopen" aria-pressed="${!!S.wishOpen}">🔎 Wunsch-Suche</button></div>`+(S.wishOpen?renderWish():"")+renderIdeas())+renderRecipes()+(S.recDraft?"":`<section class="card"><button class="todayrow" data-act="rdbopen"><span>🔎</span><span><b>Rezept-Datenbank</b><br><span class="freq">Alle ${recs().length} Rezepte durchsuchen und filtern</span></span><i>›</i></button></section>`+renderSuggest(planWeek(),true));
   if(S.foodTab==="kita"){S.foodTab="heute"}
   return h+renderMealPlan()}
 // ---------- Essen: Überblick für heute (Entwurf) ----------
@@ -1541,7 +1543,7 @@ function mealInfo(m){if(!m||!m.text)return null;const r=m.rec&&recs().find(x=>x.
 function cookBtn(ref,cls){return `<button class="${cls||"ghost"}" data-cook="${esc(ref)}">🍲 Kochen</button>`}
 function cookItem(ref){const [t,id]=String(ref).split("|");let x=null;
   if(t==="rec"){const r=recs().find(y=>y.id===id);return r?{text:r.name,rec:r.id,ing:recIng(r)}:null}
-  if(t==="idea")x=((S.ideas&&S.ideas.items)||[])[+id];else if(t==="emmi")x=S.emmiCur;if(!x||!x.name)return null;
+  if(t==="idea")x=((S.ideas&&S.ideas.items)||[])[+id];else if(t==="emmi")x=S.emmiCur;else if(t==="pool"){const n=String(ref).slice(5).toLowerCase();x=weekPool().find(y=>(y.name||"").toLowerCase()===n)}if(!x||!x.name)return null;
   const name=String(x.name).slice(0,80),r=recs().find(y=>(y.name||"").toLowerCase()===name.toLowerCase());if(r)return {text:r.name,rec:r.id,ing:recIng(r)};
   const ing=(Array.isArray(x.ing)?x.ing:[]).map(String).filter(Boolean);return Object.assign({text:name,src:"vorschlag",ing},safeLink(x.link||"")?{link:x.link}:{})}
 // Freier Text statt Rezept (Florian 16.11.2026): Gericht einfach eintippen, landet im Wochenplan des Tages
@@ -1594,6 +1596,59 @@ async function sugTake(ks,to){const wk=wkKey(planWeek());let n=0;const done=[];
   if(!Object.keys(S.sugg||{}).length)S.sugg=null;render();if(!n)return;
   toast((n===1?"Steht im Wochenplan":n+" Abendessen im Wochenplan")+(to==="rec"?" und bei euren Rezepten":""));
   if(to==="shop"){const rl=recs(),bls=done.map(x=>{const r=x.rec&&rl.find(y=>y.id===x.rec);return {src:r?r.name:x.name,lines:r?recIng(r):(x.ing||[])}}).filter(b=>b.lines.length);if(bls.length)openPick(bls)}}
+// ---------- Wunsch-Suche bei Rezepte (Florian 16.11.2026) ----------
+// Vier freiwillige Felder: Worauf habt ihr Lust, Mit, Ohne, Ähnlich wie. Stufe 1 durchsucht eigene Rezepte und Ideen (weekPool),
+// Stufe 2 öffnet eine fertige Google-Suche (auf Wunsch nur auf euren Quellen aus quellen.txt) oder kopiert einen Prompt für einen KI-Assistenten,
+// dazu „Als Recherche-Wunsch speichern“ (food/rwunsch). Keine KI direkt in der App; Treffer aus dem Netz kommen über „Rezept aus Link“ dazu.
+const WISH_SYN={pilz:["champignon","pfifferling","steinpilz","kräuterseitling","shiitake"],nudel:["pasta","spaghetti","penne","fusilli","tagliatelle","lasagne","maccheroni","rigatoni","farfalle","gnocchi"],
+  kartoffel:["erdäpfel","kartoffeln"],hähnchen:["huhn","hühnchen","hühner","chicken","geflügel"],käse:["parmesan","mozzarella","feta","gouda","cheddar","bergkäse","emmentaler","ricotta","halloumi"],
+  tomate:["passata","tomatenmark","tomaten"],fisch:["lachs","kabeljau","seelachs","thunfisch","forelle","dorsch","garnele"],
+  fleisch:["rind","schwein","hack","hackfleisch","hähnchen","huhn","speck","schinken","wurst","pute","lamm","salami","chorizo","kassler"],
+  hack:["hackfleisch","faschiertes"],linse:["linsen"],kichererbse:["kichererbsen"],reis:["risotto"],ei:["eier"],sahne:["schmand","crème fraîche","creme fraiche"],
+  kürbis:["hokkaido","butternut"],paprika:["paprikaschote"],zucchini:["zucchino"],spinat:["blattspinat"]};
+const WISH_BASIC=/^(salz|pfeffer|öl|olivenöl|wasser|zucker|mehl|butter|knoblauch|zwiebel|brühe|gemüsebrühe|essig|senf|paprikapulver|petersilie|schnittlauch)$/;
+const wishNorm=t=>String(t||"").toLowerCase();
+const wishStem=w=>{w=wishNorm(w).trim();return w.length>5?w.replace(/(en|n|e|s)$/,""):w};
+function wishTerms(t){return wishNorm(t).split(/[,;/]|\s+und\s+|\s+oder\s+|\s+/).map(x=>x.trim()).filter(x=>x.length>=2&&!/^(mit|ohne|und|oder|was|etwas|bitte|gerne|lust|auf|ein|eine|einen|der|die|das)$/.test(x))}
+function wishHas(txt,term){const s=wishStem(term);if(s.length<2)return false;if(txt.includes(s))return true;const syn=WISH_SYN[s]||WISH_SYN[term]||Object.entries(WISH_SYN).find(([k])=>s.startsWith(k)||k.startsWith(s))?.[1]||[];return syn.some(w=>txt.includes(w))}
+const wishIngKeys=x=>new Set((x.ing||[]).map(l=>ingKey(String(l)).split(" ").filter(w=>w.length>2&&!/^(g|kg|ml|el|tl|stück|prise|bund|dose|becher|packung|pck|zehe|zehen|scheibe|scheiben|frisch|frische|gehackt|klein|groß|große|etwas|ca)$/.test(w)).pop()).filter(w=>w&&!WISH_BASIC.test(w)));
+function wishTxt(x){const r=x.rec&&recs().find(y=>y.id===x.rec);return wishNorm(x.name+" "+(x.ing||[]).join(" ")+" "+(x.note||"")+" "+(r?recTags(r).map(tagLab).join(" "):"")+" "+(Array.isArray(x.tags)?x.tags.join(" "):""))}
+const wishOrig=(src,t)=>String(src||"").split(/[,;/]|\s+/).map(x=>x.trim()).find(x=>x.toLowerCase()===t)||t;
+function wishHits(w){const P=weekPool(),mit=wishTerms(w.mit),ohne=wishTerms(w.ohne),lust=wishTerms(w.lust),like=w.wie?P.find(x=>x.name.toLowerCase()===wishNorm(w.wie).trim()):null,lk=like?wishIngKeys(like):null;
+  if(!mit.length&&!ohne.length&&!lust.length&&!like)return [];
+  const out=[];P.forEach(x=>{if(like&&x.name===like.name)return;const t=wishTxt(x),ingT=wishNorm(x.name+" "+(x.ing||[]).join(" "));
+    if(ohne.some(o=>o==="fleisch"?!x.veg:wishHas(ingT,o)))return;
+    let sc=0;const why=[];const m=mit.filter(o=>wishHas(ingT,o));if(mit.length&&!m.length)return;sc+=m.length*3;if(m.length)why.push("mit "+m.map(o=>wishOrig(w.mit,o)).join(", "));
+    const l=lust.filter(o=>o==="schnell"?x.min<=30:/^veg/.test(o)?x.veg:wishHas(t,o));if(lust.length&&!l.length&&!mit.length&&!like)return;sc+=l.length*2;if(l.length)why.push(l.map(o=>wishOrig(w.lust,o)).join(", "));
+    if(lk&&lk.size){const k=wishIngKeys(x);let n=0;k.forEach(z=>{if(lk.has(z))n++});const hs=(like.haupt||[]).some(h=>(x.haupt||[]).includes(h));if(!n&&!hs&&!mit.length&&!lust.length)return;sc+=n*2+(hs?2:0)+(like.sauce&&like.sauce===x.sauce?1:0);if(n)why.push(n+" gleiche Zutat"+(n>1?"en":""))}
+    if(!mit.length&&!lust.length&&!lk)sc=1;if(sc>0)out.push({x,sc,why:why.join(" · ")})});
+  return out.sort((a,b)=>b.sc-a.sc||(a.x.src==="rezept"?-1:1)).slice(0,8)}
+// Quellen für die Suche im Netz: Webseiten aus quellen.txt (dieselbe Datei wie für die Recherche)
+const WISH_SRC0=["emmikochteinfach.de","kptncook.com","chefkoch.de","lecker.de","eatsmarter.de","kuechengoetter.de"];
+function wishSources(){if(!S.wishSrcLoad){S.wishSrcLoad=1;try{fetch("quellen.txt",{cache:"no-store"}).then(r=>r.ok?r.text():"").then(t=>{const h=String(t).split(/\n/).filter(l=>/^https?:\/\//.test(l.trim())).map(l=>{try{return new URL(l.trim()).hostname.replace(/^www\./,"")}catch(_){return ""}}).filter(Boolean);if(h.length)S.wishSrc=[...new Set(h)]}).catch(()=>{})}catch(_){}}return S.wishSrc||WISH_SRC0}
+function wishLike(w){const P=weekPool();return w.wie?P.find(x=>x.name.toLowerCase()===wishNorm(w.wie).trim()):null}
+function wishQuery(w,own){const like=wishLike(w),lk=like?[...wishIngKeys(like)].slice(0,4):[];
+  const q=["Rezept",String(w.lust||"").trim(),wishTerms(w.mit).join(" "),like?lk.join(" "):"",wishTerms(w.ohne).map(o=>"-"+o).join(" ")].filter(Boolean).join(" ");
+  return q+(own?" ("+wishSources().map(h=>"site:"+h).join(" OR ")+")":"")}
+function wishPrompt(w){const like=wishLike(w);return ["Schlag mir bitte 5 Rezepte vor. Wir kochen für 4 Personen, darunter ein Kleinkind (nichts Rohes, nicht scharf).",
+  w.lust?"Worauf wir Lust haben: "+String(w.lust).trim():"",w.mit?"Mit diesen Zutaten: "+String(w.mit).trim():"",w.ohne?"Ohne: "+String(w.ohne).trim():"",
+  w.wie?"Ähnlich wie: "+String(w.wie).trim()+(like&&like.ing&&like.ing.length?" (Zutaten: "+like.ing.slice(0,10).join(", ")+")":""):"",
+  "Bitte zu jedem Vorschlag einen Link zur Rezeptseite, am liebsten von: "+wishSources().join(", ")+"."].filter(Boolean).join("\n")}
+function wishSummary(w){return [w.lust&&"Lust auf "+String(w.lust).trim(),w.mit&&"mit "+String(w.mit).trim(),w.ohne&&"ohne "+String(w.ohne).trim(),w.wie&&"ähnlich wie "+String(w.wie).trim()].filter(Boolean).join(", ")}
+function renderWish(){const w=S.wish||(S.wish={lust:"",mit:"",ohne:"",wie:"",own:true}),P=weekPool(),any=w.lust||w.mit||w.ohne||w.wie;wishSources();
+  const fld=(k,lab,ph,list)=>`<label class="fld"><span>${lab}</span><input data-wish="${k}" value="${esc(w[k]||"")}" placeholder="${ph}" autocomplete="off"${list?` list="wishrecs"`:""}></label>`;
+  let h=`<section class="card wishcard"><div class="section-head"><h2>🔎 Wunsch-Suche</h2><button class="iconbtn" data-act="wishx" aria-label="Wunsch-Suche schließen">✕</button></div>
+    <div class="freq">Alles freiwillig und kombinierbar. Erst suchen eure Rezepte und Ideen, darunter geht es ins Netz.</div>
+    ${fld("lust","Worauf habt ihr Lust?","z. B. cremig, schnell, Ofen, Suppe")}${fld("mit","Mit diesen Zutaten","z. B. Pilze, Sahne")}${fld("ohne","Ohne","z. B. Fleisch, Koriander")}${fld("wie","Ähnlich wie","Rezept aus eurer Sammlung",true)}
+    <datalist id="wishrecs">${P.map(x=>`<option value="${esc(x.name)}"></option>`).join("")}</datalist><div id="wishres">${wishResHtml(w)}</div>`;
+  h+=`<div class="wishweb"><div class="freq">Im Netz weitersuchen<span class="wishhint"${any?" hidden":""}> (erst oben etwas eintragen)</span>:</div><div class="unl"><button class="chipbtn neutral" data-act="wishown" aria-pressed="${!!w.own}">${w.own?"✓ ":""}Nur eure Quellen</button></div>
+    <div class="btnrow"><button class="primary" data-act="wishweb"${any?"":" disabled"}>🌐 Im Netz suchen</button><button class="ghost" data-act="wishprompt"${any?"":" disabled"}>📋 Als Prompt kopieren</button><button class="ghost" data-act="wishsave"${any?"":" disabled"}>💡 Als Recherche-Wunsch</button></div>
+    <div class="freq">Gefundenes Rezept speichern: auf der Seite alles kopieren, dann oben „🔗 Rezept aus Link oder Seite“.</div>${S.wishCopy?`<textarea class="wishcopy" rows="5" readonly>${esc(S.wishCopy)}</textarea>`:""}</div></section>`;
+  return h}
+function wishResHtml(w){const any=w.lust||w.mit||w.ohne||w.wie;if(!any)return "";const L=wishHits(w);
+  if(!L.length)return `<div class="freq wishnone">Bei euch nichts Passendes. Unten im Netz weitersuchen.</div>`;
+  return `<ul class="evlist wishlist">${L.map(({x,why})=>{const own=x.src==="rezept"&&x.rec,ref=own?"rec|"+x.rec:"pool|"+x.name;
+    return `<li><span class="t">${own?"📖":"✨"}</span><span class="n">${own?`<button class="linkbtn" data-openrec="${esc(x.rec)}">${esc(x.name)}</button>`:esc(x.name)}${why?`<small>${esc(why)}</small>`:""}</span><span class="wishbtns">${!own&&safeLink(x.link)?`<a class="iconbtn" href="${esc(x.link)}" target="_blank" rel="noopener" aria-label="Rezept öffnen">🔗</a>`:""}<button class="iconbtn" data-cook="${esc(ref)}" aria-label="${esc(x.name)} kochen">🍲</button></span></li>`}).join("")}</ul>`}
 // ---------- Privat: Themen zu zweit ----------
 const briefe=()=>listOf(S.food&&S.food.brief).sort((a,b)=>(a.at||0)-(b.at||0));
 // ---------- Wir › Kind (Florian 15.11.2026): Seite 2 von Wir; Name nur aus der Datenbank (food/pref/kidname) ----------
@@ -3640,6 +3695,13 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="bookedit"){S.bookEdit=S.bookEdit?null:(S.book||"main");S.bookNew=false;render();const el=document.getElementById("bookinput");if(el)el.focus();return}
   if(b.dataset.act==="bookdel"){const id=S.book;if(!id||id==="main")return;const rs=recs().filter(r=>r.book===id);try{for(const r of rs)await S.store.setPath("food/rec/"+r.id+"/book",null);await S.store.setPath("food/book/"+id,null)}catch(_){toast("Konnte nicht speichern.");return}S.book="main";toast(rs.length?"Kochbuch gelöscht. "+rs.length+" Rezepte liegen jetzt in „Unsere Rezepte“":"Kochbuch gelöscht");render();return}
   if(b.dataset.recbook){if(S.recDraft){S.recDraft.book=b.dataset.recbook;render()}return}
+  if(b.dataset.act==="wishopen"){S.wishOpen=!S.wishOpen;render();if(S.wishOpen){const el=document.querySelector('[data-wish="lust"]');if(el)el.focus()}return}
+  if(b.dataset.act==="wishx"){S.wishOpen=false;S.wishCopy="";render();return}
+  if(b.dataset.act==="wishown"){const w=S.wish||(S.wish={own:true});w.own=!w.own;render();return}
+  if(b.dataset.act==="wishweb"){const w=S.wish||{};window.open("https://www.google.com/search?q="+encodeURIComponent(wishQuery(w,w.own)),"_blank","noopener");return}
+  if(b.dataset.act==="wishprompt"){const t=wishPrompt(S.wish||{});try{await navigator.clipboard.writeText(t);S.wishCopy="";toast("Kopiert. In Gemini oder ChatGPT einfügen.");return}catch(_){}S.wishCopy=t;render();toast("Bitte den Text unten markieren und kopieren.");return}
+  if(b.dataset.act==="wishsave"){const w=S.wish||{},sm=wishSummary(w);if(!sm)return;const id=newId("w"),v={area:"rezepte",what:("Rezepte suchen: "+sm).slice(0,600),name:("Rezepte: "+sm).slice(0,80),rhythm:"einmal",note:null,task:null,state:"offen",at:Date.now(),by:S.me||""};
+    try{await S.store.setPath("food/rwunsch/"+id,v);toast("Als Recherche-Wunsch gespeichert (Recherchen).")}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.act==="recpaste"){S.recDraft={id:null,name:"",ing:"",note:"",link:"",book:S.book||"main",paste:true,pasteText:""};render();window.scrollTo(0,0);const el=document.getElementById("rec-paste");if(el)el.focus();return}
   if(b.dataset.act==="recclip"){const el=document.getElementById("rec-paste");let t="";try{t=await navigator.clipboard.readText()}catch(_){}
     if(!t){toast("Einfügen ging nicht. Bitte lange ins Feld drücken und „Einfügen“ wählen.");if(el)el.focus();return}if(el)el.value=t;if(S.recDraft)S.recDraft.pasteText=t;const p=document.querySelector('[data-act="recparse"]');if(p)p.click();return}
@@ -3761,6 +3823,7 @@ app.addEventListener("submit",async e=>{if(e.target.classList&&e.target.classLis
   if(e.target.id==="packform"){e.preventDefault();const v=S.packText;S.packText="";const el=document.getElementById("packinput");if(el)el.value="";packAdd(v);return}
   if(e.target.id!=="shopform")return;e.preventDefault();const v=S.shopText;S.shopText="";const el=document.getElementById("shopinput");if(el)el.value="";const u=!!S.shopUrg;S.shopUrg=false;shopAdd(v,u)});
 app.addEventListener("input",e=>{if(e.target.id==="shopinput"){S.shopText=e.target.value;const sg=document.getElementById("shopsugg");if(sg)sg.innerHTML=shopSuggHtml(S.shopText);return}
+  if(e.target.dataset&&e.target.dataset.wish){const w=S.wish||(S.wish={own:true});w[e.target.dataset.wish]=e.target.value;const r=document.getElementById("wishres");if(r)r.innerHTML=wishResHtml(w);const any=!!(w.lust||w.mit||w.ohne||w.wie);document.querySelectorAll(".wishweb .btnrow button").forEach(x=>{x.disabled=!any});const hn=document.querySelector(".wishweb .wishhint");if(hn)hn.hidden=any;return}
   if(e.target.id==="packinput"){S.packText=e.target.value;return}
   if(e.target.id==="prioinput"){S.prioText=e.target.value;return}
   if(e.target.id==="projinput"){S.projText=e.target.value;return}

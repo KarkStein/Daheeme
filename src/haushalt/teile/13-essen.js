@@ -303,7 +303,7 @@ function renderFood(){
   if(S.foodTab==="heute")return h+renderFoodToday();
   if(S.foodTab==="plan")return h+renderMealPlan();
   if(S.foodTab==="rezepte"&&S.recDb&&!S.recDraft)return h+renderRecDb();
-  if(S.foodTab==="rezepte")return h+(S.mealFor&&!S.recDraft?`<section class="card mealfor"><div class="section-head"><h2>🍲 Essen für heute aussuchen</h2><button class="iconbtn" data-act="mealforx" aria-label="Nicht für heute aussuchen">✕</button></div><div class="freq">Tippe bei einem Rezept auf „🍲 Kochen“ und wähle „Heute“ oder einen anderen Tag. Es landet im Wochenplan und damit überall, wo das Abendessen des Tages steht.</div>${mealTxtForm(S.mealFor)}</section>`:"")+(S.recDraft?"":`<div class="btnrow"><button class="ghost" data-act="recpaste">🔗 Rezept aus Link oder Seite</button><button class="ghost" data-act="recnew">＋ Neues Rezept</button></div>`+renderIdeas())+renderRecipes()+(S.recDraft?"":`<section class="card"><button class="todayrow" data-act="rdbopen"><span>🔎</span><span><b>Rezept-Datenbank</b><br><span class="freq">Alle ${recs().length} Rezepte durchsuchen und filtern</span></span><i>›</i></button></section>`+renderSuggest(planWeek(),true));
+  if(S.foodTab==="rezepte")return h+(S.mealFor&&!S.recDraft?`<section class="card mealfor"><div class="section-head"><h2>🍲 Essen für heute aussuchen</h2><button class="iconbtn" data-act="mealforx" aria-label="Nicht für heute aussuchen">✕</button></div><div class="freq">Tippe bei einem Rezept auf „🍲 Kochen“ und wähle „Heute“ oder einen anderen Tag. Es landet im Wochenplan und damit überall, wo das Abendessen des Tages steht.</div>${mealTxtForm(S.mealFor)}</section>`:"")+(S.recDraft?"":`<div class="btnrow"><button class="ghost" data-act="recpaste">🔗 Rezept aus Link oder Seite</button><button class="ghost" data-act="recnew">＋ Neues Rezept</button><button class="ghost" data-act="wishopen" aria-pressed="${!!S.wishOpen}">🔎 Wunsch-Suche</button></div>`+(S.wishOpen?renderWish():"")+renderIdeas())+renderRecipes()+(S.recDraft?"":`<section class="card"><button class="todayrow" data-act="rdbopen"><span>🔎</span><span><b>Rezept-Datenbank</b><br><span class="freq">Alle ${recs().length} Rezepte durchsuchen und filtern</span></span><i>›</i></button></section>`+renderSuggest(planWeek(),true));
   if(S.foodTab==="kita"){S.foodTab="heute"}
   return h+renderMealPlan()}
 // ---------- Essen: Überblick für heute (Entwurf) ----------
@@ -321,7 +321,7 @@ function mealInfo(m){if(!m||!m.text)return null;const r=m.rec&&recs().find(x=>x.
 function cookBtn(ref,cls){return `<button class="${cls||"ghost"}" data-cook="${esc(ref)}">🍲 Kochen</button>`}
 function cookItem(ref){const [t,id]=String(ref).split("|");let x=null;
   if(t==="rec"){const r=recs().find(y=>y.id===id);return r?{text:r.name,rec:r.id,ing:recIng(r)}:null}
-  if(t==="idea")x=((S.ideas&&S.ideas.items)||[])[+id];else if(t==="emmi")x=S.emmiCur;if(!x||!x.name)return null;
+  if(t==="idea")x=((S.ideas&&S.ideas.items)||[])[+id];else if(t==="emmi")x=S.emmiCur;else if(t==="pool"){const n=String(ref).slice(5).toLowerCase();x=weekPool().find(y=>(y.name||"").toLowerCase()===n)}if(!x||!x.name)return null;
   const name=String(x.name).slice(0,80),r=recs().find(y=>(y.name||"").toLowerCase()===name.toLowerCase());if(r)return {text:r.name,rec:r.id,ing:recIng(r)};
   const ing=(Array.isArray(x.ing)?x.ing:[]).map(String).filter(Boolean);return Object.assign({text:name,src:"vorschlag",ing},safeLink(x.link||"")?{link:x.link}:{})}
 // Freier Text statt Rezept (Florian 16.11.2026): Gericht einfach eintippen, landet im Wochenplan des Tages
