@@ -453,7 +453,7 @@ h2{font-weight:700}
 .campback.wkpanel{margin:0 0 var(--sp4)}
 .campback .bcnt b{font-family:var(--f-display);font-weight:700}
 .campback .bcnt span{font-size:var(--fs-xs)}
-.campback .bring small{font-size:var(--fs-xs)}.campback .bho{white-space:nowrap}.campback .hodot{display:inline-block;width:8px;height:8px;border-radius:999px;margin:0 var(--sp1) 1px 2px;vertical-align:middle}.campback .bcnt b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.campback .bring small{font-size:var(--fs-xs)}.campback .bho{white-space:nowrap}.campback .bring2 .num{font-size:var(--fs-xs)}.campback .hodot{display:inline-block;width:8px;height:8px;border-radius:999px;margin:0 var(--sp1) 1px 2px;vertical-align:middle}.campback .bcnt b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* Startseite passt ohne Scrollen auf den ersten Bildschirm (Florian 15.11.2026) */
 .starthead{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp2);margin:0 0 var(--sp2)}
 .starthead h1{font-size:var(--fs-xl);margin:0}.starthead .eyebrow{margin:0;white-space:nowrap}
@@ -746,8 +746,10 @@ function panelRing(d,n,lbl,attr){const r=22,c=2*Math.PI*r,p=n?Math.min(1,d/n):0;
   return `<button class="bring" ${attr}><svg viewBox="0 0 54 54" aria-hidden="true"><circle cx="27" cy="27" r="${r}" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="6"/><circle cx="27" cy="27" r="${r}" fill="none" stroke="var(--lemon)" stroke-width="6" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-p)).toFixed(1)}" transform="rotate(-90 27 27)"/></svg><span class="num">${d}/${n}</span><small>${lbl}</small></button>`}
 const panelTile=(n,lab,attr)=>`<button class="bcnt" ${attr||""}><b class="num">${n}</b><span>${lab}</span></button>`;
 function panelHead(eye,title,sub,right){return `<div class="brim"></div><div class="btop"><div class="bhead"><div class="bday">${eye}</div><div class="bdate">${title}</div>${sub?`<div class="bsub">${sub}</div>`:""}</div>${right||""}</div>`}
-// Ring oben rechts (Florian 16.11.2026): nur heute (tasksToday: tägliche Aufgaben von heute, sonst Wochen-Aufgaben); Tipp springt zu den offenen Aufgaben
-function bweekRing(){const A=tasksToday();if(!A.total)return "";const dt=A.total-A.open;return panelRing(dt,A.total,"heute",`data-act="gotasks" aria-label="Heute ${dt} von ${A.total} Aufgaben erledigt"`)}
+// Doppelring oben rechts (Florian 16.11.2026): außen die Woche (Wechsel-Aufgaben, Zitronengelb), innen heute (tasksToday, weiß); ohne Zusatz-Beschriftung (Florian). Tipp springt zu den offenen Aufgaben
+function bweekRing(){const [d,n]=rotCount(mondayOf(new Date())),A=tasksToday(),dt=A.total-A.open;if(!n&&!A.total)return "";
+  const arc=(r,w,dd,nn,col,tr)=>{const c=2*Math.PI*r,p=nn?Math.min(1,dd/nn):0;return `<circle cx="27" cy="27" r="${r}" fill="none" stroke="${tr}" stroke-width="${w}"/><circle cx="27" cy="27" r="${r}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-p)).toFixed(1)}" transform="rotate(-90 27 27)"/>`};
+  return `<button class="bring bring2" data-act="gotasks" aria-label="Heute ${dt} von ${A.total} Aufgaben erledigt, Woche ${d} von ${n} Wechsel-Aufgaben"><svg viewBox="0 0 54 54" aria-hidden="true">${arc(24,5,d,n,"var(--lemon)","rgba(255,255,255,.2)")}${arc(16,5,dt,A.total,"#fff","rgba(255,255,255,.14)")}</svg><span class="num">${dt}/${A.total}</span><small>heute</small></button>`}
 function ring(p){const r=36,c=2*Math.PI*r;const off=c*(1-Math.min(1,p));
   return `<svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="${r}" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="8"/><circle cx="42" cy="42" r="${r}" fill="none" stroke="var(--lemon)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}"/></svg>`}
 
@@ -1720,7 +1722,7 @@ function renderBack(night,dash){const now=new Date(),today=ymd(now),D=backDay(no
   // Zähler
   // Urlaub gehört nicht in die Tagesansicht (Florian 15.11.2026)
   const cnt=panelTile;
-  const counters=`<div class="bcnts">${cnt(bellItems().n,due.length?"fällig":"🔔 in 24 Std.",'data-go="wichtig"')}${(([d,n])=>cnt(Math.max(0,n-d),"Aufgaben Woche",'data-act="gotasks" aria-label="Offene Wechsel-Aufgaben dieser Woche"'))(rotCount(mondayOf(now)))}${cnt(D.ev.filter(e=>e.src!=="prio").length,"Termine heute",'data-nav="woche|wp:3" data-calopen="liste"')}</div>`;
+  const counters=`<div class="bcnts">${cnt(bellItems().n,due.length?"fällig":"🔔 in 24 Std.",'data-go="wichtig"')}${(()=>{const m=planDays(mondayOf(now))["d"+D.di],miss=todayMissing(m),r=m&&m.rec&&recs().find(x=>x.id===m.rec),src=(r&&r.name)||(m&&m.text)||"";return cnt(miss.length,"Einkauf heute",miss.length&&shopItems().some(i=>!i.done&&i.src===src)?`data-shopview="${esc(src)}" aria-label="Für heute noch einkaufen: ${esc(miss.join(", "))}"`:'data-go="einkauf"')})()}${cnt(D.ev.filter(e=>e.src!=="prio").length,"Termine heute",'data-nav="woche|wp:3" data-calopen="liste"')}</div>`;
   // Blick voraus
   const ahead=[1,2,3].map(i=>{const d=addDays(startOfDay(now),i),x=backDay(d),e=x.ev[0];return `<div class="bday3"><b>${i===1?"Morgen":DN[d.getDay()].slice(0,2)}</b><span>🍲 ${x.meal?esc(x.meal.name):"–"}</span>${e?`<span>${e.icon||"📅"} ${esc(e.name)}</span>`:""}</div>`}).join("");
   return `<div class="campback${night?" night":""}${dash?" dash":""}" aria-label="Der Tag auf einen Blick"><div class="brim"></div>

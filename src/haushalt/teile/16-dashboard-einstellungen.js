@@ -42,7 +42,7 @@ function renderBack(night,dash){const now=new Date(),today=ymd(now),D=backDay(no
   // Zähler
   // Urlaub gehört nicht in die Tagesansicht (Florian 15.11.2026)
   const cnt=panelTile;
-  const counters=`<div class="bcnts">${cnt(bellItems().n,due.length?"fällig":"🔔 in 24 Std.",'data-go="wichtig"')}${(([d,n])=>cnt(Math.max(0,n-d),"Aufgaben Woche",'data-act="gotasks" aria-label="Offene Wechsel-Aufgaben dieser Woche"'))(rotCount(mondayOf(now)))}${cnt(D.ev.filter(e=>e.src!=="prio").length,"Termine heute",'data-nav="woche|wp:3" data-calopen="liste"')}</div>`;
+  const counters=`<div class="bcnts">${cnt(bellItems().n,due.length?"fällig":"🔔 in 24 Std.",'data-go="wichtig"')}${(()=>{const m=planDays(mondayOf(now))["d"+D.di],miss=todayMissing(m),r=m&&m.rec&&recs().find(x=>x.id===m.rec),src=(r&&r.name)||(m&&m.text)||"";return cnt(miss.length,"Einkauf heute",miss.length&&shopItems().some(i=>!i.done&&i.src===src)?`data-shopview="${esc(src)}" aria-label="Für heute noch einkaufen: ${esc(miss.join(", "))}"`:'data-go="einkauf"')})()}${cnt(D.ev.filter(e=>e.src!=="prio").length,"Termine heute",'data-nav="woche|wp:3" data-calopen="liste"')}</div>`;
   // Blick voraus
   const ahead=[1,2,3].map(i=>{const d=addDays(startOfDay(now),i),x=backDay(d),e=x.ev[0];return `<div class="bday3"><b>${i===1?"Morgen":DN[d.getDay()].slice(0,2)}</b><span>🍲 ${x.meal?esc(x.meal.name):"–"}</span>${e?`<span>${e.icon||"📅"} ${esc(e.name)}</span>`:""}</div>`}).join("");
   return `<div class="campback${night?" night":""}${dash?" dash":""}" aria-label="Der Tag auf einen Blick"><div class="brim"></div>
