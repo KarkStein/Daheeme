@@ -244,13 +244,7 @@ details.reisemap summary{cursor:pointer;font-weight:600}
 .hwave{animation:hwave 3.6s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}@keyframes hwave{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5px)}}
 @media (prefers-reduced-motion:reduce){.flipin{transition:none}.hwave{animation:none}}
 .wxhours{list-style:none;margin:6px 0 0;padding:0;display:flex;gap:6px;overflow-x:auto}.wxhours li{flex:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;border-radius:var(--r);background:var(--bg);font-size:var(--fs-s);font-variant-numeric:tabular-nums}
-#fan{position:fixed;inset:0;z-index:60;touch-action:none;-webkit-user-select:none;user-select:none}#fan .fanbg{position:absolute;inset:0;background:rgba(10,20,25,.5);backdrop-filter:blur(2px)}
-#fan .fanarc{position:absolute;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:#fff;box-shadow:0 0 0 8px rgba(255,255,255,.25)}
-#fan .fani{position:absolute;transform:translate(-50%,-50%);width:56px;height:56px;border-radius:50%;border:none;background:var(--surface);color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;box-shadow:0 4px 14px rgba(0,0,0,.25);transition:transform .12s;font:inherit;padding:0}
-#fan .fani span{font-size:var(--fs-xl);line-height:1}#fan .fani b{font-size:.58rem;font-weight:600;white-space:nowrap}#fan .fang{width:60px;height:60px}
-#fan .fanstem{position:absolute;width:2px;margin-left:-1px;background:rgba(255,255,255,.45)}#fan .fani.on{transform:translate(-50%,-50%) scale(1.2);background:var(--ink);color:var(--surface)}#fan .fanline{position:absolute;height:2px;margin-top:-1px;background:rgba(255,255,255,.55)}
 #tabs{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
-@media (prefers-reduced-motion:reduce){#fan .fani{transition:none}}
 
 .spot:focus-visible{outline:3px solid #fff;outline-offset:-3px}
 .hot{position:absolute;transform:translate(-50%,-50%);background:var(--surface);color:var(--fg);border:none;border-radius:999px;padding:5px 11px;font-weight:700;font-size:var(--fs-xs);box-shadow:0 2px 8px rgba(0,0,0,.28);display:flex;gap:6px;align-items:center;white-space:nowrap;opacity:.94}
@@ -484,7 +478,17 @@ h2{font-weight:700}
 .calbars+.card{gap:var(--sp2);padding:var(--sp3)}
 .calbar .chipbtn{padding:4px 10px;min-height:32px}
 .cal button{min-height:40px;padding:4px 0 3px}
-</style>
+
+/* Alle Bereiche (Florian 16.11.2026) */
+#allar{position:fixed;inset:0;z-index:60}#allar .arbg{position:absolute;inset:0;background:rgba(10,20,25,.45)}
+#allar .arsheet{position:absolute;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;max-height:calc(100% - 24px);overflow:auto;overscroll-behavior:contain;background:var(--surface);color:var(--ink);border-radius:var(--r) var(--r) 0 0;padding:var(--sp3) var(--sp4) calc(var(--sp4) + env(safe-area-inset-bottom));box-shadow:0 -6px 24px rgba(0,0,0,.25)}
+#allar .arhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp1)}#allar .arhead h2{margin:0}
+#allar .argrp{margin-top:var(--sp2)}#allar .arlbl{font-size:var(--fs-xs);font-weight:700;color:var(--ochre);text-transform:uppercase;letter-spacing:.04em;margin-bottom:var(--sp1)}
+#allar .argrid{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--sp1)}
+#allar .artile{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;min-height:58px;padding:6px 2px 4px;border:1px solid var(--line,rgba(0,0,0,.1));border-radius:var(--r-s);background:var(--bg,transparent);color:var(--ink);-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#allar .artile span{font-size:var(--fs-l);line-height:1.1}#allar .artile b{font-size:var(--fs-xs);font-weight:600;line-height:1.15;text-align:center;hyphens:auto;overflow-wrap:anywhere}
+#allar .artile.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}#allar .artile.fav b::after{content:" 📌";font-size:.7em}
+#allar .arfoot{display:flex;align-items:center;gap:var(--sp2);flex-wrap:wrap;margin-top:var(--sp3)}</style>
 
 <div class="app" id="app">
   <div class="empty" id="boot">🏕️🧹 wird geladen …</div>
@@ -2586,7 +2590,7 @@ function render(){
   if(S.timedOut&&S.mode==="web")h+=`<div class="notice">Die gemeinsamen Daten sind gerade nicht erreichbar. Angezeigtes kann veraltet sein.</div>`;
   if(!S.config&&!S.cfgConfirmed&&!S.timedOut){app.innerHTML=h+`<div class="empty">Plan wird geladen …</div>`;return}
   if(!S.config){h+=`<div class="empty"><h2>Noch kein Haushaltsplan hinterlegt</h2><div>Legt euren Plan aus der Vorlage an (eure Liste mit Müll, Saugen, Wäsche und Co.). Danach könnt ihr alles unter „Plan“ anpassen.</div><button class="primary" data-act="template">Plan aus Vorlage anlegen</button></div>`;app.innerHTML=h;return}
-  h+=`<div class="appbar"><span class="appleft"><button class="iconbtn bellnav" data-go="wichtig" aria-label="Wichtig: alle Erinnerungen">🔔${(n=>n?`<b class="badge">${n}</b>`:"")(bellItems().n)}</button></span><span class="appleft"><button class="iconbtn" data-go="suche" aria-label="Suche"${S.tab==="suche"?' aria-pressed="true"':""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button><button class="iconbtn" data-go="settings" aria-label="Einstellungen"${S.tab==="settings"?' aria-pressed="true"':""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button><button class="iconbtn" data-go="bereiche" aria-label="Alle Bereiche"${S.tab==="bereiche"?' aria-pressed="true"':""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></svg></button></span></div>`;
+  h+=`<div class="appbar"><span class="appleft"><button class="iconbtn bellnav" data-go="wichtig" aria-label="Wichtig: alle Erinnerungen">🔔${(n=>n?`<b class="badge">${n}</b>`:"")(bellItems().n)}</button></span><span class="appleft"><button class="iconbtn" data-go="suche" aria-label="Suche"${S.tab==="suche"?' aria-pressed="true"':""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button><button class="iconbtn" data-go="settings" aria-label="Einstellungen"${S.tab==="settings"?' aria-pressed="true"':""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button><button class="iconbtn" data-allar aria-label="Alle Bereiche"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></svg></button></span></div>`;
   h+=S.tab==="tag"?startPager(1)+renderTag():S.tab==="ausgaben"?shopPager(1)+renderSplit():S.tab==="listen"?shopPager(2)+renderBuy():S.tab==="wichtig"&&!S.prioDraft?startPager(2)+renderWichtig():S.tab==="bereiche"?renderAreas():S.tab==="settings"?renderSettings():S.tab==="wichtig"?renderWichtig():S.tab==="woche"?weekPager()+[renderWeek,renderWmw,renderWmw,renderCal][S.weekPage|0]():S.tab==="camp"?renderCamp():S.tab==="essen"||S.tab==="einkauf"?renderFood():S.tab==="ausflug"?renderTrips():S.tab==="projekte"||S.tab==="amhaus"?renderProjects():S.tab==="spiel"?renderPlay():S.tab==="musik"?renderMusic():S.tab==="recherchen"?renderResearch():S.tab==="suche"?renderSearch():S.tab==="kita"?renderKita():S.tab==="privat"?wirPager(0)+renderPrivat():S.tab==="kind"?wirPager(1)+renderKind():S.tab==="post"?(S.tab="privat",S.privSec="briefe",wirPager(0)+renderPrivat()):S.tab==="reisen"?renderTrips():renderCamp();
   const y=window.scrollY,ae=document.activeElement,fid=ae&&app.contains(ae)&&ae.id?ae.id:null,sel=fid&&ae.selectionStart!=null?[ae.selectionStart,ae.selectionEnd]:null;
   h+=renderPick();app.innerHTML=h;window.scrollTo(0,y);syncNav();
@@ -2601,12 +2605,18 @@ function applyNav(k){const p=k.split("|");S.tab=p[0];if(S.tab==="projekte"||S.ta
 function restoreNav(){try{S.flip=sessionStorage.getItem("hq-flip")==="1"}catch(_){}let st=null;try{st=history.state}catch(_){}let k=st&&typeof st.k==="string"?st.k:"";if(!k){try{k=sessionStorage.getItem("hq-nav")||""}catch(_){}}
   const t=k.split("|")[0];if(!t||t==="plan"||t==="alle")return false;applyNav(k);
   const i=st&&typeof st.k==="string"&&st.i>0?st.i:0;for(let j=0;j<i;j++)NAV.push("");const nk=navKey();NAV.push(nk);try{history.replaceState({i,k:nk},"")}catch(_){}return true}
-function syncNav(){if(!S.config)return;if(!NAV.length&&!S.navRestored){S.navRestored=true;if(restoreNav()){render();window.scrollTo(0,0);return}}const k=navKey();try{sessionStorage.setItem("hq-nav",k);sessionStorage.setItem("hq-flip",S.flip?"1":"")}catch(_){}try{
+function syncNav(){if(!S.config)return;arSeen();if(!NAV.length&&!S.navRestored){S.navRestored=true;if(restoreNav()){render();window.scrollTo(0,0);return}}const k=navKey();try{sessionStorage.setItem("hq-nav",k);sessionStorage.setItem("hq-flip",S.flip?"1":"")}catch(_){}try{
   if(!NAV.length){NAV.push(k);history.replaceState({i:0,k},"");return}
   if(NAV[NAV.length-1]===k)return;
+  // Ein Fenster wurde mit einem Sprung geschlossen: dessen Verlaufsschritt wird zur neuen Seite
+  if(history.state&&history.state.ov&&!ovlOpen()){NAV.push(k);history.replaceState({i:NAV.length-1,k},"");return}
   if(NAV.length>1&&NAV[NAV.length-2]===k){NAV.pop();navBusy=true;history.back();return}
   NAV.push(k);history.pushState({i:NAV.length-1,k},"")}catch(_){}}
-window.addEventListener("popstate",e=>{if(navBusy){navBusy=false;return}const st=e.state;if(!st||typeof st.k!=="string")return;
+window.addEventListener("popstate",e=>{const st=e.state;
+  // Offenes Fenster: Zurück schließt nur das Fenster (Florian 16.11.2026)
+  if(ovlOpen()){S.ovl=false;navBusy=false;ovlCloseAll();return}
+  if(st&&st.ov){history.back();return}
+  if(navBusy){navBusy=false;return}if(!st||typeof st.k!=="string")return;
   applyNav(st.k);S.tripDraft=null;S.projDraft=null;S.playDraft=null;S.kitaDraft=null;S.recDraft=S.planEdit=S.lunchDraft=null;S.lunchMapEdit=false;S.draft=null;
   NAV.length=Math.min(NAV.length,st.i);NAV[st.i]=navKey();render();window.scrollTo(0,0)});
 // ---------- Events ----------
@@ -2619,7 +2629,7 @@ function swipeTo(dir){const i=SWIPE_TABS.indexOf(S.tab);if(i<0)return;const j=i+
 {let sx=null,sy=0,st=0;app.addEventListener("touchstart",e=>{const t=e.target;if(e.touches.length!==1||t.closest("input,textarea,select,iframe,.pickwrap,.mapwrap")){sx=null;return}sx=e.touches[0].clientX;sy=e.touches[0].clientY;st=Date.now()},{passive:true});
  app.addEventListener("touchend",e=>{if(sx==null)return;if(S.ring){sx=null;return}const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;sx=null;if(S.gest.swipe&&Date.now()-st<700&&Math.abs(dx)>70&&Math.abs(dy)<Math.abs(dx)*0.5)swipeTo(dx<0?1:-1)},{passive:true})}
 {let lp=null;
- // Kreis im Bild abgeschaltet (Florian 15.11.2026): Menü kommt jetzt über langes Drücken auf den Reiter Start (fanOpen)
+ // Kreis im Bild abgeschaltet (Florian 15.11.2026): langes Drücken auf den Reiter Start öffnet Alle Bereiche (arOpen)
  app.addEventListener("touchmove",e=>{if(lp){const p=e.touches[0];if(Math.hypot(p.clientX-lp.x,p.clientY-lp.y)>10){clearTimeout(lp.timer);lp=null}}},{passive:false});
  const end=()=>{if(lp){clearTimeout(lp.timer);lp=null}};app.addEventListener("touchend",end,{passive:true});app.addEventListener("touchcancel",end,{passive:true});
  app.addEventListener("contextmenu",e=>{const ho=e.target.closest&&e.target.closest(".slot.hoslot");if(ho){e.preventDefault();hoPick(ho);return}});
@@ -2640,37 +2650,60 @@ S.gest={tap:true,swipe:true,ring:true};try{const g=JSON.parse(localStorage.getIt
 try{S.theme=localStorage.getItem("hq-theme")||"";if(S.theme)document.documentElement.dataset.theme=S.theme}catch(_){}
 // Reiter unten (Entwurf, Wunsch 14.11.2026): ein Tipp = erste Seite; schnell mehrfach tippen blättert je Tipp eine Seite weiter (TAP_SEQ)
 const TAP_SEQ={camp:[()=>{S.tab="camp"},()=>{S.tab="tag"},()=>{S.tab="wichtig"}],woche:[0,3,1].map(p=>()=>{S.tab="woche";S.weekPage=p}),essen:["heute","plan","rezepte","kita"].map(f=>()=>{if(f==="kita"){S.tab="kita";S.kitaSec="essen";return}S.tab="essen";S.foodTab=f}),einkauf:[()=>{S.tab="einkauf"},()=>{S.tab="ausgaben"},()=>{S.tab="listen"}]};
-// ---------- Fächer-Menü (Florian 15.11.2026): lange auf den Reiter Start drücken. Stufe 1 Gruppen, Stufe 2 Bereiche der Gruppe ----------
-function fanGroups(){return AREA_GROUPS.map(g=>{const L=[];AREAS.filter(a=>a[6]===g[0]).forEach(a=>{L.push([a[0],a[3]||a[1],a[4]||a[2]+"|"]);if(a[2]==="woche")L.push(["📅","Kalender","woche|wp:3"])});
-  if(g[0]==="quer")L.push(["🔍","Suche","suche|"],["🗂️","Bereiche","bereiche|"]);return {id:g[0],ic:g[1],name:g[2]==="Quer durch alles"?"Quer":g[2],items:L}})}
-// Aufbau: Gruppen als Säule über dem Start-Reiter (Essen unten, nah am Daumen), Bereiche der gewählten Gruppe als Reihe nach rechts
-function fanPos(f){const W=innerWidth,gx=f.ox,top=f.oy-74;const G=f.G.map((g,i)=>[gx,top-i*66]);let I=[];
-  if(f.g>=0){const n=f.G[f.g].items.length,x0=gx+78,sp=n>1?Math.min(70,(W-34-x0)/(n-1)):0,y=G[f.g][1];I=f.G[f.g].items.map((_,j)=>[x0+j*sp,y])}return {G,I}}
-function fanOpen(ox,oy){if(S.fan)return;const G=fanGroups();S.fan={ox:Math.max(40,ox),oy,G,g:-1,sel:-1,moved:false};
-  const el=document.createElement("div");el.id="fan";document.body.appendChild(el);fanDraw();
-  el.addEventListener("click",e=>{const f=S.fan;if(!f)return;S.fanEat=0;const gb=e.target.closest("[data-fg]"),ib=e.target.closest("[data-fi]");
-    if(ib){const v=f.G[f.g].items[+ib.dataset.fi][2];fanClose();goNav(v);return}
-    if(gb){f.g=+gb.dataset.fg;f.sel=-1;fanDraw();return}
-    if(f.endAt&&Date.now()-f.endAt<350)return;fanClose()});
-  try{navigator.vibrate&&navigator.vibrate(12)}catch(_){}}
-function fanDraw(){const f=S.fan,el=document.getElementById("fan");if(!f||!el)return;const P=fanPos(f);
-  let h=`<div class="fanbg"></div><div class="fanarc" style="left:${f.ox}px;top:${f.oy}px"></div><i class="fanstem" style="left:${f.ox}px;top:${P.G[P.G.length-1][1]}px;height:${f.oy-P.G[P.G.length-1][1]}px"></i>`;
-  if(f.g>=0&&P.I.length){const y=P.G[f.g][1];h+=`<i class="fanline" style="left:${f.ox}px;top:${y}px;width:${(P.I[P.I.length-1][0]-f.ox).toFixed(0)}px"></i>`}
-  f.G.forEach((g,i)=>{h+=`<button class="fani fang${f.g===i?" on":""}" data-fg="${i}" style="left:${P.G[i][0]}px;top:${P.G[i][1]}px" aria-label="${esc(g.name)}"><span>${g.ic}</span><b>${esc(g.name)}</b></button>`});
-  P.I.forEach((p,i)=>{const it=f.G[f.g].items[i];h+=`<button class="fani fanit${f.sel===i?" on":""}" data-fi="${i}" style="left:${p[0].toFixed(0)}px;top:${p[1]}px" aria-label="${esc(it[1])}"><span>${it[0]}</span><b>${esc(it[1])}</b></button>`});
-  el.innerHTML=h}
-function fanMove(x,y){const f=S.fan;if(!f)return;const dx=x-f.ox,dy=y-f.oy;if(Math.hypot(dx,dy)<36)return;f.moved=true;const P=fanPos(f);
-  if(dx<44){let best=-1,bd=1e9;P.G.forEach((p,i)=>{const t=Math.abs(p[1]-y);if(t<bd){bd=t;best=i}});if(best!==f.g||f.sel!==-1){f.g=best;f.sel=-1;fanDraw()}}
-  else if(f.g>=0&&P.I.length){let best=-1,bd=1e9;P.I.forEach((p,i)=>{const t=Math.abs(p[0]-x);if(t<bd){bd=t;best=i}});if(best!==f.sel){f.sel=best;fanDraw()}}}
-function fanEnd(){const f=S.fan;if(!f)return;S.fanEat=Date.now();if(f.g>=0&&f.sel>=0){const v=f.G[f.g].items[f.sel][2];fanClose();goNav(v);return}f.endAt=Date.now()}
-function fanClose(){S.fan=null;S.fanAt=Date.now();const el=document.getElementById("fan");if(el)el.remove()}
+// ---------- Alle Bereiche (Florian 16.11.2026): Tipp oben rechts oder lange auf Start öffnet alle Bereiche als Kacheln auf einem Bildschirm ----------
+// Oben Favoriten (lange auf eine Kachel drücken heftet an, je Gerät hq-arfav), ohne Favoriten das zuletzt Benutzte (hq-arrec). Tipp daneben, ✕ und Zurück schließen.
+const AR_TILES=[["essen",[["🍲","Essen heute","essen|ft:heute"],["📅","Wochenplan","essen|ft:plan"],["📖","Rezepte","essen|ft:rezepte"],["🧺","Einkaufsliste","einkauf|"],["📝","Weitere Listen","einkauf|bl:"]]],
+  ["alltag",[["🧹","Diese Woche","woche|"],["📅","Kalender","woche|wp:3"],["👥","Wer macht was","woche|wp:1"],["🎒","Kita","kita|"],["📦","Mitbringen","kita|ks:tasche"]]],
+  ["wir",[["🫶","Partner","privat|"],["🧒","Kind","kind|"],["💡","Ideen","projekte|"],["🎁","Geschenke","projekte|pf:geschenk"],["🎄","Advents­kalender","projekte|pf:advent"]]],
+  ["zuhause",[["🏠","Am Haus","amhaus|"],["🛋️","Einrichtung","amhaus|pf:wohnen"],["🗄️","Aufräumen","amhaus|pf:ordnung"],["🔨","Reparieren","amhaus|pf:haus"],["🌱","Garten","amhaus|pf:garten"]]],
+  ["freizeit",[["⛵","Urlaube","ausflug|tt:urlaub"],["🚲","Ausflüge","ausflug|tt:ideen"],["🧳","Packlisten","ausflug|tt:pack"],["⚽","Sport und Spiel","spiel|"],["🎵","Musik","musik|"]]],
+  ["quer",[["☀️","Tag und Woche","camp|sp:tag"],["🔔","Wichtig","wichtig|"],["🔍","Suche","suche|"],["🤖","Recherchen","recherchen|"],["⚙️","Einstellungen","settings|"]]]];
+const arAll=()=>AR_TILES.flatMap(g=>g[1]);
+const arTile=v=>arAll().find(t=>t[2]===v);
+function arLs(k){try{const a=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(a)?a.filter(arTile):[]}catch(_){return []}}
+function arLsSet(k,a){try{localStorage.setItem(k,JSON.stringify(a))}catch(_){}}
+// Welche Kachel zeigt gerade? Genaueste zuerst (mit Unterseite), sonst der Bereich
+function arCur(){const on=t=>{const [tab,sub]=t[2].split("|"),[k,val]=(sub||"").split(":");
+    if(k==="sp")return S.tab===val;if(k==="bl")return S.tab==="listen";if(S.tab!==tab)return false;
+    if(k==="ft")return S.foodTab===val;if(k==="wp")return (S.weekPage|0)===(+val||0);if(k==="ks")return S.kitaSec===val;if(k==="tt")return S.tripTab===val;if(k==="pf")return S.projFilter===val;
+    if(tab==="woche")return !(S.weekPage|0);if(tab==="kita")return S.kitaSec==="termine";if(tab==="essen")return S.foodTab==="heute";if(tab==="projekte"||tab==="amhaus")return !S.projFilter;return true};
+  const L=arAll().filter(on);return L.length?L[0][2]:null}
+function arSeen(){const v=arCur();if(!v||S.arLast===v)return;S.arLast=v;const a=arLs("hq-arrec").filter(x=>x!==v);a.unshift(v);arLsSet("hq-arrec",a.slice(0,5))}
+function arHtml(){const fav=arLs("hq-arfav"),rec=arLs("hq-arrec"),top=fav.length?fav:rec,cur=arCur();
+  const tile=t=>`<button class="artile${t[2]===cur?" on":""}${fav.includes(t[2])?" fav":""}" data-arnav="${t[2]}"><span>${t[0]}</span><b>${esc(t[1])}</b></button>`;
+  let h=`<div class="arbg"></div><div class="arsheet" role="dialog" aria-label="Alle Bereiche"><div class="arhead"><h2>Alle Bereiche</h2><button class="iconbtn" data-arx aria-label="Schließen">✕</button></div>`;
+  h+=`<div class="argrp"><div class="arlbl">${fav.length?"📌 Angeheftet":"🕘 Zuletzt"}</div>${top.length?`<div class="argrid">${top.map(v=>tile(arTile(v))).join("")}</div>`:`<div class="freq">Lange auf eine Kachel drücken heftet sie hier an.</div>`}</div>`;
+  AR_TILES.forEach(g=>{const G=AREA_GROUPS.find(x=>x[0]===g[0]);h+=`<div class="argrp"><div class="arlbl">${G[1]} ${esc(G[2]==="Quer durch alles"?"Quer":G[2])}</div><div class="argrid">${g[1].map(tile).join("")}</div></div>`});
+  h+=`<div class="arfoot"><button class="chipbtn neutral" data-arnav="bereiche|">🗂️ Alle Unterseiten</button><span class="freq">${fav.length?"Lange drücken löst eine Kachel wieder.":"Lange drücken heftet an."}</span></div></div>`;return h}
+function arOpen(byPress){if(document.getElementById("allar"))return;if(byPress)try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}
+  // Nach langem Drücken zählt erst ein neuer Tipp (der Finger liegt noch auf dem Reiter)
+  S.ar={armed:!byPress,at:byPress?Date.now():0,pin:0};const el=document.createElement("div");el.id="allar";el.innerHTML=arHtml();document.body.appendChild(el);
+  el.addEventListener("click",e=>{const a=S.ar;if(!a)return;if(!a.armed||Date.now()-a.at<300||Date.now()-a.pin<600){e.preventDefault();return}
+    const t=e.target.closest("[data-arnav]");if(t){const v=t.dataset.arnav;arClose();goNav(v);return}
+    if(e.target.closest("[data-arx]")||!e.target.closest(".arsheet"))arClose()});
+  el.addEventListener("contextmenu",e=>{e.preventDefault();const t=e.target.closest(".artile");if(t)arPin(t.dataset.arnav)});
+  let lt=null;el.addEventListener("touchstart",e=>{const t=e.target.closest(".artile");if(!t||e.touches.length!==1)return;const p=e.touches[0];lt={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{lt=null;arPin(t.dataset.arnav)},500)}},{passive:true});
+  el.addEventListener("touchmove",e=>{if(lt){const p=e.touches[0];if(Math.hypot(p.clientX-lt.x,p.clientY-lt.y)>10){clearTimeout(lt.timer);lt=null}}},{passive:true});
+  el.addEventListener("touchend",()=>{if(lt){clearTimeout(lt.timer);lt=null}},{passive:true})}
+function arPin(v){if(!S.ar)return;S.ar.pin=Date.now();try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}let f=arLs("hq-arfav");const had=f.includes(v);f=had?f.filter(x=>x!==v):f.concat(v).slice(-5);arLsSet("hq-arfav",f);
+  const el=document.getElementById("allar");if(el){const sc=el.querySelector(".arsheet").scrollTop;el.innerHTML=arHtml();el.querySelector(".arsheet").scrollTop=sc}toast(had?"Gelöst.":"Angeheftet.")}
+function arClose(){S.ar=null;const el=document.getElementById("allar");if(el)el.remove()}
+// Der erste Finger-hoch nach dem Öffnen per langem Drücken schaltet die Seite scharf
+document.addEventListener("touchend",()=>{if(S.ar&&!S.ar.armed){S.ar.armed=true;S.ar.at=Date.now()}},{passive:true});
+document.addEventListener("pointerup",e=>{if(e.pointerType!=="touch"&&S.ar&&!S.ar.armed){S.ar.armed=true;S.ar.at=Date.now()}});
+// ---------- Fenster schließen mit Zurück (Florian 16.11.2026): jedes Fenster (#mbox, #allar) legt einen eigenen Verlaufsschritt an ----------
+const OVL=["mbox","allar"];const ovlOpen=()=>OVL.some(id=>document.getElementById(id));
+function ovlCloseAll(){mboxClose();arClose()}
+new MutationObserver(()=>{const open=ovlOpen();
+  if(open&&!S.ovl){S.ovl=true;try{if(!(history.state&&history.state.ov))history.pushState({ov:1},"")}catch(_){}}
+  else if(!open&&S.ovl){S.ovl=false;setTimeout(()=>{try{if(!ovlOpen()&&history.state&&history.state.ov){navBusy=true;history.back()}}catch(_){}},0)}}).observe(document.body,{childList:true});
 {let lp=null;const tabs=document.getElementById("tabs");
  const startBtn=t=>t&&t.closest&&t.closest('#tabs [data-tab="camp"]');
- tabs.addEventListener("touchstart",e=>{const b=startBtn(e.target);if(!b||!S.gest.ring||e.touches.length!==1)return;const r=b.getBoundingClientRect(),p=e.touches[0];lp={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{lp=null;fanOpen(r.left+r.width/2,r.top+r.height/2)},450)}},{passive:true});
- document.addEventListener("touchmove",e=>{if(S.fan){e.preventDefault();const p=e.touches[0];fanMove(p.clientX,p.clientY);return}if(lp){const p=e.touches[0];if(Math.hypot(p.clientX-lp.x,p.clientY-lp.y)>12){clearTimeout(lp.timer);lp=null}}},{passive:false});
- const end=()=>{if(lp){clearTimeout(lp.timer);lp=null}if(S.fan)fanEnd()};document.addEventListener("touchend",end,{passive:true});document.addEventListener("touchcancel",end,{passive:true});
- tabs.addEventListener("contextmenu",e=>{const b=startBtn(e.target);if(!b)return;e.preventDefault();if(S.gest.ring&&!S.fan){const r=b.getBoundingClientRect();fanOpen(r.left+r.width/2,r.top+r.height/2)}});
- tabs.addEventListener("click",e=>{if(S.fanEat&&Date.now()-S.fanEat<600&&startBtn(e.target)){S.fanEat=0;e.stopImmediatePropagation();e.preventDefault()}},true)}
+ tabs.addEventListener("touchstart",e=>{const b=startBtn(e.target);if(!b||!S.gest.ring||e.touches.length!==1)return;const p=e.touches[0];lp={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{lp=null;S.fanEat=Date.now();arOpen(true)},450)}},{passive:true});
+ document.addEventListener("touchmove",e=>{if(lp){const p=e.touches[0];if(Math.hypot(p.clientX-lp.x,p.clientY-lp.y)>12){clearTimeout(lp.timer);lp=null}}},{passive:true});
+ const end=()=>{if(lp){clearTimeout(lp.timer);lp=null}};document.addEventListener("touchend",end,{passive:true});document.addEventListener("touchcancel",end,{passive:true});
+ tabs.addEventListener("contextmenu",e=>{const b=startBtn(e.target);if(!b)return;e.preventDefault();if(S.gest.ring&&!S.ar){S.fanEat=Date.now();arOpen(true)}});
+ tabs.addEventListener("click",e=>{if(S.fanEat&&Date.now()-S.fanEat<1500&&startBtn(e.target)){S.fanEat=0;e.stopImmediatePropagation();e.preventDefault()}},true)}
 document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("button[data-tab]");if(!b)return;const t=b.dataset.tab,now=Date.now();
   if(TAP_SEQ[t]){const lt=S.lastTap,n=S.gest.tap&&lt&&lt.t===t&&lt.on===S.tab&&now-lt.at<450?lt.n+1:0;const q=TAP_SEQ[t];if(S.tab!==t||n)S.prev=S.tab;q[n%q.length]();S.lastTap={t,at:now,n,on:S.tab};S.draft=null;render();window.scrollTo(0,0);return}
   if(t==="essen"&&S.tab!=="essen")S.foodTab="heute";S.tab=t;S.draft=null;render();window.scrollTo(0,0)});
@@ -2686,6 +2719,7 @@ document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.cl
 app.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;
   if(b.dataset.mealfor)S.mealFor=ymd(new Date());
+  if(b.dataset.allar!=null){arOpen(false);return}
   if(b.dataset.cook){cookStart(b.dataset.cook);return}
   if(b.dataset.act==="mealforx"){S.mealFor=null;render();return}
   if((b.classList.contains("spot")&&b.dataset.go!=="post"||b.classList.contains("hoslot"))&&Date.now()-(S.mboxAt||0)<700)return;

@@ -225,13 +225,7 @@ details.reisemap summary{cursor:pointer;font-weight:600}
 .hwave{animation:hwave 3.6s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}@keyframes hwave{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5px)}}
 @media (prefers-reduced-motion:reduce){.flipin{transition:none}.hwave{animation:none}}
 .wxhours{list-style:none;margin:6px 0 0;padding:0;display:flex;gap:6px;overflow-x:auto}.wxhours li{flex:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;border-radius:var(--r);background:var(--bg);font-size:var(--fs-s);font-variant-numeric:tabular-nums}
-#fan{position:fixed;inset:0;z-index:60;touch-action:none;-webkit-user-select:none;user-select:none}#fan .fanbg{position:absolute;inset:0;background:rgba(10,20,25,.5);backdrop-filter:blur(2px)}
-#fan .fanarc{position:absolute;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:#fff;box-shadow:0 0 0 8px rgba(255,255,255,.25)}
-#fan .fani{position:absolute;transform:translate(-50%,-50%);width:56px;height:56px;border-radius:50%;border:none;background:var(--surface);color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;box-shadow:0 4px 14px rgba(0,0,0,.25);transition:transform .12s;font:inherit;padding:0}
-#fan .fani span{font-size:var(--fs-xl);line-height:1}#fan .fani b{font-size:.58rem;font-weight:600;white-space:nowrap}#fan .fang{width:60px;height:60px}
-#fan .fanstem{position:absolute;width:2px;margin-left:-1px;background:rgba(255,255,255,.45)}#fan .fani.on{transform:translate(-50%,-50%) scale(1.2);background:var(--ink);color:var(--surface)}#fan .fanline{position:absolute;height:2px;margin-top:-1px;background:rgba(255,255,255,.55)}
 #tabs{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
-@media (prefers-reduced-motion:reduce){#fan .fani{transition:none}}
 
 .spot:focus-visible{outline:3px solid #fff;outline-offset:-3px}
 .hot{position:absolute;transform:translate(-50%,-50%);background:var(--surface);color:var(--fg);border:none;border-radius:999px;padding:5px 11px;font-weight:700;font-size:var(--fs-xs);box-shadow:0 2px 8px rgba(0,0,0,.28);display:flex;gap:6px;align-items:center;white-space:nowrap;opacity:.94}
@@ -465,3 +459,14 @@ h2{font-weight:700}
 .calbars+.card{gap:var(--sp2);padding:var(--sp3)}
 .calbar .chipbtn{padding:4px 10px;min-height:32px}
 .cal button{min-height:40px;padding:4px 0 3px}
+
+/* Alle Bereiche (Florian 16.11.2026) */
+#allar{position:fixed;inset:0;z-index:60}#allar .arbg{position:absolute;inset:0;background:rgba(10,20,25,.45)}
+#allar .arsheet{position:absolute;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;max-height:calc(100% - 24px);overflow:auto;overscroll-behavior:contain;background:var(--surface);color:var(--ink);border-radius:var(--r) var(--r) 0 0;padding:var(--sp3) var(--sp4) calc(var(--sp4) + env(safe-area-inset-bottom));box-shadow:0 -6px 24px rgba(0,0,0,.25)}
+#allar .arhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp1)}#allar .arhead h2{margin:0}
+#allar .argrp{margin-top:var(--sp2)}#allar .arlbl{font-size:var(--fs-xs);font-weight:700;color:var(--ochre);text-transform:uppercase;letter-spacing:.04em;margin-bottom:var(--sp1)}
+#allar .argrid{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--sp1)}
+#allar .artile{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;min-height:58px;padding:6px 2px 4px;border:1px solid var(--line,rgba(0,0,0,.1));border-radius:var(--r-s);background:var(--bg,transparent);color:var(--ink);-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#allar .artile span{font-size:var(--fs-l);line-height:1.1}#allar .artile b{font-size:var(--fs-xs);font-weight:600;line-height:1.15;text-align:center;hyphens:auto;overflow-wrap:anywhere}
+#allar .artile.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}#allar .artile.fav b::after{content:" 📌";font-size:.7em}
+#allar .arfoot{display:flex;align-items:center;gap:var(--sp2);flex-wrap:wrap;margin-top:var(--sp3)}

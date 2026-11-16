@@ -1,6 +1,7 @@
 app.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;
   if(b.dataset.mealfor)S.mealFor=ymd(new Date());
+  if(b.dataset.allar!=null){arOpen(false);return}
   if(b.dataset.cook){cookStart(b.dataset.cook);return}
   if(b.dataset.act==="mealforx"){S.mealFor=null;render();return}
   if((b.classList.contains("spot")&&b.dataset.go!=="post"||b.classList.contains("hoslot"))&&Date.now()-(S.mboxAt||0)<700)return;

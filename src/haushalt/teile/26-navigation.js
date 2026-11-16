@@ -6,12 +6,18 @@ function applyNav(k){const p=k.split("|");S.tab=p[0];if(S.tab==="projekte"||S.ta
 function restoreNav(){try{S.flip=sessionStorage.getItem("hq-flip")==="1"}catch(_){}let st=null;try{st=history.state}catch(_){}let k=st&&typeof st.k==="string"?st.k:"";if(!k){try{k=sessionStorage.getItem("hq-nav")||""}catch(_){}}
   const t=k.split("|")[0];if(!t||t==="plan"||t==="alle")return false;applyNav(k);
   const i=st&&typeof st.k==="string"&&st.i>0?st.i:0;for(let j=0;j<i;j++)NAV.push("");const nk=navKey();NAV.push(nk);try{history.replaceState({i,k:nk},"")}catch(_){}return true}
-function syncNav(){if(!S.config)return;if(!NAV.length&&!S.navRestored){S.navRestored=true;if(restoreNav()){render();window.scrollTo(0,0);return}}const k=navKey();try{sessionStorage.setItem("hq-nav",k);sessionStorage.setItem("hq-flip",S.flip?"1":"")}catch(_){}try{
+function syncNav(){if(!S.config)return;arSeen();if(!NAV.length&&!S.navRestored){S.navRestored=true;if(restoreNav()){render();window.scrollTo(0,0);return}}const k=navKey();try{sessionStorage.setItem("hq-nav",k);sessionStorage.setItem("hq-flip",S.flip?"1":"")}catch(_){}try{
   if(!NAV.length){NAV.push(k);history.replaceState({i:0,k},"");return}
   if(NAV[NAV.length-1]===k)return;
+  // Ein Fenster wurde mit einem Sprung geschlossen: dessen Verlaufsschritt wird zur neuen Seite
+  if(history.state&&history.state.ov&&!ovlOpen()){NAV.push(k);history.replaceState({i:NAV.length-1,k},"");return}
   if(NAV.length>1&&NAV[NAV.length-2]===k){NAV.pop();navBusy=true;history.back();return}
   NAV.push(k);history.pushState({i:NAV.length-1,k},"")}catch(_){}}
-window.addEventListener("popstate",e=>{if(navBusy){navBusy=false;return}const st=e.state;if(!st||typeof st.k!=="string")return;
+window.addEventListener("popstate",e=>{const st=e.state;
+  // Offenes Fenster: Zurück schließt nur das Fenster (Florian 16.11.2026)
+  if(ovlOpen()){S.ovl=false;navBusy=false;ovlCloseAll();return}
+  if(st&&st.ov){history.back();return}
+  if(navBusy){navBusy=false;return}if(!st||typeof st.k!=="string")return;
   applyNav(st.k);S.tripDraft=null;S.projDraft=null;S.playDraft=null;S.kitaDraft=null;S.recDraft=S.planEdit=S.lunchDraft=null;S.lunchMapEdit=false;S.draft=null;
   NAV.length=Math.min(NAV.length,st.i);NAV[st.i]=navKey();render();window.scrollTo(0,0)});
 // ---------- Events ----------
@@ -24,7 +30,7 @@ function swipeTo(dir){const i=SWIPE_TABS.indexOf(S.tab);if(i<0)return;const j=i+
 {let sx=null,sy=0,st=0;app.addEventListener("touchstart",e=>{const t=e.target;if(e.touches.length!==1||t.closest("input,textarea,select,iframe,.pickwrap,.mapwrap")){sx=null;return}sx=e.touches[0].clientX;sy=e.touches[0].clientY;st=Date.now()},{passive:true});
  app.addEventListener("touchend",e=>{if(sx==null)return;if(S.ring){sx=null;return}const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;sx=null;if(S.gest.swipe&&Date.now()-st<700&&Math.abs(dx)>70&&Math.abs(dy)<Math.abs(dx)*0.5)swipeTo(dx<0?1:-1)},{passive:true})}
 {let lp=null;
- // Kreis im Bild abgeschaltet (Florian 15.11.2026): Menü kommt jetzt über langes Drücken auf den Reiter Start (fanOpen)
+ // Kreis im Bild abgeschaltet (Florian 15.11.2026): langes Drücken auf den Reiter Start öffnet Alle Bereiche (arOpen)
  app.addEventListener("touchmove",e=>{if(lp){const p=e.touches[0];if(Math.hypot(p.clientX-lp.x,p.clientY-lp.y)>10){clearTimeout(lp.timer);lp=null}}},{passive:false});
  const end=()=>{if(lp){clearTimeout(lp.timer);lp=null}};app.addEventListener("touchend",end,{passive:true});app.addEventListener("touchcancel",end,{passive:true});
  app.addEventListener("contextmenu",e=>{const ho=e.target.closest&&e.target.closest(".slot.hoslot");if(ho){e.preventDefault();hoPick(ho);return}});

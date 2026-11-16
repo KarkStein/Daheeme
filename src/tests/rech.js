@@ -17,7 +17,7 @@ srv.listen(8765,async()=>{
   await A.click('[data-rgo=ideen]');await A.waitForTimeout(400);r.after=await A.$eval('#app h1',e=>e.innerText);
   await A.click('[data-go=wichtig]');await A.waitForTimeout(300);r.wInbox=await A.$$eval('.rinbox',l=>l.length);
   await A.click('[data-go=settings]');await A.waitForTimeout(300);r.set=await A.$$eval('[data-go=recherchen]',l=>l.length);
-  await A.click('[data-go=bereiche]');await A.waitForTimeout(300);r.area=await A.$$eval('[data-nav="recherchen|"]',l=>l.length);
+  await A.click('[data-allar]').then(()=>A.click('#allar [data-arnav="bereiche|"]'));await A.waitForTimeout(300);r.area=await A.$$eval('[data-nav="recherchen|"]',l=>l.length);
   const db=JSON.parse(JSON.stringify(get(['haushalt',key,'food'])));r.db={seen:db.rseen,w:Object.values(db.rwunsch||{}).map(w=>w.area+'/'+w.rhythm+'/'+w.state)};
   console.error(JSON.stringify(r,null,1),errs);
   const ok=!errs.length&&/Recherchen/.test(r.h1)&&r.auftr.length>=2&&r.inbox.length>=1&&r.back.some(x=>/neu/.test(x))&&r.wish.some(x=>/offen/.test(x))&&r.wInbox===0&&r.set>=1&&r.area===1&&r.db.w[0]==='reisen/monatlich/offen'&&r.db.seen&&r.db.seen.ideen;
