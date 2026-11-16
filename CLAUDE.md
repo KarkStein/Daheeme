@@ -123,7 +123,7 @@ node src/build-web.js http://localhost:8765   # danach wieder lokal bauen
 
 ### Sport und Spiel (Ball), Musik (Ghettoblaster), Partner (Klippen)
 - Sport und Spiel: `food/play` (Spielplätze mit Karte, Spielideen zu Hause, Sport und Kurse mit `when` für den Kalender, Sonstiges; Sterne).
-- Musik: nur Playlist-Links (`food/music`, Anlässe `MUS_OCC`, Dienste `MUS_SVC`), verzahnt über `musLinks(occ)` (Kochen, Autofahrt, Kinder).
+- Musik: nur Playlist-Links (`food/music`, Anlässe `MUS_OCC` plus eigene Rubriken `food/musocc/<id>` `{ic,name}` über `musOcc()`, anlegen und löschen in der Maske; eigenes Emoji `emo` je Playlist; Dienste `MUS_SVC`), verzahnt über `musLinks(occ)` (Kochen, Autofahrt, Kinder).
 - Partner (Tab `privat`): Mittagessen (`food/lunch`), Briefe (`food/brief`, nur 📜🪶, keine Beispieltexte), unten Kontakt nur zum anderen (`food/contact/p0|p1`, `telMask`). Keine Glocke, nicht in Heute, Rückseite oder Suche. Kontakte zu anderen Personen: später woanders.
 
 ### Quer: Wichtig, Recherchen, Suche, Einstellungen
