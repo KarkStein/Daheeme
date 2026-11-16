@@ -507,6 +507,15 @@ section[id^="sec-"]{scroll-margin-top:calc(var(--sp5)*3)}
 .wxhead{width:100%;background:none;border:none;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer;white-space:nowrap;overflow:hidden}
 .wxhead h1{flex:0 0 auto}.wxhead .wxline{font-size:var(--fs-s);color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wxhead .wxpre{color:var(--ochre);font-weight:600}
 @media (max-width:370px){.wxhead .wxhint{display:none}}
+/* Mehrere Möglichkeiten (29c-auswahl.js): offen = gestrichelt und blasser */
+.evlist li.tent::before{background:none!important;border-left:3px dashed #7a8594;width:0}
+.evlist li.tent[data-who=p0]::before{border-color:#2e7d6b}.evlist li.tent[data-who=p1]::before{border-color:#b8862b}.evlist li.tent[data-who=kid]::before{border-color:#8a5cc2}
+.evlist li.tent .ev{opacity:.7;border:1px dashed var(--line);border-radius:var(--r-s);padding:var(--sp1) var(--sp2)}
+.cal .dots i.tent{background:none!important;border:1.5px dashed;box-sizing:border-box}
+.teralt{display:flex;gap:var(--sp2);align-items:flex-end}
+.chlist{display:flex;flex-direction:column;gap:var(--sp2);margin:var(--sp3) 0}
+.chlist button{display:flex;width:100%;justify-content:space-between;align-items:center;gap:var(--sp2);text-align:left}
+.chlist button.chosen{font-weight:700}
 </style>
 
 <div class="app" id="app">
@@ -781,7 +790,7 @@ function fwWho(id,x){const E=(S.food&&S.food.ext)||{},ov=(E.fwwho||{})[id];if(ov
   const M=E.fwmap||{},ws=[...new Set((x.a||[]).map(h=>M[h]).filter(Boolean))];return ws.length===1?ws[0]:ws.length?"both":""}
 function freiLine(x){return x.ic==="🏖️"?`🏖️ ${esc(x.name)} ${x.to===x.k?WD2[x.d.getDay()]+" "+rDate(x.k)+" (schulfrei)":rDate(x.k)+"–"+rDate(x.to)}`:`🎉 ${WD2[x.d.getDay()]} ${rDate(x.k)} ${esc(x.name)}${x.bridge?` · Brückentag ${x.bridge}`:""}`}
 const CAL_SRC=[
-  (a,z)=>{const out=[];termine().forEach(x=>{if(!x.date)return;if(!x.rep){if(x.to&&x.to>x.date){let d=ymdD(x.date),n=0;while(ymd(d)<=x.to&&n<60){const k=ymd(d);if(k>=a&&k<=z)out.push({d:k,t:k===x.date?x.time||"":"",name:x.name+(n?" (Tag "+(n+1)+")":""),icon:"📅",src:"own",id:x.id,who:x.who||"",note:x.note||"",place:x.place||"",link:x.link||"",link:x.link||"",remind:x.remind||false});d=addDays(d,1);n++}return}if(x.date>=a&&x.date<=z)out.push({d:x.date,t:x.time||"",name:x.name,icon:"📅",src:"own",id:x.id,who:x.who||"",note:x.note||"",place:x.place||"",link:x.link||"",link:x.link||"",remind:x.remind||false});return}
+  (a,z)=>{const out=[];termine().forEach(x=>{if(!x.date)return;if(x.ask&&altOf(x).length&&!x.rep){choiceEvents(x,a,z,out);return}if(!x.rep){if(x.to&&x.to>x.date){let d=ymdD(x.date),n=0;while(ymd(d)<=x.to&&n<60){const k=ymd(d);if(k>=a&&k<=z)out.push({d:k,t:k===x.date?x.time||"":"",name:x.name+(n?" (Tag "+(n+1)+")":""),icon:"📅",src:"own",id:x.id,who:x.who||"",note:x.note||"",place:x.place||"",link:x.link||"",link:x.link||"",remind:x.remind||false});d=addDays(d,1);n++}return}if(x.date>=a&&x.date<=z)out.push({d:x.date,t:x.time||"",name:x.name,icon:"📅",src:"own",id:x.id,who:x.who||"",note:x.note||"",place:x.place||"",link:x.link||"",link:x.link||"",remind:x.remind||false});return}
     let d=ymdD(x.date);const end=ymdD(z);let n=0;while(d<=end&&n<800){const k=ymd(d);if(k>=a)out.push({d:k,t:x.time||"",name:x.name,icon:x.rep==="y"?"🎂":"🔁",src:"own",id:x.id,who:x.who||"",note:x.note||"",place:x.place||"",link:x.link||"",link:x.link||"",remind:x.remind||false});d=x.rep==="w"?addDays(d,7):x.rep==="m"?new Date(d.getFullYear(),d.getMonth()+1,d.getDate(),12):new Date(d.getFullYear()+1,d.getMonth(),d.getDate(),12);n++}});return out},
   (a,z)=>kitas().filter(x=>x.sec==="termine"&&x.date&&x.date>=a&&x.date<=z).map(x=>({d:x.date,t:"",name:"Kita: "+x.name,icon:"🎒",src:"kita",who:"kid",nav:"kita|ks:termine"})),
   (a,z)=>prios().filter(x=>x.due&&x.due>=a&&x.due<=z).map(x=>({d:x.due,t:x.time||"",name:x.name,icon:"🔔",src:"prio",from:x.from,who:x.who||"",nav:"wichtig|"})),
@@ -804,12 +813,21 @@ function calEvents(a,z){const out=[];CAL_SRC.forEach(f=>{try{out.push(...f(a,z))
 function evRow(e,showDay){const who="";const day=showDay?`<span class="t">${esc(dLabel(e.d))}</span>`:`<span class="t">${esc(e.t||"")}</span>`;
   const body=`<span>${pDot(e.who)}${e.icon?e.icon+" ":""}${esc(e.name)}${showDay&&e.t?` <span class="freq">${esc(e.t)}</span>`:""}${who?`<span class="freq">${who}</span>`:""}${e.note&&e.src!=="ext"?`<br><span class="freq">${telNote(e.note)}</span>`:""}</span>`;
   const gift=e.icon==="🎂"?`<button class="catbtn" data-nav="projekte|pf:geschenk" aria-label="Geschenkideen ansehen" style="background:none;border:none">🎁</button>`:"";
-  return `<li data-who="${esc(e.who||"both")}" aria-label="${esc(whoLabel(e.who||"both"))}">${day}${e.src==="own"?`<button class="ev" data-teredit="${esc(e.id)}">${body}</button>${gift}${e.link&&safeLink(e.link)?`<a class="catbtn routebtn" href="${esc(safeLink(e.link))}" target="_blank" rel="noopener" aria-label="Webseite">🔗</a>`:""}${e.place?transitA(e.place):""}${telA(e.note)}<button class="catbtn" data-terbell="${esc(e.id)}" aria-pressed="${!!e.remind}" aria-label="${esc(e.name)}: ${e.remind?"nicht mehr erinnern":"erinnern"}" style="background:none;border:none;${e.remind?"":"opacity:.35"}">🔔</button><button class="catbtn" data-terrm="${esc(e.id)}" aria-label="${esc(e.name)} löschen" style="background:none;border:none;opacity:.6">✕</button>`:e.attr?`<button class="ev" ${e.attr}>${body}</button><i class="freq">›</i>`:e.fw?`<button class="ev" data-fwpick="${esc(e.fw)}">${body}</button>${e.place?transitA(e.place):`<i class="freq">›</i>`}`:e.pack?`<button class="ev" data-gopack="${esc(e.pack)}">${body}</button><i class="freq">›</i>`:e.nav?`<button class="ev" data-nav="${esc(e.nav)}">${body}</button><i class="freq">›</i>`:`<span class="ev">${body}</span>`}</li>`}
-function renderTerForm(){const d=S.terDraft,pn=k=>esc(pname(k));
+  return `<li data-who="${esc(e.who||"both")}"${e.tent?' class="tent"':""} aria-label="${esc(whoLabel(e.who||"both"))}${e.tent?", noch offen":""}">${day}${e.tent?`<button class="ev" data-chopen="termin|${esc(e.id)}">${body}</button><i class="freq">🗳️</i>`:e.src==="own"?`<button class="ev" data-teredit="${esc(e.id)}">${body}</button>${gift}${e.link&&safeLink(e.link)?`<a class="catbtn routebtn" href="${esc(safeLink(e.link))}" target="_blank" rel="noopener" aria-label="Webseite">🔗</a>`:""}${e.place?transitA(e.place):""}${telA(e.note)}<button class="catbtn" data-terbell="${esc(e.id)}" aria-pressed="${!!e.remind}" aria-label="${esc(e.name)}: ${e.remind?"nicht mehr erinnern":"erinnern"}" style="background:none;border:none;${e.remind?"":"opacity:.35"}">🔔</button><button class="catbtn" data-terrm="${esc(e.id)}" aria-label="${esc(e.name)} löschen" style="background:none;border:none;opacity:.6">✕</button>`:e.attr?`<button class="ev" ${e.attr}>${body}</button><i class="freq">›</i>`:e.fw?`<button class="ev" data-fwpick="${esc(e.fw)}">${body}</button>${e.place?transitA(e.place):`<i class="freq">›</i>`}`:e.pack?`<button class="ev" data-gopack="${esc(e.pack)}">${body}</button><i class="freq">›</i>`:e.nav?`<button class="ev" data-nav="${esc(e.nav)}">${body}</button><i class="freq">›</i>`:`<span class="ev">${body}</span>`}</li>`}
+function terDraftOf(x){return {id:x.id,name:x.name||"",date:x.date||"",to:x.to||"",time:x.time||"",who:x.who||"both",rep:x.rep||"",note:x.note||"",place:x.place||"",link:x.link||"",remind:x.remind||null,alt:altOf(x).map(o=>({date:o.date,time:o.time||""})),ask:x.ask&&altOf(x).length?x.ask.who||"":"",askdue:x.ask&&x.ask.due||""}}
+// Mehrere Möglichkeiten (29c-auswahl.js): weitere Tage/Zeiten, wer auswählt (auch man selbst oder beide), Frist
+function terAltHtml(d){const alt=d.alt||[],pn=k=>esc(pname(k));if(d.rep)return "";
+  return `${alt.map((o,j)=>`<div class="teralt"><label class="fld" style="flex:1"><span>Möglichkeit ${j+2}</span><input type="date" data-teralt="${j}" data-k="date" value="${esc(o.date||"")}"></label><label class="fld" style="flex:1"><span>Uhrzeit</span><input type="time" data-teralt="${j}" data-k="time" value="${esc(o.time||"")}"></label><button type="button" class="catbtn" data-teraltrm="${j}" aria-label="Möglichkeit ${j+2} entfernen" style="background:none;border:none">✕</button></div>`).join("")}
+    ${d.id&&alt.length&&!d.ask&&termine().some(y=>y.id===d.id&&!y.ask)?`<div class="btnrow" style="margin-top:0"><button type="button" class="ghost small" data-chopen="termin|${esc(d.id)}">🗳️ Andere Möglichkeit nehmen</button></div>`:""}
+    ${alt.length<4?`<div class="btnrow" style="margin-top:0"><button type="button" class="ghost small" data-act="teraltadd">＋ Weitere Möglichkeit</button></div>`:""}
+    ${alt.length?`<div class="fld"><span>🗳️ Wer wählt aus</span><div class="unl">${[["p0",pn("p0")+(S.me==="p0"?" (ich)":"")],["p1",pn("p1")+(S.me==="p1"?" (ich)":"")],["both","Beide stimmen ab"],["","Steht fest (Möglichkeit 1)"]].map(o=>`<button type="button" class="chipbtn neutral" data-terask="${o[0]}" aria-pressed="${(d.ask||"")===o[0]}">${o[1]}</button>`).join("")}</div></div>
+    ${d.ask?`<label class="fld"><span>Frist (optional)</span><input type="date" data-terf="askdue" value="${esc(d.askdue||"")}"></label>`:""}`:""}`}
+function renderTerForm(){const d=S.terDraft,pn=k=>esc(pname(k)),many=(d.alt||[]).length;
   return `<section class="card"><div class="section-head"><h2>${d.id?"Termin ändern":"Neuer Termin"}</h2></div><form id="terform" novalidate>
     <label class="fld"><span>Was</span><input id="ter-name" data-terf="name" value="${esc(d.name)}" maxlength="80" placeholder="z. B. Zahnarzt" autocomplete="off"></label>
-    <div style="display:flex;gap:8px"><label class="fld" style="flex:1"><span>Tag</span><input type="date" data-terf="date" value="${esc(d.date)}"></label><label class="fld" style="flex:1"><span>Uhrzeit</span><input type="time" data-terf="time" value="${esc(d.time)}"></label></div>
-    ${d.rep?"":`<label class="fld"><span>Bis (nur bei mehreren Tagen)</span><input type="date" data-terf="to" value="${esc(d.to||"")}" min="${esc(d.date)}"></label>`}
+    <div style="display:flex;gap:8px"><label class="fld" style="flex:1"><span>${many?"Möglichkeit 1":"Tag"}</span><input type="date" data-terf="date" value="${esc(d.date)}"></label><label class="fld" style="flex:1"><span>Uhrzeit</span><input type="time" data-terf="time" value="${esc(d.time)}"></label></div>
+    ${terAltHtml(d)}
+    ${d.rep||many?"":`<label class="fld"><span>Bis (nur bei mehreren Tagen)</span><input type="date" data-terf="to" value="${esc(d.to||"")}" min="${esc(d.date)}"></label>`}
     <div class="fld"><span>Für wen</span><div class="unl">${[["both","Alle"],["p0",pn("p0")],["p1",pn("p1")],["kid","Kind"]].map(o=>`<button type="button" class="chipbtn neutral" data-terwho="${o[0]}" aria-pressed="${(d.who||"both")===o[0]}">${o[1]}</button>`).join("")}</div></div>
     <div class="fld"><span>Wiederholen</span><div class="unl">${[["","Nein"],["w","Jede Woche"],["m","Jeden Monat"],["y","Jedes Jahr"]].map(o=>`<button type="button" class="chipbtn neutral" data-terrep="${o[0]}" aria-pressed="${(d.rep||"")===o[0]}">${o[1]}</button>`).join("")}</div></div>
     <div class="fld"><span>🔔 Erinnern (zählt an der Glocke)</span><div class="unl">${[["","Nein"],["tag","Am Tag"],["1d","1 Tag vorher"],["1h","1 Stunde vorher"]].map(o=>`<button type="button" class="chipbtn neutral" data-terrem="${o[0]}" aria-pressed="${(d.remind===true?"tag":d.remind||"")===o[0]}">${o[1]}</button>`).join("")}</div></div>
@@ -846,7 +864,7 @@ function renderCal(){if(S.terDraft)return renderTerForm();const today=ymd(new Da
   h+=`<section class="card"><div class="section-head" style="align-items:center"><h2>${MN[m0.getMonth()]} ${m0.getFullYear()}</h2><div class="weeknav"><button class="iconbtn" data-calm="-1" aria-label="Voriger Monat">‹</button>${m0.getMonth()!==new Date().getMonth()||m0.getFullYear()!==new Date().getFullYear()?`<button class="ghost" data-calm="0">Heute</button>`:""}<button class="iconbtn" data-calm="1" aria-label="Nächster Monat">›</button></div></div>
     <div class="cal">${["Mo","Di","Mi","Do","Fr","Sa","So"].map(x=>`<span class="cw">${x}</span>`).join("")}`;
   for(let d=first;d<=last;d=addDays(d,1)){const k=ymd(d),l=(by[k]||[]),ws=[...new Set(l.filter(e=>e.src!=="food"&&e.src!=="reise"&&e.src!=="frei").map(e=>e.who||"both"))].sort((a,b)=>["p0","p1","kid","both"].indexOf(a)-["p0","p1","kid","both"].indexOf(b)),u=l.some(e=>e.src==="reise");
-    h+=`<button data-calday="${k}" class="${d.getMonth()!==m0.getMonth()?"out ":""}${k===today?"today ":""}${u?"urlaub ":""}${feiertag(k)?"ft ":ferienAt(k)?"fe":""}" aria-pressed="${k===sel}" aria-label="${d.getDate()}. ${MN[d.getMonth()]}${u?", Urlaub":""}${l.length?", "+l.length+" Einträge":""}"><span>${d.getDate()}</span><span class="dots">${ws.slice(0,4).map(x=>`<i style="background:${PCOL[x]}"></i>`).join("")}</span></button>`}
+    h+=`<button data-calday="${k}" class="${d.getMonth()!==m0.getMonth()?"out ":""}${k===today?"today ":""}${u?"urlaub ":""}${feiertag(k)?"ft ":ferienAt(k)?"fe":""}" aria-pressed="${k===sel}" aria-label="${d.getDate()}. ${MN[d.getMonth()]}${u?", Urlaub":""}${l.length?", "+l.length+" Einträge":""}"><span>${d.getDate()}</span><span class="dots">${ws.slice(0,4).map(x=>l.filter(e=>(e.who||"both")===x).every(e=>e.tent)?`<i class="tent" style="border-color:${PCOL[x]}"></i>`:`<i style="background:${PCOL[x]}"></i>`).join("")}</span></button>`}
   h+=`</div></section>`;
   h+=calDayCard(sel,MN);
   const up=calShown(today,ymd(addDays(new Date(),21))).filter(e=>e.src!=="food"&&e.src!=="reise"&&e.d!==sel).slice(0,12);
@@ -2416,7 +2434,7 @@ function todayMissing(meal){if(!meal)return [];const r=meal.rec&&recs().find(x=>
 // Startseite: Heute ist die Kurzfassung (To-do, Essen); Erinnerungen nur als Sprung zur Glocke (Florian 15.11.2026)
 // Zahl an der Glocke (Florian 15.11.2026): Erinnerungen der nächsten 24 Stunden plus Überfälliges, Termine nur mit 🔔; keine Aufgaben, kein Essen
 function bellItems(){const now=new Date(),today=ymd(now),tm=ymd(addDays(startOfDay(now),1)),hm=String(now.getHours()).padStart(2,"0")+":"+String(now.getMinutes()).padStart(2,"0"),in24=(d,t)=>d<=today||(d===tm&&(t?t<=hm:false));
-  const P=prios().filter(x=>x.from!=="mittag"&&x.due&&in24(x.due,x.time)),T=calEvents(today,ymd(addDays(startOfDay(now),2))).filter(e=>{if(e.src!=="own"||!e.remind||(e.d===today&&e.t&&e.t<hm))return false;if(e.remind===true)return in24(e.d,e.t);const at=new Date(e.d+"T"+(e.t||"09:00")+":00").getTime();return now.getTime()>=at-(e.remind==="1h"?3600e3:864e5)});return {P,T,n:P.length+T.length}}
+  const P=prios().filter(x=>x.from!=="mittag"&&x.due&&in24(x.due,x.time)),T=calEvents(today,ymd(addDays(startOfDay(now),2))).filter(e=>{if(e.src!=="own"||e.tent||!e.remind||(e.d===today&&e.t&&e.t<hm))return false;if(e.remind===true)return in24(e.d,e.t);const at=new Date(e.d+"T"+(e.t||"09:00")+":00").getTime();return now.getTime()>=at-(e.remind==="1h"?3600e3:864e5)});const C=choiceBell();return {P,T,C,n:P.length+T.length+C.A.length+C.N.length}}
 function prioLinkRow(){const today=ymd(new Date()),tm=ymd(addDays(new Date(),1)),all=prios().filter(x=>x.from!=="mittag"),f=all.filter(x=>x.due&&x.due<=today).length,m=all.filter(x=>x.due===tm).length;
   return `<button class="todayrow" data-go="wichtig"><span>🔔</span><span>${f||m?[f?f+" heute fällig":"",m?m+" morgen":""].filter(Boolean).join(", "):all.length?"Erinnerungen: nichts fällig":"Erinnerungen"}</span><i>${all.length?all.length+" ›":"›"}</i></button>`}
 function renderPrio(){const today=ymd(new Date()),all=prios().filter(x=>x.from!=="mittag"),cur=all.filter(x=>!(x.due&&x.due>today)).sort((a,b)=>(a.due?0:1)-(b.due?0:1)||((a.due||"")<(b.due||"")?-1:1)),wk7=ymd(addDays(new Date(),7)),later=all.filter(x=>x.due&&x.due>today&&x.due<=wk7).sort((a,b)=>a.due<b.due?-1:1),show=cur.concat(later).slice(0,5),fall=all.filter(x=>x.due&&x.due<=today).length;
@@ -2456,7 +2474,7 @@ function renderPrioMask(){const d=S.prioDraft,f=d.from||"frei",tpl=(PRIO_TPL[f]|
    <div class="fld"><span>Wiederholen</span><div class="unl">${[["","Nein"],["d","Jeden Tag"],["w","Jede Woche"],["m","Jeden Monat"],["y","Jedes Jahr"]].map(r=>`<button class="chipbtn" data-pmrep="${r[0]}" aria-pressed="${(d.rep||"")===r[0]}">${r[1]}</button>`).join("")}</div></div>
    <label class="fld"><span>Notiz</span><textarea id="pm-note" data-pdf="note" rows="2">${esc(d.note||"")}</textarea></label>
    <div class="btnrow"><button class="primary" data-act="pmsave">Speichern</button><button class="ghost" data-act="pmcancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="pmdel">Löschen</button>`:""}</div></section>${d.id?"":BULK_CARD}`}
-function renderWichtig(){if(S.prioDraft)return renderPrioMask();const today=ymd(new Date()),k=S.prioSort||"datum",list=prioSorted();let h=`<div><div class="eyebrow">Alle Erinnerungen</div><h1>🔔 Wichtig</h1></div><div class="btnrow"><button class="primary" data-prionew="frei">＋ Neue Erinnerung</button></div><div class="freq">Hier stehen alle Erinnerungen. ✎ ändert Text, Tag, Uhrzeit und Wiederholung. Benachrichtigung aufs Handy kommt später; bis dahin zeigt die Glocke oben, was heute fällig ist.</div><div class="filters" role="group" aria-label="Sortieren">${PRIO_SORT.map(x=>`<button class="chipbtn neutral" data-priosort="${x[0]}" aria-pressed="${k===x[0]}">${x[1]}</button>`).join("")}</div>`;h+=rInbox(false);
+function renderWichtig(){if(S.prioDraft)return renderPrioMask();const today=ymd(new Date()),k=S.prioSort||"datum",list=prioSorted();let h=`<div><div class="eyebrow">Alle Erinnerungen</div><h1>🔔 Wichtig</h1></div><div class="btnrow"><button class="primary" data-prionew="frei">＋ Neue Erinnerung</button></div><div class="freq">Hier stehen alle Erinnerungen. ✎ ändert Text, Tag, Uhrzeit und Wiederholung. Benachrichtigung aufs Handy kommt später; bis dahin zeigt die Glocke oben, was heute fällig ist.</div><div class="filters" role="group" aria-label="Sortieren">${PRIO_SORT.map(x=>`<button class="chipbtn neutral" data-priosort="${x[0]}" aria-pressed="${k===x[0]}">${x[1]}</button>`).join("")}</div>`;h+=rInbox(false);h+=choiceCard();
   {const T=bellItems().T;if(T.length)h+=`<section class="card"><div class="section-head"><h2>📅 Termine mit Glocke</h2><span class="freq num">${T.length}</span></div><ul class="evlist">${T.map(e=>evRow(e,true)).join("")}</ul></section>`}
   if(!list.length)return h+`<div class="empty"><h2>Nichts Wichtiges</h2><div>Tippt in Kita, Essen, Einkauf, Ideen, Am Haus, Ausflügen oder Sport und Spiel auf die Glocke 🔔. Dann steht der Eintrag hier und auf der Startseite.</div></div><section class="card"><form class="addrow" id="prioform" style="margin-top:6px" novalidate><input type="text" id="prioinput" placeholder="Etwas Wichtiges notieren" value="${esc(S.prioText||"")}" autocomplete="off" enterkeyhint="done" aria-label="Wichtiges notieren"><button class="primary" type="submit">+</button></form></section>`;
   const sec=(t,a)=>a.length?`<section class="card"><div class="section-head"><h2>${t}</h2><span class="freq num">${a.length}</span></div>${a.map(prioRow).join("")}</section>`:"";
@@ -2946,7 +2964,12 @@ app.addEventListener("click",async e=>{
   if(b.dataset.calwho!=null){S.calWho=b.dataset.calwho;render();return}
   if(b.dataset.act==="ternewgo"){S.prev=S.tab;S.tab="woche";S.weekPage=3;S.calDay=null;b.dataset.act="ternew"}
   if(b.dataset.act==="ternew"){S.terDraft={id:null,name:"",date:S.calDay||ymd(new Date()),time:"",who:"both",rep:"",note:""};render();window.scrollTo(0,0);const el=document.getElementById("ter-name");if(el)el.focus();return}
-  if(b.dataset.teredit){const x=termine().find(y=>y.id===b.dataset.teredit);if(x){S.terDraft={id:x.id,name:x.name||"",date:x.date||"",to:x.to||"",time:x.time||"",who:x.who||"both",rep:x.rep||"",note:x.note||"",place:x.place||"",link:x.link||"",remind:x.remind||null};render();window.scrollTo(0,0)}return}
+  if(b.dataset.teredit){const x=termine().find(y=>y.id===b.dataset.teredit);if(x){S.terDraft=terDraftOf(x);render();window.scrollTo(0,0)}return}
+  if(b.dataset.act==="teraltadd"&&S.terDraft){const d=S.terDraft;d.alt=d.alt||[];if(!d.alt.length&&!d.ask)d.ask=choiceOther(S.me)||"p1";d.alt.push({date:"",time:d.time||""});render();const l=document.querySelectorAll("[data-teralt][data-k=date]");if(l.length)l[l.length-1].focus();return}
+  if(b.dataset.teraltrm!=null&&S.terDraft){S.terDraft.alt.splice(+b.dataset.teraltrm,1);render();return}
+  if(b.dataset.terask!=null&&S.terDraft){S.terDraft.ask=b.dataset.terask;render();return}
+  if(b.dataset.chopen){const [k,id]=b.dataset.chopen.split("|");choiceOpen(k,id);return}
+  if(b.dataset.chseen){const [k,id]=b.dataset.chseen.split("|");try{await choiceSet(k,id,{["told/seen/"+(S.me||"x")]:true})}catch(_){toast("Konnte nicht speichern.")}render();return}
   if(b.dataset.terwho){S.terDraft.who=b.dataset.terwho;render();return}
   if(b.dataset.terrem!=null&&S.terDraft){S.terDraft.remind=b.dataset.terrem==="tag"?true:b.dataset.terrem||null;render();return}
   if(b.dataset.terrep!=null&&S.terDraft){S.terDraft.rep=b.dataset.terrep;render();return}
@@ -3259,7 +3282,11 @@ app.addEventListener("submit",async e=>{if(e.target.classList&&e.target.classLis
     try{await S.store.setPath("food/termin/"+newId("t"),{name,date:P.due,time:P.time||null,who,rep:rp,at:Date.now(),by:S.me||""});S.calDay=P.due;const d=ymdD(P.due);S.calMonth=new Date(d.getFullYear(),d.getMonth(),1,12);toast("Eingetragen: "+dLabel(P.due)+(P.time?" "+P.time:""));render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(e.target.id==="terform"){e.preventDefault();const d=S.terDraft;if(!d)return;const name=(d.name||"").trim().slice(0,80);if(!name||!/^\d{4}-\d{2}-\d{2}$/.test(d.date||"")){toast("Bitte Was und Tag eintragen.");return}
     const id=d.id||newId("t"),old=termine().find(y=>y.id===id),v={name,date:d.date,to:!d.rep&&d.to&&d.to>d.date?d.to:null,time:d.time||null,who:d.who&&d.who!=="both"?d.who:null,rep:d.rep||null,note:(d.note||"").trim().slice(0,200)||null,place:(d.place||"").trim().slice(0,120)||null,link:safeLink(d.link)||null,remind:d.remind===undefined?(old&&old.remind||null):(d.remind||null),at:Date.now(),by:S.me||""};
-    try{await S.store.setPath("food/termin/"+id,v);S.calDay=d.date;S.terDraft=null;toast("Termin gespeichert");render()}catch(_){toast("Konnte nicht speichern.")}return}
+    {const seen=new Set([d.date+"|"+(d.time||"")]),alt=d.rep?[]:(d.alt||[]).filter(o=>/^\d{4}-\d{2}-\d{2}$/.test(o.date||"")&&!seen.has(o.date+"|"+(o.time||""))&&seen.add(o.date+"|"+(o.time||""))).map(o=>({date:o.date,time:o.time||null}));
+      v.alt=alt.length?alt:null;const oa=old&&old.ask,same=old&&old.date===v.date&&(old.time||null)===v.time&&JSON.stringify(altOf(old).map(o=>[o.date,o.time||null]))===JSON.stringify(alt.map(o=>[o.date,o.time]));
+      v.ask=alt.length&&d.ask?{who:d.ask,from:(oa&&oa.from)||S.me||"",at:(oa&&oa.at)||Date.now(),due:/^\d{4}-\d{2}-\d{2}$/.test(d.askdue||"")?d.askdue:null,votes:oa&&oa.who===d.ask&&same?oa.votes||null:null}:null;
+      v.told=v.ask?null:(old&&old.told)||null;if(v.ask)v.to=null}
+    try{await S.store.setPath("food/termin/"+id,v);S.calDay=d.date;S.terDraft=null;toast(v.ask?"Gespeichert. "+choiceWhoTxt(v.ask)+(v.ask.who==="both"?".":" aus."):"Termin gespeichert");render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(e.target.id==="urlaubform"){e.preventDefault();const el=document.getElementById("urlaubinput"),v=(el&&el.value||"").trim().slice(0,80);if(!v)return;el.value="";S.store.setPath("food/urlaub/"+newId("u"),{name:v,at:Date.now(),by:S.me||""}).catch(()=>toast("Konnte nicht speichern."));return}
   if(e.target.id==="bookform"){e.preventDefault();const el=document.getElementById("bookinput"),v=(el&&el.value||"").trim().slice(0,40);if(!v)return;
     if(S.bookEdit){const id=S.bookEdit;S.bookEdit=null;S.store.setPath("food/book/"+id+"/name",v).then(()=>render()).catch(()=>toast("Konnte nicht speichern."));if(id==="main")S.store.setPath("food/book/main/at",Date.now()).catch(()=>{});return}
@@ -3284,6 +3311,7 @@ app.addEventListener("input",e=>{if(e.target.id==="shopinput"){S.shopText=e.targ
   if(S.rDraft&&e.target.dataset.rwf){S.rDraft[e.target.dataset.rwf]=e.target.value;return}
   if(S.musDraft&&e.target.dataset.muf){S.musDraft[e.target.dataset.muf]=e.target.value;return}
   if(S.tripDraft&&e.target.dataset.tf){S.tripDraft[e.target.dataset.tf]=e.target.value;return}
+  if(S.terDraft&&e.target.dataset.teralt!=null){const o=(S.terDraft.alt||[])[+e.target.dataset.teralt];if(o)o[e.target.dataset.k]=e.target.value;return}
   if(S.terDraft&&e.target.dataset.terf){S.terDraft[e.target.dataset.terf]=e.target.value;return}
   if(e.target.id==="mealinput"){S.planText=e.target.value;const mm=document.getElementById("mealmem");if(mm)mm.innerHTML=mealMemHtml();return}
   if(e.target.id==="lu-mapurl"){S.lunchMapText=e.target.value;return}
@@ -3398,6 +3426,63 @@ function catGone(key,id){if(key==="play"&&S.playSec===id)S.playSec="sonst";if(ke
 const emoFld=(attr,val,ph)=>`<label class="fld emofld"><span>Symbol (optional)</span><input type="text" ${attr}="emo" value="${esc(val||"")}" maxlength="8" placeholder="${esc(ph||"😀")}" autocomplete="off" aria-label="Eigenes Symbol"></label>`;
 const emoOf=(x,def)=>String(x&&x.emo||"").trim()||def||"";
 const emoClean=v=>String(v||"").trim().slice(0,8)||null;
+
+// ---------- Auswahl: mehrere Möglichkeiten, eine(r) wählt aus oder beide stimmen ab (Florian 16.11.2026) ----------
+// Allgemein gebaut: CHOICE_KINDS[art] sagt, wo die Einträge liegen und was eine Möglichkeit ist. Bisher nur Termine (später z. B. Essen).
+// Am Eintrag: alt:[{date,time}] = weitere Möglichkeiten (Möglichkeit 1 ist der Eintrag selbst),
+// ask:{who:p0|p1|both,from,at,due?,votes?:{p0:i,p1:i},back?:{by,at}} solange offen, told:{by,at,txt,seen:{p0,p1}} = Hinweis an den anderen.
+// Nach der Wahl bleiben die übrigen Möglichkeiten in alt, so lässt sich die Wahl später ändern oder neu fragen.
+const altOf=x=>Object.values((x&&x.alt)||{}).filter(o=>o&&/^\d{4}-\d{2}-\d{2}$/.test(o.date||""));
+const CHOICE_KINDS={
+  termin:{path:"termin",list:()=>termine(),icon:"📅",
+    opts:x=>[{date:x.date,time:x.time||""}].concat(altOf(x).map(o=>({date:o.date,time:o.time||""}))),
+    label:o=>WD2[ymdD(o.date).getDay()]+" "+rDate(o.date)+(o.time?" "+o.time:""),
+    pick:(x,i)=>{const O=CHOICE_KINDS.termin.opts(x),c=O[i];return {date:c.date,time:c.time||null,alt:O.filter((_,j)=>j!==i).map(o=>({date:o.date,time:o.time||null}))}},
+    edit:x=>{goNav("woche|wp:3");S.terDraft=terDraftOf(x);render();window.scrollTo(0,0)},
+    nav:"woche|wp:3"}};
+const choiceOther=p=>p==="p0"?"p1":p==="p1"?"p0":"";
+const choiceWhoTxt=a=>a.who==="both"?"Beide stimmen ab":(a.who===S.me?"Du wählst":pname(a.who)+" wählt");
+function choiceAll(){const out=[];Object.keys(CHOICE_KINDS).forEach(k=>CHOICE_KINDS[k].list().forEach(x=>{if(x.ask&&altOf(x).length||x.told)out.push({k,x})}));return out}
+// Für die Glocke: was ich wählen muss (mit Frist überfällig) und neue Hinweise „hat gewählt“
+function choiceBell(){const me=S.me||"",A=[],N=[],W=[];choiceAll().forEach(c=>{const a=c.x.ask;
+  if(a&&altOf(c.x).length){const v=a.votes||{};if(!me||a.who===me||(a.who==="both"&&v[me]==null))A.push(c);else W.push(c)}
+  else if(c.x.told&&c.x.told.by!==me&&!((c.x.told.seen||{})[me||"x"]))N.push(c)});return {A,N,W}}
+async function choiceSet(k,id,patch){const base="food/"+CHOICE_KINDS[k].path+"/"+id+"/";for(const f of Object.keys(patch))await S.store.setPath(base+f,patch[f])}
+const choiceGet=(k,id)=>CHOICE_KINDS[k].list().find(y=>y.id===id);
+async function choicePick(k,id,i){const K=CHOICE_KINDS[k],x=choiceGet(k,id);if(!x)return;const O=K.opts(x),txt=K.label(O[i]),me=S.me||"";
+  await choiceSet(k,id,Object.assign(K.pick(x,i),{ask:null,told:{by:me,at:Date.now(),txt,seen:me?{[me]:true}:{}}}));
+  toast(i?"Gewählt: "+txt:"Bleibt: "+txt)}
+async function choiceVote(k,id,i){const x=choiceGet(k,id);if(!x||!x.ask)return;const me=S.me||"p0",v=Object.assign({},x.ask.votes||{});v[me]=i;
+  const o=choiceOther(me);if(v[o]!=null&&v[o]===i){await choicePick(k,id,i);return}
+  await choiceSet(k,id,{"ask/votes":v});toast(v[o]!=null?"Ihr habt verschieden gewählt. Eine Möglichkeit antippen legt sie fest.":"Deine Stimme ist gespeichert. "+pname(o)+" stimmt noch ab.")}
+async function choiceBack(k,id){const x=choiceGet(k,id);if(!x||!x.ask)return;const me=S.me||"",to=x.ask.from&&x.ask.from!==me?x.ask.from:choiceOther(me)||x.ask.from;
+  await choiceSet(k,id,{ask:Object.assign({},x.ask,{who:to,votes:null,back:{by:me,at:Date.now()}})});toast("Zurück an "+pname(to)+": bitte neue Möglichkeiten.")}
+function choiceOpen(k,id){const K=CHOICE_KINDS[k],x=choiceGet(k,id);if(!K||!x||document.getElementById("mbox"))return;const O=K.opts(x),a=x.ask&&O.length>1?x.ask:null,me=S.me||"",v=(a&&a.votes)||{},o=choiceOther(me),today=ymd(new Date());
+  const vote=a&&a.who==="both",both=vote&&v.p0!=null&&v.p1!=null,mayPick=a&&(a.who===me||!me||both);
+  const hint=!a?`<div class="freq">Steht fest: <b>${esc(K.label(O[0]))}</b>.${O.length>1?" Eine andere Möglichkeit antippen ändert die Wahl.":""}</div>`
+    :`<div class="freq">${esc(choiceWhoTxt(a))}${a.due?` · Frist ${esc(dLabel(a.due))}${a.due<today?" (vorbei)":""}`:""}${a.back?`<br>↩ ${esc(pname(a.back.by))}: Passt keiner. Bitte neue Möglichkeiten eintragen.`:""}${vote?`<br>${both?"Ihr habt verschieden gewählt. Eine Möglichkeit antippen legt sie fest.":"Tippt jeweils eure Möglichkeit an. Gleiche Wahl legt den Termin fest."}`:a.who!==me&&me?"<br>Du kannst trotzdem schon festlegen.":""}</div>`;
+  const el=document.createElement("div");el.id="mbox";S.mboxAt=Date.now();
+  el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="Möglichkeiten"><div class="section-head"><h2>${a?"🗳️":"✓"} ${esc(x.name)}</h2></div>${hint}
+    <div class="chlist">${O.map((c,i)=>{const vs=["p0","p1"].filter(p=>v[p]===i);return `<button type="button" class="chipbtn neutral${!a&&!i?" chosen":""}" data-chpick="${i}" aria-pressed="${!a&&!i}"><span>${a?i+1+". ":""}${esc(K.label(c))}</span><span class="freq">${vs.map(p=>"✓ "+esc(pname(p))).join(" ")}${!a&&!i?"gewählt":""}</span></button>`}).join("")}</div>
+    <div class="btnrow">${a&&a.who===me&&a.from&&a.from!==me||vote&&me?`<button class="ghost" type="button" data-chback>↩ Passt keiner</button>`:""}<button class="ghost" type="button" data-chedit>✎ ${a?"Bearbeiten":"Nochmal fragen oder ändern"}</button><button class="ghost" type="button" data-chx>Schließen</button></div></div>`;
+  document.body.appendChild(el);
+  el.addEventListener("click",async e=>{const p=e.target.closest("[data-chpick]");
+    if(p){const i=+p.dataset.chpick;mboxClose();S.terDraft=null;try{if(!a){if(i)await choicePick(k,id,i)}else if(vote&&!both)await choiceVote(k,id,i);else await choicePick(k,id,i)}catch(_){toast("Konnte nicht speichern.")}render();return}
+    if(e.target.closest("[data-chback]")){mboxClose();try{await choiceBack(k,id)}catch(_){toast("Konnte nicht speichern.")}render();return}
+    if(e.target.closest("[data-chedit]")){mboxClose();K.edit(x);return}
+    if(e.target.closest("[data-chx]")){mboxClose();return}
+    if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose()})}
+// Kalender: offene Möglichkeiten gestrichelt und blasser, mit „?“ und „1 von 3“
+function choiceEvents(x,a,z,out){const O=CHOICE_KINDS.termin.opts(x),n=O.length,w=choiceWhoTxt(x.ask);
+  O.forEach((o,i)=>{if(o.date>=a&&o.date<=z)out.push({d:o.date,t:o.time||"",name:"? "+x.name+" ("+(i+1)+" von "+n+")",icon:"📅",src:"own",tent:true,id:x.id,who:x.who||"",note:"Noch offen: "+w+(x.ask.due?", Frist "+rDate(x.ask.due):""),place:x.place||""})})}
+// Wichtig: Karte „Bitte wählen“ plus Hinweise „hat gewählt“ und was beim anderen liegt
+function choiceCard(){const {A,N,W}=choiceBell(),today=ymd(new Date());if(!A.length&&!N.length&&!W.length)return "";
+  const K=c=>CHOICE_KINDS[c.k],row=(c,txt,cls)=>`<div class="prow${cls?" "+cls:""}"><span class="pchk" aria-hidden="true">${K(c).icon}</span><button class="pnm" data-chopen="${c.k}|${esc(c.x.id)}">${esc(c.x.name)}<br><i>${txt}</i></button></div>`;
+  let h=`<section class="card"><div class="section-head"><h2>🗳️ Bitte wählen</h2><span class="freq num">${A.length+N.length}</span></div>`;
+  h+=A.map(c=>{const a=c.x.ask;return row(c,esc((a.who==="both"?"Abstimmen: ":"Bitte Termin wählen: ")+K(c).opts(c.x).length+" Möglichkeiten")+(a.due?` · Frist ${esc(dLabel(a.due))}`:"")+(a.back?" · ↩ passt keiner":""),a.due&&a.due<today?"due":"")}).join("");
+  h+=N.map(c=>`<div class="prow"><span class="pchk" aria-hidden="true">✓</span><button class="pnm" data-chopen="${c.k}|${esc(c.x.id)}">${esc(c.x.name)}<br><i>${esc(pname(c.x.told.by))} hat ${esc(c.x.told.txt||"")} gewählt</i></button><button class="ghost small" data-chseen="${c.k}|${esc(c.x.id)}">Gesehen</button></div>`).join("");
+  h+=W.map(c=>row(c,"⏳ Wartet auf "+esc(c.x.ask.who==="both"?pname(choiceOther(S.me)):pname(c.x.ask.who)),"later")).join("");
+  return h+`</section>`}
 // ---------- Motive und Bildstil (Nachtauftrag 15.11.2026) ----------
 // Motiv: "meer" (Haus am Meer, Standard) oder "stadt" (Stadthaus in München, Entwurf).
 // Bildstil fürs Haus am Meer: "" (wie bisher), "licht" (Licht und Schatten), "aquarell", "fein" (Texturen und Licht).

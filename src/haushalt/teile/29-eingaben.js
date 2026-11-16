@@ -38,7 +38,11 @@ app.addEventListener("submit",async e=>{if(e.target.classList&&e.target.classLis
     try{await S.store.setPath("food/termin/"+newId("t"),{name,date:P.due,time:P.time||null,who,rep:rp,at:Date.now(),by:S.me||""});S.calDay=P.due;const d=ymdD(P.due);S.calMonth=new Date(d.getFullYear(),d.getMonth(),1,12);toast("Eingetragen: "+dLabel(P.due)+(P.time?" "+P.time:""));render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(e.target.id==="terform"){e.preventDefault();const d=S.terDraft;if(!d)return;const name=(d.name||"").trim().slice(0,80);if(!name||!/^\d{4}-\d{2}-\d{2}$/.test(d.date||"")){toast("Bitte Was und Tag eintragen.");return}
     const id=d.id||newId("t"),old=termine().find(y=>y.id===id),v={name,date:d.date,to:!d.rep&&d.to&&d.to>d.date?d.to:null,time:d.time||null,who:d.who&&d.who!=="both"?d.who:null,rep:d.rep||null,note:(d.note||"").trim().slice(0,200)||null,place:(d.place||"").trim().slice(0,120)||null,link:safeLink(d.link)||null,remind:d.remind===undefined?(old&&old.remind||null):(d.remind||null),at:Date.now(),by:S.me||""};
-    try{await S.store.setPath("food/termin/"+id,v);S.calDay=d.date;S.terDraft=null;toast("Termin gespeichert");render()}catch(_){toast("Konnte nicht speichern.")}return}
+    {const seen=new Set([d.date+"|"+(d.time||"")]),alt=d.rep?[]:(d.alt||[]).filter(o=>/^\d{4}-\d{2}-\d{2}$/.test(o.date||"")&&!seen.has(o.date+"|"+(o.time||""))&&seen.add(o.date+"|"+(o.time||""))).map(o=>({date:o.date,time:o.time||null}));
+      v.alt=alt.length?alt:null;const oa=old&&old.ask,same=old&&old.date===v.date&&(old.time||null)===v.time&&JSON.stringify(altOf(old).map(o=>[o.date,o.time||null]))===JSON.stringify(alt.map(o=>[o.date,o.time]));
+      v.ask=alt.length&&d.ask?{who:d.ask,from:(oa&&oa.from)||S.me||"",at:(oa&&oa.at)||Date.now(),due:/^\d{4}-\d{2}-\d{2}$/.test(d.askdue||"")?d.askdue:null,votes:oa&&oa.who===d.ask&&same?oa.votes||null:null}:null;
+      v.told=v.ask?null:(old&&old.told)||null;if(v.ask)v.to=null}
+    try{await S.store.setPath("food/termin/"+id,v);S.calDay=d.date;S.terDraft=null;toast(v.ask?"Gespeichert. "+choiceWhoTxt(v.ask)+(v.ask.who==="both"?".":" aus."):"Termin gespeichert");render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(e.target.id==="urlaubform"){e.preventDefault();const el=document.getElementById("urlaubinput"),v=(el&&el.value||"").trim().slice(0,80);if(!v)return;el.value="";S.store.setPath("food/urlaub/"+newId("u"),{name:v,at:Date.now(),by:S.me||""}).catch(()=>toast("Konnte nicht speichern."));return}
   if(e.target.id==="bookform"){e.preventDefault();const el=document.getElementById("bookinput"),v=(el&&el.value||"").trim().slice(0,40);if(!v)return;
     if(S.bookEdit){const id=S.bookEdit;S.bookEdit=null;S.store.setPath("food/book/"+id+"/name",v).then(()=>render()).catch(()=>toast("Konnte nicht speichern."));if(id==="main")S.store.setPath("food/book/main/at",Date.now()).catch(()=>{});return}
@@ -63,6 +67,7 @@ app.addEventListener("input",e=>{if(e.target.id==="shopinput"){S.shopText=e.targ
   if(S.rDraft&&e.target.dataset.rwf){S.rDraft[e.target.dataset.rwf]=e.target.value;return}
   if(S.musDraft&&e.target.dataset.muf){S.musDraft[e.target.dataset.muf]=e.target.value;return}
   if(S.tripDraft&&e.target.dataset.tf){S.tripDraft[e.target.dataset.tf]=e.target.value;return}
+  if(S.terDraft&&e.target.dataset.teralt!=null){const o=(S.terDraft.alt||[])[+e.target.dataset.teralt];if(o)o[e.target.dataset.k]=e.target.value;return}
   if(S.terDraft&&e.target.dataset.terf){S.terDraft[e.target.dataset.terf]=e.target.value;return}
   if(e.target.id==="mealinput"){S.planText=e.target.value;const mm=document.getElementById("mealmem");if(mm)mm.innerHTML=mealMemHtml();return}
   if(e.target.id==="lu-mapurl"){S.lunchMapText=e.target.value;return}

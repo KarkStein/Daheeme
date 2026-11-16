@@ -488,3 +488,12 @@ section[id^="sec-"]{scroll-margin-top:calc(var(--sp5)*3)}
 .wxhead{width:100%;background:none;border:none;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer;white-space:nowrap;overflow:hidden}
 .wxhead h1{flex:0 0 auto}.wxhead .wxline{font-size:var(--fs-s);color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wxhead .wxpre{color:var(--ochre);font-weight:600}
 @media (max-width:370px){.wxhead .wxhint{display:none}}
+/* Mehrere Möglichkeiten (29c-auswahl.js): offen = gestrichelt und blasser */
+.evlist li.tent::before{background:none!important;border-left:3px dashed #7a8594;width:0}
+.evlist li.tent[data-who=p0]::before{border-color:#2e7d6b}.evlist li.tent[data-who=p1]::before{border-color:#b8862b}.evlist li.tent[data-who=kid]::before{border-color:#8a5cc2}
+.evlist li.tent .ev{opacity:.7;border:1px dashed var(--line);border-radius:var(--r-s);padding:var(--sp1) var(--sp2)}
+.cal .dots i.tent{background:none!important;border:1.5px dashed;box-sizing:border-box}
+.teralt{display:flex;gap:var(--sp2);align-items:flex-end}
+.chlist{display:flex;flex-direction:column;gap:var(--sp2);margin:var(--sp3) 0}
+.chlist button{display:flex;width:100%;justify-content:space-between;align-items:center;gap:var(--sp2);text-align:left}
+.chlist button.chosen{font-weight:700}
