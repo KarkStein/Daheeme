@@ -434,7 +434,7 @@ h2{font-weight:700}
 .campback.wkpanel{margin:0 0 var(--sp4)}
 .campback .bcnt b{font-family:var(--f-display);font-weight:700}
 .campback .bcnt span{font-size:var(--fs-xs)}
-.campback .bring small{font-size:var(--fs-xs)}.campback .bring2 .num{font-size:var(--fs-xs)}.campback .bcnt b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.campback .bring small{font-size:var(--fs-xs)}.campback .bho{white-space:nowrap}.campback .hodot{display:inline-block;width:8px;height:8px;border-radius:999px;margin:0 var(--sp1) 1px 2px;vertical-align:middle}.campback .bcnt b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* Startseite passt ohne Scrollen auf den ersten Bildschirm (Florian 15.11.2026) */
 .starthead{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp2);margin:0 0 var(--sp2)}
 .starthead h1{font-size:var(--fs-xl);margin:0}.starthead .eyebrow{margin:0;white-space:nowrap}

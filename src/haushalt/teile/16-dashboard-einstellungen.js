@@ -8,9 +8,10 @@ function tasksCount(day){const mon=mondayOf(new Date()),tk=ticksOf(wkKey(mon)),s
   tasks().forEach(t=>{if(group(t.freq)!=="week"||(day&&t.freq!=="day"))return;const o=t.owner==="rot"?ownerFor(t,mon,split):t.owner;if(o==="ho"||(S.me&&o!==S.me&&o!=="both"))return;
     const chk=i=>{total++;if(o==="both"){const leg=tk[t.id+"__"+i];if(S.me?!(tk[t.id+"__"+i+"_"+S.me]||(leg&&leg.by===S.me)):!leg)open++}else if(!tk[t.id+"__"+i])open++};
     if(t.freq==="day")chk(di);else for(let i=0;i<slotsOf(t);i++)chk(i)});return {open,total}}
-// Hausdienst heute (Florian 16.11.2026, statt „im Einkauf“): Name, geteilt „F/J“ (vormittags/nachmittags), sonst –
-function hoToday(){const mon=mondayOf(new Date()),di=(new Date().getDay()+6)%7,hoT=tasks().find(t=>t.owner==="ho"),x=hoT?ticksOf(wkKey(mon))[hoT.id+"__"+di]:null;if(!x||!(x.by==="p0"||x.by==="p1"))return "–";
-  const o=x.by==="p0"?"p1":"p0";return x.half==="vm"?esc(pname(x.by).charAt(0)+"/"+pname(o).charAt(0)):esc(pname(x.by))}
+// Hausdienst heute (Florian 16.11.2026): dezent in der Zeile unter dem Datum, Farbpunkt der Person, geteilt „F vorm. · J nachm.“
+function hoToday(){const mon=mondayOf(new Date()),di=(new Date().getDay()+6)%7,hoT=tasks().find(t=>t.owner==="ho"),x=hoT?ticksOf(wkKey(mon))[hoT.id+"__"+di]:null;if(!x||!(x.by==="p0"||x.by==="p1"))return "";
+  const o=x.by==="p0"?"p1":"p0",dot=p=>`<i class="hodot" style="background:${PCOL[p]}"></i>`;
+  return ` · <span class="bho" aria-label="Hausdienst heute">🏠 ${x.half==="vm"?dot(x.by)+esc(pname(x.by).charAt(0))+" vorm. · "+dot(o)+esc(pname(o).charAt(0))+" nachm.":dot(x.by)+esc(pname(x.by))}</span>`}
 function renderBack(night,dash){const now=new Date(),today=ymd(now),D=backDay(now),pr=prios().filter(x=>x.from!=="mittag"),due=pr.filter(x=>x.due&&x.due<=today),shop=shopItems().filter(x=>!x.done),w=wxFor(now);
   const pl=S.food&&S.food.wxplace,lat=pl&&pl.lat!=null?+pl.lat:51.0,lon=pl&&pl.lon!=null?+pl.lon:10.4,t=sunTimes(now,lat,lon),hm=m=>{m=Math.round(m);return Math.floor(m/60)+":"+String(m%60).padStart(2,"0")};
   const DN=["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"],MN=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
@@ -41,11 +42,11 @@ function renderBack(night,dash){const now=new Date(),today=ymd(now),D=backDay(no
   // Zähler
   // Urlaub gehört nicht in die Tagesansicht (Florian 15.11.2026)
   const cnt=panelTile;
-  const counters=`<div class="bcnts">${cnt(bellItems().n,due.length?"fällig":"🔔 in 24 Std.",'data-go="wichtig"')}${cnt(hoToday(),"Hausdienst heute",'data-go="woche"')}${cnt(D.ev.filter(e=>e.src!=="prio").length,"Termine heute",'data-nav="woche|wp:3" data-calopen="liste"')}</div>`;
+  const counters=`<div class="bcnts">${cnt(bellItems().n,due.length?"fällig":"🔔 in 24 Std.",'data-go="wichtig"')}${(([d,n])=>cnt(Math.max(0,n-d),"Aufgaben Woche",'data-act="gotasks" aria-label="Offene Wechsel-Aufgaben dieser Woche"'))(rotCount(mondayOf(now)))}${cnt(D.ev.filter(e=>e.src!=="prio").length,"Termine heute",'data-nav="woche|wp:3" data-calopen="liste"')}</div>`;
   // Blick voraus
   const ahead=[1,2,3].map(i=>{const d=addDays(startOfDay(now),i),x=backDay(d),e=x.ev[0];return `<div class="bday3"><b>${i===1?"Morgen":DN[d.getDay()].slice(0,2)}</b><span>🍲 ${x.meal?esc(x.meal.name):"–"}</span>${e?`<span>${e.icon||"📅"} ${esc(e.name)}</span>`:""}</div>`}).join("");
   return `<div class="campback${night?" night":""}${dash?" dash":""}" aria-label="Der Tag auf einen Blick"><div class="brim"></div>
-    <div class="btop"><div class="bhead"><div class="bday">${DN[now.getDay()]}${dash?" · Heute":""}</div><div class="bdate">${now.getDate()}. ${MN[now.getMonth()]}</div><div class="bsub">${nowT!=null?(dash?wxA(`<span class="bwx">${nowI} ${nowT}° ›</span>`,"","std"):`<span class="bwx">${nowI} ${nowT}°</span>`):""}🌅 ${hm(t.rise)} · 🌇 ${hm(t.set)}</div>${dash&&spark?wxA(spark,"bsparka","std"):spark}</div>${dash?bweekRing():`<div class="bstamp" aria-hidden="true"><span>📷</span></div>`}</div>
+    <div class="btop"><div class="bhead"><div class="bday">${DN[now.getDay()]}${dash?" · Heute":""}</div><div class="bdate">${now.getDate()}. ${MN[now.getMonth()]}</div><div class="bsub">${nowT!=null?(dash?wxA(`<span class="bwx">${nowI} ${nowT}° ›</span>`,"","std"):`<span class="bwx">${nowI} ${nowT}°</span>`):""}🌅 ${hm(t.rise)} · 🌇 ${hm(t.set)}${dash?hoToday():""}</div>${dash&&spark?wxA(spark,"bsparka","std"):spark}</div>${dash?bweekRing():`<div class="bstamp" aria-hidden="true"><span>📷</span></div>`}</div>
     ${line}${counters}<div class="b3">${ahead}</div><div class="bfoot"><button class="bcal" data-nav="woche|wp:3" data-calopen="monat">📅 Kalender ›</button><button class="bcal" data-act="ternewgo">＋ Termin</button>${(n=>n?`<button class="bcal" data-go="recherchen">🤖 ${n} neu</button>`:"")(rNew().length)}${dash?"":`<button class="bflip" data-act="flipback">↺ Zum Bild</button>`}</div>
     ${dash?"":`<div class="bturn">↺ Tippen zum Umdrehen</div>`}</div>`}
 function moonName(p){return p<0.03||p>0.97?"Neumond":p<0.22?"zunehmende Sichel":p<0.28?"zunehmender Halbmond":p<0.47?"zunehmender Mond":p<0.53?"Vollmond":p<0.72?"abnehmender Mond":p<0.78?"abnehmender Halbmond":"abnehmende Sichel"}
