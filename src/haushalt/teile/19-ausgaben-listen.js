@@ -68,7 +68,7 @@ function splitEdit(id){const x=splits().find(y=>y.id===id);if(!x)return;
       await S.store.setPath("food/split/"+id+"/name",n);await S.store.setPath("food/split/"+id+"/link",l?safeLink(l):null);toast("Gespeichert")},
     async()=>{await S.store.setPath("food/split/"+id,null);toast("Gelöscht")})}
 async function buyDropRef(ref){for(const x of buys().filter(y=>y.ref===ref&&!y.done))await S.store.setPath("food/buy/"+x.id,null)}
-async function splitDropRef(ref){for(const x of splitFor(ref))await S.store.setPath("food/split/"+x.id+"/ref",null);for(const x of monies().filter(y=>y.ref===ref))await S.store.setPath("food/money/"+x.id+"/ref",null)}
+async function splitDropRef(ref){for(const x of splitFor(ref))await S.store.setPath("food/split/"+x.id+"/ref",null);for(const x of monies().filter(y=>y.ref===ref))await S.store.setPath("food/money/"+x.id+"/ref",null);for(const x of mgroups().filter(y=>y.ref===ref))await S.store.setPath("food/mgroup/"+x.id+"/ref",null)}
 async function buyAdd(list,name,extra){name=String(name||"").trim().slice(0,80);if(!name)return false;if(buys().some(x=>x.list===list&&!x.done&&x.name.toLowerCase()===name.toLowerCase())){toast("Steht schon auf der Liste");return false}
   try{await S.store.setPath("food/buy/"+newId("b"),Object.assign({name,list,done:false,at:Date.now(),by:S.me||""},extra||{}));return true}catch(_){toast("Konnte nicht speichern.");return false}}
 // ---------- Vorschlagsgedächtnis (gemeinsamer Baustein): food/sugg/<liste>/<favKey> = {name,n,at,hide?} ----------

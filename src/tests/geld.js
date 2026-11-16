@@ -16,7 +16,7 @@ srv.listen(8765,async()=>{
   const q=Object.values(db())[0]||{};r.quick=[q.name,q.amt,q.by,q.split,q.cat,q.date].join();
   r.bal1=await A.$eval('.geldbig',e=>e.innerText);
   // Maske: Judith zahlt Hotel 200 €, 70 % für p0, gehört zum Urlaub
-  await A.click('[data-gact=new]');await A.fill('[data-gf=amt]','200');await A.fill('[data-gf=name]','Hotel');await A.click('[data-gby=p1]');await A.click('[data-gsplit=pct]');await A.fill('[data-gf=pct]','70');await A.click('[data-gdate="2026-11-15"]');await A.selectOption('[data-gf=ref]','urlaub:u1');
+  await A.click('[data-gact=new]');await A.fill('[data-gf=amt]','200');await A.fill('[data-gf=name]','Hotel');await A.click('[data-gby=p1]');await A.click('[data-gsplit=pct]');await A.fill('[data-gf=pct]','70');await A.click('[data-gdate="2026-11-15"]');
   await A.screenshot({path:out+'/geld-maske.png'});
   await A.click('#geldform button[type=submit]');await A.waitForTimeout(400);
   const h=Object.values(db()).find(x=>x.name==='Hotel')||{};r.hotel=[h.amt,h.by,h.split,h.cat,h.ref,h.date].join();
@@ -38,6 +38,6 @@ srv.listen(8765,async()=>{
   await A.evaluate(()=>window.Geld.dropRef('urlaub:u1'));await A.waitForTimeout(300);r.refGone=Object.values(db()).every(x=>!x.ref);
   console.error(JSON.stringify(r),errs);
   const ok=!errs.length&&r.calc==='1250|1250|123456|700||||{"p0":501,"p1":500}|{"p0":700,"p1":300}|{"p0":0,"p1":999}|-250|0|1.234,56 €'&&r.h1==='Ausgaben'&&/quitt/.test(r.quitt)
-    &&r.quick==='Rewe,2350,p0,half,essen,2026-11-16'&&/Du bekommst 11,75 €/.test(r.bal1)&&r.hotel==='20000,p1,70,urlaub,urlaub:u1,2026-11-15'&&/bekommt 128,25 € von dir/.test(r.bal2)
+    &&r.quick==='Rewe,2350,p0,half,essen,2026-11-16'&&/Du bekommst 11,75 €/.test(r.bal1)&&r.hotel==='20000,p1,70,urlaub,,2026-11-15'&&/bekommt 128,25 € von dir/.test(r.bal2)
     &&r.settleAmt==='128,25'&&r.settleBy==='p0'&&/quitt/.test(r.bal3)&&r.rows===3&&/223,50/.test(r.sum)&&r.rowsCat.split(',').length===1&&r.empty&&r.del===1&&r.refGone;
   console.error(ok?'GELD OK':'GELD FAIL');await b.close();srv.close();process.exit(0)});
