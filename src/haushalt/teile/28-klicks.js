@@ -355,6 +355,7 @@ app.addEventListener("click",async e=>{
       const days=[0,1,2,3].map(w=>planDays(addDays(mondayOf(new Date()),7*w-7)));const inPlan=days.some(d=>Object.values(d).some(m=>m&&String(m.text||"").trim().toLowerCase()===n));
       S.tab="essen";S.foodTab=inPlan?"plan":"rezepte";if(inPlan){const now=new Date();for(const d of [0,1,2,3,4,5,6]){const dd=addDays(now,d),m=planDays(mondayOf(dd))["d"+((dd.getDay()+6)%7)];if(m&&String(m.text||"").trim().toLowerCase()===n){S.foodTab="heute";S.dishOpen=dishKey(dd);break}}}
       render();window.scrollTo(0,0);return}}
+  if(b.dataset.shopsugg){const u=!!b.dataset.urg||!!S.shopUrg;S.shopText="";S.shopUrg=false;const el=document.getElementById("shopinput");if(el)el.value="";shopAdd(b.dataset.shopsugg,u).then(()=>{const e2=document.getElementById("shopinput");if(e2)e2.focus()});if(u)toast("❗ "+b.dataset.shopsugg+" für heute");return}
   if(b.dataset.act==="shopurg"){S.shopUrg=!S.shopUrg;render();const el=document.getElementById("shopinput");if(el)el.focus();return}
   if(b.dataset.shopview){S.tab="einkauf";S.shopFilter=b.dataset.shopview;render();window.scrollTo(0,0);return}
   if(b.dataset.dishopen){S.dishOpen=S.dishOpen===b.dataset.dishopen?null:b.dataset.dishopen;render();return}

@@ -498,3 +498,5 @@ section[id^="sec-"]{scroll-margin-top:calc(var(--sp5)*3)}
 .chlist{display:flex;flex-direction:column;gap:var(--sp2);margin:var(--sp3) 0}
 .chlist button{display:flex;width:100%;justify-content:space-between;align-items:center;gap:var(--sp2);text-align:left}
 .chlist button.chosen{font-weight:700}
+
+.shopsugg:empty{display:none}.shopsugg{margin-top:calc(-1 * var(--sp1))}.unl .suggpair{display:inline-flex;gap:0;padding:0;background:none;border:none}.suggpair .chipbtn:first-child{border-radius:999px 0 0 999px}.suggpair .suggurg{border-radius:0 999px 999px 0;border-left:none;padding-left:var(--sp2);padding-right:var(--sp2)}
