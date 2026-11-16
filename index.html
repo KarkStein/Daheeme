@@ -1085,7 +1085,7 @@ function houseScene(has,light,night,extras,sea,guests,dots,amb){dots=dots||{};am
   // Segelboot rechts im Meer: führt zu Urlauben (Florian 15.11.2026, ersetzt die Welle)
   if(city)g+=cityPlane(night);else g+=`<g class="hwave"><path d="M300 230 q8 -3 16 0 t16 0 t16 0 t12 0" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="1.8" stroke-linecap="round"/><path d="M296 219 H350 L342 229 H303Z" fill="${night?"#5a3b25":"#8a5a34"}"/><path d="M296 219 H350" stroke="#f4f1ea" stroke-width="1.6"/><path d="M322 219 V166" stroke="#5b4a3a" stroke-width="1.8" stroke-linecap="round"/><path d="M324.5 169 Q342 190 346 216 H324.5Z" fill="#f4f1ea"/><path d="M319.5 174 Q307 196 301 216 H319.5Z" fill="${night?"#c9c2b3":"#e8dcc4"}"/><path d="M322 166 l9 3 l-9 3z" fill="#d6453d"/><path d="M332 196 q4 2 8 0" stroke="#3f6fa8" stroke-width="1.4" fill="none" opacity=".6"/></g>`;
   // Klippen links hinten: klein, kantig, zur Sonne hin ansteigend (Privat)
-  if(city)g+=cityCafe(night);else {const rk=night?"#55524c":"#b3a796",rk2=night?"#403d38":"#8f8476",tp=C.head,ink=night?"#2a2a2a":"#5b4a3a";
+  if(!city){const rk=night?"#55524c":"#b3a796",rk2=night?"#403d38":"#8f8476",tp=C.head,ink=night?"#2a2a2a":"#5b4a3a";
    g+=`<path d="M4 144 L5 112 L10 106 L16 108 L21 102 L27 105 L33 110 L38 109 L44 116 L50 119 L55 125 L61 128 L66 134 L72 144Z" fill="${rk}"/>`
      +`<path d="M21 102 L25 118 L19 144 L10 144 L14 122Z M38 109 L41 124 L36 144 L30 144 L34 126Z M55 125 L57 134 L54 144 L48 144 L51 133Z" fill="${rk2}" opacity=".7"/>`
      +`<path d="M5 112 L10 106 L16 108 L21 102 L27 105 L33 110 L38 109 L44 116 L50 119 L55 125 L61 128 L61 129.5 L54 126.5 L49 121 L43 118 L37 111 L33 112 L27 107 L21 104.5 L16 110 L10 108 L5 114Z" fill="${tp}"/>`
@@ -1217,7 +1217,7 @@ function renderCamp(){S.flip=false;loadWx();
   const openS=shopItems().filter(i=>!i.done).length,meal=planDays(mon)["d"+di],mealTxt=meal?(meal.text||""):"";
   const spot=(x,y,w,hh,go,label,ft)=>`<button class="spot" style="${spotPos(x,y,w,hh)}" data-go="${go}"${ft?` data-ft="${ft}"`:""} aria-label="${label}">${S.labels?`<span class="lab">${label.split(":")[0].replace(" mit dem Bus","").replace("Einkaufsliste","Einkauf")}</span>`:""}</button>`;
   const city=motiv()==="stadt";let h=`${startPager(0)}${startHead(sea)}${S.me?"":meChooser()}
-   <div class="flipbox"><div class="flipin${S.flip?" flipped":""}"><div class="camp">${(houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:false,shop:openS>0,post:briefe().length>0},{ph:skyPh,wx:S.wx&&S.wx.cur!=null&&Date.now()-S.wx.at<3*3600e3?wxKind(S.wx.cur):"",city})+spot(166,196,50,48,"woche","Woche: offene Aufträge")+spot(119,148,42,96,"essen","Essen",mealTxt?"plan":"")+spot(112,212,26,22,"einkauf","Einkauf: Korb mit Baguette")+spot(208,203,24,30,"kita","Kita")+spot(80,243,40,24,"ausflug","Ausflüge: Fahrrad")+spot(62,214,20,22,"woche","Kalender: Aushang am Baum").replace('data-go="woche"','data-nav="woche|wp:3"')+(city?spot(318,86,36,60,"projekte","Ideen: Kirchtürme")+spot(38,108,40,30,"privat","Partner: Café-Tisch"):spot(318,80,34,64,"projekte","Ideen")+spot(38,122,70,42,"privat","Partner: Klippen"))+spot(24,244,18,26,"post","Briefkasten")+spot(155,168,22,20,"amhaus","Am Haus: Lampe")+spot(58,176,60,52,"amhaus","Garten: Baum").replace('data-go="amhaus"','data-go="amhaus" data-pf="garten"')+spot(40,203,22,28,"kind","Kind: Schaukel")+spot(15,205,18,14,"ausgaben","Ausgaben: Sparschwein")+spot(240,238,26,26,"spiel","Sport und Spiel")+(city?spot(270,52,44,26,"reisen","Urlaube: Flugzeug")+spot(288,125,124,28,"ausflug","Ausflüge: Tram"):spot(322,196,56,66,"reisen","Urlaube: Segelboot"))+spot(254,189,22,22,"musik","Musik: Ghettoblaster"))+(()=>{const y=(night?40:(skyPh==="dusk"||skyPh==="dawn")?98:44)+13,x=night?52:56;return `<button class="spot" style="${spotPos(x,y,46,46)}" data-act="wxpop" aria-expanded="${!!S.wxPop}" aria-label="${night?"Mond":"Sonne"}: Wetter">${S.labels?`<span class="lab">Wetter</span>`:""}</button>`})()+"</div>"+renderBack(night)+"</div>"}</div>
+   <div class="flipbox"><div class="flipin${S.flip?" flipped":""}"><div class="camp">${(houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:false,shop:openS>0,post:briefe().length>0},{ph:skyPh,wx:S.wx&&S.wx.cur!=null&&Date.now()-S.wx.at<3*3600e3?wxKind(S.wx.cur):"",city})+spot(166,196,50,48,"woche","Woche: offene Aufträge")+spot(119,148,42,96,"essen","Essen",mealTxt?"plan":"")+spot(112,212,26,22,"einkauf","Einkauf: Korb mit Baguette")+spot(208,203,24,30,"kita","Kita")+spot(80,243,40,24,"ausflug","Ausflüge: Fahrrad")+spot(62,214,20,22,"woche","Kalender: Aushang am Baum").replace('data-go="woche"','data-nav="woche|wp:3"')+(city?spot(330,80,34,44,"projekte","Ideen: Kirchtürme")+spot(40,133,40,38,"privat","Partner: Bank im Garten"):spot(318,80,34,64,"projekte","Ideen")+spot(38,122,70,42,"privat","Partner: Klippen"))+spot(24,244,18,26,"post","Briefkasten")+spot(155,168,22,20,"amhaus","Am Haus: Lampe")+spot(58,176,60,52,"amhaus","Garten: Baum").replace('data-go="amhaus"','data-go="amhaus" data-pf="garten"')+spot(40,203,22,28,"kind","Kind: Schaukel")+spot(15,205,18,14,"ausgaben","Ausgaben: Sparschwein")+spot(240,238,26,26,"spiel","Sport und Spiel")+(city?spot(270,52,44,26,"reisen","Urlaube: Flugzeug")+spot(259,97,84,24,"ausflug","Ausflüge: Tram"):spot(322,196,56,66,"reisen","Urlaube: Segelboot"))+spot(254,189,22,22,"musik","Musik: Ghettoblaster"))+(()=>{const y=(night?40:(skyPh==="dusk"||skyPh==="dawn")?98:44)+13,x=night?52:56;return `<button class="spot" style="${spotPos(x,y,46,46)}" data-act="wxpop" aria-expanded="${!!S.wxPop}" aria-label="${night?"Mond":"Sonne"}: Wetter">${S.labels?`<span class="lab">Wetter</span>`:""}</button>`})()+"</div>"+renderBack(night)+"</div>"}</div>
    ${S.wxPop?wxPanel(night):""}
    <section class="card today"><h2>Heute</h2>
      <button class="todayrow" data-act="gotasks"><span>🧹</span><span>${openW?"Offene Aufträge":"Alles erledigt, was gerade ansteht ✅"}</span><i>›</i></button>
@@ -4234,52 +4234,59 @@ function styCss(st){return st==="licht"||st==="fein"?' style="filter:saturate(1.
 // Dasselbe alleinstehende Haus mit Baum, Garten, Fahrrad, Schaukel, Briefkasten wie am Meer (houseScene mit amb.city).
 // Statt Meer: Straße mit Tram (Ausflüge), Flugzeug am Himmel (Urlaube), in der Ferne zwei Kirchtürme (Ideen, leuchten mit dem Wochenstand),
 // Café-Tischchen am Gehweg hinten links (Partner, statt Klippen), Gehweg statt Strand. Keine anderen Häuser im Vordergrund.
-function cityBack(C,night,sea,light){const far=night?"#26374a":"#cdd6dd",far2=night?"#1f2e3e":"#bcc8d1",asph=night?"#34383e":"#8e9399",walk=night?"#57544f":"#d3ccbf",curb=night?"#6e6a63":"#ece6da",win=night?"#ffd66b":"#f6e7b0";
-  let s=`<rect x="0" y="122" width="360" height="138" fill="${asph}"/>`;
-  // ferne Stadt, ganz blass, darin zwei Kirchtürme mit runden Hauben (Ideen)
-  s+=`<path d="M0 118 V106 h16 v-5 h12 v7 h18 v-9 h8 v9 h22 v-4 h14 v4 h40 V118Z M216 118 V104 h14 v-6 h10 v6 h24 v-8 h12 v8 h18 V118Z" fill="${far}"/>`+(night?[[20,108],[58,110],[92,112],[150,109],[232,108],[270,106],[296,110]].map(p=>`<rect x="${p[0]}" y="${p[1]}" width="2.4" height="2.4" fill="#ffd66b" opacity=".55"/>`).join(""):"");
-  const tx=318,ty=116,gl=(0.25+0.75*light)*(night?1:.55);
-  if(light>0)s+=`<circle cx="${tx}" cy="${ty-46}" r="${12+24*light}" fill="url(#hglow)" opacity="${gl.toFixed(2)}"/>`;
-  s+=`<path d="M${tx-16} ${ty} V${ty-40} h11 V${ty}Z M${tx+5} ${ty} V${ty-40} h11 V${ty}Z" fill="${night?"#4a3f3a":"#9a7f6c"}"/><path d="M${tx-5} ${ty} V${ty-22} h10 V${ty}Z" fill="${night?"#3e3532":"#8a705f"}"/>`
-    +`<path d="M${tx-17} ${ty-40} q6.5 -14 13 0Z M${tx+4} ${ty-40} q6.5 -14 13 0Z" fill="${night?"#3c5a50":"#6f9a86"}"/><path d="M${tx-10.5} ${ty-53} v-4 M${tx+10.5} ${ty-53} v-4" stroke="${night?"#c9b26a":"#b08d3a"}" stroke-width="1.2"/>`
-    +`<rect x="${tx-12.5}" y="${ty-33}" width="4" height="6" rx="2" fill="${win}" opacity="${night?.9:.6}"/><rect x="${tx+8.5}" y="${ty-33}" width="4" height="6" rx="2" fill="${win}" opacity="${night?.9:.6}"/>`;
-  // Baumreihe hinter dem Gehweg (Park), Farbe je Jahreszeit
-  {const T=night?(sea==="winter"?["#3b3a36","#34332f"]:["#1e3a2a","#24432f"]):sea==="spring"?["#7fbf6a","#6aa95c"]:sea==="autumn"?["#d08a3a","#b8642a","#8aa35a"]:sea==="winter"?["#9a9184","#8a8174"]:["#4f8a55","#5f9a5c"];
-   [[6,104,11],[34,99,13],[62,105,10],[92,100,12],[124,104,11],[156,98,13],[188,103,11],[220,100,12],[252,104,10],[282,99,12],[350,101,11]].forEach(([x,y,r],i)=>{s+=`<path d="M${x} 117 V${y+4}" stroke="${night?"#3a2a1e":"#6b4a2e"}" stroke-width="2"/><circle cx="${x}" cy="${y}" r="${r}" fill="${T[i%T.length]}"${sea==="winter"?' opacity=".75"':""}/><circle cx="${x-r*.35}" cy="${y-r*.3}" r="${r*.55}" fill="${T[(i+1)%T.length]}" opacity=".7"/>`+(sea==="winter"?`<path d="M${x-r*.7} ${y-r*.55} q${r*.7} -${r*.45} ${r*1.4} 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>`:"")})}
-  // Gehweg hinten, Bordstein, Schienen, Fahrleitung
-  s+=`<rect x="0" y="116" width="360" height="7" fill="${walk}"/><rect x="0" y="122.5" width="360" height="1.6" fill="${curb}"/>`
-    +`<path d="M0 135 H360 M0 140 H360" stroke="${night?"#777b80":"#b9bcc0"}" stroke-width="1"/><path d="M0 104 H360" stroke="#3a3f45" stroke-width=".6" opacity=".7"/>`
-    +[24,140,256].map(x=>`<path d="M${x} 123 V100" stroke="#5b6066" stroke-width="1.4"/>`).join("");
-  // Tram (Ausflüge): blau-weiß, rechts hinter dem Garten
-  {const x0=226,y0=112;s+=`<g class="tram"><path d="M${x0+52} ${y0} l6 -6 l6 6 M${x0+58} ${y0-6} V104" stroke="#3a3f45" stroke-width="1" fill="none"/>`
-    +`<rect x="${x0}" y="${y0}" width="124" height="26" rx="5" fill="#f4f1ea"/><rect x="${x0}" y="${y0+15}" width="124" height="11" rx="3" fill="#2f6c97"/><rect x="${x0}" y="${y0+12}" width="124" height="2.2" fill="#2f6c97"/>`
-    +[0,1,2,3,4,5].map(i=>`<rect x="${x0+6+i*19.5}" y="${y0+3.5}" width="14" height="8" rx="1.5" fill="${night?"#ffd66b":"#9fc3dc"}" opacity="${night?.85:1}"/>`).join("")
-    +`<rect x="${x0+118}" y="${y0+4}" width="5" height="9" rx="1.5" fill="${night?"#ffd66b":"#9fc3dc"}"/><circle cx="${x0+121}" cy="${y0+21}" r="1.6" fill="${night?"#fff3c4":"#ffe9a8"}"/>`
-    +`<rect x="${x0+40}" y="${y0+15}" width="8" height="11" fill="#255a80"/><rect x="${x0+80}" y="${y0+15}" width="8" height="11" fill="#255a80"/></g>`}
+// Florian 16.11.2026 abends: „Grün in einem Block, die Straße weiter weg“: Straße mit Tram ganz hinten und klein, davor ein großes Stück Garten und Park
+function cityCols(night,sea){return night?(sea==="winter"?["#3b3a36","#34332f"]:["#1e3a2a","#24432f"]):sea==="spring"?["#7fbf6a","#6aa95c"]:sea==="autumn"?["#d08a3a","#b8642a","#8aa35a"]:sea==="winter"?["#9a9184","#8a8174"]:["#4f8a55","#5f9a5c"]}
+function cityTree(x,y,r,i,T,night,sea){return `<path d="M${x} ${y+r+3} V${y+r*.4}" stroke="${night?"#3a2a1e":"#6b4a2e"}" stroke-width="${Math.max(1.4,r/6)}"/><circle cx="${x}" cy="${y}" r="${r}" fill="${T[i%T.length]}"${sea==="winter"?' opacity=".8"':""}/><circle cx="${x-r*.35}" cy="${y-r*.3}" r="${r*.55}" fill="${T[(i+1)%T.length]}" opacity=".7"/>`+(sea==="winter"?`<path d="M${x-r*.7} ${y-r*.55} q${r*.7} -${r*.45} ${r*1.4} 0" stroke="#fff" stroke-width="${r>8?2:1.4}" fill="none" stroke-linecap="round"/>`:"")}
+function cityBack(C,night,sea,light){const far=night?"#26374a":"#cdd6dd",asph=night?"#34383e":"#9a9fa5",walk=night?"#57544f":"#d3ccbf",win=night?"#ffd66b":"#f6e7b0",T=cityCols(night,sea);
+  // ferne Stadt, ganz blass
+  let s=`<path d="M0 101 V92 h12 v-4 h10 v5 h14 v-6 h6 v6 h16 v-3 h10 v3 h22 V101Z M120 101 V93 h12 v-4 h8 v4 h20 v-6 h8 v6 h16 V101Z M206 101 V94 h16 v-5 h10 v5 h40 V101Z" fill="${far}"/>`
+    +(night?[[16,95],[46,96],[86,97],[136,96],[176,95],[232,97],[262,96]].map(p=>`<rect x="${p[0]}" y="${p[1]}" width="1.8" height="1.8" fill="#ffd66b" opacity=".55"/>`).join(""):"");
+  // zwei Kirchtürme mit runden Hauben (Ideen), leuchten mit dem Wochenstand
+  const tx=330,ty=101,k=.72,gl=(0.25+0.75*light)*(night?1:.55);
+  if(light>0)s+=`<circle cx="${tx}" cy="${ty-34}" r="${9+18*light}" fill="url(#hglow)" opacity="${gl.toFixed(2)}"/>`;
+  s+=`<g transform="translate(${tx} ${ty}) scale(${k})"><path d="M-16 0 V-40 h11 V0Z M5 0 V-40 h11 V0Z" fill="${night?"#4a3f3a":"#9a7f6c"}"/><path d="M-5 0 V-22 h10 V0Z" fill="${night?"#3e3532":"#8a705f"}"/>`
+    +`<path d="M-17 -40 q6.5 -14 13 0Z M4 -40 q6.5 -14 13 0Z" fill="${night?"#3c5a50":"#6f9a86"}"/><path d="M-10.5 -53 v-4 M10.5 -53 v-4" stroke="${night?"#c9b26a":"#b08d3a"}" stroke-width="1.4"/>`
+    +`<rect x="-12.5" y="-33" width="4" height="6" rx="2" fill="${win}" opacity="${night?.9:.6}"/><rect x="8.5" y="-33" width="4" height="6" rx="2" fill="${win}" opacity="${night?.9:.6}"/></g>`;
+  // kleine Bäume hinter der Straße
+  [[8,94,6],[30,92,7],[54,95,5],[76,93,6],[104,95,5],[150,94,6],[178,92,7],[202,95,5],[300,94,5],[352,93,6]].forEach(([x,y,r],i)=>{s+=cityTree(x,y,r,i,T,night,sea)});
+  // Gehweg, Straße, Schienen, Fahrleitung: schmal und weit hinten
+  s+=`<rect x="0" y="100" width="360" height="2.4" fill="${walk}"/><rect x="0" y="102.4" width="360" height="6" fill="${asph}"/><path d="M0 105 H360 M0 107 H360" stroke="${night?"#777b80":"#c3c6ca"}" stroke-width=".6"/><path d="M0 91 H360" stroke="#3a3f45" stroke-width=".4" opacity=".6"/>`
+    +[40,160,280].map(x=>`<path d="M${x} 102 V89" stroke="#5b6066" stroke-width=".9"/>`).join("");
+  // Tram (Ausflüge): blau-weiß, klein in der Ferne
+  s+=`<g class="tram" transform="translate(222 89) scale(.6)"><path d="M52 0 l6 -6 l6 6 M58 -6 V-3" stroke="#3a3f45" stroke-width="1.4" fill="none"/>`
+    +`<rect x="0" y="0" width="124" height="26" rx="5" fill="#f4f1ea"/><rect x="0" y="15" width="124" height="11" rx="3" fill="#2f6c97"/><rect x="0" y="12" width="124" height="2.2" fill="#2f6c97"/>`
+    +[0,1,2,3,4,5].map(i=>`<rect x="${6+i*19.5}" y="3.5" width="14" height="8" rx="1.5" fill="${night?"#ffd66b":"#9fc3dc"}" opacity="${night?.85:1}"/>`).join("")
+    +`<rect x="118" y="4" width="5" height="9" rx="1.5" fill="${night?"#ffd66b":"#9fc3dc"}"/><circle cx="121" cy="21" r="1.8" fill="${night?"#fff3c4":"#ffe9a8"}"/>`
+    +`<rect x="40" y="15" width="8" height="11" fill="#255a80"/><rect x="80" y="15" width="8" height="11" fill="#255a80"/></g>`;
   return s}
 // Flugzeug am Himmel (Urlaube), mit Kondensstreifen; nachts mit Positionslichtern
 function cityPlane(night){const c=night?"#9fb0c2":"#f4f1ea",d=night?"#6c7d90":"#c3ccd4";
   return `<g class="plane"><path d="M206 52 H254" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity="${night?.15:.55}"/>`
     +`<path d="M254 52 q2 -3.4 8 -3.4 h18 q5 0 7 3.4 q-2 3.4 -7 3.4 h-18 q-6 0 -8 -3.4Z" fill="${c}"/><path d="M266 52 l-6 -10 h4 l9 10Z M266 52 l-6 10 h4 l9 -10Z" fill="${d}"/><path d="M256 51 l-3 -7 h3 l4 6Z" fill="${d}"/>`
     +(night?`<circle class="twinkle" cx="263" cy="42.5" r="1.3" fill="#f25f5c"/><circle class="twinkle" style="animation-delay:.6s" cx="263" cy="61.5" r="1.3" fill="#5fd08a"/>`:`<path d="M282 51 h3" stroke="#6f8aa0" stroke-width="1.2" stroke-linecap="round"/>`)+`</g>`}
-// Café-Tischchen hinten links am Gehweg (Partner): Sonnenschirm, Tisch, zwei Stühle, zwei Tassen
-function cityCafe(night){const w=night?"#2c3138":"#3a3f47",u1=night?"#9c3c34":"#c7442f",u2=night?"#d8d2c6":"#f4f1ea";
-  return `<path d="M38 121 V99" stroke="${w}" stroke-width="1.2"/><path d="M22 101 Q38 88 54 101Z" fill="${u1}"/><path d="M30 101 Q38 89 38 89 Q38 89 46 101Z" fill="${u2}"/>`
-    +`<path d="M31 112 h14 M38 112 v9 M34 121 h8" stroke="${w}" stroke-width="1.3" stroke-linecap="round"/><path d="M33 110.4 h3 v1.6 h-3z M40 110.4 h3 v1.6 h-3z" fill="${u2}"/>`
-    +`<path d="M24 107 v14 M24 113 h5 v8 M52 107 v14 M52 113 h-5 v8" stroke="${w}" stroke-width="1.2" fill="none" stroke-linecap="round"/>`}
-// Viel Grün ums Haus (Florian 16.11.2026 „Viel mehr grün ums Haus!“): Rasen über die ganze Breite, Hecke zur Straße,
-// Tanne rechts, Büsche, Blüten je Jahreszeit; Efeu am Haus über cityIvy
-function cityLawn(C,night,st,sea){const L="M0 139 Q90 133 180 137 Q270 141 360 136 V260 H0Z",hd=night?["#1f3b29","#264a33"]:["#477f4c","#56935a"],tr=night?"#4a3524":"#7a5230",win=sea==="winter";
+// Bank für zwei unter einem Rosenbogen hinten links im Garten (Partner, statt Klippen; Florian 16.11.2026: nicht an den Gleisen)
+function cityBench(night,sea){const wd=night?"#8a8478":"#f4f1ea",wd2=night?"#6d685e":"#d8d2c6",lf=night?["#1f3b29","#2a4d36"]:["#477f4c","#5f9a5c"],bl=sea==="summer"?"#e05a6a":sea==="spring"?"#f7c1d6":sea==="autumn"?"#d9792b":null;
+  let s=`<ellipse cx="40" cy="150.5" rx="21" ry="3" fill="#000" opacity=".12"/><path d="M24 150 V127 Q40 109 56 127 V150" fill="none" stroke="${wd}" stroke-width="2.4"/>`;
+  const P=[[24,143],[24,136],[24.5,129],[28,122],[33,117],[40,115.5],[47,117],[52,122],[55.5,129],[56,136],[56,143]];
+  if(sea!=="winter")P.forEach((p,i)=>{s+=`<circle cx="${p[0]+(i%2?1.3:-1.3)}" cy="${p[1]}" r="3.5" fill="${lf[i%2]}"/>`+(bl&&i%2===0&&!night?`<circle cx="${p[0]}" cy="${p[1]-1.2}" r="1.4" fill="${bl}"/>`:"")});
+  else s+=`<path d="M25 126 Q40 108 55 126" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round"/>`;
+  s+=`<rect x="28.5" y="132.5" width="23" height="2.3" rx="1" fill="${wd2}"/><rect x="28.5" y="136.4" width="23" height="2.3" rx="1" fill="${wd2}"/><path d="M29.5 132.5 V142 M50.5 132.5 V142" stroke="${wd2}" stroke-width="1.4"/>`
+    +`<rect x="31.5" y="139" width="7.5" height="2.8" rx="1.3" fill="${night?"#9c8550":"#d9a441"}"/><rect x="41" y="139" width="7.5" height="2.8" rx="1.3" fill="${night?"#5f7d68":"#8fbf9a"}"/>`
+    +`<rect x="27" y="141.6" width="26" height="3" rx="1" fill="${wd}"/><path d="M29 144.5 V150 M51 144.5 V150" stroke="${wd2}" stroke-width="1.6"/>`;
+  return s}
+// Viel Grün ums Haus (Florian 16.11.2026 „Viel mehr grün ums Haus!“, dann „Grün in einem Block“): eine Wiese von der fernen Straße bis vorn,
+// Baumgruppen (Park), Tanne rechts, Büsche, Blüten je Jahreszeit, Bank unter dem Rosenbogen; Efeu am Haus über cityIvy
+function cityLawn(C,night,st,sea){const L="M0 107 Q120 103 240 106 Q300 108 360 105 V260 H0Z",hd=night?["#1f3b29","#264a33"]:["#477f4c","#56935a"],tr=night?"#4a3524":"#7a5230",win=sea==="winter",T=cityCols(night,sea);
   let s=`<path d="${L}" fill="${C.land}"/>`+(st==="fein"?`<path d="${L}" fill="url(#pGrass)"/><path d="${L}" fill="url(#pGrass2)"/>`:"");
-  // Hecke über die ganze Breite (immergrün), deckt die Straße unten ab
-  for(let x=-2,i=0;x<=364;x+=10,i++){const y=139-Math.sin(x/58)*2.4+(i%2)*.8;s+=`<circle cx="${x}" cy="${y}" r="${6.6+(i%3)*.7}" fill="${hd[i%2]}"/>`}
-  if(win)for(let x=4;x<=360;x+=20)s+=`<path d="M${x-5} ${134-Math.sin(x/58)*2.4} q5 -3 10 0" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none" opacity=".85"/>`;
+  // Baumgruppen im Park zwischen Straße und Garten (rechts mit Lücke für die Tram)
+  [[8,112,10],[72,111,12],[92,117,9],[224,116,8],[246,119,10],[270,116,12],[294,120,10],[316,116,12],[342,118,13],[360,113,9]].forEach(([x,y,r],i)=>{s+=cityTree(x,y,r,i+1,T,night,sea)});
+  s+=cityBench(night,sea);
   // Büsche am Haus und rechts im Garten
   const bush=(x,y,r,k)=>`<ellipse cx="${x}" cy="${y+r*.8}" rx="${r*1.4}" ry="${r*.25}" fill="#000" opacity=".1"/><circle cx="${x-r*.6}" cy="${y+r*.15}" r="${r*.75}" fill="${hd[k%2]}"/><circle cx="${x+r*.6}" cy="${y+r*.2}" r="${r*.7}" fill="${hd[(k+1)%2]}"/><circle cx="${x}" cy="${y-r*.15}" r="${r}" fill="${hd[(k+1)%2]}"/>`;
-  [[84,154,8,0],[96,150,6,1],[216,150,7,1],[228,172,7,0],[292,186,9,1],[306,244,8,0]].forEach(b=>{s+=bush(...b)});
+  [[80,150,8,0],[216,150,7,1],[228,172,7,0],[264,148,8,1],[292,186,9,1],[306,244,8,0]].forEach(b=>{s+=bush(...b)});
   const bl=sea==="spring"?["#f7c1d6","#fff"]:sea==="summer"?["#f25f5c","#ffd66b"]:sea==="autumn"?["#d9792b","#e0a030"]:null;
-  if(bl)[[82,151],[88,156],[226,169],[231,174],[288,183],[296,188],[304,241]].forEach((p,i)=>{s+=`<circle cx="${p[0]}" cy="${p[1]}" r="1.6" fill="${bl[i%2]}" opacity="${night?.5:1}"/>`});
-  if(win)[[84,146],[216,143],[228,165],[292,177]].forEach(p=>{s+=`<path d="M${p[0]-6} ${p[1]} q6 -3 12 0" stroke="#fff" stroke-width="2.2" stroke-linecap="round" fill="none"/>`});
+  if(bl)[[78,147],[84,152],[226,169],[231,174],[262,145],[268,150],[288,183],[296,188],[304,241]].forEach((p,i)=>{s+=`<circle cx="${p[0]}" cy="${p[1]}" r="1.6" fill="${bl[i%2]}" opacity="${night?.5:1}"/>`});
+  if(win)[[80,142],[216,143],[228,165],[264,140],[292,177]].forEach(p=>{s+=`<path d="M${p[0]-6} ${p[1]} q6 -3 12 0" stroke="#fff" stroke-width="2.2" stroke-linecap="round" fill="none"/>`});
   // Tanne rechts (Garten), im Winter mit Schnee
   {const fx=334,fb=226,fc=night?"#1d3a2a":"#2f6b4c",fc2=night?"#264a35":"#3d7f58";
    s+=`<ellipse cx="${fx}" cy="${fb}" rx="18" ry="2.8" fill="#000" opacity=".13"/><rect x="${fx-2.2}" y="${fb-12}" width="4.4" height="12" fill="${tr}"/>`
