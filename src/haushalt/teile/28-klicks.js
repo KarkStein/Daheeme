@@ -124,7 +124,9 @@ app.addEventListener("click",async e=>{
   if(b.dataset.fwkwrm){try{await S.store.setPath("food/ext/fwkw/"+b.dataset.fwkwrm,null)}catch(_){}return}
   if(b.dataset.fwpick){const id=b.dataset.fwpick,fw=S.food&&S.food.ext&&S.food.ext.fw,x=fw&&fw.items&&fw.items[id];if(!x)return;const cur=((S.food.ext.fwwho||{})[id])||"";
     editBox("„"+x.name+"“",[{k:"who",label:rDate(x.date)+(x.time?" "+x.time:"")+(x.place?" · "+x.place:"")+". Aus Familywall, ändern geht nur dort. Für wen ist der Termin?",type:"chips",opts:[["","Automatisch"]].concat(whoOpts()),val:cur},{k:"kw",label:"Optional: Regel für alle Termine mit diesem Wort im Titel",type:"text",val:""}],
-      async V=>{await S.store.setPath("food/ext/fwwho/"+id,V.who||null);const kw=String(V.kw||"").trim().slice(0,40);if(kw&&V.who)await S.store.setPath("food/ext/fwkw/"+newId("k"),{kw,who:V.who});toast("Gespeichert")});return}
+      async V=>{await S.store.setPath("food/ext/fwwho/"+id,V.who||null);const kw=String(V.kw||"").trim().slice(0,40);if(kw&&V.who)await S.store.setPath("food/ext/fwkw/"+newId("k"),{kw,who:V.who});toast("Gespeichert")},
+      [["🙈 In der App ausblenden (auch Wiederholungen)",async()=>{await S.store.setPath("food/ext/fwhide/"+fwHideKey(x.name),{name:String(x.name).slice(0,80),at:Date.now()});toast("Ausgeblendet. Zurückholen unter Kalender › Bereiche.")},false]]);return}
+  if(b.dataset.fwunhide){try{await S.store.setPath("food/ext/fwhide/"+b.dataset.fwunhide,null);toast("Wird wieder gezeigt")}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.calw!=null){const n=+b.dataset.calw;S.calDay=n===0?null:ymd(addDays(ymdD(S.calDay||ymd(new Date())),n));render();return}
   if(b.dataset.act==="calfilt"){S.calFiltOpen=!S.calFiltOpen;render();return}
   if(b.dataset.caloff){const o=S.calOff||[],k=b.dataset.caloff;S.calOff=o.includes(k)?o.filter(x=>x!==k):o.concat(k);try{localStorage.setItem("hq-caloff",JSON.stringify(S.calOff))}catch(_){}render();return}

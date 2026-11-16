@@ -488,7 +488,15 @@ h2{font-weight:700}
 #allar .artile{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;min-height:58px;padding:6px 2px 4px;border:1px solid var(--line,rgba(0,0,0,.1));border-radius:var(--r-s);background:var(--bg,transparent);color:var(--ink);-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 #allar .artile span{font-size:var(--fs-l);line-height:1.1}#allar .artile b{font-size:var(--fs-xs);font-weight:600;line-height:1.15;text-align:center;hyphens:auto;overflow-wrap:anywhere}
 #allar .artile.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}#allar .artile.fav b::after{content:" 📌";font-size:.7em}
-#allar .arfoot{display:flex;align-items:center;gap:var(--sp2);flex-wrap:wrap;margin-top:var(--sp3)}</style>
+#allar .arfoot{display:flex;align-items:center;gap:var(--sp2);flex-wrap:wrap;margin-top:var(--sp3)}
+/* Personen-Streifen und Kürzel (Florian 16.11.2026) */
+.kz{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;border-radius:999px;color:#fff;font-weight:700;font-size:var(--fs-xs);line-height:1;margin-right:6px;vertical-align:middle;flex:0 0 auto}
+.kz.kzall{font-weight:600}
+.unl span.kz{color:#fff;padding:0 5px;border:none;font-size:var(--fs-xs)}
+.evlist li[data-who]{position:relative;padding-left:var(--sp3)}
+.evlist li[data-who]::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:5px;border-radius:3px;background:#7a8594}
+.evlist li[data-who=p0]::before{background:#2e7d6b}.evlist li[data-who=p1]::before{background:#b8862b}.evlist li[data-who=kid]::before{background:#8a5cc2}
+.cal .dots i{width:8px!important;height:4px!important;border-radius:2px!important}</style>
 
 <div class="app" id="app">
   <div class="empty" id="boot">🏕️🧹 wird geladen …</div>
@@ -751,8 +759,12 @@ const WD2=["So","Mo","Di","Mi","Do","Fr","Sa"];
 const PCOL={p0:"#2e7d6b",p1:"#b8862b",kid:"#8a5cc2",both:"#7a8594"};
 function whoLabel(w){return w==="kid"?kidName():w==="p0"||w==="p1"?pname(w):"Alle"}
 function whoOpts(){return [["both","Alle"],["p0",pname("p0")],["p1",pname("p1")],["kid",kidName()]]}
-const pDot=w=>`<span class="wdot" style="background:${PCOL[w||"both"]||PCOL.both}" aria-hidden="true"></span>`;
+// Person als Kürzel im Farbkreis (Florian 16.11.2026: „Farben dick vorne“, überall gleich); Termine bekommen dazu links einen Streifen (CSS li[data-who])
+const pInit=w=>w==="kid"?kidName().charAt(0):w==="p0"||w==="p1"?pname(w).charAt(0):"Alle";
+const pDot=w=>!w||w==="both"?"":`<span class="kz" style="background:${PCOL[w||"both"]||PCOL.both}" aria-hidden="true">${esc(pInit(w||"both"))}</span>`;
 // Familywall: wem gehört ein Termin? Hand-Zuordnung > Wort im Titel > Teilnehmer/Ersteller (einmal zugeordnet) > Alle
+// Familywall-Termin in der App ausblenden (Florian 16.11.2026): alle mit demselben Titel, auch Wiederholungen; food/ext/fwhide/<key> {name}. Zurückholen unter Kalender › Bereiche.
+function fwHideKey(n){const s=String(n||"").toLowerCase().replace(/[^a-z0-9äöüß]/g,"");let h=5381;for(let i=0;i<s.length;i++)h=((h*33)^s.charCodeAt(i))>>>0;return "h"+h.toString(36)}
 function fwWho(id,x){const E=(S.food&&S.food.ext)||{},ov=(E.fwwho||{})[id];if(ov)return ov;const nm=String(x.name||"").toLowerCase();
   const kw=Object.values(E.fwkw||{}).find(r=>r&&r.kw&&nm.includes(String(r.kw).toLowerCase()));if(kw)return kw.who;
   const M=E.fwmap||{},ws=[...new Set((x.a||[]).map(h=>M[h]).filter(Boolean))];return ws.length===1?ws[0]:ws.length?"both":""}
@@ -770,17 +782,18 @@ const CAL_SRC=[
   // Familywall (Florian 15.11.2026): nur lesend, stündlich vom Lauf im privaten Sicherungs-Repo nach food/ext/fw geschrieben; gleiche Termine wie in der App nur einmal
   (a,z)=>{const fw=S.food&&S.food.ext&&S.food.ext.fw;if(!fw||!fw.items)return [];const own=new Set(termine().map(x=>(x.name||"").trim().toLowerCase()+"|"+x.date)),out=[];
     const nrm=t=>String(t||"").toLowerCase().replace(/[^a-zäöüß]/g,"");
-    Object.keys(fw.items).forEach(id=>{const x=fw.items[id];if(!x||!x.date||!x.name||own.has(x.name.trim().toLowerCase()+"|"+x.date))return;const ft=nrm(feiertag(x.date));if(ft&&!x.time&&(nrm(x.name).includes(ft)||ft.includes(nrm(x.name))))return;const to=x.to&&x.to>x.date?x.to:x.date;if(to<a||x.date>z)return;let d=ymdD(x.date),n=0;
+    const hid=(S.food.ext&&S.food.ext.fwhide)||{};
+    Object.keys(fw.items).forEach(id=>{const x=fw.items[id];if(!x||!x.date||!x.name||hid[fwHideKey(x.name)]||own.has(x.name.trim().toLowerCase()+"|"+x.date))return;const ft=nrm(feiertag(x.date));if(ft&&!x.time&&(nrm(x.name).includes(ft)||ft.includes(nrm(x.name))))return;const to=x.to&&x.to>x.date?x.to:x.date;if(to<a||x.date>z)return;let d=ymdD(x.date),n=0;
       while(ymd(d)<=to&&n<60){const k=ymd(d);if(k>=a&&k<=z)out.push({d:k,t:k===x.date?x.time||"":"",name:x.name+(n?" (Tag "+(n+1)+")":""),icon:"",src:"ext",who:fwWho(id,x),fw:id,note:"Aus Familywall"+(x.end?", bis "+x.end:"")+(x.place?" · "+x.place:"")+". Ändern geht in Familywall."});d=addDays(d,1);n++}});return out},
   (a,z)=>{const out=[];for(let d=ymdD(a);ymd(d)<=z;d=addDays(d,1)){const k=ymd(d),ft=feiertag(k);if(ft)out.push({d:k,t:"",name:ft,icon:"🎉",src:"frei",note:"Feiertag in Bayern. Die Kita hat zu."})}
     ferienList().forEach(f=>{if(f.from>=a&&f.from<=z)out.push({d:f.from,t:"",name:f.from===f.to?f.name+" (schulfrei)":f.name+" beginnen",icon:"🏖️",src:"frei",note:"Schulferien Bayern bis "+rDate(f.to)+"."});if(f.to!==f.from&&f.to>=a&&f.to<=z)out.push({d:f.to,t:"",name:"Letzter Tag "+f.name,icon:"🏖️",src:"frei"})});return out}];
 // Was der Kalender zeigt (Filter nach Bereich und Person). dayStress und Rückseite nutzen calEvents ungefiltert.
 function calShown(a,z){const off=S.calOff||[],w=S.calWho||"";return calEvents(a,z).filter(e=>!off.includes(CAL_LBL.some(l=>l[0]===e.src)?e.src:"own")&&(!w||!e.who||e.who==="both"||e.who===w))}
 function calEvents(a,z){const out=[];CAL_SRC.forEach(f=>{try{out.push(...f(a,z))}catch(_){}});return out.sort((x,y)=>(x.d+(x.t||"99")+(x.src==="food"?"1":"0"))<(y.d+(y.t||"99")+(y.src==="food"?"1":"0"))?-1:1)}
-function evRow(e,showDay){const who=e.who&&e.who!=="both"?" · "+esc(whoLabel(e.who)):"";const day=showDay?`<span class="t">${esc(dLabel(e.d))}</span>`:`<span class="t">${esc(e.t||"")}</span>`;
+function evRow(e,showDay){const who="";const day=showDay?`<span class="t">${esc(dLabel(e.d))}</span>`:`<span class="t">${esc(e.t||"")}</span>`;
   const body=`<span>${pDot(e.who)}${e.icon?e.icon+" ":""}${esc(e.name)}${showDay&&e.t?` <span class="freq">${esc(e.t)}</span>`:""}${who?`<span class="freq">${who}</span>`:""}${e.note&&e.src!=="ext"?`<br><span class="freq">${esc(e.note)}</span>`:""}</span>`;
   const gift=e.icon==="🎂"?`<button class="catbtn" data-nav="projekte|pf:geschenk" aria-label="Geschenkideen ansehen" style="background:none;border:none">🎁</button>`:"";
-  return `<li data-who="${esc(e.who||"")}">${day}${e.src==="own"?`<button class="ev" data-teredit="${esc(e.id)}">${body}</button>${gift}<button class="catbtn" data-terbell="${esc(e.id)}" aria-pressed="${!!e.remind}" aria-label="${esc(e.name)}: ${e.remind?"nicht mehr erinnern":"erinnern"}" style="background:none;border:none;${e.remind?"":"opacity:.35"}">🔔</button><button class="catbtn" data-terrm="${esc(e.id)}" aria-label="${esc(e.name)} löschen" style="background:none;border:none;opacity:.6">✕</button>`:e.attr?`<button class="ev" ${e.attr}>${body}</button><i class="freq">›</i>`:e.fw?`<button class="ev" data-fwpick="${esc(e.fw)}">${body}</button><i class="freq">👤</i>`:e.pack?`<button class="ev" data-gopack="${esc(e.pack)}">${body}</button><i class="freq">›</i>`:e.nav?`<button class="ev" data-nav="${esc(e.nav)}">${body}</button><i class="freq">›</i>`:`<span class="ev">${body}</span>`}</li>`}
+  return `<li data-who="${esc(e.who||"both")}" aria-label="${esc(whoLabel(e.who||"both"))}">${day}${e.src==="own"?`<button class="ev" data-teredit="${esc(e.id)}">${body}</button>${gift}<button class="catbtn" data-terbell="${esc(e.id)}" aria-pressed="${!!e.remind}" aria-label="${esc(e.name)}: ${e.remind?"nicht mehr erinnern":"erinnern"}" style="background:none;border:none;${e.remind?"":"opacity:.35"}">🔔</button><button class="catbtn" data-terrm="${esc(e.id)}" aria-label="${esc(e.name)} löschen" style="background:none;border:none;opacity:.6">✕</button>`:e.attr?`<button class="ev" ${e.attr}>${body}</button><i class="freq">›</i>`:e.fw?`<button class="ev" data-fwpick="${esc(e.fw)}">${body}</button><i class="freq">›</i>`:e.pack?`<button class="ev" data-gopack="${esc(e.pack)}">${body}</button><i class="freq">›</i>`:e.nav?`<button class="ev" data-nav="${esc(e.nav)}">${body}</button><i class="freq">›</i>`:`<span class="ev">${body}</span>`}</li>`}
 function renderTerForm(){const d=S.terDraft,pn=k=>esc(pname(k));
   return `<section class="card"><div class="section-head"><h2>${d.id?"Termin ändern":"Neuer Termin"}</h2></div><form id="terform" novalidate>
     <label class="fld"><span>Was</span><input id="ter-name" data-terf="name" value="${esc(d.name)}" maxlength="80" placeholder="z. B. Zahnarzt" autocomplete="off"></label>
@@ -798,6 +811,7 @@ function calFilters(){const off=S.calOff||[],E=(S.food&&S.food.ext)||{},P=(E.fw&
   <div class="unl calf">${CAL_LBL.map(l=>`<button class="chipbtn neutral" data-caloff="${l[0]}" aria-pressed="${!off.includes(l[0])}">${l[1]} ${l[2]}</button>`).join("")}</div>`;
   if(Object.keys(P).length)h+=`<div class="section-head" style="margin-top:var(--sp3)"><h2>👪 Familywall: wer ist wer</h2></div><div class="freq">Familywall schreibt zu jedem Termin, wer ihn angelegt hat oder dabei ist. Leider nur mit dem Namen aus Familywall. Tippe hier einmal an, wer das bei euch ist. Danach steht bei allen Terminen dieser Person automatisch der richtige Name, und der Filter „Für wen“ oben wirkt auch für Familywall.</div>${Object.keys(P).map(hh=>{const ex=Object.values((E.fw&&E.fw.items)||{}).filter(x=>(x.a||[]).includes(hh)).slice(0,2).map(x=>x.name);return `<div class="fld"><span>„${esc(P[hh])}“ in Familywall${ex.length?`<br><span class="freq">z. B. ${ex.map(esc).join(", ")}</span>`:""}<br><span class="freq">Das ist bei uns:</span></span><div class="unl">${whoOpts().map(o=>`<button class="chipbtn neutral" data-fwmap="${hh}" data-v="${o[0]}" aria-pressed="${(M[hh]||"")===o[0]}">${pDot(o[0])}${esc(o[1])}</button>`).join("")}</div></div>`}).join("")}`;
   const kl=Object.keys(K).filter(k=>K[k]&&K[k].kw);if(kl.length)h+=`<div class="freq" style="margin-top:var(--sp2)">Regeln: ${kl.map(k=>`<span style="white-space:nowrap">„${esc(K[k].kw)}“ → ${esc(whoLabel(K[k].who))} <button class="ghost small" data-fwkwrm="${k}" aria-label="Regel löschen">✕</button></span>`).join(" ")}</div>`;
+  const H=E.fwhide||{},hk=Object.keys(H).filter(k=>H[k]);if(hk.length)h+=`<div class="section-head" style="margin-top:var(--sp3)"><h2>🙈 Ausgeblendet</h2></div><div class="freq">Diese Familywall-Termine zeigt die App nicht (in Familywall bleiben sie).</div><div class="unl" style="margin-top:var(--sp1)">${hk.map(k=>`<button class="chipbtn neutral" data-fwunhide="${k}" aria-label="${esc(H[k].name||"")} wieder zeigen">${esc(H[k].name||"?")} ↺</button>`).join("")}</div>`;
   return h}
 // Heute-Streifen (Florian 15.11.2026): oben im Kalender ohne Klick und Scrollen, Termine und To-dos von heute
 function calTodayStrip(){const now=new Date(),k=ymd(now),ev=calShown(k,k).filter(e=>e.src!=="prio"),td=todoRows(true);
@@ -2854,7 +2868,9 @@ app.addEventListener("click",async e=>{
   if(b.dataset.fwkwrm){try{await S.store.setPath("food/ext/fwkw/"+b.dataset.fwkwrm,null)}catch(_){}return}
   if(b.dataset.fwpick){const id=b.dataset.fwpick,fw=S.food&&S.food.ext&&S.food.ext.fw,x=fw&&fw.items&&fw.items[id];if(!x)return;const cur=((S.food.ext.fwwho||{})[id])||"";
     editBox("„"+x.name+"“",[{k:"who",label:rDate(x.date)+(x.time?" "+x.time:"")+(x.place?" · "+x.place:"")+". Aus Familywall, ändern geht nur dort. Für wen ist der Termin?",type:"chips",opts:[["","Automatisch"]].concat(whoOpts()),val:cur},{k:"kw",label:"Optional: Regel für alle Termine mit diesem Wort im Titel",type:"text",val:""}],
-      async V=>{await S.store.setPath("food/ext/fwwho/"+id,V.who||null);const kw=String(V.kw||"").trim().slice(0,40);if(kw&&V.who)await S.store.setPath("food/ext/fwkw/"+newId("k"),{kw,who:V.who});toast("Gespeichert")});return}
+      async V=>{await S.store.setPath("food/ext/fwwho/"+id,V.who||null);const kw=String(V.kw||"").trim().slice(0,40);if(kw&&V.who)await S.store.setPath("food/ext/fwkw/"+newId("k"),{kw,who:V.who});toast("Gespeichert")},
+      [["🙈 In der App ausblenden (auch Wiederholungen)",async()=>{await S.store.setPath("food/ext/fwhide/"+fwHideKey(x.name),{name:String(x.name).slice(0,80),at:Date.now()});toast("Ausgeblendet. Zurückholen unter Kalender › Bereiche.")},false]]);return}
+  if(b.dataset.fwunhide){try{await S.store.setPath("food/ext/fwhide/"+b.dataset.fwunhide,null);toast("Wird wieder gezeigt")}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.calw!=null){const n=+b.dataset.calw;S.calDay=n===0?null:ymd(addDays(ymdD(S.calDay||ymd(new Date())),n));render();return}
   if(b.dataset.act==="calfilt"){S.calFiltOpen=!S.calFiltOpen;render();return}
   if(b.dataset.caloff){const o=S.calOff||[],k=b.dataset.caloff;S.calOff=o.includes(k)?o.filter(x=>x!==k):o.concat(k);try{localStorage.setItem("hq-caloff",JSON.stringify(S.calOff))}catch(_){}render();return}
