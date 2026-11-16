@@ -9,7 +9,7 @@ srv.listen(8765,async()=>{
   const first=await A.$eval('#app section.card h2',e=>e.textContent);
   const closed=await A.$$eval('[data-idea]',l=>l.length)===0&&!!(await A.$('[data-act=ideastog][aria-expanded=false]'));await A.click('[data-act=ideastog]');await A.waitForTimeout(200);
   const cats=await A.$$eval('[data-idea]',l=>l.length);
-  await A.click('[data-idea="0"]');await A.waitForTimeout(300);await A.click('[data-idea="3"]');await A.waitForTimeout(300);
+  await A.click('[data-idea="0"]');await A.waitForTimeout(300);await A.click('#mbox button[type=submit]');await A.waitForTimeout(300);await A.click('[data-idea="3"]');await A.waitForTimeout(300);await A.click('#mbox button[type=submit]');await A.waitForTimeout(300);
   const taken=await A.$$eval('button[data-recrm].danger',l=>l.length);
   await A.screenshot({path:out+'/rezepte.png',fullPage:true});
   // Idee über ✓ Entfernen zurücknehmen

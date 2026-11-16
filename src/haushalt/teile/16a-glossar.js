@@ -50,7 +50,7 @@ const GLOS_TERMS=[
   ["Recherchen","Feste Suchaufträge, die Claude regelmäßig erledigt, und eure Wünsche dafür. Neues zeigt „🤖 neu“.",'data-nav="recherchen|"'],
   ["Briefe","Unter Partner: kleine Briefe nur für euch zwei.",'data-nav="privat|pv:briefe"'],
   ["Schnellmenü","Lange auf ein Ding im Bild drücken: die häufigsten Handgriffe dieses Bereichs.",""],
-  ["Alle Bereiche","Die Kachel oben rechts: alle Bereiche auf einem Bildschirm, oben Angeheftetes oder zuletzt Genutztes.","data-allar"],
+  ["Alle Bereiche","Das Kachel-Symbol oben rechts: alle Bereiche und Seiten auf einem Bildschirm, je Gruppe in einer Farbe, oben Angeheftetes oder zuletzt Genutztes.","data-allar"],
   ["Morgen-Briefing","Meldung aufs Handy um 7 Uhr mit Terminen, Kita, Erinnerungen und Abendessen. Einschalten unter Benachrichtigungen.",'data-setgo="push"']];
 const GLOS_SYM=[["🔔","Erinnern. Oben links: zählt, was in 24 Stunden fällig oder überfällig ist."],["❗","Heute nötig (Einkaufsliste)."],["✅","Erledigt. Am To-do auf Start: alles geschafft."],["⬜","Noch offen. Ein Tipp hakt ab."],
   ["🏠","Hausdienst."],["🚆","Verbindung mit Bahn und MVV in Google Maps, von hier oder von zu Hause."],["📍","Ort wählen. Steht es allein am Termin, fehlt noch ein Ort."],["📞","Anrufen. Die Nummer bleibt versternt."],
@@ -69,7 +69,7 @@ function glosGest(){const G=S.gest||{},T=Object.keys(TAB_PAGES),pg=n=>T.filter(t
     ["Tipp auf Sonne oder Mond","Klappt das Wetter auf: Sonnenzeiten, Mond, heute stündlich, 6 Tage.",""],["Tipp auf eine freie Stelle im Bild","Öffnet Tag und Woche.",""],
     ["Tipp auf den Doppelring","Deine Aufgaben von heute. Lange drücken: die Aufgaben der Woche.",""],["Lange auf einen Tag im Kalender","Neuer Termin an diesem Tag.",""],
     ["Lange auf eine eigene Termin-Art","Löscht die Art, mit Rückfrage.",""],["Lange auf eine Ausgabe","Andere Gruppe, nochmal eintragen oder löschen.",""],
-    ["Lange auf eine Kachel in Alle Bereiche","Heftet sie oben an, bis zu fünf.",""],["Lange auf den Briefkasten","Auswahl, was du dem anderen schickst.",""],
+    ["Lange auf einen Eintrag in Alle Bereiche","Heftet ihn oben an, bis zu fünf.",""],["Lange auf den Briefkasten","Auswahl, was du dem anderen schickst.",""],
     ["Zurück-Taste","Schließt ein offenes Fenster, sonst einen Schritt zurück.",""],["Tipp neben ein Fenster","Schließt es.",""]].map(g=>g[2]&&!G[g[2]]?[g[0],g[1]+" Bei dir ausgeschaltet (Bedienung).",'data-setgo="bedienung"']:[g[0],g[1],""])}
 // Abschnitte: [Schlüssel, Überschrift, Zeilen [Begriff, Erklärung, Sprung-Attribut, Gruppen-Zeile?, Symbol-Zeile?]]
 function glosSecs(){const city=motiv()==="stadt",R=[];

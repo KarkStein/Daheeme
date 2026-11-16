@@ -116,6 +116,27 @@ function recAuto(r){const lines=Array.isArray(r.ing)?r.ing:recIng(r),n=String(r.
 function recTags(r){if(Array.isArray(r.tags))return r.tags;if(r.tags&&typeof r.tags==="object")return Object.values(r.tags);return recAuto(r)}
 function draftTags(d){const auto=recAuto({name:d.name,ing:d.ing,link:d.link,id:d.id||"neu",min:d.min}),off=d.tagsOff||[],own=d.tagsOwn||[];return {auto,off,own,final:auto.filter(t=>!off.includes(t)).concat(own.filter(t=>!auto.includes(t)))}}
 function tagLab(t){const [g,n]=t.split("|");return n||t}
+// ---------- Rezept speichern mit „Wohin?“ (Florian 16.11.2026) ----------
+// Übernehmen (Tagesrezepte, Emmi), 📖＋ im Wochenplan, ✓ beim Vorschlag und „zu euren Rezepten“ fragen nach Kochbuch und Tags, beides vorgewählt; ein Tipp auf Speichern reicht.
+// Vorwahl Kochbuch: Name des Kochbuchs steckt im Rezept (z. B. „Suppen“) > Kochbuch des ähnlichsten Rezepts (mindestens 2 gleiche Tags) > zuletzt gewählt (je Gerät hq-recbook) > Unsere Rezepte.
+const recVal=x=>({name:String(x.name||x.text||"").trim().slice(0,80),ing:(Array.isArray(x.ing)?x.ing:String(x.ing||"").split("\n")).map(y=>String(y).trim().slice(0,80)).filter(Boolean).slice(0,60).join("\n"),note:String(x.note||"").slice(0,4000),link:String(x.link||"").slice(0,500),at:Date.now()});
+function recBookGuess(T,name){const bs=books();if(bs.length<2)return "main";const txt=sNorm((name||"")+" "+T.map(tagLab).join(" "));
+  for(const b of bs){if(b.id==="main")continue;const w=sNorm(b.name).split(/[^a-z0-9]+/).filter(x=>x.length>=4).map(x=>x.replace(/(en|n|e|s)$/,""));if(w.some(x=>x.length>=3&&txt.includes(x)))return b.id}
+  const key=T.filter(t=>!/^Quelle\|/.test(t));let best=null,bn=1;recs().forEach(r=>{const n=recTags(r).filter(t=>key.includes(t)).length;if(n>bn){bn=n;best=r}});if(best)return recBook(best);
+  let last="";try{last=localStorage.getItem("hq-recbook")||""}catch(_){}return bs.some(b=>b.id===last)?last:"main"}
+function recWohin(list,done){if(!Array.isArray(list))list=[list];list=list.filter(v=>v&&v.name);if(!list.length)return;const bs=books(),one=list.length===1,v0=list[0];
+  const auto=v=>recAuto({name:v.name,ing:v.ing,link:v.link,id:"neu"}),T=one?auto(v0):[],bk=recBookGuess(T,one?v0.name:""),shown=T.filter(t=>!/^Quelle\|/.test(t));
+  const F=[{k:"book",label:"Kochbuch",type:"chips",val:bk,opts:bs.map((b,i)=>[b.id,(b.emoji||BOOK_EMO[(i-1)%BOOK_EMO.length]||"📚")+" "+b.name])}];
+  if(shown.length)F.push({k:"tags",label:"Tags",type:"multi",val:T.slice(),opts:shown.map(t=>[t,tagLab(t)]),hint:"Erkannt aus Name und Zutaten. Antippen nimmt einen weg."});
+  F.push({k:"nbook",label:"Oder ein neues Kochbuch anlegen",type:"text",val:""});
+  if(!one)F.unshift({type:"note",label:list.length+" Rezepte: "+list.map(v=>v.name).join(", ")+". Die Tags erkennt die App je Rezept."});
+  editBox(one?"📚 Wohin mit „"+v0.name.slice(0,40)+"“?":"📚 Wohin mit "+list.length+" Rezepten?",F,async V=>{let book=V.book||"main";const nb=(V.nbook||"").trim().slice(0,40);
+    if(nb){book=newId("b");await S.store.setPath("food/book/"+book,{name:nb,at:Date.now()})}
+    const ids=[];for(const v of list){const id=newId("r"),Tv=one?T:auto(v),on=one&&V.tags?V.tags:Tv,off=Tv.filter(t=>!on.includes(t)),o=Object.assign({},v,{tags:on,at:v.at||Date.now(),by:S.me||""});if(off.length)o.tagsOff=off;if(book!=="main")o.book=book;await S.store.setPath("food/rec/"+id,o);ids.push(id)}
+    try{localStorage.setItem("hq-recbook",book)}catch(_){}
+    const bn=nb||((bs.find(b=>b.id===book)||{}).name)||"Unsere Rezepte";
+    if(done)await done(ids);render();
+    toastAct((one?"„"+v0.name.slice(0,40)+"“ steht":list.length+" Rezepte stehen")+" jetzt in „"+bn+"“.","📖 Ansehen",()=>{if(one)openRec(ids[0]);else{goNav("essen|ft:rezepte");S.book=book;render()}})})}
 function recTagForm(d){const T=draftTags(d),on=t=>T.final.includes(t);
   const chip=t=>`<button type="button" class="chipbtn neutral tagchip" data-rtag="${esc(t)}" aria-pressed="${on(t)}">${esc(tagLab(t))}</button>`;
   const groups=recTagGroups().map(g=>`<div class="taggrp"><span class="freq">${g[1]} ${esc(g[0])}</span><div class="unl">${g[2].map(n=>chip(g[0]+"|"+n)).join("")}</div></div>`).join("");
@@ -372,7 +393,10 @@ function sugAsk(ks){if(document.getElementById("mbox"))return;ks=ks.filter(k=>S.
   const hasIng=xs.some(x=>(x.ing&&x.ing.length)||(x.rec&&(r=>r&&recIng(r).length)(rl.find(y=>y.id===x.rec)))),noRec=xs.some(x=>!x.rec);
   const O=[["plan","📅","Nur in den Wochenplan","als Abendessen"]].concat(hasIng?[["shop","🧺","Wochenplan und Zutaten auf die Einkaufsliste","danach wählst du, welche"]]:[]).concat(noRec?[["rec","📖","Wochenplan und zu euren Rezepten","zum Wiederfinden"]]:[]);
   const el=document.createElement("div");el.id="mbox";el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="Wohin übernehmen"><div class="section-head"><h2>✨ ${ks.length===1?esc(xs[0].name.slice(0,50)):ks.length+" Abendessen"} übernehmen</h2></div><div class="quicklist">${O.map(o=>`<button class="quickbtn" data-sugto="${o[0]}"><span class="qi">${o[1]}</span><span>${o[2]} <small>(${o[3]})</small></span></button>`).join("")}<button class="quickbtn" data-sugto=""><span class="qi">✕</span><span>Abbrechen</span></button></div></div>`;
-  document.body.appendChild(el);el.addEventListener("click",e=>{const b=e.target.closest("[data-sugto]");if(!b){if(e.target.classList.contains("mboxbg"))mboxClose();return}e.stopPropagation();mboxClose();if(b.dataset.sugto)sugTake(ks,b.dataset.sugto)})}
+  document.body.appendChild(el);el.addEventListener("click",e=>{const b=e.target.closest("[data-sugto]");if(!b){if(e.target.classList.contains("mboxbg"))mboxClose();return}e.stopPropagation();mboxClose();const to=b.dataset.sugto;if(!to)return;
+    if(to==="rec"){const nw=[];ks.forEach(k=>{const x=S.sugg&&S.sugg[k];if(!x||x.rec)return;const ex=recs().find(r=>(r.name||"").toLowerCase()===x.name.toLowerCase());if(ex)x.rec=ex.id;else nw.push(x)});
+      if(nw.length){recWohin(nw.map(recVal),ids=>{nw.forEach((x,i)=>x.rec=ids[i]);return sugTake(ks,"rec")});return}}
+    sugTake(ks,to)})}
 async function sugTake(ks,to){const wk=wkKey(planWeek());let n=0;const done=[];
   for(const k of ks){const x=S.sugg&&S.sugg[k];if(!x)continue;try{if(to==="rec"&&!x.rec){const ex=recs().find(r=>(r.name||"").toLowerCase()===x.name.toLowerCase()),id=ex?ex.id:newId("r");if(!ex)await S.store.setPath("food/rec/"+id,{name:x.name.slice(0,80),ing:Array.isArray(x.ing)?x.ing.join("\n"):(x.ing||""),note:x.note||"",link:x.link||"",at:Date.now()});x.rec=id}
     await S.store.setPath("food/plan/"+wk+"/"+k,x.rec?{text:x.name.slice(0,80),rec:x.rec,at:Date.now(),by:S.me||""}:Object.assign({text:x.name.slice(0,80),at:Date.now(),by:S.me||"",src:"vorschlag"},x.link?{link:x.link}:{},x.ing&&x.ing.length?{ing:x.ing.join("\n")}:{}));done.push(x);delete S.sugg[k];n++}catch(_){toast("Konnte nicht speichern.");break}}

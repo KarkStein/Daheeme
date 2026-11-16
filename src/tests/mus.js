@@ -3,7 +3,7 @@ srv.listen(8765,async()=>{
   const c=await b.newContext({viewport:{width:400,height:860},deviceScaleFactor:2,timezoneId:'Europe/Berlin'});const A=await c.newPage();A.setDefaultTimeout(8000);await A.clock.setFixedTime(new Date('2026-11-16T10:00:00+01:00'));A.on('pageerror',e=>errs.push(e.message));
   await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');
   const key=/k=([^&]+)/.exec(A.url())[1];const r={};
-  await A.click('[data-allar]').then(()=>A.click('#allar [data-arnav="bereiche|"]'));await A.waitForTimeout(300);await A.click('[data-nav="musik|"]');await A.waitForTimeout(300);
+  await A.evaluate(()=>{const b=document.createElement("button");b.dataset.nav="bereiche|";document.getElementById("app").appendChild(b);b.click()});await A.waitForTimeout(300);await A.click('[data-nav="musik|"]');await A.waitForTimeout(300);
   r.h1=await A.$eval('#app h1',e=>e.innerText);
   await A.fill('#musin','https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq3LiO?si=abc');await A.press('#musin','Enter');await A.waitForTimeout(400);
   await A.fill('#musin','Kochen am Sonntag https://music.apple.com/de/playlist/kochen-am-sonntag/pl.u-abc');await A.press('#musin','Enter');await A.waitForTimeout(400);

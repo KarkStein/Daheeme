@@ -9,8 +9,8 @@ srv.listen(8765,async()=>{
   const sb=await (await A.$('#tabs [data-tab=camp]:not([hidden])')).boundingBox();const ox=sb.x+sb.width/2,oy=sb.y+sb.height/2;
   // 1) lange auf Start: Seite geht auf, bleibt nach dem Loslassen offen, Tipp daneben schließt
   await touch('touchstart',ox,oy);await A.waitForTimeout(600);r.open=await has();await touch('touchend',ox,oy);await A.waitForTimeout(400);r.stays=await has();
-  r.groups=await A.$$eval('#allar .arlbl',l=>l.map(x=>x.innerText));r.tiles=await A.$$eval('#allar [data-arnav]',l=>l.length);
-  const sh=await (await A.$('#allar .arsheet')).boundingBox();r.fits=sh.y>=0;
+  r.groups=await A.$$eval('#allar .armg h3',l=>l.map(x=>x.innerText));r.tiles=await A.$$eval('#allar .armain',l=>l.length);r.subs=await A.$$eval('#allar .armsubs [data-arnav]',l=>l.length);r.col=await A.$eval('#allar .armg',e=>getComputedStyle(e).getPropertyValue('--gc').trim());r.noFoot=!(await A.$('#allar .arfoot'));
+  const sh=await (await A.$('#allar .arsheet')).boundingBox();r.fits=sh.y>=0;r.scroll=await A.$eval('#allar .arsheet',e=>e.scrollHeight-e.clientHeight);
   await A.screenshot({path:out+'/alle-bereiche.png'});
   await A.mouse.click(195,8);await A.waitForTimeout(300);r.outside=!(await has());r.stillEssen=await A.$eval('#app h1',e=>e.innerText);
   // 2) Zurück schließt nur die Seite, nicht den Bereich
@@ -19,13 +19,12 @@ srv.listen(8765,async()=>{
   await A.tap('[data-allar]');await A.waitForTimeout(300);await A.tap('#allar [data-arnav="musik|"]');await A.waitForTimeout(400);r.musik=await A.$eval('#app h1',e=>e.innerText);r.closed=!(await has());
   await A.goBack();await A.waitForTimeout(400);r.backTo=await A.$eval('#app h1',e=>e.innerText);
   // 4) Anheften per langem Drücken; oben "Angeheftet"
-  await A.tap('[data-allar]');await A.waitForTimeout(400);await A.dispatchEvent('#allar [data-arnav="kita|"]','contextmenu');await A.waitForTimeout(700);r.pinLbl=await A.$eval('#allar .arlbl',e=>e.innerText);r.pinned=await A.$$eval('#allar .argrp:first-child [data-arnav]',l=>l.map(x=>x.dataset.arnav)).catch(()=>[]);
-  r.pinFirst=await A.$eval('#allar .argrid [data-arnav]',e=>e.dataset.arnav);await A.tap('#allar [data-arx]');await A.waitForTimeout(300);r.x=!(await has());
+  await A.tap('[data-allar]');await A.waitForTimeout(400);await A.dispatchEvent('#allar [data-arnav="kita|"]','contextmenu');await A.waitForTimeout(700);r.pinLbl=await A.$eval('#allar .arlbl',e=>e.innerText);r.pinFirst=await A.$eval('#allar .artop [data-arnav]',e=>e.dataset.arnav);r.pinMark=await A.$eval('#allar .armain[data-arnav="kita|"]',e=>e.classList.contains('fav'));await A.tap('#allar [data-arx]');await A.waitForTimeout(300);r.x=!(await has());
   // 5) Schnellmenü im Bild: Zurück schließt es
   await A.tap('#tabs [data-tab=camp]');await A.waitForTimeout(400);await A.dispatchEvent('.spot[data-go=woche]','contextmenu');await A.waitForTimeout(300);r.qopen=!!(await A.$('#mbox'));await A.goBack().catch(()=>{});await A.waitForTimeout(400);r.qback=!(await A.$('#mbox'));r.qcamp=!!(await A.$('.camp'));
   // 6) Schnellmenü per Tipp daneben: kein toter Schritt im Verlauf
   await A.dispatchEvent('.spot[data-go=woche]','contextmenu');await A.waitForTimeout(800);await A.mouse.click(195,8);await A.waitForTimeout(400);r.qout=!(await A.$('#mbox'));
   r.afterQ=await A.evaluate(()=>JSON.stringify(history.state));
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&r.open&&r.stays&&r.groups.length===7&&r.tiles>=31&&r.fits&&r.outside&&/Essen/.test(r.stillEssen)&&r.top&&r.backClose&&/Essen/.test(r.backStay)&&/Musik/.test(r.musik)&&r.closed&&/Essen/.test(r.backTo)&&/angeheftet/i.test(r.pinLbl)&&r.pinFirst==='kita|'&&r.x&&r.qopen&&r.qback&&r.qcamp&&r.qout&&/camp/.test(r.afterQ)&&!/ov/.test(r.afterQ);
+  const ok=!errs.length&&r.open&&r.stays&&r.groups.length===6&&r.tiles>=12&&r.subs>=25&&r.col&&r.noFoot&&r.pinMark&&r.fits&&r.outside&&/Essen/.test(r.stillEssen)&&r.top&&r.backClose&&/Essen/.test(r.backStay)&&/Musik/.test(r.musik)&&r.closed&&/Essen/.test(r.backTo)&&/angeheftet/i.test(r.pinLbl)&&r.pinFirst==='kita|'&&r.x&&r.qopen&&r.qback&&r.qcamp&&r.qout&&/camp/.test(r.afterQ)&&!/ov/.test(r.afterQ);
   console.error(ok?'ALLAR OK':'ALLAR FAIL');await b.close();srv.close();process.exit(0)});

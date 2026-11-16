@@ -1,36 +1,36 @@
-// ---------- Alle Bereiche (Florian 16.11.2026): Tipp oben rechts oder lange auf Start öffnet alle Bereiche als Kacheln auf einem Bildschirm ----------
-// Oben Favoriten (lange auf eine Kachel drücken heftet an, je Gerät hq-arfav), ohne Favoriten das zuletzt Benutzte (hq-arrec). Tipp daneben, ✕ und Zurück schließen.
-const AR_TILES=[["essen",[["🍲","Essen heute","essen|ft:heute"],["📅","Wochenplan","essen|ft:plan"],["📖","Rezepte","essen|ft:rezepte"],["🧺","Einkaufsliste","einkauf|"],["📝","Weitere Listen","einkauf|bl:"]]],
-  ["alltag",[["☀️","Tag und Woche","woche|"],["📅","Kalender","woche|wp:3"],["👥","Wer macht was","woche|wp:1"],["🎒","Kita","kita|"],["📦","Mitbringen","kita|ks:tasche"]]],
-  ["wir",[["🫶","Partner","privat|"],["🧒","Kind","kind|"],["💡","Ideen","projekte|"],["🎁","Geschenke","projekte|pf:geschenk"],["🎄","Advents­kalender","projekte|pf:advent"]]],
-  ["zuhause",[["🏠","Am Haus","amhaus|"],["🛋️","Einrichtung","amhaus|pf:wohnen"],["🗄️","Aufräumen","amhaus|pf:ordnung"],["🔨","Reparieren","amhaus|pf:haus"],["🌱","Garten","amhaus|pf:garten"]]],
-  ["freizeit",[["⛵","Urlaube","ausflug|tt:urlaub"],["🚲","Ausflüge","ausflug|tt:ideen"],["🧳","Packlisten","ausflug|tt:pack"],["⚽","Sport und Spiel","spiel|"],["🎵","Musik","musik|"]]],
-  ["quer",[["🏠","Haus","camp|"],["🔔","Wichtig","wichtig|"],["🔍","Suche","suche|"],["🤖","Recherchen","recherchen|"],["⚙️","Einstellungen","settings|"]]]];
-const arAll=()=>AR_TILES.flatMap(g=>g[1]);
+// ---------- Alle Bereiche (Florian 16.11.2026): Tipp oben rechts oder lange auf Start öffnet alle Bereiche auf einem Bildschirm ----------
+// Karte nach Gruppen (Florian 16.11.2026 abends, Vorschlag A gewählt: „zu unübersichtlich, zu viele, vielleicht Farben“, aber alles zeigen): je Gruppe eine Karte in ihrer Farbe (AREA_GROUPS[i][3]),
+// Bereiche groß mit Symbol, Unterseiten klein als Text, Quer als Knopf-Reihe unten über beide Spalten. Gespeist aus AREAS (neuer Bereich = eine Zeile dort), Zusätze in AR_EXTRA.
+// Oben Angeheftet (lange auf einen Eintrag drücken, je Gerät hq-arfav) oder zuletzt Benutztes (hq-arrec). Tipp daneben, ✕ und Zurück schließen.
+const AR_EXTRA={alltag:[[1,["📅","Kalender","woche|wp:3",[]]]],quer:[[0,["🏠","Start","camp|",[]]],[2,["🔍","Suche","suche|",[]]],[99,["📖","Glossar","settings|gl:",[]]]]};
+const AR_COLS=[["essen","alltag","zuhause"],["wir","freizeit"]];
+function arGroups(){return AREA_GROUPS.map(g=>{const L=AREAS.filter(a=>a[6]===g[0]).map(a=>[a[0],a[1],a[2]+"|",a[5]().map(x=>[x[0],a[2]+"|"+x[1]])]);(AR_EXTRA[g[0]]||[]).forEach(([i,e])=>L.splice(i,0,e));return [g,L]})}
+// Alle Ziele flach [Symbol, Name, Sprung] für Angeheftet/Zuletzt; Unterseiten mit allgemeinem Namen bekommen den Bereich davor
+const arAll=()=>arGroups().flatMap(([g,L])=>L.flatMap(a=>[[a[0],a[1],a[2]]].concat(a[3].map(s=>[a[0],/^(Heute|Termine|Infos|Sonstiges)$/.test(s[0])?a[1]+" · "+s[0]:s[0],s[1]]))));
 const arTile=v=>arAll().find(t=>t[2]===v);
 function arLs(k){try{const a=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(a)?a.filter(arTile):[]}catch(_){return []}}
 function arLsSet(k,a){try{localStorage.setItem(k,JSON.stringify(a))}catch(_){}}
-// Welche Kachel zeigt gerade? Genaueste zuerst (mit Unterseite), sonst der Bereich
+// Welcher Eintrag zeigt gerade? Genaueste zuerst (mit Unterseite), sonst der Bereich
 function arCur(){const on=t=>{const [tab,sub]=t[2].split("|"),[k,val]=(sub||"").split(":");
     if(k==="sp")return S.tab===val;if(k==="bl")return S.tab==="listen";if(S.tab!==tab)return false;
-    if(k==="ft")return S.foodTab===val;if(k==="wp")return (S.weekPage|0)===(+val||0);if(k==="ks")return S.kitaSec===val;if(k==="tt")return S.tripTab===val;if(k==="pf")return S.projFilter===val;
+    if(k==="ft")return S.foodTab===val;if(k==="wp")return (S.weekPage|0)===(+val||0);if(k==="ks")return S.kitaSec===val;if(k==="tt")return S.tripTab===val;if(k==="pf")return S.projFilter===val;if(k==="gl")return false;
     if(tab==="woche")return !(S.weekPage|0);if(tab==="kita")return S.kitaSec==="termine";if(tab==="essen")return S.foodTab==="heute";if(tab==="projekte"||tab==="amhaus")return !S.projFilter;return true};
-  const L=arAll().filter(on);return L.length?L[0][2]:null}
+  const L=arAll().filter(on),sub=L.find(t=>t[2].split("|")[1]);return sub?sub[2]:L.length?L[0][2]:null}
 function arSeen(){const v=arCur();if(!v||S.arLast===v)return;S.arLast=v;const a=arLs("hq-arrec").filter(x=>x!==v);a.unshift(v);arLsSet("hq-arrec",a.slice(0,5))}
-function arHtml(){const fav=arLs("hq-arfav"),rec=arLs("hq-arrec"),top=fav.length?fav:rec,cur=arCur();
-  const tile=t=>`<button class="artile${t[2]===cur?" on":""}${fav.includes(t[2])?" fav":""}" data-arnav="${t[2]}"><span>${t[0]}</span><b>${esc(t[1])}</b></button>`;
+function arHtml(){const fav=arLs("hq-arfav"),rec=arLs("hq-arrec"),top=fav.length?fav:rec,cur=arCur(),cls=v=>"arit"+(v===cur?" on":"")+(fav.includes(v)?" fav":"");
   let h=`<div class="arbg"></div><div class="arsheet" role="dialog" aria-label="Alle Bereiche"><div class="arhead"><h2>Alle Bereiche</h2><button class="iconbtn" data-arx aria-label="Schließen">✕</button></div>`;
-  h+=`<div class="argrp"><div class="arlbl">${fav.length?"📌 Angeheftet":"🕘 Zuletzt"}</div>${top.length?`<div class="argrid">${top.map(v=>tile(arTile(v))).join("")}</div>`:`<div class="freq">Lange auf eine Kachel drücken heftet sie hier an.</div>`}</div>`;
-  AR_TILES.forEach(g=>{const G=AREA_GROUPS.find(x=>x[0]===g[0]);h+=`<div class="argrp"><div class="arlbl">${G[1]} ${esc(G[2]==="Quer durch alles"?"Quer":G[2])}</div><div class="argrid">${g[1].map(tile).join("")}</div></div>`});
-  h+=`<div class="arfoot"><button class="chipbtn neutral" data-arnav="bereiche|">🗂️ Alle Unterseiten</button><span class="freq">${fav.length?"Lange drücken löst eine Kachel wieder.":"Lange drücken heftet an."}</span></div></div>`;return h}
+  h+=`<div class="artop"><span class="arlbl">${fav.length?"📌 Angeheftet":"🕘 Zuletzt"}</span>${top.length?top.map(v=>{const t=arTile(v);return `<button class="armpill ${cls(v)}" data-arnav="${v}">${t[0]} ${esc(t[1])}</button>`}).join(""):`<span class="freq">Lange auf einen Eintrag drücken heftet ihn hier an.</span>`}</div>`;
+  const G=arGroups(),sec=x=>{if(!x)return "";const [g,L]=x;return `<section class="armg${g[0]==="quer"?" armq":""}" style="--gc:${g[3]||"#6b6f78"}"><h3>${g[1]} ${esc(g[2])}</h3>${g[0]==="quer"?`<div class="armqrow">${L.map(a=>`<button class="${cls(a[2])}" data-arnav="${a[2]}">${a[0]} ${esc(a[1])}</button>`).join("")}</div>`:L.map(a=>`<button class="armain ${cls(a[2])}" data-arnav="${a[2]}"><span>${a[0]}</span><b>${esc(a[1])}</b></button>${a[3].length?`<div class="armsubs">${a[3].map(s=>`<button class="${cls(s[1])}" data-arnav="${s[1]}">${esc(s[0])}</button>`).join("")}</div>`:""}`).join("")}</section>`};
+  const by=id=>G.find(x=>x[0][0]===id),cols=AR_COLS.map(c=>c.slice());G.forEach(([g])=>{if(g[0]!=="quer"&&!cols.some(c=>c.includes(g[0])))(cols[0].length>cols[1].length?cols[1]:cols[0]).push(g[0])});
+  h+=`<div class="armgrid">${cols.map(c=>`<div class="armcol">${c.map(id=>sec(by(id))).join("")}</div>`).join("")}</div>${sec(by("quer"))}</div>`;return h}
 function arOpen(byPress){if(document.getElementById("allar"))return;if(byPress)try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}
   // Nach langem Drücken zählt erst ein neuer Tipp (der Finger liegt noch auf dem Reiter)
   S.ar={armed:!byPress,at:byPress?Date.now():0,pin:0};const el=document.createElement("div");el.id="allar";el.innerHTML=arHtml();document.body.appendChild(el);
   el.addEventListener("click",e=>{const a=S.ar;if(!a)return;if(!a.armed||Date.now()-a.at<300||Date.now()-a.pin<600){e.preventDefault();return}
     const t=e.target.closest("[data-arnav]");if(t){const v=t.dataset.arnav;arClose();goNav(v);return}
     if(e.target.closest("[data-arx]")||!e.target.closest(".arsheet"))arClose()});
-  el.addEventListener("contextmenu",e=>{e.preventDefault();const t=e.target.closest(".artile");if(t)arPin(t.dataset.arnav)});
-  let lt=null;el.addEventListener("touchstart",e=>{const t=e.target.closest(".artile");if(!t||e.touches.length!==1)return;const p=e.touches[0];lt={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{lt=null;arPin(t.dataset.arnav)},500)}},{passive:true});
+  el.addEventListener("contextmenu",e=>{e.preventDefault();const t=e.target.closest(".arit");if(t)arPin(t.dataset.arnav)});
+  let lt=null;el.addEventListener("touchstart",e=>{const t=e.target.closest(".arit");if(!t||e.touches.length!==1)return;const p=e.touches[0];lt={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{lt=null;arPin(t.dataset.arnav)},500)}},{passive:true});
   el.addEventListener("touchmove",e=>{if(lt){const p=e.touches[0];if(Math.hypot(p.clientX-lt.x,p.clientY-lt.y)>10){clearTimeout(lt.timer);lt=null}}},{passive:true});
   el.addEventListener("touchend",()=>{if(lt){clearTimeout(lt.timer);lt=null}},{passive:true})}
 function arPin(v){if(!S.ar)return;S.ar.pin=Date.now();try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}let f=arLs("hq-arfav");const had=f.includes(v);f=had?f.filter(x=>x!==v):f.concat(v).slice(-5);arLsSet("hq-arfav",f);

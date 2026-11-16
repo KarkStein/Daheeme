@@ -465,12 +465,25 @@ h2{font-weight:700}
 #allar{position:fixed;inset:0;z-index:60}#allar .arbg{position:absolute;inset:0;background:rgba(10,20,25,.45)}
 #allar .arsheet{position:absolute;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;max-height:calc(100% - 24px);overflow:auto;overscroll-behavior:contain;background:var(--surface);color:var(--ink);border-radius:var(--r) var(--r) 0 0;padding:var(--sp3) var(--sp4) calc(var(--sp4) + env(safe-area-inset-bottom));box-shadow:0 -6px 24px rgba(0,0,0,.25)}
 #allar .arhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp1)}#allar .arhead h2{margin:0}
-#allar .argrp{margin-top:var(--sp2)}#allar .arlbl{font-size:var(--fs-xs);font-weight:700;color:var(--ochre);text-transform:uppercase;letter-spacing:.04em;margin-bottom:var(--sp1)}
-#allar .argrid{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--sp1)}
-#allar .artile{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;min-height:58px;padding:6px 2px 4px;border:1px solid var(--line,rgba(0,0,0,.1));border-radius:var(--r-s);background:var(--bg,transparent);color:var(--ink);-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-#allar .artile span{font-size:var(--fs-l);line-height:1.1}#allar .artile b{font-size:var(--fs-xs);font-weight:600;line-height:1.15;text-align:center;hyphens:auto;overflow-wrap:anywhere}
-#allar .artile.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}#allar .artile.fav b::after{content:" 📌";font-size:.7em}
-#allar .arfoot{display:flex;align-items:center;gap:var(--sp2);flex-wrap:wrap;margin-top:var(--sp3)}
+#allar .arlbl{font-size:var(--fs-xs);font-weight:700;color:var(--ochre);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+/* Karte nach Gruppen (Florian 16.11.2026, Vorschlag A): Farbe je Gruppe aus AREA_GROUPS als --gc, Text darin als --gk (im Dunkeln heller gemischt) */
+#allar .artop{display:flex;gap:var(--sp1);align-items:center;margin:var(--sp1) 0 var(--sp2);overflow-x:auto;scrollbar-width:none}#allar .artop::-webkit-scrollbar{display:none}#allar .artop .arlbl{margin-right:var(--sp1)}
+#allar .armpill{flex:0 0 auto;white-space:nowrap;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:999px;padding:var(--sp1) 10px;font:inherit;font-size:var(--fs-xs);font-weight:600}
+#allar .armpill.on{border-color:var(--ink)}
+#allar .armgrid{display:flex;gap:var(--sp2);align-items:flex-start}#allar .armcol{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--sp2)}
+#allar .armg{--gk:var(--gc);background:color-mix(in srgb,var(--gc) 11%,var(--surface));border-radius:var(--r);padding:var(--sp2) var(--sp2) var(--sp2) var(--sp3);border-top:4px solid var(--gc);box-sizing:border-box}
+#allar .armq{margin-top:var(--sp2)}
+#allar .armg h3{margin:0 0 var(--sp1);font-family:inherit;font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--gk)}
+#allar .armain{display:flex;align-items:center;gap:6px;width:100%;background:none;border:none;padding:3px 0 0;font:inherit;color:var(--fg);text-align:left;cursor:pointer}#allar .armain+.armain{margin-top:2px}
+#allar .armain span{font-size:var(--fs-m);line-height:1}#allar .armain b{font-size:var(--fs-m);font-weight:700;line-height:1.2}
+#allar .armsubs{line-height:1.35;margin:0 0 3px}#allar .armsubs button{display:inline;background:none;border:none;padding:0;font:inherit;font-size:var(--fs-xs);color:var(--muted);cursor:pointer;text-align:left}
+#allar .armsubs button:not(:last-child)::after{content:"·";margin:0 var(--sp1);color:var(--gk);font-weight:700}
+#allar .armqrow{display:flex;flex-wrap:wrap;gap:var(--sp1)}#allar .armqrow button{border:none;background:var(--surface);border-radius:999px;padding:var(--sp1) 10px;font:inherit;font-size:var(--fs-xs);font-weight:600;color:var(--fg);cursor:pointer}
+#allar .armain.on b,#allar .armsubs .on{color:var(--fg);text-decoration:underline;text-decoration-color:var(--gk);text-decoration-thickness:2px;text-underline-offset:3px}#allar .armqrow .on{box-shadow:inset 0 0 0 1.5px var(--gk)}
+#allar .armain.fav b::after,#allar .armsubs .fav::before,#allar .armqrow .fav::after{content:"📌";font-size:.7em;margin:0 2px}
+#allar .arit{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #allar .armg{--gk:color-mix(in srgb,var(--gc) 50%,var(--fg))}}
+:root[data-theme="dark"] #allar .armg{--gk:color-mix(in srgb,var(--gc) 50%,var(--fg))}
 /* Personen-Streifen und Kürzel (Florian 16.11.2026) */
 .kz{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;border-radius:999px;color:#fff;font-weight:700;font-size:var(--fs-xs);line-height:1;margin-right:6px;vertical-align:middle;flex:0 0 auto}
 .kz.kzall{font-weight:600}

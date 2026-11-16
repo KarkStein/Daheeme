@@ -484,12 +484,25 @@ h2{font-weight:700}
 #allar{position:fixed;inset:0;z-index:60}#allar .arbg{position:absolute;inset:0;background:rgba(10,20,25,.45)}
 #allar .arsheet{position:absolute;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;max-height:calc(100% - 24px);overflow:auto;overscroll-behavior:contain;background:var(--surface);color:var(--ink);border-radius:var(--r) var(--r) 0 0;padding:var(--sp3) var(--sp4) calc(var(--sp4) + env(safe-area-inset-bottom));box-shadow:0 -6px 24px rgba(0,0,0,.25)}
 #allar .arhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp1)}#allar .arhead h2{margin:0}
-#allar .argrp{margin-top:var(--sp2)}#allar .arlbl{font-size:var(--fs-xs);font-weight:700;color:var(--ochre);text-transform:uppercase;letter-spacing:.04em;margin-bottom:var(--sp1)}
-#allar .argrid{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--sp1)}
-#allar .artile{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;min-height:58px;padding:6px 2px 4px;border:1px solid var(--line,rgba(0,0,0,.1));border-radius:var(--r-s);background:var(--bg,transparent);color:var(--ink);-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-#allar .artile span{font-size:var(--fs-l);line-height:1.1}#allar .artile b{font-size:var(--fs-xs);font-weight:600;line-height:1.15;text-align:center;hyphens:auto;overflow-wrap:anywhere}
-#allar .artile.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}#allar .artile.fav b::after{content:" 📌";font-size:.7em}
-#allar .arfoot{display:flex;align-items:center;gap:var(--sp2);flex-wrap:wrap;margin-top:var(--sp3)}
+#allar .arlbl{font-size:var(--fs-xs);font-weight:700;color:var(--ochre);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+/* Karte nach Gruppen (Florian 16.11.2026, Vorschlag A): Farbe je Gruppe aus AREA_GROUPS als --gc, Text darin als --gk (im Dunkeln heller gemischt) */
+#allar .artop{display:flex;gap:var(--sp1);align-items:center;margin:var(--sp1) 0 var(--sp2);overflow-x:auto;scrollbar-width:none}#allar .artop::-webkit-scrollbar{display:none}#allar .artop .arlbl{margin-right:var(--sp1)}
+#allar .armpill{flex:0 0 auto;white-space:nowrap;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:999px;padding:var(--sp1) 10px;font:inherit;font-size:var(--fs-xs);font-weight:600}
+#allar .armpill.on{border-color:var(--ink)}
+#allar .armgrid{display:flex;gap:var(--sp2);align-items:flex-start}#allar .armcol{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--sp2)}
+#allar .armg{--gk:var(--gc);background:color-mix(in srgb,var(--gc) 11%,var(--surface));border-radius:var(--r);padding:var(--sp2) var(--sp2) var(--sp2) var(--sp3);border-top:4px solid var(--gc);box-sizing:border-box}
+#allar .armq{margin-top:var(--sp2)}
+#allar .armg h3{margin:0 0 var(--sp1);font-family:inherit;font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--gk)}
+#allar .armain{display:flex;align-items:center;gap:6px;width:100%;background:none;border:none;padding:3px 0 0;font:inherit;color:var(--fg);text-align:left;cursor:pointer}#allar .armain+.armain{margin-top:2px}
+#allar .armain span{font-size:var(--fs-m);line-height:1}#allar .armain b{font-size:var(--fs-m);font-weight:700;line-height:1.2}
+#allar .armsubs{line-height:1.35;margin:0 0 3px}#allar .armsubs button{display:inline;background:none;border:none;padding:0;font:inherit;font-size:var(--fs-xs);color:var(--muted);cursor:pointer;text-align:left}
+#allar .armsubs button:not(:last-child)::after{content:"·";margin:0 var(--sp1);color:var(--gk);font-weight:700}
+#allar .armqrow{display:flex;flex-wrap:wrap;gap:var(--sp1)}#allar .armqrow button{border:none;background:var(--surface);border-radius:999px;padding:var(--sp1) 10px;font:inherit;font-size:var(--fs-xs);font-weight:600;color:var(--fg);cursor:pointer}
+#allar .armain.on b,#allar .armsubs .on{color:var(--fg);text-decoration:underline;text-decoration-color:var(--gk);text-decoration-thickness:2px;text-underline-offset:3px}#allar .armqrow .on{box-shadow:inset 0 0 0 1.5px var(--gk)}
+#allar .armain.fav b::after,#allar .armsubs .fav::before,#allar .armqrow .fav::after{content:"📌";font-size:.7em;margin:0 2px}
+#allar .arit{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #allar .armg{--gk:color-mix(in srgb,var(--gc) 50%,var(--fg))}}
+:root[data-theme="dark"] #allar .armg{--gk:color-mix(in srgb,var(--gc) 50%,var(--fg))}
 /* Personen-Streifen und Kürzel (Florian 16.11.2026) */
 .kz{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;border-radius:999px;color:#fff;font-weight:700;font-size:var(--fs-xs);line-height:1;margin-right:6px;vertical-align:middle;flex:0 0 auto}
 .kz.kzall{font-weight:600}
@@ -1363,6 +1376,27 @@ function recAuto(r){const lines=Array.isArray(r.ing)?r.ing:recIng(r),n=String(r.
 function recTags(r){if(Array.isArray(r.tags))return r.tags;if(r.tags&&typeof r.tags==="object")return Object.values(r.tags);return recAuto(r)}
 function draftTags(d){const auto=recAuto({name:d.name,ing:d.ing,link:d.link,id:d.id||"neu",min:d.min}),off=d.tagsOff||[],own=d.tagsOwn||[];return {auto,off,own,final:auto.filter(t=>!off.includes(t)).concat(own.filter(t=>!auto.includes(t)))}}
 function tagLab(t){const [g,n]=t.split("|");return n||t}
+// ---------- Rezept speichern mit „Wohin?“ (Florian 16.11.2026) ----------
+// Übernehmen (Tagesrezepte, Emmi), 📖＋ im Wochenplan, ✓ beim Vorschlag und „zu euren Rezepten“ fragen nach Kochbuch und Tags, beides vorgewählt; ein Tipp auf Speichern reicht.
+// Vorwahl Kochbuch: Name des Kochbuchs steckt im Rezept (z. B. „Suppen“) > Kochbuch des ähnlichsten Rezepts (mindestens 2 gleiche Tags) > zuletzt gewählt (je Gerät hq-recbook) > Unsere Rezepte.
+const recVal=x=>({name:String(x.name||x.text||"").trim().slice(0,80),ing:(Array.isArray(x.ing)?x.ing:String(x.ing||"").split("\n")).map(y=>String(y).trim().slice(0,80)).filter(Boolean).slice(0,60).join("\n"),note:String(x.note||"").slice(0,4000),link:String(x.link||"").slice(0,500),at:Date.now()});
+function recBookGuess(T,name){const bs=books();if(bs.length<2)return "main";const txt=sNorm((name||"")+" "+T.map(tagLab).join(" "));
+  for(const b of bs){if(b.id==="main")continue;const w=sNorm(b.name).split(/[^a-z0-9]+/).filter(x=>x.length>=4).map(x=>x.replace(/(en|n|e|s)$/,""));if(w.some(x=>x.length>=3&&txt.includes(x)))return b.id}
+  const key=T.filter(t=>!/^Quelle\|/.test(t));let best=null,bn=1;recs().forEach(r=>{const n=recTags(r).filter(t=>key.includes(t)).length;if(n>bn){bn=n;best=r}});if(best)return recBook(best);
+  let last="";try{last=localStorage.getItem("hq-recbook")||""}catch(_){}return bs.some(b=>b.id===last)?last:"main"}
+function recWohin(list,done){if(!Array.isArray(list))list=[list];list=list.filter(v=>v&&v.name);if(!list.length)return;const bs=books(),one=list.length===1,v0=list[0];
+  const auto=v=>recAuto({name:v.name,ing:v.ing,link:v.link,id:"neu"}),T=one?auto(v0):[],bk=recBookGuess(T,one?v0.name:""),shown=T.filter(t=>!/^Quelle\|/.test(t));
+  const F=[{k:"book",label:"Kochbuch",type:"chips",val:bk,opts:bs.map((b,i)=>[b.id,(b.emoji||BOOK_EMO[(i-1)%BOOK_EMO.length]||"📚")+" "+b.name])}];
+  if(shown.length)F.push({k:"tags",label:"Tags",type:"multi",val:T.slice(),opts:shown.map(t=>[t,tagLab(t)]),hint:"Erkannt aus Name und Zutaten. Antippen nimmt einen weg."});
+  F.push({k:"nbook",label:"Oder ein neues Kochbuch anlegen",type:"text",val:""});
+  if(!one)F.unshift({type:"note",label:list.length+" Rezepte: "+list.map(v=>v.name).join(", ")+". Die Tags erkennt die App je Rezept."});
+  editBox(one?"📚 Wohin mit „"+v0.name.slice(0,40)+"“?":"📚 Wohin mit "+list.length+" Rezepten?",F,async V=>{let book=V.book||"main";const nb=(V.nbook||"").trim().slice(0,40);
+    if(nb){book=newId("b");await S.store.setPath("food/book/"+book,{name:nb,at:Date.now()})}
+    const ids=[];for(const v of list){const id=newId("r"),Tv=one?T:auto(v),on=one&&V.tags?V.tags:Tv,off=Tv.filter(t=>!on.includes(t)),o=Object.assign({},v,{tags:on,at:v.at||Date.now(),by:S.me||""});if(off.length)o.tagsOff=off;if(book!=="main")o.book=book;await S.store.setPath("food/rec/"+id,o);ids.push(id)}
+    try{localStorage.setItem("hq-recbook",book)}catch(_){}
+    const bn=nb||((bs.find(b=>b.id===book)||{}).name)||"Unsere Rezepte";
+    if(done)await done(ids);render();
+    toastAct((one?"„"+v0.name.slice(0,40)+"“ steht":list.length+" Rezepte stehen")+" jetzt in „"+bn+"“.","📖 Ansehen",()=>{if(one)openRec(ids[0]);else{goNav("essen|ft:rezepte");S.book=book;render()}})})}
 function recTagForm(d){const T=draftTags(d),on=t=>T.final.includes(t);
   const chip=t=>`<button type="button" class="chipbtn neutral tagchip" data-rtag="${esc(t)}" aria-pressed="${on(t)}">${esc(tagLab(t))}</button>`;
   const groups=recTagGroups().map(g=>`<div class="taggrp"><span class="freq">${g[1]} ${esc(g[0])}</span><div class="unl">${g[2].map(n=>chip(g[0]+"|"+n)).join("")}</div></div>`).join("");
@@ -1619,7 +1653,10 @@ function sugAsk(ks){if(document.getElementById("mbox"))return;ks=ks.filter(k=>S.
   const hasIng=xs.some(x=>(x.ing&&x.ing.length)||(x.rec&&(r=>r&&recIng(r).length)(rl.find(y=>y.id===x.rec)))),noRec=xs.some(x=>!x.rec);
   const O=[["plan","📅","Nur in den Wochenplan","als Abendessen"]].concat(hasIng?[["shop","🧺","Wochenplan und Zutaten auf die Einkaufsliste","danach wählst du, welche"]]:[]).concat(noRec?[["rec","📖","Wochenplan und zu euren Rezepten","zum Wiederfinden"]]:[]);
   const el=document.createElement("div");el.id="mbox";el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="Wohin übernehmen"><div class="section-head"><h2>✨ ${ks.length===1?esc(xs[0].name.slice(0,50)):ks.length+" Abendessen"} übernehmen</h2></div><div class="quicklist">${O.map(o=>`<button class="quickbtn" data-sugto="${o[0]}"><span class="qi">${o[1]}</span><span>${o[2]} <small>(${o[3]})</small></span></button>`).join("")}<button class="quickbtn" data-sugto=""><span class="qi">✕</span><span>Abbrechen</span></button></div></div>`;
-  document.body.appendChild(el);el.addEventListener("click",e=>{const b=e.target.closest("[data-sugto]");if(!b){if(e.target.classList.contains("mboxbg"))mboxClose();return}e.stopPropagation();mboxClose();if(b.dataset.sugto)sugTake(ks,b.dataset.sugto)})}
+  document.body.appendChild(el);el.addEventListener("click",e=>{const b=e.target.closest("[data-sugto]");if(!b){if(e.target.classList.contains("mboxbg"))mboxClose();return}e.stopPropagation();mboxClose();const to=b.dataset.sugto;if(!to)return;
+    if(to==="rec"){const nw=[];ks.forEach(k=>{const x=S.sugg&&S.sugg[k];if(!x||x.rec)return;const ex=recs().find(r=>(r.name||"").toLowerCase()===x.name.toLowerCase());if(ex)x.rec=ex.id;else nw.push(x)});
+      if(nw.length){recWohin(nw.map(recVal),ids=>{nw.forEach((x,i)=>x.rec=ids[i]);return sugTake(ks,"rec")});return}}
+    sugTake(ks,to)})}
 async function sugTake(ks,to){const wk=wkKey(planWeek());let n=0;const done=[];
   for(const k of ks){const x=S.sugg&&S.sugg[k];if(!x)continue;try{if(to==="rec"&&!x.rec){const ex=recs().find(r=>(r.name||"").toLowerCase()===x.name.toLowerCase()),id=ex?ex.id:newId("r");if(!ex)await S.store.setPath("food/rec/"+id,{name:x.name.slice(0,80),ing:Array.isArray(x.ing)?x.ing.join("\n"):(x.ing||""),note:x.note||"",link:x.link||"",at:Date.now()});x.rec=id}
     await S.store.setPath("food/plan/"+wk+"/"+k,x.rec?{text:x.name.slice(0,80),rec:x.rec,at:Date.now(),by:S.me||""}:Object.assign({text:x.name.slice(0,80),at:Date.now(),by:S.me||"",src:"vorschlag"},x.link?{link:x.link}:{},x.ing&&x.ing.length?{ing:x.ing.join("\n")}:{}));done.push(x);delete S.sugg[k];n++}catch(_){toast("Konnte nicht speichern.");break}}
@@ -1837,12 +1874,13 @@ function wxPlaceRow(){const pl=S.food&&S.food.wxplace;return `<div class="freq" 
 // Zentrale Bereichsliste (15.11.2026): Bereiche-Übersicht, Kreismenü und Wischen werden daraus gebaut.
 // [Symbol, Name, Tab, Kurzname im Kreis (leer = nicht im Kreis), Sprung im Kreis, Unterbereiche()]
 // Gliederung (Florian 15.11.2026): Alltag, Essen, Zuhause, Freizeit, Wir, Quer. Die 4 Reiter unten bleiben Abkürzungen.
-const AREA_GROUPS=[["essen","🍲","Essen"],["alltag","🗓️","Alltag"],["wir","🫶","Wir"],["zuhause","🏡","Zuhause"],["freizeit","🌊","Freizeit"],["quer","🧩","Quer durch alles"]];
+// Farbe je Gruppe (Florian 16.11.2026, Alle Bereiche als Karte): keine Personenfarben (PCOL), kein Blau/Rot-Paar
+const AREA_GROUPS=[["essen","🍲","Essen","#c4622d"],["alltag","🗓️","Alltag","#2c4f7c"],["wir","🫶","Wir","#b04a6e"],["zuhause","🏡","Zuhause","#5f7d2e"],["freizeit","🌊","Freizeit","#1f8fa6"],["quer","🧩","Quer durch alles","#6b6f78"]];
 // [Symbol, Name, Tab, Kurzname im Kreis (leer = nicht im Kreis), Sprung im Kreis, Unterbereiche(), Gruppe, Kurz erklärt (Glossar)]
 const AREAS=[["🏠","Start","camp","","",()=>[["Kalender","sp:kalender"],["Wichtig","sp:wichtig"]],"","Das Haus-Bild mit der Kurzfassung des Tages, dazu die Seiten Kalender und Wichtig."],["🧹","Woche","woche","Woche","woche|",()=>[["Tag und Woche","wp:0"],["Wer macht was","wp:1"]],"alltag","Hausarbeit: was heute und diese Woche dran ist, Hausdienst und wer was macht."],
   ["🎒","Kita","kita","Kita","kita|",()=>KITA_SECS.map(k=>[k[2]==="Essen"?"Kita-Essen":k[2],"ks:"+k[0]]),"alltag","Termine der Kita, Kita-Essen, was mitmuss, Infos."],
   ["🍲","Essen","essen","Essen","essen|",()=>[["Heute","ft:heute"],["Wochenplan","ft:plan"],["Rezepte","ft:rezepte"]],"essen","Was es heute gibt, der Wochenplan fürs Abendessen, Rezepte und Kochbücher."],
-  ["🧺","Einkauf","einkauf","Einkauf","einkauf|",()=>[["Ausgaben","sp:ausgaben"],["Weitere Listen","bl:"]].concat(BUY_FIX.map(x=>[x[2],"bl:"+x[0]])),"essen","Die Einkaufsliste, Weitere Listen (Kleidung, Geschenke, Baumarkt) und Ausgaben."],
+  ["🧺","Einkauf","einkauf","Einkauf","einkauf|",()=>[["Einkaufsliste",""],["Weitere Listen","bl:"],["Ausgaben","sp:ausgaben"]],"essen","Die Einkaufsliste, Weitere Listen (Kleidung, Geschenke, Baumarkt) und Ausgaben."],
   ["🏠","Am Haus","amhaus","Am Haus","amhaus|",()=>PROJ_CATS.filter(c=>["wohnen","ordnung","haus","garten"].includes(c[0])).map(c=>[c[2],"pf:"+c[0]]),"zuhause","Projekte und lose Ideen fürs Haus: Einrichtung, Aufräumen, Reparieren, Garten."],
   ["🧭","Reisen und Ausflüge","ausflug","Reisen","ausflug|tt:urlaub",()=>[["Urlaube","tt:urlaub"],["Ausflüge","tt:ideen"],["Packlisten","tt:pack"],["Sammlung","tt:recherche"]],"freizeit","Urlaube, Ausflüge mit „Was ist los“, Packlisten und die Sammlung."],
   ["⚽","Sport und Spiel","spiel","Sport","spiel|",()=>playSecs().map(p=>[p[2],"ps:"+p[0]]),"freizeit","Spielplätze, Spielideen für zu Hause, Sport und Kurse."],["🎵","Musik","musik","Musik","musik|",()=>[],"freizeit","Playlist-Links nach Anlass, z. B. Kochen, Autofahrt, Kinder."],
@@ -1872,7 +1910,7 @@ function focusApply(m){if(!m)return;const cm=mondayOf(new Date()),cur=+m===+cm,n
   if((S.tab==="essen"&&S.foodTab==="plan")||(S.tab==="kita"&&S.kitaSec==="essen"))S.foodWeek=cur?null:m;
   if(S.tab==="kind")S.kidWk=Math.max(-1,Math.min(2,n))}
 function goNav(v){const fw=focusWeek(),[tab,sub]=v.split("|"),[k,val]=(sub||"").split(":");S.prev=S.tab;S.tab=tab;S.weekPage=0;if(tab==="essen")S.foodTab="heute";if(tab==="projekte"||tab==="amhaus")S.projFilter="";
-  if(k==="wp")S.weekPage=+val||0;if(k==="ft")S.foodTab=val;if(tab==="kita")S.kitaSec=k==="ks"?val:"termine";if(tab==="musik")S.musFilter="";if(tab==="ausflug"||tab==="reisen"){S.reiseOpen=null;S.tripTab=tab==="reisen"?"urlaub":"ideen"}if(k==="tt")S.tripTab=val;if(k==="pf")S.projFilter=val;if(k==="sp")S.tab=val;if(k==="bl"){S.tab="listen";if(val)(S.buyOpen||(S.buyOpen={}))[val]=true;setTimeout(()=>{const el=document.getElementById("buy-"+val);if(el)el.scrollIntoView({block:"start"})},40)}if(k==="ps")S.playSec=val;if(tab==="privat")S.privSec=k==="pv"&&val!=="kontakte"?val:"";focusApply(fw);render();window.scrollTo(0,0);if(k==="pv"&&val==="kontakte")setTimeout(()=>{const el=document.getElementById("kontakte");if(el)el.scrollIntoView({block:"start"})},30)}
+  if(k==="wp")S.weekPage=+val||0;if(k==="ft")S.foodTab=val;if(tab==="kita")S.kitaSec=k==="ks"?val:"termine";if(tab==="musik")S.musFilter="";if(tab==="ausflug"||tab==="reisen"){S.reiseOpen=null;S.tripTab=tab==="reisen"?"urlaub":"ideen"}if(k==="tt")S.tripTab=val;if(k==="pf")S.projFilter=val;if(k==="sp")S.tab=val;if(k==="bl"){S.tab="listen";if(val)(S.buyOpen||(S.buyOpen={}))[val]=true;setTimeout(()=>{const el=document.getElementById("buy-"+val);if(el)el.scrollIntoView({block:"start"})},40)}if(k==="ps")S.playSec=val;if(k==="gl"){(S.setOpen||(S.setOpen={})).glossar=true;S.glosQ="";setTimeout(()=>{const el=document.getElementById("set-glossar");if(el)el.scrollIntoView({block:"start"})},40)}if(tab==="privat")S.privSec=k==="pv"&&val!=="kontakte"?val:"";focusApply(fw);render();window.scrollTo(0,0);if(k==="pv"&&val==="kontakte")setTimeout(()=>{const el=document.getElementById("kontakte");if(el)el.scrollIntoView({block:"start"})},30)}
 // Offene Aufgaben (Florian 16.11.2026): Sprung auf Woche › Tag und Woche, gescrollt an den Anfang der Aufgaben (erster Abschnitt, z. B. Hausdienst), erste offene Aufgabe kurz hervorgehoben
 // Doppelring (Florian 16.11.2026): Tipp = heutige Aufgaben (Täglich), lange = Wochenaufgaben (Diese Woche bzw. Wechsel)
 function goTasks0(w){const sec=(w&&(document.getElementById(w==="week"?(S.groupBy==="art"?"sec-rot":"sec-week"):(S.groupBy==="art"?"sec-fix":"sec-day"))))||document.querySelector('section[id^="sec-"]');if(!sec)return;sec.scrollIntoView({block:"start"});const t=sec.querySelector('article.task:not(.done)')||sec;t.classList.add("hlflash");setTimeout(()=>t.classList.remove("hlflash"),1600)}
@@ -1961,7 +1999,7 @@ function renderSettings(){const per=(S.config&&S.config.persons)||[];const G=S.g
     <div style="margin-top:8px">${sw("labels","Beschriftungen im Bild zeigen",!!S.labels)}</div><div class="freq" style="margin-top:10px">Motiv im Startbild</div><div class="unl">${motivList().map(x=>`<button class="chipbtn neutral" data-motiv-set="${x[0]}" aria-pressed="${motiv()===x[0]}">${x[1]} ${x[2]}</button>`).join("")}</div>
     <div class="freq" style="margin-top:10px">Bildstil</div><div class="unl">${stilList().map(x=>`<button class="chipbtn neutral" data-stil-set="${x[0]}" aria-pressed="${bildStil()===x[0]}">${x[1]} ${x[2]}</button>`).join("")}</div>
     <div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy. Standard ist das Haus am Meer mit Licht und Schatten.</div>${go('data-setgo="glossar" data-glosopen="bild"',"📖","Was im Bild wohin führt")}`,"aussehen");
-  h+=card("👆 Bedienung",`${sw("tap","Reiter unten blättern weiter",G.tap,"Tipp auf den Reiter, in dem du bist = nächste Unterseite. Doppelt auf Start = Kalender, dreifach = Wichtig. Aus: jeder Tipp öffnet die erste Seite.")}${sw("swipe","Wischen wechselt den Bereich",G.swipe,"links und rechts: Start, Woche, Essen, Einkauf, dann die übrigen Bereiche")}${sw("ring","Alle Bereiche: lange auf Start drücken",G.ring,"alle Bereiche auf einem Bildschirm, lange auf eine Kachel heftet sie oben an. Die Kachel oben rechts geht immer.")}<div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy.</div>${go('data-setgo="glossar" data-glosopen="gesten"',"📖","Alle Gesten im Glossar")}`,"bedienung");
+  h+=card("👆 Bedienung",`${sw("tap","Reiter unten blättern weiter",G.tap,"Tipp auf den Reiter, in dem du bist = nächste Unterseite. Doppelt auf Start = Kalender, dreifach = Wichtig. Aus: jeder Tipp öffnet die erste Seite.")}${sw("swipe","Wischen wechselt den Bereich",G.swipe,"links und rechts: Start, Woche, Essen, Einkauf, dann die übrigen Bereiche")}${sw("ring","Alle Bereiche: lange auf Start drücken",G.ring,"alle Bereiche auf einem Bildschirm, lange auf einen Eintrag heftet ihn oben an. Das Kachel-Symbol oben rechts geht immer.")}<div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy.</div>${go('data-setgo="glossar" data-glosopen="gesten"',"📖","Alle Gesten im Glossar")}`,"bedienung");
   h+=card("🍲 Essen",`${sw("veg","Mehr Vegetarisches bei Vorschlägen",vegW()>0,"für beide")}<div class="freq" style="margin:6px 0">Mengen sind für 4 Personen. Die Recherche achtet aufs Kleinkind. Ändern: schreib es Claude.</div>${go('data-nav="essen|ft:rezepte"',"🏷️","Rezepte, Filter und eigene Tags")}`,"essen");
   h+=card("",go('data-go="recherchen"',"🤖","<b>Recherchen</b> · alle festen Aufträge, Neues und eure Wünsche"));
   h+=card("",go('data-go="wichtig"',"🔔","<b>Wichtig</b> · alle Erinnerungen"));
@@ -2030,7 +2068,7 @@ const GLOS_TERMS=[
   ["Recherchen","Feste Suchaufträge, die Claude regelmäßig erledigt, und eure Wünsche dafür. Neues zeigt „🤖 neu“.",'data-nav="recherchen|"'],
   ["Briefe","Unter Partner: kleine Briefe nur für euch zwei.",'data-nav="privat|pv:briefe"'],
   ["Schnellmenü","Lange auf ein Ding im Bild drücken: die häufigsten Handgriffe dieses Bereichs.",""],
-  ["Alle Bereiche","Die Kachel oben rechts: alle Bereiche auf einem Bildschirm, oben Angeheftetes oder zuletzt Genutztes.","data-allar"],
+  ["Alle Bereiche","Das Kachel-Symbol oben rechts: alle Bereiche und Seiten auf einem Bildschirm, je Gruppe in einer Farbe, oben Angeheftetes oder zuletzt Genutztes.","data-allar"],
   ["Morgen-Briefing","Meldung aufs Handy um 7 Uhr mit Terminen, Kita, Erinnerungen und Abendessen. Einschalten unter Benachrichtigungen.",'data-setgo="push"']];
 const GLOS_SYM=[["🔔","Erinnern. Oben links: zählt, was in 24 Stunden fällig oder überfällig ist."],["❗","Heute nötig (Einkaufsliste)."],["✅","Erledigt. Am To-do auf Start: alles geschafft."],["⬜","Noch offen. Ein Tipp hakt ab."],
   ["🏠","Hausdienst."],["🚆","Verbindung mit Bahn und MVV in Google Maps, von hier oder von zu Hause."],["📍","Ort wählen. Steht es allein am Termin, fehlt noch ein Ort."],["📞","Anrufen. Die Nummer bleibt versternt."],
@@ -2049,7 +2087,7 @@ function glosGest(){const G=S.gest||{},T=Object.keys(TAB_PAGES),pg=n=>T.filter(t
     ["Tipp auf Sonne oder Mond","Klappt das Wetter auf: Sonnenzeiten, Mond, heute stündlich, 6 Tage.",""],["Tipp auf eine freie Stelle im Bild","Öffnet Tag und Woche.",""],
     ["Tipp auf den Doppelring","Deine Aufgaben von heute. Lange drücken: die Aufgaben der Woche.",""],["Lange auf einen Tag im Kalender","Neuer Termin an diesem Tag.",""],
     ["Lange auf eine eigene Termin-Art","Löscht die Art, mit Rückfrage.",""],["Lange auf eine Ausgabe","Andere Gruppe, nochmal eintragen oder löschen.",""],
-    ["Lange auf eine Kachel in Alle Bereiche","Heftet sie oben an, bis zu fünf.",""],["Lange auf den Briefkasten","Auswahl, was du dem anderen schickst.",""],
+    ["Lange auf einen Eintrag in Alle Bereiche","Heftet ihn oben an, bis zu fünf.",""],["Lange auf den Briefkasten","Auswahl, was du dem anderen schickst.",""],
     ["Zurück-Taste","Schließt ein offenes Fenster, sonst einen Schritt zurück.",""],["Tipp neben ein Fenster","Schließt es.",""]].map(g=>g[2]&&!G[g[2]]?[g[0],g[1]+" Bei dir ausgeschaltet (Bedienung).",'data-setgo="bedienung"']:[g[0],g[1],""])}
 // Abschnitte: [Schlüssel, Überschrift, Zeilen [Begriff, Erklärung, Sprung-Attribut, Gruppen-Zeile?, Symbol-Zeile?]]
 function glosSecs(){const city=motiv()==="stadt",R=[];
@@ -2495,7 +2533,7 @@ function shopPager(p){return `<div class="pager" role="group" aria-label="Seiten
 // Bearbeiten-Fenster (Florian 15.11.2026: Einträge nachträglich ändern): fields [{k,label,type:text|url|chips|multi|note,opts:[[wert,text]],val,hint?}]; onDel = Funktion oder Liste [[Text,fn(V),mitRückfrage]]
 function editBox(title,fields,onSave,onDel){S.mboxAt=Date.now();if(document.getElementById("mbox"))return;const V={};fields.forEach(f=>V[f.k]=f.type==="multi"?(f.val||[]).slice():f.val==null?"":f.val);
   const el=document.createElement("div");el.id="mbox";
-  const draw=()=>{const sc=(el.querySelector(".mboxcard")||{}).scrollTop||0;el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="${esc(title)}"><div class="section-head"><h2>✎ ${esc(title)}</h2></div><form class="editbox" novalidate>${fields.map(f=>f.type==="note"?`<div class="freq">${f.html||esc(f.label)}</div>`:f.type==="multi"?`<div class="fld"><span>${esc(f.label)}</span><div class="unl">${f.opts.map(o=>`<button type="button" class="chipbtn neutral" data-ebm="${f.k}" data-ebv="${esc(o[0])}" aria-pressed="${(V[f.k]||[]).includes(o[0])}">${esc(o[1])}</button>`).join("")}</div>${f.hint?`<div class="freq">${esc(f.hint)}</div>`:""}</div>`:f.type==="chips"?`<div class="fld"><span>${esc(f.label)}</span><div class="unl">${f.opts.map(o=>`<button type="button" class="chipbtn neutral" data-ebk="${f.k}" data-ebv="${esc(o[0])}" aria-pressed="${String(V[f.k])===String(o[0])}">${esc(o[1])}</button>`).join("")}</div>${f.hint?`<div class="freq">${esc(f.hint)}</div>`:""}</div>`:`<label class="fld"><span>${esc(f.label)}</span><input type="text"${f.type==="url"?' inputmode="url"':""} data-ebf="${f.k}" value="${esc(V[f.k])}" maxlength="${f.type==="url"?400:80}" autocomplete="off"${f.type==="url"?' placeholder="https://"':""}></label>`).join("")}
+  const draw=()=>{const sc=(el.querySelector(".mboxcard")||{}).scrollTop||0;el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="${esc(title)}"><div class="section-head"><h2>${/^\p{Extended_Pictographic}/u.test(title)?"":"✎ "}${esc(title)}</h2></div><form class="editbox" novalidate>${fields.map(f=>f.type==="note"?`<div class="freq">${f.html||esc(f.label)}</div>`:f.type==="multi"?`<div class="fld"><span>${esc(f.label)}</span><div class="unl">${f.opts.map(o=>`<button type="button" class="chipbtn neutral" data-ebm="${f.k}" data-ebv="${esc(o[0])}" aria-pressed="${(V[f.k]||[]).includes(o[0])}">${esc(o[1])}</button>`).join("")}</div>${f.hint?`<div class="freq">${esc(f.hint)}</div>`:""}</div>`:f.type==="chips"?`<div class="fld"><span>${esc(f.label)}</span><div class="unl">${f.opts.map(o=>`<button type="button" class="chipbtn neutral" data-ebk="${f.k}" data-ebv="${esc(o[0])}" aria-pressed="${String(V[f.k])===String(o[0])}">${esc(o[1])}</button>`).join("")}</div>${f.hint?`<div class="freq">${esc(f.hint)}</div>`:""}</div>`:`<label class="fld"><span>${esc(f.label)}</span><input type="text"${f.type==="url"?' inputmode="url"':""} data-ebf="${f.k}" value="${esc(V[f.k])}" maxlength="${f.type==="url"?400:80}" autocomplete="off"${f.type==="url"?' placeholder="https://"':""}></label>`).join("")}
     <div class="btnrow">${fields.some(f=>f.type!=="note")?`<button class="primary" type="submit">Speichern</button>`:""}<button class="ghost" type="button" data-ebx="1">Abbrechen</button>${Array.isArray(onDel)?onDel.map((d,i)=>`<button class="ghost${d[2]?" danger":""}" type="button" data-ebdel="${i}">${esc(d[0])}</button>`).join(""):onDel?`<button class="ghost danger" type="button" data-ebdel="x">Löschen</button>`:""}</div></form></div>`;if(sc){const c=el.querySelector(".mboxcard");if(c)c.scrollTop=sc}};
   draw();el._V=V;el._draw=draw;document.body.appendChild(el);
   el.addEventListener("input",e=>{const k=e.target.dataset&&e.target.dataset.ebf;if(k)V[k]=e.target.value});
@@ -3329,6 +3367,7 @@ function searchHits(q){const W=sNorm(q).split(/\s+/).filter(Boolean);if(!W.lengt
   kitas().forEach(x=>add("Kita","🎒",x.name,"Kita"+(x.date?" · "+x.date.split("-").reverse().slice(0,2).join("."):""),`data-nav="kita|ks:${esc(x.sec||"termine")}"`,x.note));
   advCals().forEach(c=>{add("Ideen","🎄",c.name,"Adventskalender "+(c.year||""),`data-advgo="${esc(c.id)}"`);Object.values(advDoors(c.id)).forEach(x=>{if(!advHidden(c,x.day))add("Ideen","🎄",x.name,"Adventskalender · Türchen "+x.day,`data-advgo="${esc(c.id)}"`)})});
   termine().forEach(x=>add("Kalender","📅",x.name,(x.date?x.date.split("-").reverse().join("."):"")+(x.time?" "+x.time:""),'data-nav="woche|wp:3"',x.note));
+  buyLists().forEach(L=>add("Bereiche",L.emo,L.name,"Weitere Listen",`data-nav="listen|bl:${esc(L.id)}"`));
   buys().forEach(x=>{const L=buyLists().find(l=>l.id===x.list);if(!L||x.done)return;add("Einkauf",L.emo,x.name,"Weitere Listen · "+L.name,`data-nav="listen|bl:${esc(L.id)}"`)});
   // Ausgaben und Gruppen (Florian 16.11.2026, Punkt 6)
   monies().forEach(x=>{const c=geldCat(x.cat);add("Ausgaben",x.kind==="settle"?"🤝":c[1],x.name,eur(x.amt)+" · "+(x.date?x.date.split("-").reverse().join("."):"")+(x.grp?" · "+grpName(x.grp):""),`data-go="ausgaben" data-geldedit="${esc(x.id)}"`,x.note)});
@@ -3429,39 +3468,39 @@ try{S.theme=localStorage.getItem("hq-theme")||"";if(S.theme)document.documentEle
 const TAP_SEQ={camp:[()=>{S.tab="camp"},()=>{S.tab="woche";S.weekPage=3},()=>{S.tab="wichtig"}],woche:[0,1].map(p=>()=>{S.tab="woche";S.weekPage=p}),essen:["heute","rezepte"].map(f=>()=>{S.tab="essen";S.foodTab=f}),einkauf:[()=>{S.tab="einkauf"},()=>{S.tab="ausgaben"}]};
 const TAP_AT={camp:[()=>S.tab==="camp",()=>S.tab==="woche"&&S.weekPage===3,()=>S.tab==="wichtig"],woche:[0,1].map(p=>()=>S.tab==="woche"&&(S.weekPage|0)===p),essen:[()=>S.tab==="essen"&&S.foodTab!=="rezepte",()=>S.tab==="essen"&&S.foodTab==="rezepte"],einkauf:[()=>S.tab==="einkauf"||S.tab==="listen",()=>S.tab==="ausgaben"]};
 const tapCur=t=>(TAP_AT[t]||[]).findIndex(f=>f());
-// ---------- Alle Bereiche (Florian 16.11.2026): Tipp oben rechts oder lange auf Start öffnet alle Bereiche als Kacheln auf einem Bildschirm ----------
-// Oben Favoriten (lange auf eine Kachel drücken heftet an, je Gerät hq-arfav), ohne Favoriten das zuletzt Benutzte (hq-arrec). Tipp daneben, ✕ und Zurück schließen.
-const AR_TILES=[["essen",[["🍲","Essen heute","essen|ft:heute"],["📅","Wochenplan","essen|ft:plan"],["📖","Rezepte","essen|ft:rezepte"],["🧺","Einkaufsliste","einkauf|"],["📝","Weitere Listen","einkauf|bl:"]]],
-  ["alltag",[["☀️","Tag und Woche","woche|"],["📅","Kalender","woche|wp:3"],["👥","Wer macht was","woche|wp:1"],["🎒","Kita","kita|"],["📦","Mitbringen","kita|ks:tasche"]]],
-  ["wir",[["🫶","Partner","privat|"],["🧒","Kind","kind|"],["💡","Ideen","projekte|"],["🎁","Geschenke","projekte|pf:geschenk"],["🎄","Advents­kalender","projekte|pf:advent"]]],
-  ["zuhause",[["🏠","Am Haus","amhaus|"],["🛋️","Einrichtung","amhaus|pf:wohnen"],["🗄️","Aufräumen","amhaus|pf:ordnung"],["🔨","Reparieren","amhaus|pf:haus"],["🌱","Garten","amhaus|pf:garten"]]],
-  ["freizeit",[["⛵","Urlaube","ausflug|tt:urlaub"],["🚲","Ausflüge","ausflug|tt:ideen"],["🧳","Packlisten","ausflug|tt:pack"],["⚽","Sport und Spiel","spiel|"],["🎵","Musik","musik|"]]],
-  ["quer",[["🏠","Haus","camp|"],["🔔","Wichtig","wichtig|"],["🔍","Suche","suche|"],["🤖","Recherchen","recherchen|"],["⚙️","Einstellungen","settings|"]]]];
-const arAll=()=>AR_TILES.flatMap(g=>g[1]);
+// ---------- Alle Bereiche (Florian 16.11.2026): Tipp oben rechts oder lange auf Start öffnet alle Bereiche auf einem Bildschirm ----------
+// Karte nach Gruppen (Florian 16.11.2026 abends, Vorschlag A gewählt: „zu unübersichtlich, zu viele, vielleicht Farben“, aber alles zeigen): je Gruppe eine Karte in ihrer Farbe (AREA_GROUPS[i][3]),
+// Bereiche groß mit Symbol, Unterseiten klein als Text, Quer als Knopf-Reihe unten über beide Spalten. Gespeist aus AREAS (neuer Bereich = eine Zeile dort), Zusätze in AR_EXTRA.
+// Oben Angeheftet (lange auf einen Eintrag drücken, je Gerät hq-arfav) oder zuletzt Benutztes (hq-arrec). Tipp daneben, ✕ und Zurück schließen.
+const AR_EXTRA={alltag:[[1,["📅","Kalender","woche|wp:3",[]]]],quer:[[0,["🏠","Start","camp|",[]]],[2,["🔍","Suche","suche|",[]]],[99,["📖","Glossar","settings|gl:",[]]]]};
+const AR_COLS=[["essen","alltag","zuhause"],["wir","freizeit"]];
+function arGroups(){return AREA_GROUPS.map(g=>{const L=AREAS.filter(a=>a[6]===g[0]).map(a=>[a[0],a[1],a[2]+"|",a[5]().map(x=>[x[0],a[2]+"|"+x[1]])]);(AR_EXTRA[g[0]]||[]).forEach(([i,e])=>L.splice(i,0,e));return [g,L]})}
+// Alle Ziele flach [Symbol, Name, Sprung] für Angeheftet/Zuletzt; Unterseiten mit allgemeinem Namen bekommen den Bereich davor
+const arAll=()=>arGroups().flatMap(([g,L])=>L.flatMap(a=>[[a[0],a[1],a[2]]].concat(a[3].map(s=>[a[0],/^(Heute|Termine|Infos|Sonstiges)$/.test(s[0])?a[1]+" · "+s[0]:s[0],s[1]]))));
 const arTile=v=>arAll().find(t=>t[2]===v);
 function arLs(k){try{const a=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(a)?a.filter(arTile):[]}catch(_){return []}}
 function arLsSet(k,a){try{localStorage.setItem(k,JSON.stringify(a))}catch(_){}}
-// Welche Kachel zeigt gerade? Genaueste zuerst (mit Unterseite), sonst der Bereich
+// Welcher Eintrag zeigt gerade? Genaueste zuerst (mit Unterseite), sonst der Bereich
 function arCur(){const on=t=>{const [tab,sub]=t[2].split("|"),[k,val]=(sub||"").split(":");
     if(k==="sp")return S.tab===val;if(k==="bl")return S.tab==="listen";if(S.tab!==tab)return false;
-    if(k==="ft")return S.foodTab===val;if(k==="wp")return (S.weekPage|0)===(+val||0);if(k==="ks")return S.kitaSec===val;if(k==="tt")return S.tripTab===val;if(k==="pf")return S.projFilter===val;
+    if(k==="ft")return S.foodTab===val;if(k==="wp")return (S.weekPage|0)===(+val||0);if(k==="ks")return S.kitaSec===val;if(k==="tt")return S.tripTab===val;if(k==="pf")return S.projFilter===val;if(k==="gl")return false;
     if(tab==="woche")return !(S.weekPage|0);if(tab==="kita")return S.kitaSec==="termine";if(tab==="essen")return S.foodTab==="heute";if(tab==="projekte"||tab==="amhaus")return !S.projFilter;return true};
-  const L=arAll().filter(on);return L.length?L[0][2]:null}
+  const L=arAll().filter(on),sub=L.find(t=>t[2].split("|")[1]);return sub?sub[2]:L.length?L[0][2]:null}
 function arSeen(){const v=arCur();if(!v||S.arLast===v)return;S.arLast=v;const a=arLs("hq-arrec").filter(x=>x!==v);a.unshift(v);arLsSet("hq-arrec",a.slice(0,5))}
-function arHtml(){const fav=arLs("hq-arfav"),rec=arLs("hq-arrec"),top=fav.length?fav:rec,cur=arCur();
-  const tile=t=>`<button class="artile${t[2]===cur?" on":""}${fav.includes(t[2])?" fav":""}" data-arnav="${t[2]}"><span>${t[0]}</span><b>${esc(t[1])}</b></button>`;
+function arHtml(){const fav=arLs("hq-arfav"),rec=arLs("hq-arrec"),top=fav.length?fav:rec,cur=arCur(),cls=v=>"arit"+(v===cur?" on":"")+(fav.includes(v)?" fav":"");
   let h=`<div class="arbg"></div><div class="arsheet" role="dialog" aria-label="Alle Bereiche"><div class="arhead"><h2>Alle Bereiche</h2><button class="iconbtn" data-arx aria-label="Schließen">✕</button></div>`;
-  h+=`<div class="argrp"><div class="arlbl">${fav.length?"📌 Angeheftet":"🕘 Zuletzt"}</div>${top.length?`<div class="argrid">${top.map(v=>tile(arTile(v))).join("")}</div>`:`<div class="freq">Lange auf eine Kachel drücken heftet sie hier an.</div>`}</div>`;
-  AR_TILES.forEach(g=>{const G=AREA_GROUPS.find(x=>x[0]===g[0]);h+=`<div class="argrp"><div class="arlbl">${G[1]} ${esc(G[2]==="Quer durch alles"?"Quer":G[2])}</div><div class="argrid">${g[1].map(tile).join("")}</div></div>`});
-  h+=`<div class="arfoot"><button class="chipbtn neutral" data-arnav="bereiche|">🗂️ Alle Unterseiten</button><span class="freq">${fav.length?"Lange drücken löst eine Kachel wieder.":"Lange drücken heftet an."}</span></div></div>`;return h}
+  h+=`<div class="artop"><span class="arlbl">${fav.length?"📌 Angeheftet":"🕘 Zuletzt"}</span>${top.length?top.map(v=>{const t=arTile(v);return `<button class="armpill ${cls(v)}" data-arnav="${v}">${t[0]} ${esc(t[1])}</button>`}).join(""):`<span class="freq">Lange auf einen Eintrag drücken heftet ihn hier an.</span>`}</div>`;
+  const G=arGroups(),sec=x=>{if(!x)return "";const [g,L]=x;return `<section class="armg${g[0]==="quer"?" armq":""}" style="--gc:${g[3]||"#6b6f78"}"><h3>${g[1]} ${esc(g[2])}</h3>${g[0]==="quer"?`<div class="armqrow">${L.map(a=>`<button class="${cls(a[2])}" data-arnav="${a[2]}">${a[0]} ${esc(a[1])}</button>`).join("")}</div>`:L.map(a=>`<button class="armain ${cls(a[2])}" data-arnav="${a[2]}"><span>${a[0]}</span><b>${esc(a[1])}</b></button>${a[3].length?`<div class="armsubs">${a[3].map(s=>`<button class="${cls(s[1])}" data-arnav="${s[1]}">${esc(s[0])}</button>`).join("")}</div>`:""}`).join("")}</section>`};
+  const by=id=>G.find(x=>x[0][0]===id),cols=AR_COLS.map(c=>c.slice());G.forEach(([g])=>{if(g[0]!=="quer"&&!cols.some(c=>c.includes(g[0])))(cols[0].length>cols[1].length?cols[1]:cols[0]).push(g[0])});
+  h+=`<div class="armgrid">${cols.map(c=>`<div class="armcol">${c.map(id=>sec(by(id))).join("")}</div>`).join("")}</div>${sec(by("quer"))}</div>`;return h}
 function arOpen(byPress){if(document.getElementById("allar"))return;if(byPress)try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}
   // Nach langem Drücken zählt erst ein neuer Tipp (der Finger liegt noch auf dem Reiter)
   S.ar={armed:!byPress,at:byPress?Date.now():0,pin:0};const el=document.createElement("div");el.id="allar";el.innerHTML=arHtml();document.body.appendChild(el);
   el.addEventListener("click",e=>{const a=S.ar;if(!a)return;if(!a.armed||Date.now()-a.at<300||Date.now()-a.pin<600){e.preventDefault();return}
     const t=e.target.closest("[data-arnav]");if(t){const v=t.dataset.arnav;arClose();goNav(v);return}
     if(e.target.closest("[data-arx]")||!e.target.closest(".arsheet"))arClose()});
-  el.addEventListener("contextmenu",e=>{e.preventDefault();const t=e.target.closest(".artile");if(t)arPin(t.dataset.arnav)});
-  let lt=null;el.addEventListener("touchstart",e=>{const t=e.target.closest(".artile");if(!t||e.touches.length!==1)return;const p=e.touches[0];lt={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{lt=null;arPin(t.dataset.arnav)},500)}},{passive:true});
+  el.addEventListener("contextmenu",e=>{e.preventDefault();const t=e.target.closest(".arit");if(t)arPin(t.dataset.arnav)});
+  let lt=null;el.addEventListener("touchstart",e=>{const t=e.target.closest(".arit");if(!t||e.touches.length!==1)return;const p=e.touches[0];lt={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{lt=null;arPin(t.dataset.arnav)},500)}},{passive:true});
   el.addEventListener("touchmove",e=>{if(lt){const p=e.touches[0];if(Math.hypot(p.clientX-lt.x,p.clientY-lt.y)>10){clearTimeout(lt.timer);lt=null}}},{passive:true});
   el.addEventListener("touchend",()=>{if(lt){clearTimeout(lt.timer);lt=null}},{passive:true})}
 function arPin(v){if(!S.ar)return;S.ar.pin=Date.now();try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}let f=arLs("hq-arfav");const had=f.includes(v);f=had?f.filter(x=>x!==v):f.concat(v).slice(-5);arLsSet("hq-arfav",f);
@@ -3511,8 +3550,10 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="mealforx"){S.mealFor=null;render();return}
   if((b.classList.contains("spot")&&b.dataset.go!=="post"||b.classList.contains("hoslot"))&&Date.now()-(S.mboxAt||0)<700)return;
   if(b.dataset.stress){const k=b.dataset.stress,wk=wkKey(planWeek()),on=!!(planX(planWeek())[k]&&planX(planWeek())[k].stress);try{await S.store.setPath("food/planx/"+wk+"/"+k+"/stress",on?null:true)}catch(_){toast("Konnte nicht speichern.")}if(S.sugg){S.sugg=suggestWeek(planWeek(),S.sugg);render()}return}
-  if(b.dataset.planrec||b.dataset.sugrec){const k=b.dataset.planrec||b.dataset.sugrec,wk=wkKey(planWeek()),m=b.dataset.planrec?planDays(planWeek())[k]:(S.sugg&&S.sugg[k]);if(!m)return;const name=String(m.text||m.name||"").slice(0,80);const ex=recs().find(r=>(r.name||"").toLowerCase()===name.toLowerCase());const id=ex?ex.id:newId("r");
-    try{if(!ex)await S.store.setPath("food/rec/"+id,{name,ing:Array.isArray(m.ing)?m.ing.join("\n"):(m.ing||""),note:m.note||"",link:m.link||"",at:Date.now()});if(b.dataset.planrec)await S.store.setPath("food/plan/"+wk+"/"+k+"/rec",id);else{m.rec=id;m.src="rezept"}toast(ex?"Steht schon bei euren Rezepten":"Zu euren Rezepten hinzugefügt");render()}catch(_){toast("Konnte nicht speichern.")}return}
+  if(b.dataset.planrec||b.dataset.sugrec){const k=b.dataset.planrec||b.dataset.sugrec,isPlan=!!b.dataset.planrec,wk=wkKey(planWeek()),m=isPlan?planDays(planWeek())[k]:(S.sugg&&S.sugg[k]);if(!m)return;const name=String(m.text||m.name||"").slice(0,80);const ex=recs().find(r=>(r.name||"").toLowerCase()===name.toLowerCase());
+    const link=async id=>{if(isPlan)await S.store.setPath("food/plan/"+wk+"/"+k+"/rec",id);else{m.rec=id;m.src="rezept"}};
+    if(ex){try{await link(ex.id);toast("Steht schon bei euren Rezepten");render()}catch(_){toast("Konnte nicht speichern.")}return}
+    recWohin(recVal({name,ing:m.ing,note:m.note,link:m.link}),ids=>link(ids[0]));return}
   if(b.dataset.sugrm){if(S.sugg){delete S.sugg[b.dataset.sugrm];if(!Object.keys(S.sugg).length)S.sugg=null}render();return}
   if(b.dataset.planrm){const k=b.dataset.planrm,mon=b.dataset.pday?mondayOf(new Date(b.dataset.pday+"T12:00:00")):planWeek(),wk=wkKey(mon),days=planDays(mon),m=days[k];if(!m)return;const r=m.rec&&recs().find(x=>x.id===m.rec),nm=r?r.name:m.text;
     try{await S.store.setPath("food/plan/"+wk+"/"+k,null);const still=Object.keys(days).some(o=>o!==k&&days[o]&&(days[o].text===nm||(r&&days[o].rec===r.id)));if(nm&&!still&&shopBlocks()[nm]){await shopRemoveBlock(nm);toast("Entfernt, Zutaten auch von der Einkaufsliste")}else toast("Aus dem Plan entfernt")}catch(_){toast("Konnte nicht speichern.")}return}
@@ -3853,9 +3894,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="lumapcancel"){S.lunchMapEdit=false;render();return}
   if(b.dataset.act==="lumapsave"){const u=S.lunchMapText.trim();if(u&&!mapOk(u)){toast("Das ist kein Link aus Google Maps.");return}
     try{await S.store.setPath("food/lunchmap",u||null);S.lunchMapEdit=false;S.lunchMapOpen=!!mapsEmbed(u);render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
-  if(b.dataset.idea){const x=((S.ideas&&S.ideas.items)||[])[+b.dataset.idea];if(!x)return;const id="r"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
-    const v={name:String(x.name).slice(0,80),ing:(Array.isArray(x.ing)?x.ing:[]).map(y=>String(y).trim().slice(0,80)).filter(Boolean).slice(0,60).join("\n"),note:String(x.note||"").slice(0,4000),link:String(x.link||"").slice(0,500),at:Date.now()};
-    try{await S.store.setPath("food/rec/"+id,v);toast("Als Rezept übernommen");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
+  if(b.dataset.idea){const x=((S.ideas&&S.ideas.items)||[])[+b.dataset.idea];if(!x)return;recWohin(recVal(x));return}
   if(b.dataset.openrec){openRec(b.dataset.openrec);return}
   if(b.dataset.srclink===KITA_SRC){S.prev=S.tab;S.tab="kita";S.kitaSec="tasche";render();window.scrollTo(0,0);return}
   if(b.dataset.srclink&&/^adventskalender/i.test(b.dataset.srclink)){const m=b.dataset.srclink.match(/(\d+)\s*$/);S.prev=S.tab;S.tab="projekte";S.projFilter="advent";S.advCal=null;S.advDoor=m?+m[1]:null;render();window.scrollTo(0,0);return}
@@ -3867,8 +3906,10 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="shopurg"){S.shopUrg=!S.shopUrg;render();const el=document.getElementById("shopinput");if(el)el.focus();return}
   if(b.dataset.shopview){S.tab="einkauf";S.shopFilter=b.dataset.shopview;render();window.scrollTo(0,0);return}
   if(b.dataset.dishopen){S.dishOpen=S.dishOpen===b.dataset.dishopen?null:b.dataset.dishopen;render();return}
-  if(b.dataset.dishsave){const [wk,dk]=b.dataset.dishsave.split("|"),m=(((S.food&&S.food.plan)||{})[wk]||{})[dk];if(!m||!m.text)return;const ex=recs().find(r=>r.name.toLowerCase()===m.text.trim().toLowerCase());const id=ex?ex.id:"r"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
-    const mi=mealInfo(m);try{if(!ex)await S.store.setPath("food/rec/"+id,{name:m.text.trim().slice(0,80),ing:mi.ing.join("\n"),note:"",link:mi.link||"",at:Date.now()});await S.store.setPath("food/plan/"+wk+"/"+dk+"/rec",id)}catch(_){toast("Konnte nicht speichern.");return}S.dishOpen=null;toast("Als Rezept gespeichert");render();return}
+  if(b.dataset.dishsave){const [wk,dk]=b.dataset.dishsave.split("|"),m=(((S.food&&S.food.plan)||{})[wk]||{})[dk];if(!m||!m.text)return;const ex=recs().find(r=>r.name.toLowerCase()===m.text.trim().toLowerCase());
+    const mi=mealInfo(m),link=async id=>{await S.store.setPath("food/plan/"+wk+"/"+dk+"/rec",id);S.dishOpen=null};
+    if(ex){try{await link(ex.id);toast("Steht schon bei euren Rezepten");render()}catch(_){toast("Konnte nicht speichern.")}return}
+    recWohin(recVal({name:m.text,ing:mi.ing,link:mi.link}),ids=>link(ids[0]));return}
   if(b.dataset.rec){S.recOpen=S.recOpen===b.dataset.rec?null:b.dataset.rec;render();return}
   if(b.dataset.pickmode){const P=S.shopPick;if(!P)return;if(P.to){const c=advCals().find(x=>x.id===P.to.cal);if(b.dataset.pickmode==="alle"){S.shopPick=null;if(c)await advImport(c,P.blocks[0].lines);render();return}P.mode=b.dataset.pickmode;P.sel={};if(P.mode==="ohne")P.blocks[0].lines.forEach((l,li)=>P.sel["0|"+li]=1);render();return}
     if(b.dataset.pickmode==="alle"){S.shopPick=null;let t={n:0,skip:0,noq:0};for(const x of P.blocks){const r=await shopAddMany(x.lines,x.src,{quiet:true});if(!r||r.err)return;t.n+=r.n;t.skip+=r.skip;t.noq+=r.noq}shopToast(t.n,t.skip,t.noq);render();return}
@@ -3923,8 +3964,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.mealrec){const id=b.dataset.mealrec,r=recs().find(x=>x.id===id);const old=recs().find(x=>x.id===S.planRec);
     if(S.planRec===id){S.planRec=null}else{S.planRec=id;if(r&&(!S.planText.trim()||(old&&S.planText===old.name)))S.planText=r.name}render();return}
   if(b.dataset.act==="emmishop"){const x=S.emmiCur;if(x&&Array.isArray(x.ing))openPick([{src:x.name,lines:x.ing.map(String)}]);return}
-  if(b.dataset.act==="emmitake"){const x=S.emmiCur;if(!x)return;const id="r"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
-    try{await S.store.setPath("food/rec/"+id,{name:String(x.name).slice(0,80),ing:(Array.isArray(x.ing)?x.ing:[]).map(y=>String(y).trim().slice(0,80)).filter(Boolean).slice(0,60).join("\n"),note:String(x.note||"").slice(0,4000),link:String(x.link||"").slice(0,500),at:Date.now()});toast("Als Rezept übernommen");render()}catch(_){toast("Konnte nicht speichern.")}return}
+  if(b.dataset.act==="emmitake"){const x=S.emmiCur;if(!x)return;recWohin(recVal(x));return}
   if(b.dataset.mealtip!=null||b.dataset.mealmem!=null){const x=b.dataset.mealtip!=null?(S.tipList||[])[+b.dataset.mealtip]:(S.memList||[])[+b.dataset.mealmem];if(!x)return;
     S.planText=String(x.name).slice(0,80);S.planRec=x.rec||null;S.planPick=x.rec?null:{name:S.planText,link:x.link||"",ing:Array.isArray(x.ing)?x.ing:[]};render();return}
   if(b.dataset.act==="mealcancel"){S.planEdit=null;render();return}

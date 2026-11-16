@@ -102,6 +102,7 @@ function searchHits(q){const W=sNorm(q).split(/\s+/).filter(Boolean);if(!W.lengt
   kitas().forEach(x=>add("Kita","🎒",x.name,"Kita"+(x.date?" · "+x.date.split("-").reverse().slice(0,2).join("."):""),`data-nav="kita|ks:${esc(x.sec||"termine")}"`,x.note));
   advCals().forEach(c=>{add("Ideen","🎄",c.name,"Adventskalender "+(c.year||""),`data-advgo="${esc(c.id)}"`);Object.values(advDoors(c.id)).forEach(x=>{if(!advHidden(c,x.day))add("Ideen","🎄",x.name,"Adventskalender · Türchen "+x.day,`data-advgo="${esc(c.id)}"`)})});
   termine().forEach(x=>add("Kalender","📅",x.name,(x.date?x.date.split("-").reverse().join("."):"")+(x.time?" "+x.time:""),'data-nav="woche|wp:3"',x.note));
+  buyLists().forEach(L=>add("Bereiche",L.emo,L.name,"Weitere Listen",`data-nav="listen|bl:${esc(L.id)}"`));
   buys().forEach(x=>{const L=buyLists().find(l=>l.id===x.list);if(!L||x.done)return;add("Einkauf",L.emo,x.name,"Weitere Listen · "+L.name,`data-nav="listen|bl:${esc(L.id)}"`)});
   // Ausgaben und Gruppen (Florian 16.11.2026, Punkt 6)
   monies().forEach(x=>{const c=geldCat(x.cat);add("Ausgaben",x.kind==="settle"?"🤝":c[1],x.name,eur(x.amt)+" · "+(x.date?x.date.split("-").reverse().join("."):"")+(x.grp?" · "+grpName(x.grp):""),`data-go="ausgaben" data-geldedit="${esc(x.id)}"`,x.note)});

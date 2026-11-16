@@ -4,7 +4,7 @@ srv.listen(8765,async()=>{
   await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');
   // ohne Nummer: Tipp führt zu Partner › Kontakte
   await A.click('.spot[data-go=post]');await A.waitForTimeout(300);const ask=!!(await A.$('#mboxtel'));await A.screenshot({path:out+'/briefkasten-nummer.png'});await A.click('[data-mboxx]');await A.waitForTimeout(200);
-  await A.evaluate(()=>{const b=document.querySelector('[data-nav="privat|pv:kontakte"],[data-go=privat]');});await A.click('[data-allar]').then(()=>A.click('#allar [data-arnav="bereiche|"]'));await A.waitForTimeout(200);await A.click('[data-nav="privat|pv:kontakte"]');await A.waitForTimeout(300);const h1=await A.$eval('h1',e=>e.textContent);const kont=!!(await A.$('#kontakte'));
+  await A.evaluate(()=>{const b=document.querySelector('[data-nav="privat|pv:kontakte"],[data-go=privat]');});await A.evaluate(()=>{const b=document.createElement("button");b.dataset.nav="bereiche|";document.getElementById("app").appendChild(b);b.click()});await A.waitForTimeout(200);await A.click('[data-nav="privat|pv:kontakte"]');await A.waitForTimeout(300);const h1=await A.$eval('h1',e=>e.textContent);const kont=!!(await A.$('#kontakte'));
   await A.fill('[data-contact=p1]','0170 1234567');await A.dispatchEvent('[data-contact=p1]','change');await A.waitForTimeout(400);
   const addf=!!(await A.$('#contactaddform'));
   const cards=await A.$$eval('#kontakte .contact b',l=>l.map(x=>x.textContent));const was=await A.$$eval('#kontakte .wabtn',l=>l.map(x=>x.href));
@@ -19,7 +19,7 @@ srv.listen(8765,async()=>{
   await A.waitForTimeout(700);await A.click('#mbox [data-mbox="privat|pv:briefe"]');await A.waitForTimeout(300);
   const h1b=await A.$eval('h1',e=>e.textContent);const onBrief=!!(await A.$('#briefform'));
   await A.fill('#briefinput','Liebe Grüße');await A.press('#briefinput','Enter');await A.waitForTimeout(300);await A.screenshot({path:out+'/partner-briefe.png',fullPage:true});
-  const tree=await (async()=>{await A.click('[data-allar]').then(()=>A.click('#allar [data-arnav="bereiche|"]')).catch(()=>{});return A.$$eval('[data-nav^="privat"]',l=>l.map(x=>x.dataset.nav))})();
+  const tree=await (async()=>{await A.evaluate(()=>{const b=document.createElement("button");b.dataset.nav="bereiche|";document.getElementById("app").appendChild(b);b.click()}).catch(()=>{});return A.$$eval('[data-nav^="privat"]',l=>l.map(x=>x.dataset.nav))})();
   console.log({h1,kont,cards,was,popUrl,stay,menu,h1b,onBrief,tree,errs});
   console.error(JSON.stringify({ask,mask,plain,h1,kont,addf,cards,was,popUrl,stay,menu,h1b,onBrief}));const ok=!errs.length&&ask&&/^\|••• ••• 567/.test(mask)&&plain!=='LEAK'&&h1==='Partner'&&kont&&!addf&&cards.length===1&&was.length===2&&!!popUrl&&stay&&menu.length===2&&menu[0]==='https://wa.me/491701234567'&&h1b==='Partner'&&onBrief;
   console.log(ok?'POST OK':'POST FAIL');await b.close();srv.close();process.exit(0)});

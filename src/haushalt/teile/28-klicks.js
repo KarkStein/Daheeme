@@ -7,8 +7,10 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="mealforx"){S.mealFor=null;render();return}
   if((b.classList.contains("spot")&&b.dataset.go!=="post"||b.classList.contains("hoslot"))&&Date.now()-(S.mboxAt||0)<700)return;
   if(b.dataset.stress){const k=b.dataset.stress,wk=wkKey(planWeek()),on=!!(planX(planWeek())[k]&&planX(planWeek())[k].stress);try{await S.store.setPath("food/planx/"+wk+"/"+k+"/stress",on?null:true)}catch(_){toast("Konnte nicht speichern.")}if(S.sugg){S.sugg=suggestWeek(planWeek(),S.sugg);render()}return}
-  if(b.dataset.planrec||b.dataset.sugrec){const k=b.dataset.planrec||b.dataset.sugrec,wk=wkKey(planWeek()),m=b.dataset.planrec?planDays(planWeek())[k]:(S.sugg&&S.sugg[k]);if(!m)return;const name=String(m.text||m.name||"").slice(0,80);const ex=recs().find(r=>(r.name||"").toLowerCase()===name.toLowerCase());const id=ex?ex.id:newId("r");
-    try{if(!ex)await S.store.setPath("food/rec/"+id,{name,ing:Array.isArray(m.ing)?m.ing.join("\n"):(m.ing||""),note:m.note||"",link:m.link||"",at:Date.now()});if(b.dataset.planrec)await S.store.setPath("food/plan/"+wk+"/"+k+"/rec",id);else{m.rec=id;m.src="rezept"}toast(ex?"Steht schon bei euren Rezepten":"Zu euren Rezepten hinzugefügt");render()}catch(_){toast("Konnte nicht speichern.")}return}
+  if(b.dataset.planrec||b.dataset.sugrec){const k=b.dataset.planrec||b.dataset.sugrec,isPlan=!!b.dataset.planrec,wk=wkKey(planWeek()),m=isPlan?planDays(planWeek())[k]:(S.sugg&&S.sugg[k]);if(!m)return;const name=String(m.text||m.name||"").slice(0,80);const ex=recs().find(r=>(r.name||"").toLowerCase()===name.toLowerCase());
+    const link=async id=>{if(isPlan)await S.store.setPath("food/plan/"+wk+"/"+k+"/rec",id);else{m.rec=id;m.src="rezept"}};
+    if(ex){try{await link(ex.id);toast("Steht schon bei euren Rezepten");render()}catch(_){toast("Konnte nicht speichern.")}return}
+    recWohin(recVal({name,ing:m.ing,note:m.note,link:m.link}),ids=>link(ids[0]));return}
   if(b.dataset.sugrm){if(S.sugg){delete S.sugg[b.dataset.sugrm];if(!Object.keys(S.sugg).length)S.sugg=null}render();return}
   if(b.dataset.planrm){const k=b.dataset.planrm,mon=b.dataset.pday?mondayOf(new Date(b.dataset.pday+"T12:00:00")):planWeek(),wk=wkKey(mon),days=planDays(mon),m=days[k];if(!m)return;const r=m.rec&&recs().find(x=>x.id===m.rec),nm=r?r.name:m.text;
     try{await S.store.setPath("food/plan/"+wk+"/"+k,null);const still=Object.keys(days).some(o=>o!==k&&days[o]&&(days[o].text===nm||(r&&days[o].rec===r.id)));if(nm&&!still&&shopBlocks()[nm]){await shopRemoveBlock(nm);toast("Entfernt, Zutaten auch von der Einkaufsliste")}else toast("Aus dem Plan entfernt")}catch(_){toast("Konnte nicht speichern.")}return}
@@ -349,9 +351,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="lumapcancel"){S.lunchMapEdit=false;render();return}
   if(b.dataset.act==="lumapsave"){const u=S.lunchMapText.trim();if(u&&!mapOk(u)){toast("Das ist kein Link aus Google Maps.");return}
     try{await S.store.setPath("food/lunchmap",u||null);S.lunchMapEdit=false;S.lunchMapOpen=!!mapsEmbed(u);render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
-  if(b.dataset.idea){const x=((S.ideas&&S.ideas.items)||[])[+b.dataset.idea];if(!x)return;const id="r"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
-    const v={name:String(x.name).slice(0,80),ing:(Array.isArray(x.ing)?x.ing:[]).map(y=>String(y).trim().slice(0,80)).filter(Boolean).slice(0,60).join("\n"),note:String(x.note||"").slice(0,4000),link:String(x.link||"").slice(0,500),at:Date.now()};
-    try{await S.store.setPath("food/rec/"+id,v);toast("Als Rezept übernommen");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
+  if(b.dataset.idea){const x=((S.ideas&&S.ideas.items)||[])[+b.dataset.idea];if(!x)return;recWohin(recVal(x));return}
   if(b.dataset.openrec){openRec(b.dataset.openrec);return}
   if(b.dataset.srclink===KITA_SRC){S.prev=S.tab;S.tab="kita";S.kitaSec="tasche";render();window.scrollTo(0,0);return}
   if(b.dataset.srclink&&/^adventskalender/i.test(b.dataset.srclink)){const m=b.dataset.srclink.match(/(\d+)\s*$/);S.prev=S.tab;S.tab="projekte";S.projFilter="advent";S.advCal=null;S.advDoor=m?+m[1]:null;render();window.scrollTo(0,0);return}
@@ -363,8 +363,10 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="shopurg"){S.shopUrg=!S.shopUrg;render();const el=document.getElementById("shopinput");if(el)el.focus();return}
   if(b.dataset.shopview){S.tab="einkauf";S.shopFilter=b.dataset.shopview;render();window.scrollTo(0,0);return}
   if(b.dataset.dishopen){S.dishOpen=S.dishOpen===b.dataset.dishopen?null:b.dataset.dishopen;render();return}
-  if(b.dataset.dishsave){const [wk,dk]=b.dataset.dishsave.split("|"),m=(((S.food&&S.food.plan)||{})[wk]||{})[dk];if(!m||!m.text)return;const ex=recs().find(r=>r.name.toLowerCase()===m.text.trim().toLowerCase());const id=ex?ex.id:"r"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
-    const mi=mealInfo(m);try{if(!ex)await S.store.setPath("food/rec/"+id,{name:m.text.trim().slice(0,80),ing:mi.ing.join("\n"),note:"",link:mi.link||"",at:Date.now()});await S.store.setPath("food/plan/"+wk+"/"+dk+"/rec",id)}catch(_){toast("Konnte nicht speichern.");return}S.dishOpen=null;toast("Als Rezept gespeichert");render();return}
+  if(b.dataset.dishsave){const [wk,dk]=b.dataset.dishsave.split("|"),m=(((S.food&&S.food.plan)||{})[wk]||{})[dk];if(!m||!m.text)return;const ex=recs().find(r=>r.name.toLowerCase()===m.text.trim().toLowerCase());
+    const mi=mealInfo(m),link=async id=>{await S.store.setPath("food/plan/"+wk+"/"+dk+"/rec",id);S.dishOpen=null};
+    if(ex){try{await link(ex.id);toast("Steht schon bei euren Rezepten");render()}catch(_){toast("Konnte nicht speichern.")}return}
+    recWohin(recVal({name:m.text,ing:mi.ing,link:mi.link}),ids=>link(ids[0]));return}
   if(b.dataset.rec){S.recOpen=S.recOpen===b.dataset.rec?null:b.dataset.rec;render();return}
   if(b.dataset.pickmode){const P=S.shopPick;if(!P)return;if(P.to){const c=advCals().find(x=>x.id===P.to.cal);if(b.dataset.pickmode==="alle"){S.shopPick=null;if(c)await advImport(c,P.blocks[0].lines);render();return}P.mode=b.dataset.pickmode;P.sel={};if(P.mode==="ohne")P.blocks[0].lines.forEach((l,li)=>P.sel["0|"+li]=1);render();return}
     if(b.dataset.pickmode==="alle"){S.shopPick=null;let t={n:0,skip:0,noq:0};for(const x of P.blocks){const r=await shopAddMany(x.lines,x.src,{quiet:true});if(!r||r.err)return;t.n+=r.n;t.skip+=r.skip;t.noq+=r.noq}shopToast(t.n,t.skip,t.noq);render();return}
@@ -419,8 +421,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.mealrec){const id=b.dataset.mealrec,r=recs().find(x=>x.id===id);const old=recs().find(x=>x.id===S.planRec);
     if(S.planRec===id){S.planRec=null}else{S.planRec=id;if(r&&(!S.planText.trim()||(old&&S.planText===old.name)))S.planText=r.name}render();return}
   if(b.dataset.act==="emmishop"){const x=S.emmiCur;if(x&&Array.isArray(x.ing))openPick([{src:x.name,lines:x.ing.map(String)}]);return}
-  if(b.dataset.act==="emmitake"){const x=S.emmiCur;if(!x)return;const id="r"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
-    try{await S.store.setPath("food/rec/"+id,{name:String(x.name).slice(0,80),ing:(Array.isArray(x.ing)?x.ing:[]).map(y=>String(y).trim().slice(0,80)).filter(Boolean).slice(0,60).join("\n"),note:String(x.note||"").slice(0,4000),link:String(x.link||"").slice(0,500),at:Date.now()});toast("Als Rezept übernommen");render()}catch(_){toast("Konnte nicht speichern.")}return}
+  if(b.dataset.act==="emmitake"){const x=S.emmiCur;if(!x)return;recWohin(recVal(x));return}
   if(b.dataset.mealtip!=null||b.dataset.mealmem!=null){const x=b.dataset.mealtip!=null?(S.tipList||[])[+b.dataset.mealtip]:(S.memList||[])[+b.dataset.mealmem];if(!x)return;
     S.planText=String(x.name).slice(0,80);S.planRec=x.rec||null;S.planPick=x.rec?null:{name:S.planText,link:x.link||"",ing:Array.isArray(x.ing)?x.ing:[]};render();return}
   if(b.dataset.act==="mealcancel"){S.planEdit=null;render();return}

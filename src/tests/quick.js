@@ -21,7 +21,7 @@ srv.listen(8765,async()=>{
   const plan=await A.$$eval('ul.meals li',l=>l.map(x=>x.innerText.replace(/\n/g,' | ')));
   const links=await A.$$eval('ul.meals a.stressbtn',l=>l.length);
   await A.click('[data-food=rezepte]');await A.waitForTimeout(200);await A.click('[data-act=ideastog]');await A.waitForTimeout(200);
-  await A.click('[data-idea="0"]');await A.waitForTimeout(400);
+  await A.click('[data-idea="0"]');await A.waitForTimeout(400);await A.click('#mbox button[type=submit]');await A.waitForTimeout(300);
   const emmi=await A.$$eval('section.card',l=>l.map(x=>x.innerText).filter(t=>/🍳 emmi/i.test(t)&&/📚 kochbuch/i.test(t)&&/tagesrezepte/i.test(t)));
   await A.click('[data-food=heute]');await A.click('[data-food=plan]');await A.click('[data-meal=d4]');await A.waitForTimeout(200);const tips2=await A.$$eval('[data-mealtip]',l=>l.map(x=>x.innerText));await A.click('[data-food=rezepte]');await A.waitForTimeout(200);
   await A.screenshot({path:out+'/emmi-rezepte.png',fullPage:true});
