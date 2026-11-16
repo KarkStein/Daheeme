@@ -50,7 +50,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.fundnk!=null){const ar=b.dataset.ar||"reise";S.fundNewKind=S.fundNewKind||{};S.fundNewKind[ar]=S.fundNewKind[ar]===b.dataset.fundnk?"":b.dataset.fundnk;render();return}
   if(b.dataset.ff){fundFilt(b.dataset.ar||"reise")[b.dataset.ff]=b.dataset.v||"";render();return}
   if(b.dataset.fundopen){const ar=b.dataset.ar||"reise";S.ff=S.ff||{};S.ff[ar]={k:"",p:b.dataset.fundopen,s:""};if(ar==="reise"){S.reiseOpen=null;S.tripTab="recherche"}else{S.hprojOpen=null;S.hsamm=true}render();window.scrollTo(0,0);return}
-  if(b.dataset.fundst){const f=listOf(S.food&&S.food.fund).find(y=>y.id===b.dataset.fundst);if(f){const o=["idee","favorit","gebucht"],nx=o[(o.indexOf(f.st||"idee")+1)%3];await S.store.setPath("food/fund/"+f.id+"/st",nx).catch(()=>toast("Konnte nicht speichern."))}return}
+  if(b.dataset.fundst){const f=listOf(S.food&&S.food.fund).find(y=>y.id===b.dataset.fundst);if(f){const o=["idee","favorit","gebucht"],nx=o[(o.indexOf(f.st||"idee")+1)%3];await S.store.setPath("food/fund/"+f.id+"/st",nx).catch(()=>toast("Konnte nicht speichern."));if(nx==="gebucht"&&f.area==="haus")geldBought({name:f.name,cat:"wohnen",amt:priceCent(f.price),ref:"fund:"+f.id,grp:""})}return}
   if(b.dataset.fundrm){fundRmAsk(b.dataset.fundrm);return}
   if(b.dataset.fundedit){fundEdit(b.dataset.fundedit);return}
   if(S.reiseOpen){const base="food/urlaub/"+S.reiseOpen+"/",x=urlaube().find(y=>y.id===S.reiseOpen);
@@ -84,12 +84,12 @@ app.addEventListener("click",async e=>{
   if(b.dataset.splitrm){if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="?";return}try{await S.store.setPath("food/split/"+b.dataset.splitrm,null)}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.buysum){const k=b.dataset.buysum;(S.buyOpen||(S.buyOpen={}))[k]=!S.buyOpen[k];render();return}
   if(b.dataset.buyfor){const [l,w]=b.dataset.buyfor.split("|"),F=S.buyFor||(S.buyFor={});F[l]=F[l]===w?"":w;render();return}
-  if(b.dataset.buydone){const x=buys().find(y=>y.id===b.dataset.buydone);if(x){try{await S.store.setPath("food/buy/"+x.id+"/done",!x.done);await S.store.setPath("food/buy/"+x.id+"/doneAt",x.done?null:Date.now())}catch(_){toast("Konnte nicht speichern.")}}return}
+  if(b.dataset.buydone){const x=buys().find(y=>y.id===b.dataset.buydone);if(x){try{await S.store.setPath("food/buy/"+x.id+"/done",!x.done);await S.store.setPath("food/buy/"+x.id+"/doneAt",x.done?null:Date.now());if(!x.done)geldBought({name:x.name,cat:{kleidung:"kleid",geschenke:"geschenk",baumarkt:"wohnen"}[x.list]||"",ref:"buy:"+x.id})}catch(_){toast("Konnte nicht speichern.")}}return}
   if(b.dataset.buyrm){try{await S.store.setPath("food/buy/"+b.dataset.buyrm,null)}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.buylistdel){if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Wirklich löschen?";return}const id=b.dataset.buylistdel;try{for(const x of buys().filter(y=>y.list===id))await S.store.setPath("food/buy/"+x.id,null);await S.store.setPath("food/buylist/"+id,null);toast("Liste gelöscht")}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.act==="buylistnew"){S.buyListNew=true;render();const el=document.getElementById("buylistinput");if(el)el.focus();return}
-  if(b.dataset.advbought){const [c,d]=b.dataset.advbought.split("|"),cal=advCals().find(x=>x.id===c);if(cal){advSet(cal,+d,{st:"besorgt"});toast("Türchen "+d+": besorgt")}return}
-  if(b.dataset.fundbought){try{await S.store.setPath("food/fund/"+b.dataset.fundbought+"/st","gebucht");toast("Gekauft")}catch(_){toast("Konnte nicht speichern.")}return}
+  if(b.dataset.advbought){const [c,d]=b.dataset.advbought.split("|"),cal=advCals().find(x=>x.id===c);if(cal){advSet(cal,+d,{st:"besorgt"});const x=advDoors(c)[+d]||{};geldBought({name:"Türchen "+d+(x.name?": "+x.name:""),cat:"geschenk",amt:priceCent(x.price),ref:"adoor:"+c+"_"+d,grp:""})}return}
+  if(b.dataset.fundbought){try{await S.store.setPath("food/fund/"+b.dataset.fundbought+"/st","gebucht");const f=listOf(S.food&&S.food.fund).find(y=>y.id===b.dataset.fundbought)||{};geldBought({name:f.name||"",cat:f.area==="haus"?"wohnen":"",amt:priceCent(f.price),ref:"fund:"+b.dataset.fundbought,grp:""})}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.buypack){S.prev=S.tab;S.tab="ausflug";S.tripTab="pack";S.packList=b.dataset.buypack;render();window.scrollTo(0,0);return}
   if(b.dataset.packwear){const i=packs().find(y=>y.id===b.dataset.packwear);if(!i)return;if(buys().some(y=>y.ref==="pack:"+i.id&&!y.done)){try{await buyDropRef("pack:"+i.id);toast(i.name+" ist nicht mehr bei Kleidung")}catch(_){toast("Konnte nicht speichern.")}return}if(await buyAdd("kleidung",i.name,{ref:"pack:"+i.id}))toast(i.name+" steht bei Einkauf › Kleidung");return}
   if(b.dataset.tagsum){const k=b.dataset.tagsum;(S.tagOpen||(S.tagOpen={}))[k]=!S.tagOpen[k];render();return}
@@ -234,7 +234,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.advcal){S.advCal=b.dataset.advcal;S.advDoor=null;render();return}
   if(b.dataset.advnew){const [w,k]=b.dataset.advnew.split("|");advNew(w,k);return}
   if(b.dataset.advdoor){const d=+b.dataset.advdoor,c=advCur();if(c&&c.for===S.me&&c.for!=="kid"){toast(advHidden(c,d)?"Türchen "+d+" öffnet sich am "+d+". Dezember.":"Türchen "+d+": "+((advDoors(c.id)[d]||{}).name||"leer"));return}S.advDoor=S.advDoor===d?null:d;render();if(S.advDoor){const i=document.querySelector("[data-advname]");if(i&&!i.value)i.focus()}return}
-  if(b.dataset.advkind||b.dataset.advst){const c=advCur();if(c&&S.advDoor){advSet(c,S.advDoor,b.dataset.advkind?{kind:b.dataset.advkind}:{st:b.dataset.advst});if(b.dataset.advkind==="klein"&&shopItems().some(i=>!i.done&&i.src===advSrc(S.advDoor))){shopRemoveBlock(advSrc(S.advDoor));toast("Steht jetzt bei Spielsachen statt auf der Einkaufsliste")}}return}
+  if(b.dataset.advkind||b.dataset.advst){const c=advCur();if(c&&S.advDoor){advSet(c,S.advDoor,b.dataset.advkind?{kind:b.dataset.advkind}:{st:b.dataset.advst});if(b.dataset.advst==="besorgt"){const x=advDoors(c.id)[S.advDoor]||{};geldBought({name:"Türchen "+S.advDoor+(x.name?": "+x.name:""),cat:"geschenk",amt:priceCent(x.price),ref:"adoor:"+c.id+"_"+S.advDoor,grp:""})}if(b.dataset.advkind==="klein"&&shopItems().some(i=>!i.done&&i.src===advSrc(S.advDoor))){shopRemoveBlock(advSrc(S.advDoor));toast("Steht jetzt bei Spielsachen statt auf der Einkaufsliste")}}return}
   if(b.dataset.advclear){const c=advCur(),d=+b.dataset.advclear;if(c){await advSet(c,d,{name:""});S.advDoor=null;render();offerShopRemove("Türchen "+d+" geleert.",shopItems().filter(i=>i.src===advSrc(d)))}return}
   if(b.dataset.advsugg){const c=advCur();if(!c)return;const D=advDoors(c.id);let d=S.advDoor&&!D[S.advDoor]?S.advDoor:0;if(!d){d=1;while(D[d]&&d<=24)d++}if(d>24){toast("Alle 24 Türchen sind voll.");return}await advSet(c,d,{name:b.dataset.advsugg,kind:advKind(b.dataset.advsugg)});suggRemember("advent",b.dataset.advsugg);S.advDoor=null;render();return}
   if(b.dataset.advshop){const c=advCur(),x=c&&advDoors(c.id)[+b.dataset.advshop];if(x)openPick([{src:advSrc(x.day),lines:advNeed(x)}]);return}
@@ -251,7 +251,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.pfilter!=null){S.projFilter=b.dataset.pfilter;S.hprojOpen=null;S.hsamm=false;S.projText="";render();window.scrollTo(0,0);return}
   if(b.dataset.projstate){const x=projs().find(y=>y.id===b.dataset.projstate);if(x){const i=PROJ_STATE.findIndex(s=>s[0]===x.state),nx=PROJ_STATE[((i<0?0:i)+1)%PROJ_STATE.length][0];try{await S.store.setPath("food/idea/"+x.id+"/state",nx==="idee"?null:nx)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}return}
   if(b.dataset.proj2hp){const x=projs().find(y=>y.id===b.dataset.proj2hp);if(!x)return;const c=projCat(x),id=newId("h");try{await S.store.setPath("food/hproj/"+id,{name:x.name,emo:HCAT[c][1],cat:c,state:"aktuell",note:x.note||"",at:Date.now(),by:S.me||""});await S.store.setPath("food/idea/"+x.id,null);S.tab="amhaus";S.projFilter=c;S.hprojOpen=id;S.hsamm=false;toast("Projekt angelegt");render();window.scrollTo(0,0)}catch(_){toast("Konnte nicht speichern.")}return}
-  if(b.dataset.projdone){const x=projs().find(y=>y.id===b.dataset.projdone);if(x){try{await S.store.setPath("food/idea/"+x.id+"/done",!x.done);await S.store.setPath("food/idea/"+x.id+"/doneAt",x.done?null:Date.now())}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}return}
+  if(b.dataset.projdone){const x=projs().find(y=>y.id===b.dataset.projdone);if(x){try{await S.store.setPath("food/idea/"+x.id+"/done",!x.done);await S.store.setPath("food/idea/"+x.id+"/doneAt",x.done?null:Date.now());if(!x.done&&projCat(x)==="geschenk")geldBought({name:x.name,cat:"geschenk",ref:"idea:"+x.id})}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}return}
   if(b.dataset.projedit){const x=projs().find(y=>y.id===b.dataset.projedit);if(x){S.projDraft={id:x.id,emo:x.emo||"",name:x.name||"",cat:x.cat||"",state:x.state||"",who:x.who||"",for:x.for||"",link:x.link||"",note:x.note||""};render();window.scrollTo(0,0)}return}
   if(b.dataset.act==="projcancel"){S.projDraft=null;render();return}
   if(b.dataset.act==="projsave"){const d=S.projDraft,name=(d.name||"").trim().slice(0,80);if(!name){toast("Bitte kurz eintragen, worum es geht");return}
@@ -420,6 +420,8 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="hidedone"){S.hideDone=!S.hideDone;try{localStorage.setItem("hq-hidedone",S.hideDone?"1":"0")}catch(_){}render();return}
   if(b.dataset.filter){S.filter=b.dataset.filter;try{localStorage.setItem("hq-filter",S.filter)}catch(_){}render();return}
   if(b.dataset.nav){const n=+b.dataset.nav;S.view=n===0?mondayOf(new Date()):addDays(S.view,7*n);render();return}
+  if(b.dataset.hodone!=null){const hm=hoMine();if(!hm)return;const wk=wkKey(mondayOf(new Date())),k=hm.t.id+"__"+hm.di,ok=Object.assign({},hm.v.ok||{});if(ok[hm.me])delete ok[hm.me];else ok[hm.me]=Date.now();
+    try{await S.store.tick(wk,k,Object.assign({},hm.v,{ok:Object.keys(ok).length?ok:null}))}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.task){toggle(b);return}
   if(b.dataset.del){S.draft.tasks.splice(+b.dataset.del,1);render();return}
   const act=b.dataset.act;

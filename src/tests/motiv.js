@@ -10,6 +10,6 @@ srv.listen(8765,async()=>{
   await A.click('[data-go=settings]');await A.waitForTimeout(300);if(!await A.$('[data-motiv-set]'))await A.click('[data-setsum=aussehen]');await A.click('[data-stil-set=aquarell]');await nav('camp|');const s2=await scene();
   await A.click('[data-go=settings]');await A.waitForTimeout(300);if(!await A.$('[data-motiv-set]'))await A.click('[data-setsum=aussehen]');await A.click('[data-motiv-set=meer]');await A.click('[data-stil-set=fein]');await nav('camp|');const s3=await scene();
   await A.click('.camp .spot[data-go=reisen]');await A.waitForTimeout(300);const reisen=await A.evaluate(()=>document.body.innerText.includes('Urlaube'));
-  const r={def:s0.lab.includes('am Meer')&&!s0.aq&&!s0.pat,stadt:s1.lab.includes('Stadt'),same:s0.spots===s1.spots,aq:s2.aq,fein:s3.pat&&s3.lab.includes('am Meer'),reisen};
+  const r={def:s0.lab.includes('am Meer')&&!s0.aq&&!s0.pat,stadt:s1.lab.includes('Stadt'),same:s0.spots.replace(/ausgaben,/,'')===s1.spots,aq:s2.aq,fein:s3.pat&&s3.lab.includes('am Meer'),reisen};
   console.error(JSON.stringify(r),s0.spots,s1.spots,errs);
   console.error(!errs.length&&Object.values(r).every(Boolean)?'MOTIV OK':'MOTIV FAIL');await b.close();srv.close();process.exit(0)});

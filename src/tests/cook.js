@@ -17,7 +17,7 @@ srv.listen(8765,async()=>{
   await A.screenshot({path:out+'/essen-tag-waehlen.png'});
   await A.click('#mbox [data-cday="1"]');await A.waitForTimeout(400);r.d3=(P().d3||{}).text;
   // Dashboard-Hinweis nach Leeren
-  await put('food/plan/2026-W47/d2',null);await A.waitForTimeout(500);await nav('camp|sp:tag');await A.waitForTimeout(300);r.mf=await A.$$eval('[data-mealfor]',l=>l.map(x=>x.className));await A.click('[data-mealfor] >> nth=0');await A.waitForTimeout(300);r.banner2=!!(await A.$('.mealfor'));
+  await put('food/plan/2026-W47/d2',null);await A.waitForTimeout(500);await A.click('#tabs [data-tab=camp]');await A.waitForTimeout(900);r.mf=await A.$$eval('[data-mealfor]',l=>l.map(x=>x.className));await A.click('.todayrow[data-mealfor]');await A.waitForTimeout(300);r.banner2=!!(await A.$('.mealfor'));
   await A.click('[data-cook="rec|r2"] >> nth=0');await A.waitForTimeout(300);await A.click('#mbox [data-cday="0"]');await A.waitForTimeout(400);r.d2b=(P().d2||{}).text;
   console.error(JSON.stringify(r),errs);
   const ok=!errs.length&&r.banner&&r.d2==='Linsencurry|r1'&&/Linsencurry/.test(r.h1)&&r.nobanner&&r.days===7&&r.d3==='Ofengemüse'&&r.banner2&&r.d2b==='Ofengemüse';

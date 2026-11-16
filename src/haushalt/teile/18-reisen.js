@@ -234,6 +234,7 @@ function renderTripIdeas(){const d=S.tripDraft;
     <div class="fld"><span>Welche Packliste?</span><div class="unl">${lists.map(l=>`<button class="chipbtn" data-tset="pack" data-v="${esc(l.id)}" aria-pressed="${d.pack===l.id}">🎒 ${esc(l.name)}</button>`).join("")}</div></div>
     <label class="fld"><span>Link (Karte oder Webseite)</span><input type="url" id="tr-link" data-tf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off"></label>
     <label class="fld"><span>Notiz</span><textarea id="tr-note" data-tf="note" rows="3" placeholder="Parkplatz, Eintritt, was man nicht vergessen darf">${esc(d.note)}</textarea></label>
+    ${d.id?geldSrcRow("trip:"+d.id,{name:d.name||"",cat:"frei",date:d.date||ymd(new Date())}):""}
     <div class="btnrow"><button class="primary" data-act="tripsave">Speichern</button><button class="ghost" data-act="tripcancel">Abbrechen</button>${d.id?`<button class="ghost" data-move="trip|${esc(d.id)}">↪ Verschieben</button><button class="ghost danger" data-act="tripdel">Löschen</button>`:""}</div></section>`}
   const mz=musLinks("auto",3);
   const all=trips(),F=S.tripFilter||"",match=x=>!F||(F==="regen"?x.wx==="egal":x.kind===F);

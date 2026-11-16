@@ -103,6 +103,10 @@ function searchHits(q){const W=sNorm(q).split(/\s+/).filter(Boolean);if(!W.lengt
   advCals().forEach(c=>{add("Ideen","🎄",c.name,"Adventskalender "+(c.year||""),`data-advgo="${esc(c.id)}"`);Object.values(advDoors(c.id)).forEach(x=>{if(!advHidden(c,x.day))add("Ideen","🎄",x.name,"Adventskalender · Türchen "+x.day,`data-advgo="${esc(c.id)}"`)})});
   termine().forEach(x=>add("Kalender","📅",x.name,(x.date?x.date.split("-").reverse().join("."):"")+(x.time?" "+x.time:""),'data-nav="woche|wp:3"',x.note));
   buys().forEach(x=>{const L=buyLists().find(l=>l.id===x.list);if(!L||x.done)return;add("Einkauf",L.emo,x.name,"Weitere Listen · "+L.name,`data-nav="listen|bl:${esc(L.id)}"`)});
+  // Ausgaben und Gruppen (Florian 16.11.2026, Punkt 6)
+  monies().forEach(x=>{const c=geldCat(x.cat);add("Ausgaben",x.kind==="settle"?"🤝":c[1],x.name,eur(x.amt)+" · "+(x.date?x.date.split("-").reverse().join("."):"")+(x.grp?" · "+grpName(x.grp):""),`data-go="ausgaben" data-geldedit="${esc(x.id)}"`,x.note)});
+  mgroups().forEach(g=>add("Ausgaben",g.emo||"💶",g.name,"Gruppe in Ausgaben"+(g.closed?" · abgeschlossen":""),`data-go="ausgaben" data-geldgrp="${esc(g.id)}"`));
+  fixes().forEach(x=>add("Ausgaben","🔁",x.name,"Feste Zahlung · "+eur(x.amt),`data-go="ausgaben" data-gtab="fest"`,x.note));
   prios().forEach(x=>{if(x.from==="mittag")return;add("Wichtig","🔔",x.name,"Erinnerung"+(x.due?" · "+x.due.split("-").reverse().slice(0,2).join("."):""),'data-go="wichtig"',x.note)});
   listOf(F.idea).forEach(x=>{const c=x.cat==="spiel"?"sonst":x.cat||"sonst",haus=["wohnen","ordnung","haus","garten"].includes(c),pc=projCats().find(p=>p[0]===c);add(haus?"Am Haus":"Ideen",pc?pc[1]:"💡",x.name,pc?pc[2]:"",`data-nav="${haus?"amhaus":"projekte"}|pf:${esc(c)}"`,x.note)});
   hprojs().forEach(x=>add("Am Haus",x.emo||"🏠",x.name,"Projekt",`data-hproj="${esc(x.id)}"`,x.note));

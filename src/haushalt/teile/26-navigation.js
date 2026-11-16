@@ -8,10 +8,12 @@ function restoreNav(){try{S.flip=sessionStorage.getItem("hq-flip")==="1"}catch(_
   const i=st&&typeof st.k==="string"&&st.i>0?st.i:0;for(let j=0;j<i;j++)NAV.push("");const nk=navKey();NAV.push(nk);try{history.replaceState({i,k:nk},"")}catch(_){}return true}
 function syncNav(){if(!S.config)return;arSeen();if(!NAV.length&&!S.navRestored){S.navRestored=true;if(restoreNav()){render();window.scrollTo(0,0);return}}const k=navKey();try{sessionStorage.setItem("hq-nav",k);sessionStorage.setItem("hq-flip",S.flip?"1":"")}catch(_){}try{
   if(!NAV.length){NAV.push(k);history.replaceState({i:0,k},"");return}
+  // Abgleich mit dem echten Verlauf (16.11.2026, nicht während ein eigenes Zurück unterwegs ist): ein Zurück aus einem Fenster kann nach dem Neuzeichnen ankommen; ohne Abgleich führte ein späteres Zurück aus der App heraus
+  {const hs=history.state;if(!navBusy&&hs&&!hs.ov&&typeof hs.i==="number"&&typeof hs.k==="string"&&NAV.length!==hs.i+1){NAV.length=hs.i+1;for(let j=0;j<hs.i;j++)if(NAV[j]==null)NAV[j]="";NAV[hs.i]=hs.k}}
   if(NAV[NAV.length-1]===k)return;
   // Ein Fenster wurde mit einem Sprung geschlossen: dessen Verlaufsschritt wird zur neuen Seite
   if(history.state&&history.state.ov&&!ovlOpen()){NAV.push(k);history.replaceState({i:NAV.length-1,k},"");return}
-  if(NAV.length>1&&NAV[NAV.length-2]===k){NAV.pop();navBusy=true;history.back();return}
+  if(NAV.length>1&&NAV[NAV.length-2]===k&&history.state&&history.state.i===NAV.length-1){NAV.pop();navBusy=true;history.back();return}
   NAV.push(k);history.pushState({i:NAV.length-1,k},"")}catch(_){}}
 window.addEventListener("popstate",e=>{const st=e.state;
   // Offenes Fenster: Zurück schließt nur das Fenster (Florian 16.11.2026)

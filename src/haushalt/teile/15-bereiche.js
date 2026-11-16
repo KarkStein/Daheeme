@@ -6,6 +6,7 @@ const QUICK={
   woche:["🧹 Woche",[["🙋","Meine offenen Aufgaben",{nav:"woche|wp:1",fn:()=>{S.wmwWho=S.me||"p0";S.wmwView="zeit"}}],["✅","Aufgabe abhaken",{nav:"woche",fn:()=>setTimeout(goTasks0,120)}],["🏠","Hausdienst eintragen",{nav:"woche",scroll:".hoslot"}]]],
   kalender:["📅 Kalender",[["➕","Neuer Termin",{nav:"woche|wp:3",click:"[data-act=ternew]"}],["🗓️","Heute und morgen",{nav:"woche|wp:3",fn:()=>{S.calView="liste"}}]]],
   kita:["🎒 Kita",[["📦","Mitbringen für morgen",{nav:"kita|ks:tasche"}],["🍽️","Kita-Essen heute",{nav:"kita|ks:essen",fn:()=>{S.foodWeek=null;S.kitaEdit=false},scroll:".kmday.today"}]]],
+  ausgaben:["🐷 Ausgaben",[["💶","Ausgabe eintragen",{nav:"ausgaben",fn:()=>{S.geldTab="uebersicht";geldNew()}}],["⚡","Schnell eintragen",{nav:"ausgaben",fn:()=>{S.geldDraft=null;S.geldTab="uebersicht"},focus:"#geldq"}],["🔁","Feste Zahlungen",{nav:"ausgaben",fn:()=>{S.geldDraft=null;S.geldGrp="";S.geldTab="fest"}}]]],
   amhaus:["🏠 Am Haus",[["➕","Neues Projekt",{nav:"amhaus|pf:wohnen",click:'[data-act="hprojnew"]'}],["🔧","Reparatur notieren",{nav:"amhaus|pf:haus",focus:"#projinput"}],["📍","Sammlung",{nav:"amhaus|pf:wohnen",click:'[data-act="hsamm"]'}]]]
 };
 function quickKey(el){if(!el||!el.classList.contains("spot"))return null;if(el.dataset.go==="post")return "post";if(el.dataset.nav==="woche|wp:3")return "kalender";if(el.dataset.pf)return null;const g=el.dataset.go;if(g==="amhaus"&&!/Lampe/.test(el.getAttribute("aria-label")||""))return null;return QUICK[g]?g:null}
