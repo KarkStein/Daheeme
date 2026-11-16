@@ -802,9 +802,9 @@ const CAL_SRC=[
   // Familywall (Florian 15.11.2026): nur lesend, stündlich vom Lauf im privaten Sicherungs-Repo nach food/ext/fw geschrieben; gleiche Termine wie in der App nur einmal
   (a,z)=>{const fw=S.food&&S.food.ext&&S.food.ext.fw;if(!fw||!fw.items)return [];const own=new Set(termine().map(x=>(x.name||"").trim().toLowerCase()+"|"+x.date)),out=[];
     const nrm=t=>String(t||"").toLowerCase().replace(/[^a-zäöüß]/g,"");
-    const hid=(S.food.ext&&S.food.ext.fwhide)||{};
-    Object.keys(fw.items).forEach(id=>{const x=fw.items[id];if(!x||!x.date||!x.name||hid[fwHideKey(x.name)]||own.has(x.name.trim().toLowerCase()+"|"+x.date))return;const ft=nrm(feiertag(x.date));if(ft&&!x.time&&(nrm(x.name).includes(ft)||ft.includes(nrm(x.name))))return;const to=x.to&&x.to>x.date?x.to:x.date;if(to<a||x.date>z)return;let d=ymdD(x.date),n=0;
-      while(ymd(d)<=to&&n<60){const k=ymd(d);if(k>=a&&k<=z)out.push({d:k,t:k===x.date?x.time||"":"",name:x.name+(n?" (Tag "+(n+1)+")":""),icon:"",src:"ext",who:fwWho(id,x),fw:id,place:x.place||"",note:"Aus Familywall"+(x.end?", bis "+x.end:"")+(x.place?" · "+x.place:"")+". Ändern geht in Familywall."});d=addDays(d,1);n++}});return out},
+    const hid=(S.food.ext&&S.food.ext.fwhide)||{},E2=S.food.ext||{};
+    Object.keys(fw.items).forEach(id=>{const x=fw.items[id];if(!x||!x.date||!x.name||hid[fwHideKey(x.name)]||own.has(x.name.trim().toLowerCase()+"|"+x.date))return;const ft=nrm(feiertag(x.date));if(ft&&!x.time&&(nrm(x.name).includes(ft)||ft.includes(nrm(x.name))))return;const to=x.to&&x.to>x.date?x.to:x.date;if(to<a||x.date>z)return;let d=ymdD(x.date),n=0;const X0=(E2.fwx||{})[id]||{},X=X0.tag||!KITA_RX.test(x.name)?X0:Object.assign({},X0,{tag:"kita"});
+      while(ymd(d)<=to&&n<60){const k=ymd(d);if(k>=a&&k<=z)out.push({d:k,t:k===x.date?x.time||"":"",name:x.name+(n?" (Tag "+(n+1)+")":""),icon:X.tag?terIcon(X):"",tag:X.tag||"",remind:X.remind||false,src:"ext",who:fwWho(id,x),fw:id,place:X.place||x.place||(X.tag==="kita"&&placeFind("Kita")?placeFind("Kita").name:""),note:"Aus Familywall"+(x.end?", bis "+x.end:"")+(x.place?" · "+x.place:"")+". Ändern geht in Familywall."});d=addDays(d,1);n++}});return out},
   (a,z)=>{const out=[];for(let d=ymdD(a);ymd(d)<=z;d=addDays(d,1)){const k=ymd(d),ft=feiertag(k);if(ft)out.push({d:k,t:"",name:ft,icon:"🎉",src:"frei",note:"Feiertag in Bayern. Die Kita hat zu."})}
     ferienList().forEach(f=>{if(f.from>=a&&f.from<=z)out.push({d:f.from,t:"",name:f.from===f.to?f.name+" (schulfrei)":f.name+" beginnen",icon:"🏖️",src:"frei",note:"Schulferien Bayern bis "+rDate(f.to)+"."});if(f.to!==f.from&&f.to>=a&&f.to<=z)out.push({d:f.to,t:"",name:"Letzter Tag "+f.name,icon:"🏖️",src:"frei"})});return out}];
 // Was der Kalender zeigt (Filter nach Bereich und Person). dayStress und Rückseite nutzen calEvents ungefiltert.
@@ -2436,7 +2436,7 @@ function todayMissing(meal){if(!meal)return [];const r=meal.rec&&recs().find(x=>
 // Startseite: Heute ist die Kurzfassung (To-do, Essen); Erinnerungen nur als Sprung zur Glocke (Florian 15.11.2026)
 // Zahl an der Glocke (Florian 15.11.2026): Erinnerungen der nächsten 24 Stunden plus Überfälliges, Termine nur mit 🔔; keine Aufgaben, kein Essen
 function bellItems(){const now=new Date(),today=ymd(now),tm=ymd(addDays(startOfDay(now),1)),hm=String(now.getHours()).padStart(2,"0")+":"+String(now.getMinutes()).padStart(2,"0"),in24=(d,t)=>d<=today||(d===tm&&(t?t<=hm:false));
-  const P=prios().filter(x=>x.from!=="mittag"&&x.due&&in24(x.due,x.time)),T=calEvents(today,ymd(addDays(startOfDay(now),2))).filter(e=>{if(e.src!=="own"||e.tent||!e.remind||(e.d===today&&e.t&&e.t<hm))return false;if(e.remind===true)return in24(e.d,e.t);const at=new Date(e.d+"T"+(e.t||"09:00")+":00").getTime();return now.getTime()>=at-(e.remind==="1h"?3600e3:864e5)});const C=choiceBell();return {P,T,C,n:P.length+T.length+C.A.length+C.N.length}}
+  const P=prios().filter(x=>x.from!=="mittag"&&x.due&&in24(x.due,x.time)),T=calEvents(today,ymd(addDays(startOfDay(now),2))).filter(e=>{if((e.src!=="own"&&e.src!=="ext")||e.tent||!e.remind||(e.d===today&&e.t&&e.t<hm))return false;if(e.remind===true)return in24(e.d,e.t);const at=new Date(e.d+"T"+(e.t||"09:00")+":00").getTime();return now.getTime()>=at-(e.remind==="1h"?3600e3:864e5)});const C=choiceBell();return {P,T,C,n:P.length+T.length+C.A.length+C.N.length}}
 function prioLinkRow(){const today=ymd(new Date()),tm=ymd(addDays(new Date(),1)),all=prios().filter(x=>x.from!=="mittag"),f=all.filter(x=>x.due&&x.due<=today).length,m=all.filter(x=>x.due===tm).length;
   return `<button class="todayrow" data-go="wichtig"><span>🔔</span><span>${f||m?[f?f+" heute fällig":"",m?m+" morgen":""].filter(Boolean).join(", "):all.length?"Erinnerungen: nichts fällig":"Erinnerungen"}</span><i>${all.length?all.length+" ›":"›"}</i></button>`}
 function renderPrio(){const today=ymd(new Date()),all=prios().filter(x=>x.from!=="mittag"),cur=all.filter(x=>!(x.due&&x.due>today)).sort((a,b)=>(a.due?0:1)-(b.due?0:1)||((a.due||"")<(b.due||"")?-1:1)),wk7=ymd(addDays(new Date(),7)),later=all.filter(x=>x.due&&x.due>today&&x.due<=wk7).sort((a,b)=>a.due<b.due?-1:1),show=cur.concat(later).slice(0,5),fall=all.filter(x=>x.due&&x.due<=today).length;
@@ -2515,6 +2515,9 @@ function renderKita(){const d=S.kitaDraft,sec=KITA_SECS.find(s=>s[0]===S.kitaSec
     if(S.kitaImp)h+=kitaImpCard();
     h+=up.length?`<section class="card"><div class="section-head"><h2>Kommt noch</h2><span class="freq num">${up.length}</span></div><ul class="shop">${up.map(li).join("")}</ul><div class="freq">Termine in den nächsten 7 Tagen stehen auch auf der Startseite unter „Heute“.</div></section>`
       :`<div class="empty"><h2>Keine Termine</h2><div>Tragt Feste, Schließtage und Elternabende ein. Ihr seht beide dieselbe Liste.</div></div>`;
+    // Kita-Termine aus dem Kalender (Florian 16.11.2026): eigene Termine mit Art Kita und Familywall-Termine (Art Kita oder Kita/Kinderhaus im Titel)
+    {const ce=calEvents(today,ymd(addDays(new Date(),120))).filter(e=>e.tag==="kita"&&(e.src==="own"||e.src==="ext"));
+     if(ce.length)h+=`<section class="card"><div class="section-head"><h2>📅 Aus dem Kalender</h2><span class="freq num">${ce.length}</span></div><ul class="evlist">${ce.map(e=>evRow(e,true)).join("")}</ul><div class="freq">Termine mit der Art Kita, auch aus Familywall. Ändern im Termin.</div></section>`}
     if(past.length)h+=`<section class="card"><div class="section-head"><h2>Vorbei</h2><span class="freq num">${past.length}</span></div><ul class="shop">${past.slice(0,10).map(li).join("")}</ul></section>`;
     return h}
   if(sec[0]==="essen")return h+renderKitaMeals();
@@ -2955,9 +2958,16 @@ app.addEventListener("click",async e=>{
   if(b.dataset.caloffall!=null){S.calOff=b.dataset.caloffall==="1"?[]:CAL_LBL.map(l=>l[0]);try{localStorage.setItem("hq-caloff",JSON.stringify(S.calOff))}catch(_){}render();return}
   if(b.dataset.fwmap){try{await S.store.setPath("food/ext/fwmap/"+b.dataset.fwmap,b.dataset.v||null)}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.fwkwrm){try{await S.store.setPath("food/ext/fwkw/"+b.dataset.fwkwrm,null)}catch(_){}return}
-  if(b.dataset.fwpick){const id=b.dataset.fwpick,fw=S.food&&S.food.ext&&S.food.ext.fw,x=fw&&fw.items&&fw.items[id];if(!x)return;const cur=((S.food.ext.fwwho||{})[id])||"";
-    editBox("„"+x.name+"“",[{k:"who",label:rDate(x.date)+(x.time?" "+x.time:"")+(x.place?" · "+x.place:"")+". Aus Familywall, ändern geht nur dort. Für wen ist der Termin?",type:"chips",opts:[["","Automatisch"]].concat(whoOpts()),val:cur},{k:"kw",label:"Optional: Regel für alle Termine mit diesem Wort im Titel",type:"text",val:""}],
-      async V=>{await S.store.setPath("food/ext/fwwho/"+id,V.who||null);const kw=String(V.kw||"").trim().slice(0,40);if(kw&&V.who)await S.store.setPath("food/ext/fwkw/"+newId("k"),{kw,who:V.who});toast("Gespeichert")},
+  if(b.dataset.fwpick){const id=b.dataset.fwpick,fw=S.food&&S.food.ext&&S.food.ext.fw,x=fw&&fw.items&&fw.items[id];if(!x)return;const cur=((S.food.ext.fwwho||{})[id])||"",X=((S.food.ext.fwx||{})[id])||{},pl=X.place&&placeFind(X.place)?placeFind(X.place).name:"";
+    // Familywall-Termin (Florian 16.11.2026): Titel und Zeit nur in Familywall; Für wen, Art, Ort und Erinnern ergänzt die App (food/ext/fwx/<id>)
+    editBox("„"+x.name+"“",[{k:"note",type:"note",label:rDate(x.date)+(x.time?" "+x.time:"")+(x.place?" · "+x.place:"")+". Aus Familywall: Titel und Zeit ändern geht nur dort."},{k:"who",label:"Für wen",type:"chips",opts:[["","Automatisch"]].concat(whoOpts()),val:cur},
+      {k:"tag",label:"Art",type:"chips",opts:[["","Keine"]].concat(terTags().map(t=>[t[0],t[1]+" "+t[2]])),val:X.tag||""},
+      {k:"pl",label:"Ort"+(x.place?" (sonst wie in Familywall)":""),type:"chips",opts:[["",x.place?"Wie in Familywall":"Keiner"]].concat(places().map(p=>[p.name,"📍 "+p.name])),val:pl},
+      {k:"plx",label:"Oder Adresse nur für diesen Termin",type:"text",val:X.place&&!pl?X.place:""},
+      {k:"remind",label:"🔔 Erinnern",type:"chips",opts:[["","Nein"],["tag","Am Tag"],["1d","1 Tag vorher"],["1h","1 Stunde vorher"]],val:X.remind===true?"tag":X.remind||""},
+      {k:"kw",label:"Optional: Für-wen-Regel für alle Termine mit diesem Wort im Titel",type:"text",val:""}],
+      async V=>{await S.store.setPath("food/ext/fwwho/"+id,V.who||null);const kw=String(V.kw||"").trim().slice(0,40);if(kw&&V.who)await S.store.setPath("food/ext/fwkw/"+newId("k"),{kw,who:V.who});
+        const place=String(V.plx||"").trim().slice(0,160)||V.pl||null,rm=V.remind==="tag"?true:V.remind||null;await S.store.setPath("food/ext/fwx/"+id,V.tag||place||rm?{tag:V.tag||null,place,remind:rm}:null);toast("Gespeichert");render()},
       [["🙈 In der App ausblenden (auch Wiederholungen)",async()=>{await S.store.setPath("food/ext/fwhide/"+fwHideKey(x.name),{name:String(x.name).slice(0,80),at:Date.now()});toast("Ausgeblendet. Zurückholen unter Kalender › Bereiche.")},false]]);return}
   if(b.dataset.fwunhide){try{await S.store.setPath("food/ext/fwhide/"+b.dataset.fwunhide,null);toast("Wird wieder gezeigt")}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.calw!=null){const n=+b.dataset.calw;S.calDay=n===0?null:ymd(addDays(ymdD(S.calDay||ymd(new Date())),n));render();return}
@@ -3559,6 +3569,8 @@ function placeNewFor(x,set){editBox("Ort eintragen",[{k:"addr",label:"Adresse",t
   async V=>{const addr=String(V.addr||"").trim().slice(0,160),name=String(V.name||"").trim().slice(0,40);if(!addr&&!name){toast("Bitte eine Adresse eintragen.");return}
     if(V.keep==="einmal"||!name){await set(addr||name);if(V.keep!=="einmal")toast("Ohne Namen nur für diesen Termin gespeichert.");return}
     await S.store.setPath("food/place/"+newId("o"),{name,addr:addr||null,at:Date.now(),by:S.me||""});await set(name)})}
+// Familywall-Termine mit Kita, Kinderhaus, Krippe oder Kindergarten im Titel gelten als Art Kita, solange keine andere Art gewählt ist
+const KITA_RX=/\b(kita|kinderhaus|kinderkrippe|krippe|kindergarten)/i;
 // ---------- Motive und Bildstil (Nachtauftrag 15.11.2026) ----------
 // Motiv: "meer" (Haus am Meer, Standard) oder "stadt" (Stadthaus in München, Entwurf).
 // Bildstil fürs Haus am Meer: "" (wie bisher), "licht" (Licht und Schatten), "aquarell", "fein" (Texturen und Licht).

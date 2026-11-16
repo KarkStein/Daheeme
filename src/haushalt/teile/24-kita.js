@@ -29,6 +29,9 @@ function renderKita(){const d=S.kitaDraft,sec=KITA_SECS.find(s=>s[0]===S.kitaSec
     if(S.kitaImp)h+=kitaImpCard();
     h+=up.length?`<section class="card"><div class="section-head"><h2>Kommt noch</h2><span class="freq num">${up.length}</span></div><ul class="shop">${up.map(li).join("")}</ul><div class="freq">Termine in den nächsten 7 Tagen stehen auch auf der Startseite unter „Heute“.</div></section>`
       :`<div class="empty"><h2>Keine Termine</h2><div>Tragt Feste, Schließtage und Elternabende ein. Ihr seht beide dieselbe Liste.</div></div>`;
+    // Kita-Termine aus dem Kalender (Florian 16.11.2026): eigene Termine mit Art Kita und Familywall-Termine (Art Kita oder Kita/Kinderhaus im Titel)
+    {const ce=calEvents(today,ymd(addDays(new Date(),120))).filter(e=>e.tag==="kita"&&(e.src==="own"||e.src==="ext"));
+     if(ce.length)h+=`<section class="card"><div class="section-head"><h2>📅 Aus dem Kalender</h2><span class="freq num">${ce.length}</span></div><ul class="evlist">${ce.map(e=>evRow(e,true)).join("")}</ul><div class="freq">Termine mit der Art Kita, auch aus Familywall. Ändern im Termin.</div></section>`}
     if(past.length)h+=`<section class="card"><div class="section-head"><h2>Vorbei</h2><span class="freq num">${past.length}</span></div><ul class="shop">${past.slice(0,10).map(li).join("")}</ul></section>`;
     return h}
   if(sec[0]==="essen")return h+renderKitaMeals();

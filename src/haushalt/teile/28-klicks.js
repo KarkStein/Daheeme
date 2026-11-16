@@ -127,9 +127,16 @@ app.addEventListener("click",async e=>{
   if(b.dataset.caloffall!=null){S.calOff=b.dataset.caloffall==="1"?[]:CAL_LBL.map(l=>l[0]);try{localStorage.setItem("hq-caloff",JSON.stringify(S.calOff))}catch(_){}render();return}
   if(b.dataset.fwmap){try{await S.store.setPath("food/ext/fwmap/"+b.dataset.fwmap,b.dataset.v||null)}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.fwkwrm){try{await S.store.setPath("food/ext/fwkw/"+b.dataset.fwkwrm,null)}catch(_){}return}
-  if(b.dataset.fwpick){const id=b.dataset.fwpick,fw=S.food&&S.food.ext&&S.food.ext.fw,x=fw&&fw.items&&fw.items[id];if(!x)return;const cur=((S.food.ext.fwwho||{})[id])||"";
-    editBox("„"+x.name+"“",[{k:"who",label:rDate(x.date)+(x.time?" "+x.time:"")+(x.place?" · "+x.place:"")+". Aus Familywall, ändern geht nur dort. Für wen ist der Termin?",type:"chips",opts:[["","Automatisch"]].concat(whoOpts()),val:cur},{k:"kw",label:"Optional: Regel für alle Termine mit diesem Wort im Titel",type:"text",val:""}],
-      async V=>{await S.store.setPath("food/ext/fwwho/"+id,V.who||null);const kw=String(V.kw||"").trim().slice(0,40);if(kw&&V.who)await S.store.setPath("food/ext/fwkw/"+newId("k"),{kw,who:V.who});toast("Gespeichert")},
+  if(b.dataset.fwpick){const id=b.dataset.fwpick,fw=S.food&&S.food.ext&&S.food.ext.fw,x=fw&&fw.items&&fw.items[id];if(!x)return;const cur=((S.food.ext.fwwho||{})[id])||"",X=((S.food.ext.fwx||{})[id])||{},pl=X.place&&placeFind(X.place)?placeFind(X.place).name:"";
+    // Familywall-Termin (Florian 16.11.2026): Titel und Zeit nur in Familywall; Für wen, Art, Ort und Erinnern ergänzt die App (food/ext/fwx/<id>)
+    editBox("„"+x.name+"“",[{k:"note",type:"note",label:rDate(x.date)+(x.time?" "+x.time:"")+(x.place?" · "+x.place:"")+". Aus Familywall: Titel und Zeit ändern geht nur dort."},{k:"who",label:"Für wen",type:"chips",opts:[["","Automatisch"]].concat(whoOpts()),val:cur},
+      {k:"tag",label:"Art",type:"chips",opts:[["","Keine"]].concat(terTags().map(t=>[t[0],t[1]+" "+t[2]])),val:X.tag||""},
+      {k:"pl",label:"Ort"+(x.place?" (sonst wie in Familywall)":""),type:"chips",opts:[["",x.place?"Wie in Familywall":"Keiner"]].concat(places().map(p=>[p.name,"📍 "+p.name])),val:pl},
+      {k:"plx",label:"Oder Adresse nur für diesen Termin",type:"text",val:X.place&&!pl?X.place:""},
+      {k:"remind",label:"🔔 Erinnern",type:"chips",opts:[["","Nein"],["tag","Am Tag"],["1d","1 Tag vorher"],["1h","1 Stunde vorher"]],val:X.remind===true?"tag":X.remind||""},
+      {k:"kw",label:"Optional: Für-wen-Regel für alle Termine mit diesem Wort im Titel",type:"text",val:""}],
+      async V=>{await S.store.setPath("food/ext/fwwho/"+id,V.who||null);const kw=String(V.kw||"").trim().slice(0,40);if(kw&&V.who)await S.store.setPath("food/ext/fwkw/"+newId("k"),{kw,who:V.who});
+        const place=String(V.plx||"").trim().slice(0,160)||V.pl||null,rm=V.remind==="tag"?true:V.remind||null;await S.store.setPath("food/ext/fwx/"+id,V.tag||place||rm?{tag:V.tag||null,place,remind:rm}:null);toast("Gespeichert");render()},
       [["🙈 In der App ausblenden (auch Wiederholungen)",async()=>{await S.store.setPath("food/ext/fwhide/"+fwHideKey(x.name),{name:String(x.name).slice(0,80),at:Date.now()});toast("Ausgeblendet. Zurückholen unter Kalender › Bereiche.")},false]]);return}
   if(b.dataset.fwunhide){try{await S.store.setPath("food/ext/fwhide/"+b.dataset.fwunhide,null);toast("Wird wieder gezeigt")}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.calw!=null){const n=+b.dataset.calw;S.calDay=n===0?null:ymd(addDays(ymdD(S.calDay||ymd(new Date())),n));render();return}

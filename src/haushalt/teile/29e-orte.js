@@ -40,3 +40,5 @@ function placeNewFor(x,set){editBox("Ort eintragen",[{k:"addr",label:"Adresse",t
   async V=>{const addr=String(V.addr||"").trim().slice(0,160),name=String(V.name||"").trim().slice(0,40);if(!addr&&!name){toast("Bitte eine Adresse eintragen.");return}
     if(V.keep==="einmal"||!name){await set(addr||name);if(V.keep!=="einmal")toast("Ohne Namen nur für diesen Termin gespeichert.");return}
     await S.store.setPath("food/place/"+newId("o"),{name,addr:addr||null,at:Date.now(),by:S.me||""});await set(name)})}
+// Familywall-Termine mit Kita, Kinderhaus, Krippe oder Kindergarten im Titel gelten als Art Kita, solange keine andere Art gewählt ist
+const KITA_RX=/\b(kita|kinderhaus|kinderkrippe|krippe|kindergarten)/i;
