@@ -12,8 +12,6 @@ const TEMPLATE={persons:["Florian","Judith"],rotOffset:0,tasks:[
  {id:"saugen",name:"Saugen (nach Bedarf)",owner:"rot",pack:"B",freq:"week",times:2,pts:3},
  {id:"kueche-putzen",name:"Küche putzen",owner:"rot",pack:"B",freq:"week",times:1,pts:5},
  {id:"treppe",name:"Saugen komplett",subs:["Treppe","🤖","Oben"],owner:"rot",pack:"B",freq:"week",times:1,pts:1},
- {id:"bringen-0",name:"Bringen",owner:"p0",freq:"week",times:3,pts:2},
- {id:"bringen-1",name:"Bringen",owner:"p1",freq:"week",times:2,pts:2},
  {id:"mittag",name:"Gemeinsames Mittagessen",owner:"both",freq:"week",times:1,pts:2},
  {id:"eigenes",name:"Eigenes Zeug aufräumen (alles außer Schlafzimmer)",owner:"both",freq:"week",times:3,pts:1},
  {id:"nathan",name:"Nathans Klamotten einräumen",owner:"p1",freq:"week",times:3,pts:1},
@@ -29,7 +27,7 @@ const TEMPLATE={persons:["Florian","Judith"],rotOffset:0,tasks:[
  {id:"center",name:"Center putzen",owner:"rot",freq:"year",pts:18}
 ]};
 const FREQ_LABEL={day:"täglich",week:"pro Woche",month:"monatlich",half:"halbjährlich",year:"jährlich"};
-const OWNER_LABEL={rot:"Im Wechsel",both:"Beide",ho:"Homeoffice"};
+const OWNER_LABEL={rot:"Im Wechsel",both:"Beide",ho:"Hausdienst"};
 const LEVELS=["Chaos-Höhle","Studi-Bude","Ordentliche WG","Gemütliches Nest","Blitzblank-Wohnung","Wohlfühl-Zuhause","Hausmeister-Palast","Glanz-Villa","Putz-Schloss","Legendäres Heim"];
 const DAYS=["Mo","Di","Mi","Do","Fr","Sa","So"];
 const GOAL=0.8;
@@ -139,6 +137,8 @@ function offerShopRemove(msg,items){items=items.filter(i=>i&&!i.done);if(!items.
 function floatAt(btn,txt){const card=btn.closest(".task");if(!card)return;const f=document.createElement("span");f.className="float";f.textContent=txt;
   const r=btn.getBoundingClientRect(),c=card.getBoundingClientRect();f.style.left=(r.left-c.left+4)+"px";f.style.top=(r.top-c.top-6)+"px";card.appendChild(f);setTimeout(()=>f.remove(),950)}
 // Florian 15.11.2026: "Saugen" heißt "Saugen (nach Bedarf)", das Paket mit der Treppe wird "Saugen komplett" mit Teilbereichen. Einmalig.
+// Florian 16.11.2026: Kita ist kein Dienst und keine Aufgabe. Bringen steht nur noch auf der Kind-Seite; die Wochen-Aufgaben „Bringen“ fallen einmalig weg (Flag mig.bring1).
+function migBring(cfg){const c=JSON.parse(JSON.stringify(cfg));c.tasks=c.tasks.filter(t=>!(/^bringen$/i.test((t.name||"").trim())&&t.freq==="week"));c.mig=Object.assign({},c.mig,{bring1:Date.now()});S.store.saveConfig(c).catch(()=>{})}
 function migSaugen(cfg){const c=JSON.parse(JSON.stringify(cfg));let ch=false;c.tasks.forEach(t=>{if(t.id==="saugen"&&/^Saugen \(Wohnbereich\)$/.test(t.name||"")){t.name="Saugen (nach Bedarf)";ch=true}if(t.id==="treppe"&&!hasSubs(t)){t.name="Saugen komplett";t.subs=["Treppe","🤖","Oben"];ch=true}});c.mig=Object.assign({},c.mig,{saug1:Date.now()});S.store.saveConfig(c).catch(()=>{})}
 // Verlinkung aus Aufgaben in andere Bereiche (Florian 15.11.2026): Einkaufen → Einkaufsliste. Weitere Zeilen möglich.
 // Putzaufgaben: kleines 🧴 öffnet Vorschläge für die Einkaufsliste (Drogerie), passend zur Aufgabe vorausgewählt
@@ -150,7 +150,7 @@ function taskLink(t,small){const n=(t&&t.name)||"",m=TASK_LINKS.find(x=>x[0].tes
 const hasSubs=t=>Array.isArray(t.subs)&&t.subs.length>0;
 async function toggle(btn){
   if(!S.me){toast("Wähle oben zuerst, wer du bist.");return}
-  {const cm=mondayOf(new Date());const isHO=(tasks().find(x=>x.id===btn.dataset.task)||{}).owner==="ho";if(+S.view>+cm&&!isHO){toast("Vorschau: abhaken geht erst in der Woche selbst. Homeoffice kannst du schon eintragen.");return}if(+S.view<+cm&&S.wkEdit!==wkKey(S.view)){toast("Archiv: erst „✏️ Nachtragen“ antippen.");return}}
+  {const cm=mondayOf(new Date());const isHO=(tasks().find(x=>x.id===btn.dataset.task)||{}).owner==="ho";if(+S.view>+cm&&!isHO){toast("Vorschau: abhaken geht erst in der Woche selbst. Hausdienst kannst du schon eintragen.");return}if(+S.view<+cm&&S.wkEdit!==wkKey(S.view)){toast("Archiv: erst „✏️ Nachtragen“ antippen.");return}}
   const t=tasks().find(x=>x.id===btn.dataset.task);if(!t)return;
   let wk=wkKey(S.view),key,cur;
   if(btn.dataset.sub!=null&&hasSubs(t)){const base=t.id+"__"+btn.dataset.slot,sk=base+"_s"+btn.dataset.sub,tk=ticksOf(wk),nv=tk[sk]?null:{by:S.me,at:Date.now()};

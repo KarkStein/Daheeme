@@ -130,7 +130,7 @@ function renderWeek(){
   const {w}=isoWeek(mon);
   let h=`<div class="top"><div><h1>${isCur?"Diese Woche":(mon<cur?"Rückblick":"Vorschau")}</h1><div class="wkdate">KW ${w} · ${fmt(mon,{day:"numeric",month:"short"})} – ${fmt(addDays(mon,6),{day:"numeric",month:"short"})}</div></div>
    <div class="weeknav"><button class="iconbtn" data-prionew="woche" aria-label="Erinnerung anlegen">🔔</button><button class="iconbtn" data-wknav="-1" aria-label="Vorige Woche">‹</button>${isCur?"":`<button class="ghost" data-wknav="0">Heute</button>`}<button class="iconbtn" data-wknav="1" aria-label="Nächste Woche" ${+mon>=+addDays(cur,28)?"disabled":""}>›</button></div></div>`;
-  if(!isCur)h+=`<div class="wkro">${mon<cur?(S.wkEdit===wk?`✏️ Nachtragen ist an. <button class="ghost" data-act="wkedit">Fertig</button>`:`📦 Archiv: diese Woche ist nur zum Ansehen. <button class="ghost" data-act="wkedit">✏️ Nachtragen</button>`):`🔭 Vorschau: Homeoffice kannst du schon eintragen, abhaken geht erst in der Woche selbst.`}</div>`;
+  if(!isCur)h+=`<div class="wkro">${mon<cur?(S.wkEdit===wk?`✏️ Nachtragen ist an. <button class="ghost" data-act="wkedit">Fertig</button>`:`📦 Archiv: diese Woche ist nur zum Ansehen. <button class="ghost" data-act="wkedit">✏️ Nachtragen</button>`):`🔭 Vorschau: Hausdienst kannst du schon eintragen, abhaken geht erst in der Woche selbst.`}</div>`;
   const hoTop=true;
   h+=meChooser();
   const cnt={all:[0,0],p0:[0,0],p1:[0,0]};
@@ -172,13 +172,13 @@ function renderWeek(){
   const vis=x=>!(S.filter==="meine"&&S.me&&!(x.o===S.me||x.o==="both"||x.o==="ho"))&&!(S.hideDone&&x.done);
   const order=(a,b)=>FO[a.t.freq]-FO[b.t.freq]||b.times-a.times||a.pct-b.pct;
   const secs=S.groupBy==="art"
-    ?[["rot","Wechsel-Aufgaben",t=>t.owner==="rot"],["fix","Feste Aufgaben",t=>t.owner==="p0"||t.owner==="p1"],["gem","Gemeinsam und Homeoffice",t=>t.owner==="both"||t.owner==="ho"]]
+    ?[["rot","Wechsel-Aufgaben",t=>t.owner==="rot"],["fix","Feste Aufgaben",t=>t.owner==="p0"||t.owner==="p1"],["gem","Gemeinsam und Hausdienst",t=>t.owner==="both"||t.owner==="ho"]]
     :[["day","Täglich",t=>t.freq==="day"],["week","Diese Woche",t=>t.freq==="week"],["month","Diesen Monat",t=>t.freq==="month"],["half","Dieses Halbjahr",t=>t.freq==="half"],["year","Dieses Jahr",t=>t.freq==="year"]];
   if(hoTop){const ho=tasks().filter(t=>t.owner==="ho").map(card);
-    h+=(ho.length?`<section class="section hotop" id="sec-ho" aria-label="Homeoffice"><div class="section-head"><h2>🏠 Homeoffice</h2><span class="freq">wer an dem Tag zu Hause ist</span></div>${ho.map(x=>x.html).join("")}</section>`:"")}
+    h+=(ho.length?`<section class="section hotop" id="sec-ho" aria-label="Hausdienst"><div class="section-head"><h2>🏠 Hausdienst</h2><span class="freq">wer den Dienst zu Hause hat; der andere bringt und holt</span></div>${ho.map(x=>x.html).join("")}</section>`:"")}
   secs.forEach(([id,title,fn0])=>{const fn=hoTop?t=>t.owner!=="ho"&&fn0(t):fn0;const xs=tasks().filter(fn).map(card).filter(vis).sort(order);if(!xs.length)return;
     const lt=xs.filter(x=>x.later),op=xs.filter(x=>!x.done&&!x.later),dn=xs.filter(x=>x.done);if(!op.length&&!dn.length&&!lt.length)return;
-    h+=`<section class="section" id="sec-${id}"><div class="section-head"><h2>${title}</h2>${!hoTop&&(id==="day"||id==="gem")?`<span class="freq">„Homeoffice“ = wer an dem Tag zu Hause ist</span>`:""}</div>${op.map(x=>x.html).join("")}${dn.length?`<div class="donesep">Erledigt</div>`+dn.map(x=>x.html).join(""):""}${lt.length?`<div class="laterline freq">⏳ Erst ab Mitte des Zeitraums: ${lt.map(x=>esc(x.t.name)+" (ab "+fmt(x.later,{day:"numeric",month:"numeric"})+")").join(", ")}</div>`:""}</section>`});
+    h+=`<section class="section" id="sec-${id}"><div class="section-head"><h2>${title}</h2>${!hoTop&&(id==="day"||id==="gem")?`<span class="freq">„Hausdienst“ = Dienst zu Hause, der andere bringt und holt</span>`:""}</div>${op.map(x=>x.html).join("")}${dn.length?`<div class="donesep">Erledigt</div>`+dn.map(x=>x.html).join(""):""}${lt.length?`<div class="laterline freq">⏳ Erst ab Mitte des Zeitraums: ${lt.map(x=>esc(x.t.name)+" (ab "+fmt(x.later,{day:"numeric",month:"numeric"})+")").join(", ")}</div>`:""}</section>`});
   return h}
 
 function renderScore(){

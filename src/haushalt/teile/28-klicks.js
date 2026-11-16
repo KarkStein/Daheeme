@@ -238,7 +238,7 @@ app.addEventListener("click",async e=>{
       if(!key){toast("Die Aufgabe Bringen ist diese Woche schon voll abgehakt.");return}await S.store.tick(wk,key,{by:who,at:Date.now(),day:i});toast(pname(who)+" hat gebracht")}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.kidrule!=null){const mon=addDays(mondayOf(new Date()),7*(+b.dataset.kidrule)),wk=wkKey(mon),ov=(((S.food&&S.food.kid&&S.food.kid.bh)||{})[wk])||{},rl=kidRule(),r={br:[],ab:[]};
     for(let i=0;i<5;i++)for(const f of ["br","ab"])r[f].push((ov["d"+i]||{})[f]||rl[f][i]);
-    try{await S.store.setPath("food/kid/rule",r);await S.store.setPath("food/kid/bh/"+wk,null);toast("Feste Woche gespeichert. Homeoffice geht weiter vor.")}catch(_){toast("Konnte nicht speichern.")}return}
+    try{await S.store.setPath("food/kid/rule",r);await S.store.setPath("food/kid/bh/"+wk,null);toast("Feste Woche gespeichert. Hausdienst geht weiter vor.")}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.kidreset!=null){const wk=wkKey(addDays(mondayOf(new Date()),7*(+b.dataset.kidreset)));try{await S.store.setPath("food/kid/bh/"+wk,null)}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.contactdel){if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Löschen?";return}S.store.setPath("food/contact/"+b.dataset.contactdel,null).then(()=>{toast("Nummer gelöscht");render()}).catch(()=>toast("Konnte nicht speichern."));return}
   if(b.dataset.contactrm){S.store.setPath("food/contacts/"+b.dataset.contactrm,null).catch(()=>toast("Konnte nicht speichern."));return}
