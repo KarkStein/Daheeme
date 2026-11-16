@@ -11,5 +11,5 @@ srv.listen(8765,async()=>{
   await A.click('.minialarm');const h1=await A.$eval('h1',e=>e.textContent);
   await put('food/shop/s1/done',true);await put('food/shop/s2/done',true);await A.click('[data-tab=camp]');await A.waitForTimeout(400);const gone=!(await A.$('.minialarm'));
   console.log({t,h1,gone,errs});
-  const ok=!errs.length&&/Kürbis/.test(t||'')&&/Zwiebeln/.test(t)&&!/Milch|Kokos/.test(t)&&/Einkauf/.test(h1)&&gone;
+  const ok=!errs.length&&/Heute einkaufen: 2\n/.test(t||'')&&/Einkauf/.test(h1)&&gone;
   console.log(ok?'MINI OK':'MINI FAIL');await b.close();srv.close();process.exit(0)});
