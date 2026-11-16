@@ -52,7 +52,7 @@ function renderProjects(){const d=S.projDraft;
     ${d.cat==="geschenk"?`<div class="fld"><span>Für wen</span>${one("who",whoOpts().filter(o=>o[0]!=="both").map(o=>[o[0],o[1]]))}</div><label class="fld"><span>Oder für jemand anderen, und zu welchem Anlass?</span><input type="text" id="pj-for" data-pf="for" value="${esc(d.for)}" maxlength="60" placeholder="Zum Beispiel Oma, Weihnachten" autocomplete="off"></label>`:""}
     <label class="fld"><span>Link (Shop, Anleitung, Bild)</span><input type="url" id="pj-link" data-pf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off"></label>
     <label class="fld"><span>Notiz</span><textarea id="pj-note" data-pf="note" rows="4" placeholder="Maße, Preis, nächste Schritte">${esc(d.note)}</textarea></label>
-    <div class="btnrow"><button class="primary" data-act="projsave">Speichern</button><button class="ghost" data-act="projcancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="projdel">Löschen</button>`:""}</div></section>`}
+    <div class="btnrow"><button class="primary" data-act="projsave">Speichern</button><button class="ghost" data-act="projcancel">Abbrechen</button>${d.id?`<button class="ghost" data-move="idea|${esc(d.id)}">↪ Verschieben</button><button class="ghost danger" data-act="projdel">Löschen</button>`:""}</div></section>`}
   const all=projs(),F=S.projFilter||"";
   if(F==="advent")return h+renderAdvent();
   if(F==="alle")return h+projOverview();
@@ -200,7 +200,7 @@ function fundEdit(id){const f=listOf(S.food&&S.food.fund).find(y=>y.id===id);if(
       const up={name,link,kind:V.kind||"sonst",st:V.st||"idee",price:String(V.price||"").replace(/[^0-9,.]/g,"").slice(0,10)||null};up[A.key]=V.proj||null;
       for(const k of Object.keys(up))await S.store.setPath("food/fund/"+f.id+"/"+k,up[k]);
       await fundSetLinks(n,V.links||[],{who:V.who});if(V.links&&V.links.includes("geschenk")&&f.links&&f.links.geschenk)await S.store.setPath("food/idea/"+f.links.geschenk+"/who",V.who||null);toast("Gespeichert")},
-    fundDelOpts(f))}
+    (f.area==="haus"?[["↪ Verschieben",()=>moveOpen("fund",f.id)]]:[]).concat(fundDelOpts(f)))}
 function fundDelOpts(f){const A=FAREA[f.area||"reise"],o=[];
   if(f[A.key])o.push(["Nur aus dem "+A.word+" nehmen",async()=>{await S.store.setPath("food/fund/"+f.id+"/"+A.key,null);toast("Steht weiter in der Sammlung")},false]);
   o.push([fundLinked(f).length?"Ganz löschen, auch dort":"Ganz löschen",async()=>{await fundDropAll(f);toast("Gelöscht")},true]);return o}

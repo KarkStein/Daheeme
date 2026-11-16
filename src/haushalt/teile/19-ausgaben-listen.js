@@ -66,7 +66,7 @@ function buyEdit(id){const x=buys().find(y=>y.id===id);if(!x)return;
   editBox("Eintrag ändern",[{k:"name",label:"Was",type:"text",val:x.name},{k:"for",label:"Für",type:"chips",opts:[["","Niemand bestimmtes"]].concat(BUY_FOR.map(f=>[f[0],f[1]||pname(f[0])])),val:x.for||""},{k:"list",label:"Liste",type:"chips",opts:buyLists().map(L=>[L.id,L.emo+" "+L.name]),val:x.list},{k:"link",label:"Link (optional)",type:"url",val:x.link||""}],
     async V=>{const n=String(V.name||"").trim().slice(0,80);if(!n){toast("Bitte einen Namen eintragen.");return}const l=String(V.link||"").trim();if(l&&!safeLink(l)){toast("Der Link sieht nicht gültig aus.");return}
       await S.store.setPath("food/buy/"+id,Object.assign({},x,{id:null,name:n,for:V.for||null,list:V.list||x.list,link:l?safeLink(l):null}));toast("Gespeichert")},
-    async()=>{await S.store.setPath("food/buy/"+id,null);toast("Gelöscht")})}
+    [["↪ Verschieben",()=>moveOpen("buy",id)],["Löschen",async()=>{await S.store.setPath("food/buy/"+id,null);toast("Gelöscht")},true]])}
 function splitEdit(id){const x=splits().find(y=>y.id===id);if(!x)return;
   editBox("Splitwise-Gruppe ändern",[{k:"name",label:"Name",type:"text",val:x.name},{k:"link",label:"Link zur Gruppe",type:"url",val:x.link||""}],
     async V=>{const n=String(V.name||"").trim().slice(0,60),l=String(V.link||"").trim();if(!n){toast("Bitte einen Namen eintragen.");return}if(l&&!safeLink(l)){toast("Der Link sieht nicht gültig aus.");return}

@@ -1,9 +1,8 @@
 
-// Teilen an die App (Florian 15.11.2026): Share Target aus manifest.json (?su=Link&sx=Text&st=Titel) öffnet „Rezept aus Link“ schon ausgefüllt
+// Teilen an die App (Florian 15./16.11.2026): Share Target aus manifest.json (?su=Link&sx=Text&st=Titel, unverändert) öffnet „Wohin damit?“ (29a-teilen.js)
 function shareIn(){let q;try{q=new URLSearchParams(location.search)}catch(_){return}if(!q.has("su")&&!q.has("sx"))return;
-  const txt=[q.get("st"),q.get("sx"),q.get("su")].filter(Boolean).join("\n").trim();try{const u=new URL(location.href);["su","sx","st"].forEach(k=>u.searchParams.delete(k));history.replaceState(null,"",u.pathname+u.search+(S.key?"#k="+S.key:location.hash))}catch(_){}
-  if(!txt)return;let n=0;const go=()=>{if(!S.config&&n++<20)return setTimeout(go,300);S.tab="essen";S.foodTab="rezepte";S.recDraft={id:null,name:"",ing:"",note:"",link:"",book:S.book||"main",paste:true,pasteText:txt};render();window.scrollTo(0,0);
-    const el=document.getElementById("rec-paste");if(el){el.value=txt;const b=document.querySelector('[data-act="recparse"]');if(b)b.click()}};setTimeout(go,300)}
+  const st=(q.get("st")||"").trim(),sx=(q.get("sx")||"").trim(),su=(q.get("su")||"").trim();try{const u=new URL(location.href);["su","sx","st"].forEach(k=>u.searchParams.delete(k));history.replaceState(null,"",u.pathname+u.search+(S.key?"#k="+S.key:location.hash))}catch(_){}
+  if(!st&&!sx&&!su)return;let n=0;const go=()=>{if((!S.config||!S.food)&&n++<20)return setTimeout(go,300);shareOpen(st,sx,su)};setTimeout(go,300)}
 
 // ---------- Start ----------
 function start(store,mode){S.store=store;S.mode=mode;let gotCfg=false,gotWeeks=false;

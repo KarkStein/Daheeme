@@ -1216,7 +1216,7 @@ function renderRecipes(){const d=S.recDraft,bk=S.book||"main",list=recs().filter
     <label class="fld"><span>Zubereitung oder Notiz</span><textarea id="rec-note" data-rf="note" rows="5">${esc(d.note)}</textarea></label>
     <label class="fld"><span>Link zum Rezept (optional)</span><input type="url" id="rec-link" data-rf="link" value="${esc(d.link)}" placeholder="https://" autocomplete="off"></label>
     ${recTagForm(d)}
-    <div class="btnrow"><button class="primary" data-act="recsave">Speichern</button><button class="ghost" data-act="reccancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="recdel">Löschen</button>`:""}</div></section>`;
+    <div class="btnrow"><button class="primary" data-act="recsave">Speichern</button><button class="ghost" data-act="reccancel">Abbrechen</button>${d.id?`<button class="ghost" data-move="rec|${esc(d.id)}">↪ Verschieben</button><button class="ghost danger" data-act="recdel">Löschen</button>`:""}</div></section>`;
   let h=renderBooks()+`<div class="section-head" style="align-items:center"><h2>${esc(bobj.name)}</h2><div class="weeknav"><button class="ghost" data-act="bookedit">Umbenennen</button>${bk!=="main"?`<button class="ghost danger" data-act="bookdel">Löschen</button>`:""}</div></div><div class="btnrow"><button class="primary" data-act="recnew">+ Neues Rezept</button><button class="ghost" data-act="recpaste">📋 Rezept oder Link einfügen</button></div>`;
   if(!list.length)return h+(bk!=="main"?`<div class="empty"><h2>Noch leer</h2><div>Leg ein Rezept an oder füge eines ein. Bestehende Rezepte schiebst du über „Bearbeiten“ hierher.</div></div>`:"")+`<div class="empty"${bk!=="main"?" hidden":""}><h2>Noch keine Rezepte</h2><div>Sammelt hier eure Lieblingsgerichte. Die Zutaten wandern mit einem Tipp auf die Einkaufsliste, und im Wochenplan könnt ihr die Rezepte auf Tage legen.</div></div>`;
   h+=list.map(r=>{const open=S.recOpen===r.id,ing=withQty(r.name,recIng(r)),link=safeLink(r.link);
@@ -1916,7 +1916,7 @@ function renderTripIdeas(){const d=S.tripDraft;
     <div class="fld"><span>Welche Packliste?</span><div class="unl">${lists.map(l=>`<button class="chipbtn" data-tset="pack" data-v="${esc(l.id)}" aria-pressed="${d.pack===l.id}">🎒 ${esc(l.name)}</button>`).join("")}</div></div>
     <label class="fld"><span>Link (Karte oder Webseite)</span><input type="url" id="tr-link" data-tf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off"></label>
     <label class="fld"><span>Notiz</span><textarea id="tr-note" data-tf="note" rows="3" placeholder="Parkplatz, Eintritt, was man nicht vergessen darf">${esc(d.note)}</textarea></label>
-    <div class="btnrow"><button class="primary" data-act="tripsave">Speichern</button><button class="ghost" data-act="tripcancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="tripdel">Löschen</button>`:""}</div></section>`}
+    <div class="btnrow"><button class="primary" data-act="tripsave">Speichern</button><button class="ghost" data-act="tripcancel">Abbrechen</button>${d.id?`<button class="ghost" data-move="trip|${esc(d.id)}">↪ Verschieben</button><button class="ghost danger" data-act="tripdel">Löschen</button>`:""}</div></section>`}
   const mz=musLinks("auto",3);
   const all=trips(),F=S.tripFilter||"",match=x=>!F||(F==="regen"?x.wx==="egal":x.kind===F);
   const open=all.filter(x=>!x.done&&match(x)).sort((a,b)=>(a.at||0)-(b.at||0)),done=all.filter(x=>x.done).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0));
@@ -2021,7 +2021,7 @@ function buyEdit(id){const x=buys().find(y=>y.id===id);if(!x)return;
   editBox("Eintrag ändern",[{k:"name",label:"Was",type:"text",val:x.name},{k:"for",label:"Für",type:"chips",opts:[["","Niemand bestimmtes"]].concat(BUY_FOR.map(f=>[f[0],f[1]||pname(f[0])])),val:x.for||""},{k:"list",label:"Liste",type:"chips",opts:buyLists().map(L=>[L.id,L.emo+" "+L.name]),val:x.list},{k:"link",label:"Link (optional)",type:"url",val:x.link||""}],
     async V=>{const n=String(V.name||"").trim().slice(0,80);if(!n){toast("Bitte einen Namen eintragen.");return}const l=String(V.link||"").trim();if(l&&!safeLink(l)){toast("Der Link sieht nicht gültig aus.");return}
       await S.store.setPath("food/buy/"+id,Object.assign({},x,{id:null,name:n,for:V.for||null,list:V.list||x.list,link:l?safeLink(l):null}));toast("Gespeichert")},
-    async()=>{await S.store.setPath("food/buy/"+id,null);toast("Gelöscht")})}
+    [["↪ Verschieben",()=>moveOpen("buy",id)],["Löschen",async()=>{await S.store.setPath("food/buy/"+id,null);toast("Gelöscht")},true]])}
 function splitEdit(id){const x=splits().find(y=>y.id===id);if(!x)return;
   editBox("Splitwise-Gruppe ändern",[{k:"name",label:"Name",type:"text",val:x.name},{k:"link",label:"Link zur Gruppe",type:"url",val:x.link||""}],
     async V=>{const n=String(V.name||"").trim().slice(0,60),l=String(V.link||"").trim();if(!n){toast("Bitte einen Namen eintragen.");return}if(l&&!safeLink(l)){toast("Der Link sieht nicht gültig aus.");return}
@@ -2110,7 +2110,7 @@ function renderProjects(){const d=S.projDraft;
     ${d.cat==="geschenk"?`<div class="fld"><span>Für wen</span>${one("who",whoOpts().filter(o=>o[0]!=="both").map(o=>[o[0],o[1]]))}</div><label class="fld"><span>Oder für jemand anderen, und zu welchem Anlass?</span><input type="text" id="pj-for" data-pf="for" value="${esc(d.for)}" maxlength="60" placeholder="Zum Beispiel Oma, Weihnachten" autocomplete="off"></label>`:""}
     <label class="fld"><span>Link (Shop, Anleitung, Bild)</span><input type="url" id="pj-link" data-pf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off"></label>
     <label class="fld"><span>Notiz</span><textarea id="pj-note" data-pf="note" rows="4" placeholder="Maße, Preis, nächste Schritte">${esc(d.note)}</textarea></label>
-    <div class="btnrow"><button class="primary" data-act="projsave">Speichern</button><button class="ghost" data-act="projcancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="projdel">Löschen</button>`:""}</div></section>`}
+    <div class="btnrow"><button class="primary" data-act="projsave">Speichern</button><button class="ghost" data-act="projcancel">Abbrechen</button>${d.id?`<button class="ghost" data-move="idea|${esc(d.id)}">↪ Verschieben</button><button class="ghost danger" data-act="projdel">Löschen</button>`:""}</div></section>`}
   const all=projs(),F=S.projFilter||"";
   if(F==="advent")return h+renderAdvent();
   if(F==="alle")return h+projOverview();
@@ -2258,7 +2258,7 @@ function fundEdit(id){const f=listOf(S.food&&S.food.fund).find(y=>y.id===id);if(
       const up={name,link,kind:V.kind||"sonst",st:V.st||"idee",price:String(V.price||"").replace(/[^0-9,.]/g,"").slice(0,10)||null};up[A.key]=V.proj||null;
       for(const k of Object.keys(up))await S.store.setPath("food/fund/"+f.id+"/"+k,up[k]);
       await fundSetLinks(n,V.links||[],{who:V.who});if(V.links&&V.links.includes("geschenk")&&f.links&&f.links.geschenk)await S.store.setPath("food/idea/"+f.links.geschenk+"/who",V.who||null);toast("Gespeichert")},
-    fundDelOpts(f))}
+    (f.area==="haus"?[["↪ Verschieben",()=>moveOpen("fund",f.id)]]:[]).concat(fundDelOpts(f)))}
 function fundDelOpts(f){const A=FAREA[f.area||"reise"],o=[];
   if(f[A.key])o.push(["Nur aus dem "+A.word+" nehmen",async()=>{await S.store.setPath("food/fund/"+f.id+"/"+A.key,null);toast("Steht weiter in der Sammlung")},false]);
   o.push([fundLinked(f).length?"Ganz löschen, auch dort":"Ganz löschen",async()=>{await fundDropAll(f);toast("Gelöscht")},true]);return o}
@@ -2313,7 +2313,7 @@ function renderPlay(){const d=S.playDraft,sec=PLAY_SECS.find(s=>s[0]===S.playSec
     ${d.sec==="sport"?`<label class="fld"><span>Wann?</span><input type="text" id="pl-when" data-plf="when" value="${esc(d.when)}" maxlength="60" placeholder="Zum Beispiel samstags 10 Uhr" autocomplete="off"></label>`:""}
     ${d.sec==="zuhause"&&!d.id?"":`<label class="fld"><span>${d.sec==="spielplatz"?"Link aus Google Maps (sonst sucht die App nach dem Namen)":"Link"}</span><input type="url" id="pl-link" data-plf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off"></label>`}
     <label class="fld"><span>Notiz</span><textarea id="pl-note" data-plf="note" rows="3" placeholder="${esc(hint[1])}">${esc(d.note)}</textarea></label>
-    <div class="btnrow"><button class="primary" data-act="playsave">Speichern</button><button class="ghost" data-act="playcancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="playdel">Löschen</button>`:""}</div></section>`}
+    <div class="btnrow"><button class="primary" data-act="playsave">Speichern</button><button class="ghost" data-act="playcancel">Abbrechen</button>${d.id?`<button class="ghost" data-move="play|${esc(d.id)}">↪ Verschieben</button><button class="ghost danger" data-act="playdel">Löschen</button>`:""}</div></section>`}
   const psec=x=>{const s=x.sec||"spielplatz";return s==="links"?"sonst":s};const l=plays().filter(x=>psec(x)===sec[0]).sort((a,b)=>(b.fav?1:0)-(a.fav?1:0)||(a.name||"").localeCompare(b.name||"","de"));
   const card=x=>{const lk=safeLink(x.link),meta=[x.age?"ab "+x.age+(x.age==="1"?" Jahr":" Jahren"):"",x.wx==="drinnen"?"🏠 drinnen":x.wx==="draussen"?"🌳 draußen":"",x.when?"🕒 "+x.when:"",x.mat?"🧺 "+x.mat:""].filter(Boolean);
     return `<li><button class="item" data-playfav="${esc(x.id)}" aria-pressed="${!!x.fav}" aria-label="${esc(x.name)}: ${x.fav?"kein Liebling mehr":"als Liebling markieren"}"><span class="box" style="border:none;font-size:1.2rem">${x.fav?"⭐":"☆"}</span><span class="nm">${esc(x.name)}${meta.length?`<br><span class="freq">${meta.map(m=>`<span style="white-space:nowrap">${esc(m)}</span>`).join(" · ")}</span>`:""}${x.note?`<br><span class="freq">${telNote(x.note)}</span>`:""}</span></button>${telA(x.note)}${lk||sec[0]==="spielplatz"?`<a class="catbtn" href="${esc(lk||"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(x.name))}" target="_blank" rel="noopener" aria-label="${sec[0]==="spielplatz"?"In Google Maps öffnen":"Link öffnen"}">${sec[0]==="spielplatz"?"🗺️":"🔗"}</a>`:""}${sec[0]==="spielplatz"?transitA(x.name):""}${bell("spiel",x)}<button class="rm" data-playedit="${esc(x.id)}" aria-label="${esc(x.name)} bearbeiten">✎</button></li>`};
@@ -3124,6 +3124,7 @@ app.addEventListener("click",async e=>{
     const id=d.id||("r"+Date.now().toString(36)+Math.random().toString(36).slice(2,5));
     const v={name,ing:recIng(d).map(x=>x.slice(0,80)).slice(0,60).join("\n"),note:(d.note||"").trim().slice(0,4000),link:(d.link||"").trim().slice(0,500),at:d.at||Date.now()};{const T=draftTags(d);v.tags=T.final;if(T.off.length)v.tagsOff=T.off;if(T.own.length)v.tagsOwn=T.own;if(d.min)v.min=d.min}if(d.book&&d.book!=="main")v.book=d.book;S.book=d.book||"main";
     try{await S.store.setPath("food/rec/"+id,v);S.recDraft=null;S.recOpen=id;toast("Rezept gespeichert");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
+  if(b.dataset.move){const [k,id]=b.dataset.move.split("|");moveOpen(k,id);return}
   if(b.dataset.act==="recdel"){const d=S.recDraft;if(!d||!d.id)return;if(!d.sure){d.sure=true;b.textContent="Wirklich löschen?";return}
     try{const r=recs().find(x=>x.id===d.id);if(r)await recDrop(r);else await S.store.setPath("food/rec/"+d.id,null);S.recDraft=null;toast("Rezept gelöscht");render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.fnav){const n=+b.dataset.fnav;S.foodWeek=n===0?null:addDays(planWeek(),7*n);S.planEdit=null;render();return}
@@ -3237,6 +3238,80 @@ app.addEventListener("input",e=>{if(e.target.id==="shopinput"){S.shopText=e.targ
   if(e.target.id==="rdbq"){S.rdbQ=e.target.value;const pos=e.target.selectionStart;render();const el=document.getElementById("rdbq");if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}return}
   if(S.recDraft&&e.target.dataset.rf){S.recDraft[e.target.dataset.rf]=e.target.value;return}
   const row=e.target.closest(".editrow[data-i]");if(!row||!S.draft)return;if(e.target.dataset.f==="name")S.draft.tasks[+row.dataset.i].name=e.target.value});
+
+// ---------- Teilen: „Wohin?“ und „Verschieben nach“ (Florian 16.11.2026) ----------
+// Geteilter Link/Text (manifest share_target, unverändert ?st&sx&su) fragt erst, wohin: Rezept, Spielidee, Ausflug, Geschenk-Idee, Am-Haus-Projekt oder eine der Weitere Listen.
+// Vorschlag nur bei bekannten Rezept-Seiten; Instagram und Unbekanntes ohne Vorwahl. Beschreibung optional; enthält sie eine Liste, lässt sie sich in einzelne Einträge aufteilen (jeder behält den Link).
+const SHARE_REC_RX=/(chefkoch|kitchenstories|emmikochteinfach|kptncook|eat-this|zuckerundjagdwurst|chiliundciabatta|essen-und-trinken|lecker\.de|springlane|eatsmarter|einfachbacken|gutekueche|kochbar|bbcgoodfood|allrecipes|hellofresh|cookidoo|kuechengoetter|rewe\.de\/rezepte|\/rezept|\/recipe)/i;
+const SHARE_FIX=[["rezept","📖","Rezept"],["spiel","🧩","Spielidee"],["ausflug","🚲","Ausflug"],["geschenk","🎁","Geschenk-Idee"]];
+function shareTargets(){return SHARE_FIX.map(x=>x.slice())
+  .concat(hprojs().filter(x=>x.state!=="erledigt").map(x=>["proj:"+x.id,x.emo||"🛠️","Projekt: "+x.name]))
+  .concat(buyLists().map(L=>["liste:"+L.id,L.emo,"Liste: "+L.name]))}
+const URL_RX=/https?:\/\/\S+/gi;
+function shareSplit(text){const L=String(text||"").split(/\r?\n/).map(s=>s.replace(URL_RX,"").trim()).filter(s=>s&&!/^(#\S+\s*)+$/.test(s));
+  const MK=/^(?:\d{1,2}\s*[.):]|[-•*–·▪►✓✔→]|(?:\p{Extended_Pictographic}|\p{Regional_Indicator})[️‍\p{Extended_Pictographic}]*)\s*(.+)$/u;
+  const marked=L.map(s=>{const m=MK.exec(s);return m?m[1].trim():null}).filter(s=>s&&s.length>1);
+  if(marked.length>=2)return marked.map(s=>s.slice(0,80));
+  const short=L.filter(s=>s.length<=60);if(L.length>=3&&short.length===L.length)return L.map(s=>s.slice(0,80));return []}
+async function shareSave(to,name,link,note){const at=Date.now(),by=S.me||"",lk=safeLink(link)||null,nt=(note||"").trim().slice(0,1000)||null;name=String(name||"").trim().slice(0,80);
+  if(to==="rezept")return S.store.setPath("food/rec/"+newId("r"),{name,ing:"",note:nt||"",link:lk||"",book:S.book||"main",at,by});
+  if(to==="spiel")return S.store.setPath("food/play/"+newId("s"),{name,sec:"zuhause",link:lk,note:nt,at,by});
+  if(to==="ausflug")return S.store.setPath("food/trip/"+newId("t"),{name,link:lk,note:nt,done:false,at,by});
+  if(to==="geschenk")return S.store.setPath("food/idea/"+newId("p"),{name,cat:"geschenk",state:"idee",link:lk,note:nt,at,by});
+  const [k,id]=to.split(":");
+  if(k==="proj")return S.store.setPath("food/fund/"+newId("f"),{name,link:lk,note:nt,area:"haus",proj:id,kind:kindGuessHaus(name,lk)||"sonst",st:"idee",at,by});
+  if(k==="liste")return S.store.setPath("food/buy/"+newId("b"),{name,list:id,link:lk,note:nt,done:false,at,by})}
+function shareGo(to){const [k,id]=to.split(":");
+  if(to==="rezept")return goNav("essen|ft:rezepte");if(to==="spiel")return goNav("spiel|ps:zuhause");if(to==="ausflug")return goNav("ausflug|tt:ideen");if(to==="geschenk")return goNav("projekte|pf:geschenk");
+  if(k==="liste")return goNav("einkauf|bl:"+id);
+  if(k==="proj"){const x=hprojs().find(y=>y.id===id);S.tab="amhaus";S.projFilter=x?hprojCat(x):"";S.hprojOpen=id;S.hsamm=false;render();window.scrollTo(0,0)}}
+const shareTo=to=>(shareTargets().find(t=>t[0]===to)||[to,"",to]);
+// Rezept behält den bisherigen Weg (Rezept aus Link: Text erkennen), ohne Aufteilen
+function shareRecipe(txt){S.tab="essen";S.foodTab="rezepte";S.recDraft={id:null,name:"",ing:"",note:"",link:"",book:S.book||"main",paste:true,pasteText:txt};render();window.scrollTo(0,0);
+  const el=document.getElementById("rec-paste");if(el){el.value=txt;const b=document.querySelector('[data-act="recparse"]');if(b)b.click()}}
+function shareOpen(st,sx,su){S.mboxAt=Date.now();mboxClose();
+  const urls=(String(sx||"").match(URL_RX)||[]),link=su||urls[0]||"",rest=String(sx||"").replace(URL_RX,"").trim();
+  const first=rest.split(/\r?\n/).map(s=>s.trim()).find(Boolean)||"";
+  const H={name:(st||(first.length<=80?first:"")||"").trim().slice(0,80),link,note:rest&&rest!==st?rest:"",to:SHARE_REC_RX.test(link)?"rezept":"",showNote:!!(rest&&rest!==st),split:false,off:{}};
+  const el=document.createElement("div");el.id="mbox";
+  const items=()=>H.to==="rezept"?[]:shareSplit(H.note);
+  const splitHtml=()=>{const I=items();if(I.length<2)return "";const on=I.filter((_,i)=>!H.off[i]).length;
+    return `<div class="unl"><button type="button" class="chipbtn neutral" data-shsplit aria-pressed="${H.split}">✂️ In ${I.length} Einträge aufteilen</button></div>${H.split?`<div class="freq">Jeder Eintrag behält den Link. Abwählen, was nicht mit soll (${on} von ${I.length}).</div><div class="unl">${I.map((t,i)=>`<button type="button" class="chipbtn neutral" data-shit="${i}" aria-pressed="${!H.off[i]}">${esc(t)}</button>`).join("")}</div>`:""}`};
+  const draw=()=>{el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="Geteilt: wohin?"><div class="section-head"><h2>📥 Wohin damit?</h2></div><form class="editbox" novalidate>
+    <label class="fld"><span>Titel</span><input type="text" data-shf="name" value="${esc(H.name)}" maxlength="80" autocomplete="off" placeholder="Wie soll es heißen?"></label>
+    <label class="fld"><span>Link</span><input type="text" inputmode="url" data-shf="link" value="${esc(H.link)}" maxlength="400" autocomplete="off" placeholder="https://"></label>
+    <div class="fld"><span>Speichern bei</span><div class="unl">${shareTargets().map(t=>`<button type="button" class="chipbtn neutral" data-shto="${esc(t[0])}" aria-pressed="${H.to===t[0]}">${esc(t[1]+" "+t[2])}</button>`).join("")}</div>${H.to?"":`<div class="freq">Bitte antippen, wohin es soll.</div>`}</div>
+    ${H.showNote?`<label class="fld"><span>Beschreibung (optional)</span><textarea data-shf="note" rows="5" maxlength="4000" placeholder="Text aus dem Beitrag hier einfügen">${esc(H.note)}</textarea></label><div id="shsplit">${splitHtml()}</div>`:`<button type="button" class="ghost" data-shnote>＋ Beschreibung einfügen</button>`}
+    ${H.to==="rezept"?`<div class="freq">Rezept: Die App erkennt aus Titel, Text und Link Zutaten und Zubereitung, wie bei „Rezept aus Link“.</div>`:""}
+    <div class="btnrow"><button class="primary" type="submit"${H.to?"":" disabled"}>Speichern</button><button class="ghost" type="button" data-shx>Abbrechen</button></div></form></div>`};
+  draw();document.body.appendChild(el);
+  el.addEventListener("input",e=>{const k=e.target.dataset&&e.target.dataset.shf;if(!k)return;H[k]=e.target.value;if(k==="note"){H.off={};const s=document.getElementById("shsplit");if(s)s.innerHTML=splitHtml()}});
+  el.addEventListener("submit",async e=>{e.preventDefault();if(!H.to)return;const name=H.name.trim(),l=H.link.trim();
+    if(l&&!safeLink(l)){toast("Der Link sieht nicht gültig aus.");return}
+    if(H.to==="rezept"){mboxClose();shareRecipe([name,H.note,l].filter(Boolean).join("\n"));return}
+    const I=H.split?items().filter((_,i)=>!H.off[i]):[];if(!I.length&&!name){toast("Bitte einen Titel eintragen.");return}
+    mboxClose();const T=shareTo(H.to);
+    try{if(I.length){for(const t of I)await shareSave(H.to,t,l,name?"Aus: "+name:"")}else await shareSave(H.to,name,l,H.note);
+      toast((I.length>1?I.length+" Einträge":"Gespeichert")+" bei "+T[2]);shareGo(H.to)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}});
+  el.addEventListener("click",e=>{const t=e.target.closest("[data-shto]");if(t){H.to=t.dataset.shto;draw();return}
+    if(e.target.closest("[data-shsplit]")){H.split=!H.split;const s=document.getElementById("shsplit");if(s)s.innerHTML=splitHtml();return}
+    const it=e.target.closest("[data-shit]");if(it){const i=+it.dataset.shit;H.off[i]=!H.off[i];const s=document.getElementById("shsplit");if(s)s.innerHTML=splitHtml();return}
+    if(e.target.closest("[data-shnote]")){H.showNote=true;draw();const n=el.querySelector('[data-shf="note"]');if(n)n.focus();return}
+    if(e.target.closest("[data-shx]")){mboxClose();return}
+    if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose()})}
+// Verschieben nach: jeder gespeicherte Eintrag (Rezept, Spielidee, Ausflug, Idee, Fund in Am-Haus-Projekt, Eintrag in Weitere Listen) wandert in einen anderen Bereich; Verknüpftes geht mit dem alten Eintrag weg
+async function tripDropAll(tid){await splitDropRef("trip:"+tid);await prioDropRef([tid]);const AD=(S.food&&S.food.adoor)||{};for(const k of Object.keys(AD))if(AD[k]&&AD[k].trip===tid)await S.store.setPath("food/adoor/"+k+"/trip",null);await S.store.setPath("food/trip/"+tid,null)}
+function moveSrc(kind,id){const F=S.food||{};
+  if(kind==="rec"){const r=recs().find(x=>x.id===id);return r&&{x:r,here:"rezept",note:[r.note,r.ing?"Zutaten:\n"+r.ing:""].filter(Boolean).join("\n\n"),drop:()=>recDrop(r),done:()=>{S.recDraft=null}}}
+  if(kind==="play"){const p=plays().find(x=>x.id===id);return p&&{x:p,here:p.sec==="zuhause"?"spiel":"",note:p.note,drop:async()=>{await prioDropRef([id]);await S.store.setPath("food/play/"+id,null)},done:()=>{S.playDraft=null}}}
+  if(kind==="trip"){const t=trips().find(x=>x.id===id);return t&&{x:t,here:"ausflug",note:t.note,drop:()=>tripDropAll(id),done:()=>{S.tripDraft=null}}}
+  if(kind==="idea"){const p=projs().find(x=>x.id===id);return p&&{x:p,here:p.cat==="geschenk"?"geschenk":"",note:p.note,drop:async()=>{await prioDropRef([id]);await S.store.setPath("food/idea/"+id,null)},done:()=>{S.projDraft=null}}}
+  if(kind==="fund"){const f=listOf(F.fund).find(x=>x.id===id);return f&&{x:f,here:f.area==="haus"&&f.proj?"proj:"+f.proj:"",note:f.note,drop:()=>fundDropAll(f),done:()=>{}}}
+  if(kind==="buy"){const b=buys().find(x=>x.id===id);return b&&{x:b,here:"liste:"+b.list,note:b.note,drop:()=>S.store.setPath("food/buy/"+id,null),done:()=>{}}}
+  return null}
+function moveOpen(kind,id){const M=moveSrc(kind,id);if(!M)return;
+  editBox("Verschieben: "+M.x.name,[{k:"to",label:"Nach",type:"chips",opts:shareTargets().filter(t=>t[0]!==M.here).map(t=>[t[0],t[1]+" "+t[2]]),val:""},{k:"n",type:"note",label:"Der Eintrag zieht mit Name, Link und Notiz um und verschwindet hier. Verknüpftes (Erinnerungen, Einkaufsliste) wird dabei entfernt."}],
+    async V=>{if(!V.to){toast("Bitte antippen, wohin.");return}await shareSave(V.to,M.x.name,M.x.link,M.note);await M.drop();M.done();toast("Verschoben nach "+shareTo(V.to)[2]);shareGo(V.to)})}
 // ---------- Motive und Bildstil (Nachtauftrag 15.11.2026) ----------
 // Motiv: "meer" (Haus am Meer, Standard) oder "stadt" (Stadthaus in München, Entwurf).
 // Bildstil fürs Haus am Meer: "" (wie bisher), "licht" (Licht und Schatten), "aquarell", "fein" (Texturen und Licht).
@@ -3402,11 +3477,10 @@ function citySpots(spot){return spot(184,210,22,40,"woche","Woche: Besen an der 
   +spot(191,194,14,14,"post","Briefkasten")+spot(152,182,14,16,"amhaus","Am Haus: Lampe")+spot(64,150,64,60,"amhaus","Garten: Baum").replace('data-go="amhaus"','data-go="amhaus" data-pf="garten"')+spot(46,198,22,26,"kind","Kind: Schaukel")
   +spot(96,220,16,16,"spiel","Sport und Spiel")+spot(240,66,34,22,"reisen","Urlaube: Flugzeug")+spot(208,168,20,14,"musik","Musik: Ghettoblaster")}
 
-// Teilen an die App (Florian 15.11.2026): Share Target aus manifest.json (?su=Link&sx=Text&st=Titel) öffnet „Rezept aus Link“ schon ausgefüllt
+// Teilen an die App (Florian 15./16.11.2026): Share Target aus manifest.json (?su=Link&sx=Text&st=Titel, unverändert) öffnet „Wohin damit?“ (29a-teilen.js)
 function shareIn(){let q;try{q=new URLSearchParams(location.search)}catch(_){return}if(!q.has("su")&&!q.has("sx"))return;
-  const txt=[q.get("st"),q.get("sx"),q.get("su")].filter(Boolean).join("\n").trim();try{const u=new URL(location.href);["su","sx","st"].forEach(k=>u.searchParams.delete(k));history.replaceState(null,"",u.pathname+u.search+(S.key?"#k="+S.key:location.hash))}catch(_){}
-  if(!txt)return;let n=0;const go=()=>{if(!S.config&&n++<20)return setTimeout(go,300);S.tab="essen";S.foodTab="rezepte";S.recDraft={id:null,name:"",ing:"",note:"",link:"",book:S.book||"main",paste:true,pasteText:txt};render();window.scrollTo(0,0);
-    const el=document.getElementById("rec-paste");if(el){el.value=txt;const b=document.querySelector('[data-act="recparse"]');if(b)b.click()}};setTimeout(go,300)}
+  const st=(q.get("st")||"").trim(),sx=(q.get("sx")||"").trim(),su=(q.get("su")||"").trim();try{const u=new URL(location.href);["su","sx","st"].forEach(k=>u.searchParams.delete(k));history.replaceState(null,"",u.pathname+u.search+(S.key?"#k="+S.key:location.hash))}catch(_){}
+  if(!st&&!sx&&!su)return;let n=0;const go=()=>{if((!S.config||!S.food)&&n++<20)return setTimeout(go,300);shareOpen(st,sx,su)};setTimeout(go,300)}
 
 // ---------- Start ----------
 function start(store,mode){S.store=store;S.mode=mode;let gotCfg=false,gotWeeks=false;

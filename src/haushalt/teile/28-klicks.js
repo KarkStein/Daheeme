@@ -366,6 +366,7 @@ app.addEventListener("click",async e=>{
     const id=d.id||("r"+Date.now().toString(36)+Math.random().toString(36).slice(2,5));
     const v={name,ing:recIng(d).map(x=>x.slice(0,80)).slice(0,60).join("\n"),note:(d.note||"").trim().slice(0,4000),link:(d.link||"").trim().slice(0,500),at:d.at||Date.now()};{const T=draftTags(d);v.tags=T.final;if(T.off.length)v.tagsOff=T.off;if(T.own.length)v.tagsOwn=T.own;if(d.min)v.min=d.min}if(d.book&&d.book!=="main")v.book=d.book;S.book=d.book||"main";
     try{await S.store.setPath("food/rec/"+id,v);S.recDraft=null;S.recOpen=id;toast("Rezept gespeichert");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
+  if(b.dataset.move){const [k,id]=b.dataset.move.split("|");moveOpen(k,id);return}
   if(b.dataset.act==="recdel"){const d=S.recDraft;if(!d||!d.id)return;if(!d.sure){d.sure=true;b.textContent="Wirklich löschen?";return}
     try{const r=recs().find(x=>x.id===d.id);if(r)await recDrop(r);else await S.store.setPath("food/rec/"+d.id,null);S.recDraft=null;toast("Rezept gelöscht");render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.fnav){const n=+b.dataset.fnav;S.foodWeek=n===0?null:addDays(planWeek(),7*n);S.planEdit=null;render();return}
