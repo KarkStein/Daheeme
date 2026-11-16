@@ -510,3 +510,15 @@ section[id^="sec-"]{scroll-margin-top:calc(var(--sp5)*3)}
 .calbar.calviews,.calbar.calwhobar{display:flex;align-items:center;justify-content:space-between;gap:var(--sp2)}.calwhobar .calwho{flex:1;min-width:0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.calfiltbtn{position:relative;flex:none;padding:6px 10px}.calfiltbtn .dot{position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:999px;background:var(--ochre)}
 .calwhobar .calwho .chipbtn{flex:none;white-space:nowrap;display:inline-flex;align-items:center;gap:var(--sp1)}
 .calwhobar .calwho{gap:var(--sp1)}.calwhobar .calwho .chipbtn{padding:4px 8px}.calwhobar .calwho .chipbtn .kz{margin:0}
+/* Geld-Bereich (Florian 16.11.2026) */
+.geldtabs{margin:var(--sp2) 0}
+.geldbig{font-family:Fraunces,Georgia,serif;font-size:var(--fs-l);font-weight:600;color:var(--ink)}
+.geldtop{display:flex;gap:var(--sp2)}.geldtop .gbetr{flex:0 0 7.5em}.geldtop input{min-width:0;width:100%}.gbetr input{font-variant-numeric:tabular-nums;font-weight:700}
+.geldday{display:flex;gap:var(--sp2);align-items:center;flex-wrap:wrap}.geldday input{flex:1;min-width:9em}
+.evlist.gelds li.geldrow{padding:var(--sp1) 0}.geldrow .ev{display:flex;align-items:center;gap:var(--sp2);width:100%;background:none;border:none;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.geldrow .gic{font-size:var(--fs-l);flex:none}.geldrow .gnm{display:flex;flex-direction:column;flex:1;min-width:0}.geldrow .gnm .freq{white-space:normal}
+.gamt{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap;flex:none}
+.evlist.gelds li.geldday0{font-size:var(--fs-xs);font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:var(--sp3) 0 var(--sp1)}
+.geldbars{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--sp1)}.geldbars button{display:grid;grid-template-columns:minmax(0,1.2fr) 1fr auto;gap:var(--sp2);align-items:center;width:100%;background:none;border:none;padding:var(--sp1) 0;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.geldbars span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.gbar{height:8px;border-radius:999px;background:var(--line);overflow:hidden}.gbar i{display:block;height:100%;background:var(--navy-a,#1f3a5a);border-radius:999px}.geldbars b{font-variant-numeric:tabular-nums;font-size:var(--fs-s)}
+.geldmon{display:flex;align-items:center;justify-content:space-between;gap:var(--sp2);margin:var(--sp2) 0}.geldmon b{font-size:var(--fs-m)}

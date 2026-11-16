@@ -1,4 +1,4 @@
-// ---------- Einkauf › Ausgaben (Florian 15.11.2026): nur Links zu Splitwise-Gruppen, kein Nachbau, keine Beträge ----------
+// ---------- Splitwise-Gruppen (Florian 15.11.2026): Links für Gruppen mit anderen; der eigene Geld-Bereich steht in 19b-geld.js ----------
 // food/split/<id> {name,link,ref? ("urlaub:<id>"|"hproj:<id>"|"trip:<id>"),note?,at,by}
 const splits=()=>listOf(S.food&&S.food.split).sort((a,b)=>(a.at||0)-(b.at||0));
 const splitFor=ref=>splits().filter(x=>x.ref===ref);
@@ -9,11 +9,6 @@ function splitTile(x){const l=safeLink(x.link);return `<li class="split">${l?`<a
 // Kleiner Verweis in Urlaub, Ausflug oder Projekt
 function splitChips(ref){const L=splitFor(ref);return L.length?`<div class="unl">${L.map(x=>`<a class="chipbtn neutral" href="${esc(safeLink(x.link)||"#")}" target="_blank" rel="noopener">💶 ${esc(x.name)} ↗</a>`).join("")}</div>`:""}
 function splitAddForm(ref){return `<form class="addrow splitadd" data-ref="${esc(ref)}" style="margin-top:6px" novalidate><input type="url" placeholder="💶 Splitwise-Gruppe verbinden (Link)" autocomplete="off" enterkeyhint="done" aria-label="Link zur Splitwise-Gruppe"><button class="primary" type="submit">＋</button></form>`}
-function renderSplit(){const L=splits();
-  let h=`<div><div class="eyebrow">Einkauf</div><h1>Ausgaben</h1></div><div class="freq">Gemeinsame Ausgaben rechnet ihr in Splitwise ab. Hier stehen eure Gruppen als Links, auf Wunsch mit einem Urlaub, Ausflug oder Projekt verbunden. Beträge bleiben in Splitwise.</div>`;
-  h+=`<form class="addrow" id="splitform" novalidate><input type="url" id="splitinput" placeholder="Link zur Splitwise-Gruppe einfügen" autocomplete="off" enterkeyhint="done" aria-label="Link zur Splitwise-Gruppe"><button class="primary" type="submit">＋</button></form>`;
-  h+=L.length?`<section class="card"><ul class="splitlist">${L.map(splitTile).join("")}</ul></section>`:`<div class="empty"><h2>Noch keine Gruppe</h2><div>In Splitwise die Gruppe öffnen, Link kopieren und oben einfügen.</div></div>`;
-  return h}
 // ---------- Einkauf › Weitere Listen (Florian 15.11.2026) ----------
 // food/buy/<id> {name,list,for?,note?,link?,price?,ref?,done,at,by,doneAt?}; eigene Listen food/buylist/<id> {name,emo}. Drogerie bleibt auf der Einkaufsliste.
 // Verknüpft: Geschenke ← Geschenk-Ideen (Stand Geplant/Sind dran), Spielsachen ← Adventskalender-Türchen "Kleinigkeit" (Stand Idee), Baumarkt ← Funde Werkzeug/Material in Am-Haus-Projekten, Kleidung ← 👕 an Packlisten-Einträgen.
@@ -73,7 +68,7 @@ function splitEdit(id){const x=splits().find(y=>y.id===id);if(!x)return;
       await S.store.setPath("food/split/"+id+"/name",n);await S.store.setPath("food/split/"+id+"/link",l?safeLink(l):null);toast("Gespeichert")},
     async()=>{await S.store.setPath("food/split/"+id,null);toast("Gelöscht")})}
 async function buyDropRef(ref){for(const x of buys().filter(y=>y.ref===ref&&!y.done))await S.store.setPath("food/buy/"+x.id,null)}
-async function splitDropRef(ref){for(const x of splitFor(ref))await S.store.setPath("food/split/"+x.id+"/ref",null)}
+async function splitDropRef(ref){for(const x of splitFor(ref))await S.store.setPath("food/split/"+x.id+"/ref",null);for(const x of monies().filter(y=>y.ref===ref))await S.store.setPath("food/money/"+x.id+"/ref",null)}
 async function buyAdd(list,name,extra){name=String(name||"").trim().slice(0,80);if(!name)return false;if(buys().some(x=>x.list===list&&!x.done&&x.name.toLowerCase()===name.toLowerCase())){toast("Steht schon auf der Liste");return false}
   try{await S.store.setPath("food/buy/"+newId("b"),Object.assign({name,list,done:false,at:Date.now(),by:S.me||""},extra||{}));return true}catch(_){toast("Konnte nicht speichern.");return false}}
 // ---------- Vorschlagsgedächtnis (gemeinsamer Baustein): food/sugg/<liste>/<favKey> = {name,n,at,hide?} ----------

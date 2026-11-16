@@ -8,6 +8,7 @@ const CAT_DEFS={
   fund:{lbl:"Art in der Sammlung (Reisen)",path:"fund",field:"kind",fb:"sonst",ph:"z. B. Souvenirs",ic:"🧭"},
   hfund:{lbl:"Art in der Sammlung (Am Haus)",path:"fund",field:"kind",fb:"sonst",ph:"z. B. Bad",ic:"🛁"},
   ter:{lbl:"Art von Termin",path:"termin",field:"tag",fb:null,ph:"z. B. Schwimmen",ic:"🏷️"},
+  geld:{lbl:"Art von Ausgabe",path:"money",field:"cat",fb:"sonst",ph:"z. B. Haustier",ic:"💶"},
   idea:{lbl:"Kachel bei Ideen",path:"idea",field:"cat",fb:"sonst",ph:"z. B. Hochzeit",ic:"✨"}};
 function ownCats(key){return listOf(S.food&&S.food.cats&&S.food.cats[key]).sort((a,b)=>(a.at||0)-(b.at||0)).map(x=>[x.id,x.ic||CAT_DEFS[key].ic,x.name,true])}
 const catsOf=(key,base)=>base.concat(ownCats(key));
