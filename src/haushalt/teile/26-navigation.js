@@ -50,4 +50,4 @@ try{S.labels=localStorage.getItem("hq-labels")==="1"}catch(_){}
 S.gest={tap:true,swipe:true,ring:true};try{const g=JSON.parse(localStorage.getItem("hq-gest")||"{}");Object.assign(S.gest,g)}catch(_){}
 try{S.theme=localStorage.getItem("hq-theme")||"";if(S.theme)document.documentElement.dataset.theme=S.theme}catch(_){}
 // Reiter unten (Entwurf, Wunsch 14.11.2026): ein Tipp = erste Seite; schnell mehrfach tippen blättert je Tipp eine Seite weiter (TAP_SEQ)
-const TAP_SEQ={camp:[()=>{S.tab="camp"},()=>{S.tab="tag"},()=>{S.tab="wichtig"}],woche:[0,3,1].map(p=>()=>{S.tab="woche";S.weekPage=p}),essen:["heute","plan","rezepte","kita"].map(f=>()=>{if(f==="kita"){S.tab="kita";S.kitaSec="essen";return}S.tab="essen";S.foodTab=f}),einkauf:[()=>{S.tab="einkauf"},()=>{S.tab="ausgaben"},()=>{S.tab="listen"}]};
+const TAP_SEQ={camp:[()=>{S.tab="camp"},()=>{S.tab="woche";S.weekPage=3},()=>{S.tab="wichtig"}],woche:[0,1].map(p=>()=>{S.tab="woche";S.weekPage=p}),essen:["heute","plan","rezepte","kita"].map(f=>()=>{if(f==="kita"){S.tab="kita";S.kitaSec="essen";return}S.tab="essen";S.foodTab=f}),einkauf:[()=>{S.tab="einkauf"},()=>{S.tab="ausgaben"},()=>{S.tab="listen"}]};

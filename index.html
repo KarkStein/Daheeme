@@ -527,7 +527,7 @@ const TEMPLATE={persons:["Florian","Judith"],rotOffset:0,tasks:[
  {id:"treppe",name:"Saugen komplett",subs:["Treppe","🤖","Oben"],owner:"rot",pack:"B",freq:"week",times:1,pts:1},
  {id:"mittag",name:"Gemeinsames Mittagessen",owner:"both",freq:"week",times:1,pts:2},
  {id:"eigenes",name:"Eigenes Zeug aufräumen (alles außer Schlafzimmer)",owner:"both",freq:"week",times:3,pts:1},
- {id:"nathan",name:"Nathans Klamotten einräumen",owner:"p1",freq:"week",times:3,pts:1},
+ {id:"kidwaesche",name:"Kinderkleidung einräumen",owner:"p1",freq:"week",times:3,pts:1},
  {id:"pflanzen-drinnen",name:"Pflanzen drinnen",owner:"p1",freq:"week",times:1,pts:2},
  {id:"pflanzen-draussen",name:"Pflanzen draußen",owner:"p0",freq:"week",times:2,pts:1},
  {id:"balkon",name:"Balkon",owner:"p0",freq:"week",times:1,pts:2},
@@ -731,8 +731,8 @@ function ring(p){const r=36,c=2*Math.PI*r;const off=c*(1-Math.min(1,p));
   return `<svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="${r}" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="8"/><circle cx="42" cy="42" r="${r}" fill="none" stroke="var(--lemon)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}"/></svg>`}
 
 function scopeSwitch(extra){return `<div class="filters" role="group" aria-label="Ansicht"><button class="chipbtn neutral" data-filter="alle" aria-pressed="${S.filter==="alle"}">Alle</button><button class="chipbtn neutral" data-filter="meine" aria-pressed="${S.filter==="meine"}">Mein Bereich</button>${extra||""}</div>${S.filter==="meine"&&!S.me?`<div class="notice">Wähle oben aus, wer du bist, damit „Mein Bereich“ funktioniert.</div>`:""}`}
-const WEEK_PAGES=["Diese Woche","Wer macht was","Wer macht was","Kalender"],WEEK_ORDER=[0,3,1];
-function weekPager(){const p=(S.weekPage|0)===2?1:S.weekPage|0,o=WEEK_ORDER.indexOf(p);return `<div class="pager" role="group" aria-label="Seiten in Woche"><div class="pdots">${WEEK_ORDER.map(i=>`<button class="pdot" data-wpage="${i}" aria-pressed="${i===p}" aria-label="${WEEK_PAGES[i]}"><b>${i===0?"Woche":WEEK_PAGES[i]}</b></button>`).join("")}</div></div>`}
+const WEEK_PAGES=["Tag und Woche","Wer macht was","Wer macht was","Kalender"],WEEK_ORDER=[0,1];
+function weekPager(){const p=(S.weekPage|0)===2?1:S.weekPage|0,o=WEEK_ORDER.indexOf(p);return `<div class="pager" role="group" aria-label="Seiten in Woche"><div class="pdots">${WEEK_ORDER.map(i=>`<button class="pdot" data-wpage="${i}" aria-pressed="${i===p}" aria-label="${WEEK_PAGES[i]}"><b>${WEEK_PAGES[i]}</b></button>`).join("")}</div></div>`}
 function setWeekPage(n){n=((n%4)+4)%4;if(n===2)n=1;if(n===(S.weekPage|0))return;if((S.weekPage|0)===1)S.draft=null;S.weekPage=n;render();window.scrollTo(0,0)}
 // Kalender (Woche › Kalender): sammelt Termine aus allen Quellen. Weitere Quellen (z. B. ein echter Kalender) kommen als Funktion in CAL_SRC dazu.
 const termine=()=>listOf(S.food&&S.food.termin);
@@ -1040,7 +1040,7 @@ function season(){const q=/[?&]saison=(spring|summer|autumn|winter)/.exec(locati
 function campCfg(){const c=(S.config&&S.config.camp)||{};const ex=c.extras?(Array.isArray(c.extras)?c.extras:Object.values(c.extras)):[];return {costs:c.costs||{},extras:ex.filter(Boolean)}}
 function campItems(cc){cc=cc||campCfg();return HOUSE.map(c=>({id:c[0],name:c[1],cost:c[2]===0||c[0]==="tent"||c[0]==="pit"?0:cc.costs[c[0]]!=null?(cc.costs[c[0]]|0):c[2]})).concat(cc.extras.map(e=>({id:e.id,name:e.name||e.emoji,cost:e.cost|0,emoji:e.emoji}))).sort((a,b)=>a.cost-b.cost)}
 // Start hat drei Seiten (Florian 15.11.2026): Haus, Tag und Woche, Wichtig
-function startPager(p){return `<div class="pager" role="group" aria-label="Seiten von Start"><div class="pdots">${[["camp","Haus"],["tag","Tag und Woche"],["wichtig","Wichtig"]].map((x,i)=>`<button class="pdot" data-go="${x[0]}" aria-pressed="${i===p}"><b>${x[1]}</b></button>`).join("")}</div></div>`}
+function startPager(p){return `<div class="pager" role="group" aria-label="Seiten von Start"><div class="pdots">${[["camp","Haus"],["kalender","Kalender"],["wichtig","Wichtig"]].map((x,i)=>`<button class="pdot" ${x[0]==="kalender"?'data-nav="woche|wp:3"':`data-go="${x[0]}"`} aria-pressed="${i===p}"><b>${x[1]}</b></button>`).join("")}</div></div>`}
 // Heute zu tun als eine Quelle (Tag und Woche, Heute-Streifen im Kalender)
 function todoRows(tomorrowOff){const now=new Date(),today=ymd(now),tmw=ymd(addDays(startOfDay(now),1)),D=backDay(now);
   const row=(ic,txt,sub,attr,chk)=>`<div class="trow">${chk?`<button class="tchk" ${chk}><span class="box"></span></button>`:`<span class="tic">${ic}</span>`}<button class="ttx" ${attr||""}><span>${chk?ic+" ":""}${txt}${sub?`<i>${sub}</i>`:""}</span><em>›</em></button></div>`;
@@ -1060,30 +1060,8 @@ function renderTag(){loadWx();const now=new Date(),today=ymd(now),tmw=ymd(addDay
   // Dashboard oben (Florian 15.11.2026: wieder da): Wetter, Zeitstrahl, Zähler, Blick auf 3 Tage
   // Heute zu tun ganz oben, ohne Scrollen (Florian 16.11.2026); Termine, Kita-Mittag und Abendessen stehen im Zeitstrahl darunter, Monatsaufgaben bei der Woche
   const L=todoRows(),bsplit=rotSplit(),kb=kitaBring(),pr=prios().filter(x=>x.from!=="mittag"),pt=pr.filter(x=>x.due&&x.due<=tmw);
-  let h=`<h1 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Tag und Woche</h1>`
-   +`<section class="card tagcard"><div class="section-head"><h2>Heute zu tun</h2><span class="freq">${DN[now.getDay()]}, ${now.getDate()}.${now.getMonth()+1}.</span></div>${L||`<div class="freq" style="padding:8px 0">Heute ist nichts fällig. Neue Erinnerungen über die Glocke.</div>`}</section>`+renderBack(night,true);
-  // Diese Woche: nur Zusammenfassungen, aufklappbar
-  const fold=(id,ic,t,info,body,attr)=>body?`<section class="card setcard tagfold"><button class="setsum" data-tagsum="${id}" aria-expanded="${!!O[id]}"><h2>${ic} ${t}</h2><span class="freq num" style="margin-left:auto;margin-right:8px">${info}</span><i>${O[id]?"▾":"›"}</i></button>${O[id]?`<div class="setbody">${body}</div>`:""}</section>`:`<section class="card setcard tagfold"><button class="setsum" ${attr}><h2>${ic} ${t}</h2><span class="freq num" style="margin-left:auto;margin-right:8px">${info}</span><i>›</i></button></section>`;
-  h+=`<div class="section-head" style="margin-top:6px"><h2>Diese Woche</h2><span class="freq">KW ${isoWeek(mon).w}</span></div>`;
-  // Aufgaben
-  const tk=ticksOf(wkKey(mon)),per={p0:[0,0],p1:[0,0]};tasks().forEach(t=>{if(group(t.freq)!=="week"||t.owner==="ho"||t.owner==="both")return;const o=ownerFor(t,mon,bsplit);if(!per[o])return;const n=slotsOf(t);per[o][1]+=n;for(let i=0;i<n;i++)if(tk[t.id+"__"+i])per[o][0]++});
-  const ord=S.me==="p1"?["p1","p0"]:["p0","p1"],btk=tasks().filter(t=>{if(group(t.freq)==="week"||periodTick(t,mon)||!periodDue(t,mon,startOfDay(now)))return false;const o=ownerFor(t,mon,bsplit);return !S.me||o===S.me||o==="both"});
-  const btkHtml=btk.length?`<div class="tagcard" style="margin-top:6px"><div class="freq">Fällig in diesem Zeitraum</div>${btk.map(t=>{const o=ownerFor(t,mon,bsplit);return row("🧹",esc(t.name),FREQ_LABEL[t.freq],'data-nav="woche|wp:1"',`data-wtick="${esc(t.id)}" data-who="${o==="both"?S.me||"p0":o}" aria-label="${esc(t.name)} erledigt"`)}).join("")}</div>`:"";
-  h+=fold("auf","🧹","Aufgaben",ord.map(o=>esc(pname(o))+" "+per[o][0]+"/"+per[o][1]).join(" · ")+(btk.length?" · "+btk.length+" fällig":""),btkHtml+ord.map(o=>`<div class="freq" style="padding:4px 0">${esc(pname(o))}: ${per[o][0]} von ${per[o][1]} erledigt, ${per[o][1]-per[o][0]} offen</div><div class="bar"><span style="width:${per[o][1]?Math.round(per[o][0]/per[o][1]*100):0}%"></span></div>`).join("")+`<div class="btnrow"><button class="ghost" data-nav="woche|wp:0">Diese Woche ›</button><button class="ghost" data-nav="woche|wp:1">Wer macht was ›</button></div>`);
-  // Termine
-  const WE=calEvents(today,sun).filter(e=>e.src!=="food"&&e.src!=="prio"&&e.d>tmw);
-  h+=fold("ter","📅","Termine",WE.length?WE.length+" weitere":"keine weiteren",WE.length?`<ul class="evlist">${WE.slice(0,12).map(e=>`<li><button class="ev" data-nav="${esc(e.nav||"woche|wp:3")}"><span>${e.icon||"📅"} <b>${esc(e.name)}</b><br><span class="freq">${esc(dLabel(e.d))}${e.t?" "+esc(e.t):""}</span></span></button></li>`).join("")}</ul>`:`<div class="freq">Nach morgen steht diese Woche nichts mehr im Kalender.</div>`);
-  // Wochenplan
-  const pd=planDays(mon),di=D.di,days=[0,1,2,3,4,5,6].map(i=>({i,m:mealInfo(pd["d"+i])})),pl=days.filter(x=>x.m).length;
-  h+=fold("ess","🍲","Wochenplan",pl+" von 7 Abenden",`<ul class="evlist">${days.filter(x=>x.i>=di).map(x=>`<li><button class="ev" data-nav="essen|ft:plan"><span><b>${DAYN[x.i].slice(0,2)}</b> ${x.m?esc(x.m.name):`<span class="freq">noch offen</span>`}</span></button></li>`).join("")}</ul>`);
-  // Erinnerungen später
-  const PL=pr.filter(x=>x.due&&x.due>tmw&&x.due<=sun);
-  h+=fold("eri","🔔","Erinnerungen",PL.length?PL.length+" bis Sonntag":"keine weiteren",PL.length?`<ul class="evlist">${PL.map(x=>`<li><button class="ev"${prioTarget(x)}><span><b>${esc(x.name)}</b><br><span class="freq">${esc(dLabel(x.due))}${x.time?" "+esc(x.time):""}</span></span></button></li>`).join("")}</ul>`:`<div class="freq">Alles Weitere steht unter Wichtig.</div><div class="btnrow"><button class="ghost" data-go="wichtig">Wichtig ›</button></div>`);
-  // Einkauf und Wetter
-  const sh=shopItems().filter(x=>!x.done).length;
-  h+=fold("ein","🧺","Einkaufsliste",sh?sh+" offen":"leer","",'data-go="einkauf"');
-  const WD=S.wx&&S.wx.days||{},wl=[];for(let i=0;i<7;i++){const d=addDays(startOfDay(now),i),x=WD[ymd(d)];if(x)wl.push([d,x])}
-  if(wl.length)h+=fold("wx","⛅","Wetter",esc(WX_FMT(wl[0][1])),`<ul class="wxdays">${wl.map(([d,x],i)=>`<li><b>${i===0?"Heute":i===1?"Morgen":DN[d.getDay()].slice(0,2)}</b><span>${esc(WX_FMT(x))}</span></li>`).join("")}</ul>`);
+  let h=`<section class="card tagcard"><div class="section-head"><h2>Heute zu tun</h2><span class="freq">${DN[now.getDay()]}, ${now.getDate()}.${now.getMonth()+1}.</span></div>${L||`<div class="freq" style="padding:8px 0">Heute ist nichts fällig. Neue Erinnerungen über die Glocke.</div>`}</section>`+renderBack(night,true);
+  // Die Woche darunter kommt aus renderWeek (Umbau 16.11.2026: Tag und Woche und Diese Woche sind eine Seite)
   return h}
 function renderCamp(){S.flip=false;loadWx();
   const total=campTotal(),mon=mondayOf(new Date()),tk=ticksOf(wkKey(mon));
@@ -1597,7 +1575,7 @@ function wxPlaceRow(){const pl=S.food&&S.food.wxplace;return `<div class="freq" 
 // Gliederung (Florian 15.11.2026): Alltag, Essen, Zuhause, Freizeit, Wir, Quer. Die 4 Reiter unten bleiben Abkürzungen.
 const AREA_GROUPS=[["essen","🍲","Essen"],["alltag","🗓️","Alltag"],["wir","🫶","Wir"],["zuhause","🏡","Zuhause"],["freizeit","🌊","Freizeit"],["quer","🧩","Quer durch alles"]];
 // [Symbol, Name, Tab, Kurzname im Kreis (leer = nicht im Kreis), Sprung im Kreis, Unterbereiche(), Gruppe]
-const AREAS=[["🏠","Start","camp","","",()=>[["Tag und Woche","sp:tag"],["Wichtig","sp:wichtig"]],""],["🧹","Woche","woche","Woche","woche|",()=>[["Diese Woche","wp:0"],["Kalender","wp:3"],["Wer macht was","wp:1"]],"alltag"],
+const AREAS=[["🏠","Start","camp","","",()=>[["Kalender","sp:kalender"],["Wichtig","sp:wichtig"]],""],["🧹","Woche","woche","Woche","woche|",()=>[["Tag und Woche","wp:0"],["Wer macht was","wp:1"]],"alltag"],
   ["🎒","Kita","kita","Kita","kita|",()=>KITA_SECS.map(k=>[k[2]==="Essen"?"Kita-Essen":k[2],"ks:"+k[0]]),"alltag"],
   ["🍲","Essen","essen","Essen","essen|",()=>[["Heute","ft:heute"],["Wochenplan","ft:plan"],["Rezepte","ft:rezepte"]],"essen"],
   ["🧺","Einkauf","einkauf","Einkauf","einkauf|",()=>[["Ausgaben","sp:ausgaben"],["Weitere Listen","bl:"]].concat(BUY_FIX.map(x=>[x[2],"bl:"+x[0]])),"essen"],
@@ -2607,7 +2585,10 @@ function renderSearch(){const q=S.sq||"",H=searchHits(q);
 function render(){
   if(S.mode==="loading")return;
   if(S.tab==="reisen"){S.tab="ausflug";S.tripTab="urlaub"} // Reisen und Ausflüge sind ein Bereich
-  document.querySelectorAll("#tabs button").forEach(b=>{b.setAttribute("aria-selected",b.dataset.tab===S.tab||(b.dataset.tab==="camp"&&(S.tab==="tag"||S.tab==="wichtig"))||(b.dataset.tab==="einkauf"&&(S.tab==="listen"||S.tab==="ausgaben")));if(b.dataset.tab==="ausflug")b.hidden=true;if(b.dataset.tab==="einkauf")b.hidden=false});
+  // Umbau 16.11.2026 (Florian): Start = Haus | Kalender | Wichtig; Woche = Tag und Woche | Wer macht was. Kalender bleibt intern Woche/Seite 3.
+  if(S.tab==="tag"){S.tab="woche";S.weekPage=0;S.view=mondayOf(new Date());S.wkEdit=null}
+  if(S.tab==="kalender"){S.tab="woche";S.weekPage=3}
+  document.querySelectorAll("#tabs button").forEach(b=>{b.setAttribute("aria-selected",(b.dataset.tab===S.tab&&!(S.tab==="woche"&&(S.weekPage|0)===3))||(b.dataset.tab==="camp"&&(S.tab==="wichtig"||(S.tab==="woche"&&(S.weekPage|0)===3)))||(b.dataset.tab==="einkauf"&&(S.tab==="listen"||S.tab==="ausgaben")));if(b.dataset.tab==="ausflug")b.hidden=true;if(b.dataset.tab==="einkauf")b.hidden=false});
   let h="";
   if(S.mode==="setup"){app.innerHTML=renderSetup();return}
   if(S.mode==="web"&&S.dbError==="rules"&&!S.cfgConfirmed){app.innerHTML=`<section class="card"><h2>Die Datenbank lehnt den Zugriff ab</h2><div>In Firebase sind die Regeln noch nicht veröffentlicht. Öffne dort „Realtime Database“, Reiter „Regeln“, ersetze den gesamten Text durch die folgende Zeile und tippe auf „Veröffentlichen“.</div><input type="text" readonly id="rulesline" value='{"rules":{"haushalt":{"$key":{".read":true,".write":true}}}}'><div><button class="primary" data-act="reload">Erneut versuchen</button></div></section>`;return}
@@ -2617,7 +2598,7 @@ function render(){
   if(!S.config&&!S.cfgConfirmed&&!S.timedOut){app.innerHTML=h+`<div class="empty">Plan wird geladen …</div>`;return}
   if(!S.config){h+=`<div class="empty"><h2>Noch kein Haushaltsplan hinterlegt</h2><div>Legt euren Plan aus der Vorlage an (eure Liste mit Müll, Saugen, Wäsche und Co.). Danach könnt ihr alles unter „Plan“ anpassen.</div><button class="primary" data-act="template">Plan aus Vorlage anlegen</button></div>`;app.innerHTML=h;return}
   h+=`<div class="appbar"><span class="appleft"><button class="iconbtn bellnav" data-go="wichtig" aria-label="Wichtig: alle Erinnerungen">🔔${(n=>n?`<b class="badge">${n}</b>`:"")(bellItems().n)}</button></span><span class="appleft"><button class="iconbtn" data-go="suche" aria-label="Suche"${S.tab==="suche"?' aria-pressed="true"':""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button><button class="iconbtn" data-go="settings" aria-label="Einstellungen"${S.tab==="settings"?' aria-pressed="true"':""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button><button class="iconbtn" data-allar aria-label="Alle Bereiche"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></svg></button></span></div>`;
-  h+=S.tab==="tag"?startPager(1)+renderTag():S.tab==="ausgaben"?shopPager(1)+renderSplit():S.tab==="listen"?shopPager(2)+renderBuy():S.tab==="wichtig"&&!S.prioDraft?startPager(2)+renderWichtig():S.tab==="bereiche"?renderAreas():S.tab==="settings"?renderSettings():S.tab==="wichtig"?renderWichtig():S.tab==="woche"?weekPager()+[renderWeek,renderWmw,renderWmw,renderCal][S.weekPage|0]():S.tab==="camp"?renderCamp():S.tab==="essen"||S.tab==="einkauf"?renderFood():S.tab==="ausflug"?renderTrips():S.tab==="projekte"||S.tab==="amhaus"?renderProjects():S.tab==="spiel"?renderPlay():S.tab==="musik"?renderMusic():S.tab==="recherchen"?renderResearch():S.tab==="suche"?renderSearch():S.tab==="kita"?renderKita():S.tab==="privat"?wirPager(0)+renderPrivat():S.tab==="kind"?wirPager(1)+renderKind():S.tab==="post"?(S.tab="privat",S.privSec="briefe",wirPager(0)+renderPrivat()):S.tab==="reisen"?renderTrips():renderCamp();
+  h+=S.tab==="ausgaben"?shopPager(1)+renderSplit():S.tab==="listen"?shopPager(2)+renderBuy():S.tab==="wichtig"&&!S.prioDraft?startPager(2)+renderWichtig():S.tab==="bereiche"?renderAreas():S.tab==="settings"?renderSettings():S.tab==="wichtig"?renderWichtig():S.tab==="woche"?((S.weekPage|0)===3?startPager(1)+renderCal():weekPager()+((S.weekPage|0)===0?(+S.view===+mondayOf(new Date())?renderTag():"")+renderWeek():renderWmw())):S.tab==="camp"?renderCamp():S.tab==="essen"||S.tab==="einkauf"?renderFood():S.tab==="ausflug"?renderTrips():S.tab==="projekte"||S.tab==="amhaus"?renderProjects():S.tab==="spiel"?renderPlay():S.tab==="musik"?renderMusic():S.tab==="recherchen"?renderResearch():S.tab==="suche"?renderSearch():S.tab==="kita"?renderKita():S.tab==="privat"?wirPager(0)+renderPrivat():S.tab==="kind"?wirPager(1)+renderKind():S.tab==="post"?(S.tab="privat",S.privSec="briefe",wirPager(0)+renderPrivat()):S.tab==="reisen"?renderTrips():renderCamp();
   const y=window.scrollY,ae=document.activeElement,fid=ae&&app.contains(ae)&&ae.id?ae.id:null,sel=fid&&ae.selectionStart!=null?[ae.selectionStart,ae.selectionEnd]:null;
   h+=renderPick();app.innerHTML=h;window.scrollTo(0,y);syncNav();
   if(fid){const el=document.getElementById(fid);if(el){el.focus({preventScroll:true});if(sel){try{el.setSelectionRange(sel[0],sel[1])}catch(_){}}}}
@@ -2675,15 +2656,15 @@ try{S.labels=localStorage.getItem("hq-labels")==="1"}catch(_){}
 S.gest={tap:true,swipe:true,ring:true};try{const g=JSON.parse(localStorage.getItem("hq-gest")||"{}");Object.assign(S.gest,g)}catch(_){}
 try{S.theme=localStorage.getItem("hq-theme")||"";if(S.theme)document.documentElement.dataset.theme=S.theme}catch(_){}
 // Reiter unten (Entwurf, Wunsch 14.11.2026): ein Tipp = erste Seite; schnell mehrfach tippen blättert je Tipp eine Seite weiter (TAP_SEQ)
-const TAP_SEQ={camp:[()=>{S.tab="camp"},()=>{S.tab="tag"},()=>{S.tab="wichtig"}],woche:[0,3,1].map(p=>()=>{S.tab="woche";S.weekPage=p}),essen:["heute","plan","rezepte","kita"].map(f=>()=>{if(f==="kita"){S.tab="kita";S.kitaSec="essen";return}S.tab="essen";S.foodTab=f}),einkauf:[()=>{S.tab="einkauf"},()=>{S.tab="ausgaben"},()=>{S.tab="listen"}]};
+const TAP_SEQ={camp:[()=>{S.tab="camp"},()=>{S.tab="woche";S.weekPage=3},()=>{S.tab="wichtig"}],woche:[0,1].map(p=>()=>{S.tab="woche";S.weekPage=p}),essen:["heute","plan","rezepte","kita"].map(f=>()=>{if(f==="kita"){S.tab="kita";S.kitaSec="essen";return}S.tab="essen";S.foodTab=f}),einkauf:[()=>{S.tab="einkauf"},()=>{S.tab="ausgaben"},()=>{S.tab="listen"}]};
 // ---------- Alle Bereiche (Florian 16.11.2026): Tipp oben rechts oder lange auf Start öffnet alle Bereiche als Kacheln auf einem Bildschirm ----------
 // Oben Favoriten (lange auf eine Kachel drücken heftet an, je Gerät hq-arfav), ohne Favoriten das zuletzt Benutzte (hq-arrec). Tipp daneben, ✕ und Zurück schließen.
 const AR_TILES=[["essen",[["🍲","Essen heute","essen|ft:heute"],["📅","Wochenplan","essen|ft:plan"],["📖","Rezepte","essen|ft:rezepte"],["🧺","Einkaufsliste","einkauf|"],["📝","Weitere Listen","einkauf|bl:"]]],
-  ["alltag",[["🧹","Diese Woche","woche|"],["📅","Kalender","woche|wp:3"],["👥","Wer macht was","woche|wp:1"],["🎒","Kita","kita|"],["📦","Mitbringen","kita|ks:tasche"]]],
+  ["alltag",[["☀️","Tag und Woche","woche|"],["📅","Kalender","woche|wp:3"],["👥","Wer macht was","woche|wp:1"],["🎒","Kita","kita|"],["📦","Mitbringen","kita|ks:tasche"]]],
   ["wir",[["🫶","Partner","privat|"],["🧒","Kind","kind|"],["💡","Ideen","projekte|"],["🎁","Geschenke","projekte|pf:geschenk"],["🎄","Advents­kalender","projekte|pf:advent"]]],
   ["zuhause",[["🏠","Am Haus","amhaus|"],["🛋️","Einrichtung","amhaus|pf:wohnen"],["🗄️","Aufräumen","amhaus|pf:ordnung"],["🔨","Reparieren","amhaus|pf:haus"],["🌱","Garten","amhaus|pf:garten"]]],
   ["freizeit",[["⛵","Urlaube","ausflug|tt:urlaub"],["🚲","Ausflüge","ausflug|tt:ideen"],["🧳","Packlisten","ausflug|tt:pack"],["⚽","Sport und Spiel","spiel|"],["🎵","Musik","musik|"]]],
-  ["quer",[["☀️","Tag und Woche","camp|sp:tag"],["🔔","Wichtig","wichtig|"],["🔍","Suche","suche|"],["🤖","Recherchen","recherchen|"],["⚙️","Einstellungen","settings|"]]]];
+  ["quer",[["🏠","Haus","camp|"],["🔔","Wichtig","wichtig|"],["🔍","Suche","suche|"],["🤖","Recherchen","recherchen|"],["⚙️","Einstellungen","settings|"]]]];
 const arAll=()=>AR_TILES.flatMap(g=>g[1]);
 const arTile=v=>arAll().find(t=>t[2]===v);
 function arLs(k){try{const a=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(a)?a.filter(arTile):[]}catch(_){return []}}

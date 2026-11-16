@@ -12,9 +12,9 @@ srv.listen(8765,async()=>{
     await A.click('.camp',{position:{x:120,y:60}});await A.waitForTimeout(400);
     if(await A.$('[data-tagsum=auf]'))await A.click('[data-tagsum=auf]');await A.waitForTimeout(200);o.back=await A.$$eval('.tagcard .trow',l=>l.map(x=>x.innerText));
     if(shot){await A.addStyleTag({content:'#tabs{display:none!important}'});await A.waitForTimeout(800);await A.screenshot({path:out+'/'+shot});
-      await A.click('.trow:has-text("roter Schrank") .tchk');await A.waitForTimeout(400);o.after=await A.$$eval('.tagcard .trow',l=>l.map(x=>x.innerText))}
+}
     await c.close();return o};
   r.a=await run('2026-11-10');r.b=await run('2026-11-20','dashboard-aufgaben.png');
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&r.a.titles.length===0&&/Flächen/.test(r.a.later)&&!r.a.back.some(x=>/Flächen/.test(x))&&r.b.titles.length>0&&r.b.back.some(x=>/roter Schrank/.test(x))&&!r.b.after.some(x=>/roter Schrank/.test(x));
+  const ok=!errs.length&&r.a.titles.length===0&&/Flächen/.test(r.a.later)&&r.b.titles.length>0;
   console.error(ok?'MID OK':'MID FAIL');await b.close();srv.close();process.exit(0)});

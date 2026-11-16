@@ -1,11 +1,11 @@
 // ---------- Alle Bereiche (Florian 16.11.2026): Tipp oben rechts oder lange auf Start öffnet alle Bereiche als Kacheln auf einem Bildschirm ----------
 // Oben Favoriten (lange auf eine Kachel drücken heftet an, je Gerät hq-arfav), ohne Favoriten das zuletzt Benutzte (hq-arrec). Tipp daneben, ✕ und Zurück schließen.
 const AR_TILES=[["essen",[["🍲","Essen heute","essen|ft:heute"],["📅","Wochenplan","essen|ft:plan"],["📖","Rezepte","essen|ft:rezepte"],["🧺","Einkaufsliste","einkauf|"],["📝","Weitere Listen","einkauf|bl:"]]],
-  ["alltag",[["🧹","Diese Woche","woche|"],["📅","Kalender","woche|wp:3"],["👥","Wer macht was","woche|wp:1"],["🎒","Kita","kita|"],["📦","Mitbringen","kita|ks:tasche"]]],
+  ["alltag",[["☀️","Tag und Woche","woche|"],["📅","Kalender","woche|wp:3"],["👥","Wer macht was","woche|wp:1"],["🎒","Kita","kita|"],["📦","Mitbringen","kita|ks:tasche"]]],
   ["wir",[["🫶","Partner","privat|"],["🧒","Kind","kind|"],["💡","Ideen","projekte|"],["🎁","Geschenke","projekte|pf:geschenk"],["🎄","Advents­kalender","projekte|pf:advent"]]],
   ["zuhause",[["🏠","Am Haus","amhaus|"],["🛋️","Einrichtung","amhaus|pf:wohnen"],["🗄️","Aufräumen","amhaus|pf:ordnung"],["🔨","Reparieren","amhaus|pf:haus"],["🌱","Garten","amhaus|pf:garten"]]],
   ["freizeit",[["⛵","Urlaube","ausflug|tt:urlaub"],["🚲","Ausflüge","ausflug|tt:ideen"],["🧳","Packlisten","ausflug|tt:pack"],["⚽","Sport und Spiel","spiel|"],["🎵","Musik","musik|"]]],
-  ["quer",[["☀️","Tag und Woche","camp|sp:tag"],["🔔","Wichtig","wichtig|"],["🔍","Suche","suche|"],["🤖","Recherchen","recherchen|"],["⚙️","Einstellungen","settings|"]]]];
+  ["quer",[["🏠","Haus","camp|"],["🔔","Wichtig","wichtig|"],["🔍","Suche","suche|"],["🤖","Recherchen","recherchen|"],["⚙️","Einstellungen","settings|"]]]];
 const arAll=()=>AR_TILES.flatMap(g=>g[1]);
 const arTile=v=>arAll().find(t=>t[2]===v);
 function arLs(k){try{const a=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(a)?a.filter(arTile):[]}catch(_){return []}}

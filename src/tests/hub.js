@@ -8,7 +8,7 @@ srv.listen(8765,async()=>{
   await put('food/play/s1',{name:'Kinderturnen',sec:'sport',when:'dienstags 16:30 Uhr',at:1});
   await put('food/kita/k1',{name:'Laternenfest',sec:'termine',date:'2026-11-19',kind:'fest',at:1});
   await A.waitForTimeout(300);const r={};
-  await A.click('#tabs [data-tab=woche]');await A.waitForTimeout(80);await A.click('#tabs [data-tab=woche]');
+  await A.click('#tabs [data-tab=camp]');await A.waitForTimeout(80);await A.click('#tabs [data-tab=camp]');
   await A.waitForTimeout(300);
   r.hasQuick=!(await A.$('#calq'))&&(await A.$eval('[data-calview][aria-pressed=true]',x=>x.dataset.calview))==='monat'; // Florian 16.11.2026: Monat zuerst, kein Schnellfeld
   await put('food/termin/hq1',{name:'Kinderarzt',date:'2026-11-19',time:'15:00',who:'kid',at:1});await put('food/termin/hq2',{name:'Geburtstag Oma',date:'2026-11-25',rep:'y',at:2});await A.waitForTimeout(400);
@@ -24,7 +24,7 @@ srv.listen(8765,async()=>{
   await A.click('[data-calwho=""]');await A.click('[data-caloff=food]');await A.click('[data-caloff=reise]');await A.waitForTimeout(200);r.listNoFood=await A.$$eval('.evlist li',l=>l.length);
   await A.screenshot({path:out+'/kal-liste.png',fullPage:true});
   // vacation: reminders
-  await A.click('#tabs [data-tab=camp]');await A.waitForTimeout(300);await A.click('.spot[data-go=reisen]');await A.waitForTimeout(300);await A.click('[data-reise=u1]');await A.waitForTimeout(300);
+  await A.click('#tabs [data-tab=essen]');await A.waitForTimeout(100);await A.click('#tabs [data-tab=camp]');await A.waitForTimeout(300);await A.click('.spot[data-go=reisen]');await A.waitForTimeout(300);await A.click('[data-reise=u1]');await A.waitForTimeout(300);
   r.vor=await A.$$eval('[data-reiseprio]',l=>l.length);
   await A.screenshot({path:out+'/urlaub-vorher.png',fullPage:true});
   r.stress=['Wildpark'];r.sugg=[];

@@ -121,7 +121,7 @@ function season(){const q=/[?&]saison=(spring|summer|autumn|winter)/.exec(locati
 function campCfg(){const c=(S.config&&S.config.camp)||{};const ex=c.extras?(Array.isArray(c.extras)?c.extras:Object.values(c.extras)):[];return {costs:c.costs||{},extras:ex.filter(Boolean)}}
 function campItems(cc){cc=cc||campCfg();return HOUSE.map(c=>({id:c[0],name:c[1],cost:c[2]===0||c[0]==="tent"||c[0]==="pit"?0:cc.costs[c[0]]!=null?(cc.costs[c[0]]|0):c[2]})).concat(cc.extras.map(e=>({id:e.id,name:e.name||e.emoji,cost:e.cost|0,emoji:e.emoji}))).sort((a,b)=>a.cost-b.cost)}
 // Start hat drei Seiten (Florian 15.11.2026): Haus, Tag und Woche, Wichtig
-function startPager(p){return `<div class="pager" role="group" aria-label="Seiten von Start"><div class="pdots">${[["camp","Haus"],["tag","Tag und Woche"],["wichtig","Wichtig"]].map((x,i)=>`<button class="pdot" data-go="${x[0]}" aria-pressed="${i===p}"><b>${x[1]}</b></button>`).join("")}</div></div>`}
+function startPager(p){return `<div class="pager" role="group" aria-label="Seiten von Start"><div class="pdots">${[["camp","Haus"],["kalender","Kalender"],["wichtig","Wichtig"]].map((x,i)=>`<button class="pdot" ${x[0]==="kalender"?'data-nav="woche|wp:3"':`data-go="${x[0]}"`} aria-pressed="${i===p}"><b>${x[1]}</b></button>`).join("")}</div></div>`}
 // Heute zu tun als eine Quelle (Tag und Woche, Heute-Streifen im Kalender)
 function todoRows(tomorrowOff){const now=new Date(),today=ymd(now),tmw=ymd(addDays(startOfDay(now),1)),D=backDay(now);
   const row=(ic,txt,sub,attr,chk)=>`<div class="trow">${chk?`<button class="tchk" ${chk}><span class="box"></span></button>`:`<span class="tic">${ic}</span>`}<button class="ttx" ${attr||""}><span>${chk?ic+" ":""}${txt}${sub?`<i>${sub}</i>`:""}</span><em>›</em></button></div>`;
@@ -141,30 +141,8 @@ function renderTag(){loadWx();const now=new Date(),today=ymd(now),tmw=ymd(addDay
   // Dashboard oben (Florian 15.11.2026: wieder da): Wetter, Zeitstrahl, Zähler, Blick auf 3 Tage
   // Heute zu tun ganz oben, ohne Scrollen (Florian 16.11.2026); Termine, Kita-Mittag und Abendessen stehen im Zeitstrahl darunter, Monatsaufgaben bei der Woche
   const L=todoRows(),bsplit=rotSplit(),kb=kitaBring(),pr=prios().filter(x=>x.from!=="mittag"),pt=pr.filter(x=>x.due&&x.due<=tmw);
-  let h=`<h1 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Tag und Woche</h1>`
-   +`<section class="card tagcard"><div class="section-head"><h2>Heute zu tun</h2><span class="freq">${DN[now.getDay()]}, ${now.getDate()}.${now.getMonth()+1}.</span></div>${L||`<div class="freq" style="padding:8px 0">Heute ist nichts fällig. Neue Erinnerungen über die Glocke.</div>`}</section>`+renderBack(night,true);
-  // Diese Woche: nur Zusammenfassungen, aufklappbar
-  const fold=(id,ic,t,info,body,attr)=>body?`<section class="card setcard tagfold"><button class="setsum" data-tagsum="${id}" aria-expanded="${!!O[id]}"><h2>${ic} ${t}</h2><span class="freq num" style="margin-left:auto;margin-right:8px">${info}</span><i>${O[id]?"▾":"›"}</i></button>${O[id]?`<div class="setbody">${body}</div>`:""}</section>`:`<section class="card setcard tagfold"><button class="setsum" ${attr}><h2>${ic} ${t}</h2><span class="freq num" style="margin-left:auto;margin-right:8px">${info}</span><i>›</i></button></section>`;
-  h+=`<div class="section-head" style="margin-top:6px"><h2>Diese Woche</h2><span class="freq">KW ${isoWeek(mon).w}</span></div>`;
-  // Aufgaben
-  const tk=ticksOf(wkKey(mon)),per={p0:[0,0],p1:[0,0]};tasks().forEach(t=>{if(group(t.freq)!=="week"||t.owner==="ho"||t.owner==="both")return;const o=ownerFor(t,mon,bsplit);if(!per[o])return;const n=slotsOf(t);per[o][1]+=n;for(let i=0;i<n;i++)if(tk[t.id+"__"+i])per[o][0]++});
-  const ord=S.me==="p1"?["p1","p0"]:["p0","p1"],btk=tasks().filter(t=>{if(group(t.freq)==="week"||periodTick(t,mon)||!periodDue(t,mon,startOfDay(now)))return false;const o=ownerFor(t,mon,bsplit);return !S.me||o===S.me||o==="both"});
-  const btkHtml=btk.length?`<div class="tagcard" style="margin-top:6px"><div class="freq">Fällig in diesem Zeitraum</div>${btk.map(t=>{const o=ownerFor(t,mon,bsplit);return row("🧹",esc(t.name),FREQ_LABEL[t.freq],'data-nav="woche|wp:1"',`data-wtick="${esc(t.id)}" data-who="${o==="both"?S.me||"p0":o}" aria-label="${esc(t.name)} erledigt"`)}).join("")}</div>`:"";
-  h+=fold("auf","🧹","Aufgaben",ord.map(o=>esc(pname(o))+" "+per[o][0]+"/"+per[o][1]).join(" · ")+(btk.length?" · "+btk.length+" fällig":""),btkHtml+ord.map(o=>`<div class="freq" style="padding:4px 0">${esc(pname(o))}: ${per[o][0]} von ${per[o][1]} erledigt, ${per[o][1]-per[o][0]} offen</div><div class="bar"><span style="width:${per[o][1]?Math.round(per[o][0]/per[o][1]*100):0}%"></span></div>`).join("")+`<div class="btnrow"><button class="ghost" data-nav="woche|wp:0">Diese Woche ›</button><button class="ghost" data-nav="woche|wp:1">Wer macht was ›</button></div>`);
-  // Termine
-  const WE=calEvents(today,sun).filter(e=>e.src!=="food"&&e.src!=="prio"&&e.d>tmw);
-  h+=fold("ter","📅","Termine",WE.length?WE.length+" weitere":"keine weiteren",WE.length?`<ul class="evlist">${WE.slice(0,12).map(e=>`<li><button class="ev" data-nav="${esc(e.nav||"woche|wp:3")}"><span>${e.icon||"📅"} <b>${esc(e.name)}</b><br><span class="freq">${esc(dLabel(e.d))}${e.t?" "+esc(e.t):""}</span></span></button></li>`).join("")}</ul>`:`<div class="freq">Nach morgen steht diese Woche nichts mehr im Kalender.</div>`);
-  // Wochenplan
-  const pd=planDays(mon),di=D.di,days=[0,1,2,3,4,5,6].map(i=>({i,m:mealInfo(pd["d"+i])})),pl=days.filter(x=>x.m).length;
-  h+=fold("ess","🍲","Wochenplan",pl+" von 7 Abenden",`<ul class="evlist">${days.filter(x=>x.i>=di).map(x=>`<li><button class="ev" data-nav="essen|ft:plan"><span><b>${DAYN[x.i].slice(0,2)}</b> ${x.m?esc(x.m.name):`<span class="freq">noch offen</span>`}</span></button></li>`).join("")}</ul>`);
-  // Erinnerungen später
-  const PL=pr.filter(x=>x.due&&x.due>tmw&&x.due<=sun);
-  h+=fold("eri","🔔","Erinnerungen",PL.length?PL.length+" bis Sonntag":"keine weiteren",PL.length?`<ul class="evlist">${PL.map(x=>`<li><button class="ev"${prioTarget(x)}><span><b>${esc(x.name)}</b><br><span class="freq">${esc(dLabel(x.due))}${x.time?" "+esc(x.time):""}</span></span></button></li>`).join("")}</ul>`:`<div class="freq">Alles Weitere steht unter Wichtig.</div><div class="btnrow"><button class="ghost" data-go="wichtig">Wichtig ›</button></div>`);
-  // Einkauf und Wetter
-  const sh=shopItems().filter(x=>!x.done).length;
-  h+=fold("ein","🧺","Einkaufsliste",sh?sh+" offen":"leer","",'data-go="einkauf"');
-  const WD=S.wx&&S.wx.days||{},wl=[];for(let i=0;i<7;i++){const d=addDays(startOfDay(now),i),x=WD[ymd(d)];if(x)wl.push([d,x])}
-  if(wl.length)h+=fold("wx","⛅","Wetter",esc(WX_FMT(wl[0][1])),`<ul class="wxdays">${wl.map(([d,x],i)=>`<li><b>${i===0?"Heute":i===1?"Morgen":DN[d.getDay()].slice(0,2)}</b><span>${esc(WX_FMT(x))}</span></li>`).join("")}</ul>`);
+  let h=`<section class="card tagcard"><div class="section-head"><h2>Heute zu tun</h2><span class="freq">${DN[now.getDay()]}, ${now.getDate()}.${now.getMonth()+1}.</span></div>${L||`<div class="freq" style="padding:8px 0">Heute ist nichts fällig. Neue Erinnerungen über die Glocke.</div>`}</section>`+renderBack(night,true);
+  // Die Woche darunter kommt aus renderWeek (Umbau 16.11.2026: Tag und Woche und Diese Woche sind eine Seite)
   return h}
 function renderCamp(){S.flip=false;loadWx();
   const total=campTotal(),mon=mondayOf(new Date()),tk=ticksOf(wkKey(mon));

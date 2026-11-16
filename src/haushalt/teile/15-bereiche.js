@@ -23,7 +23,7 @@ function wxPlaceRow(){const pl=S.food&&S.food.wxplace;return `<div class="freq" 
 // Gliederung (Florian 15.11.2026): Alltag, Essen, Zuhause, Freizeit, Wir, Quer. Die 4 Reiter unten bleiben Abkürzungen.
 const AREA_GROUPS=[["essen","🍲","Essen"],["alltag","🗓️","Alltag"],["wir","🫶","Wir"],["zuhause","🏡","Zuhause"],["freizeit","🌊","Freizeit"],["quer","🧩","Quer durch alles"]];
 // [Symbol, Name, Tab, Kurzname im Kreis (leer = nicht im Kreis), Sprung im Kreis, Unterbereiche(), Gruppe]
-const AREAS=[["🏠","Start","camp","","",()=>[["Tag und Woche","sp:tag"],["Wichtig","sp:wichtig"]],""],["🧹","Woche","woche","Woche","woche|",()=>[["Diese Woche","wp:0"],["Kalender","wp:3"],["Wer macht was","wp:1"]],"alltag"],
+const AREAS=[["🏠","Start","camp","","",()=>[["Kalender","sp:kalender"],["Wichtig","sp:wichtig"]],""],["🧹","Woche","woche","Woche","woche|",()=>[["Tag und Woche","wp:0"],["Wer macht was","wp:1"]],"alltag"],
   ["🎒","Kita","kita","Kita","kita|",()=>KITA_SECS.map(k=>[k[2]==="Essen"?"Kita-Essen":k[2],"ks:"+k[0]]),"alltag"],
   ["🍲","Essen","essen","Essen","essen|",()=>[["Heute","ft:heute"],["Wochenplan","ft:plan"],["Rezepte","ft:rezepte"]],"essen"],
   ["🧺","Einkauf","einkauf","Einkauf","einkauf|",()=>[["Ausgaben","sp:ausgaben"],["Weitere Listen","bl:"]].concat(BUY_FIX.map(x=>[x[2],"bl:"+x[0]])),"essen"],

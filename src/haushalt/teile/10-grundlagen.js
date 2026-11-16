@@ -14,7 +14,7 @@ const TEMPLATE={persons:["Florian","Judith"],rotOffset:0,tasks:[
  {id:"treppe",name:"Saugen komplett",subs:["Treppe","🤖","Oben"],owner:"rot",pack:"B",freq:"week",times:1,pts:1},
  {id:"mittag",name:"Gemeinsames Mittagessen",owner:"both",freq:"week",times:1,pts:2},
  {id:"eigenes",name:"Eigenes Zeug aufräumen (alles außer Schlafzimmer)",owner:"both",freq:"week",times:3,pts:1},
- {id:"nathan",name:"Nathans Klamotten einräumen",owner:"p1",freq:"week",times:3,pts:1},
+ {id:"kidwaesche",name:"Kinderkleidung einräumen",owner:"p1",freq:"week",times:3,pts:1},
  {id:"pflanzen-drinnen",name:"Pflanzen drinnen",owner:"p1",freq:"week",times:1,pts:2},
  {id:"pflanzen-draussen",name:"Pflanzen draußen",owner:"p0",freq:"week",times:2,pts:1},
  {id:"balkon",name:"Balkon",owner:"p0",freq:"week",times:1,pts:2},

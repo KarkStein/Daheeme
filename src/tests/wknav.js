@@ -16,7 +16,7 @@ srv.listen(8765,async()=>{
   await A.click('[data-wknav="0"]');await A.waitForTimeout(200);r.h2=await A.$eval('#app h1',e=>e.innerText);
   await A.click('[data-wknav="1"]');await A.waitForTimeout(200);r.h3=await A.$eval('#app h1',e=>e.innerText);
   await A.click('[data-wknav="0"]');await A.waitForTimeout(200);
-  const pages=[];for(const i of [3,1,0]){await A.click('[data-wpage="'+i+'"]');await A.waitForTimeout(300);pages.push(await A.$eval('#app',e=>(e.querySelector('h1,h2')||e).innerText.slice(0,40)))}r.pages=pages;
+  const pages=[];for(const i of [1,0]){await A.click('[data-wpage="'+i+'"]');await A.waitForTimeout(300);pages.push(await A.$eval('#app',e=>(e.querySelector('h1,h2')||e).innerText.slice(0,40)))}r.pages=pages;
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&r.h0==='Diese Woche'&&r.h1==='Rückblick'&&/Archiv/.test(r.ro)&&/Nachtragen ist an/.test(r.ro2)&&r.h2==='Diese Woche'&&r.h3==='Vorschau'&&/2026|Heute/.test(pages[0])&&/Wer macht was/.test(pages[1])&&pages[2]==='Diese Woche';
+  const ok=!errs.length&&/Woche/.test(r.h0)&&r.h1==='Rückblick'&&/Archiv/.test(r.ro)&&/Nachtragen ist an/.test(r.ro2)&&/Woche/.test(r.h2)&&r.h3==='Vorschau'&&/Wer macht was/.test(pages[0])&&/Heute zu tun|Diese Woche/.test(pages[1]);
   console.error(ok?'WKNAV OK':'WKNAV FAIL');await b.close();srv.close();process.exit(0)});
