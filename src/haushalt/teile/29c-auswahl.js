@@ -46,7 +46,7 @@ function choiceOpen(k,id){const K=CHOICE_KINDS[k],x=choiceGet(k,id);if(!K||!x||d
     if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose()})}
 // Kalender: offene Möglichkeiten gestrichelt und blasser, mit „?“ und „1 von 3“
 function choiceEvents(x,a,z,out){const O=CHOICE_KINDS.termin.opts(x),n=O.length,w=choiceWhoTxt(x.ask);
-  O.forEach((o,i)=>{if(o.date>=a&&o.date<=z)out.push({d:o.date,t:o.time||"",name:"? "+x.name+" ("+(i+1)+" von "+n+")",icon:"📅",src:"own",tent:true,id:x.id,who:x.who||"",note:"Noch offen: "+w+(x.ask.due?", Frist "+rDate(x.ask.due):""),place:x.place||""})})}
+  O.forEach((o,i)=>{if(o.date>=a&&o.date<=z)out.push({d:o.date,t:o.time||"",name:"? "+x.name+" ("+(i+1)+" von "+n+")",icon:terIcon(x),src:"own",tag:x.tag||"",tent:true,id:x.id,who:x.who||"",note:"Noch offen: "+w+(x.ask.due?", Frist "+rDate(x.ask.due):""),place:x.place||""})})}
 // Wichtig: Karte „Bitte wählen“ plus Hinweise „hat gewählt“ und was beim anderen liegt
 function choiceCard(){const {A,N,W}=choiceBell(),today=ymd(new Date());if(!A.length&&!N.length&&!W.length)return "";
   const K=c=>CHOICE_KINDS[c.k],row=(c,txt,cls)=>`<div class="prow${cls?" "+cls:""}"><span class="pchk" aria-hidden="true">${K(c).icon}</span><button class="pnm" data-chopen="${c.k}|${esc(c.x.id)}">${esc(c.x.name)}<br><i>${txt}</i></button></div>`;

@@ -18,5 +18,5 @@ srv.listen(8765,async()=>{
   db=JSON.parse(JSON.stringify(get(['haushalt',key])));r.after=db.food.pref;
   await A.click('#tabs [data-tab=woche]');await A.waitForTimeout(200);
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&r.cards.length===6&&r.quick.length===4&&r.theme==='dark'&&/"swipe":false/.test(r.gest)&&r.veg&&r.veg.veg===false&&r.names[1]==='Jule'&&/Jule/.test(r.nummer)&&r.bk[0]==='Daheeme'&&r.restoreAsk===1&&r.after&&r.after.veg===false;
+  const ok=!errs.length&&r.cards.length===7&&r.quick.length===4&&r.theme==='dark'&&/"swipe":false/.test(r.gest)&&r.veg&&r.veg.veg===false&&r.names[1]==='Jule'&&/Jule/.test(r.nummer)&&r.bk[0]==='Daheeme'&&r.restoreAsk===1&&r.after&&r.after.veg===false;
   console.error(ok?'SET2 OK':'SET2 FAIL');await b.close();srv.close();process.exit(0)});

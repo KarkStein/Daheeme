@@ -65,7 +65,7 @@ function renderSettings(){const per=(S.config&&S.config.persons)||[];const G=S.g
   h+=card("",go('data-go="recherchen"',"🤖","<b>Recherchen</b> · alle festen Aufträge, Neues und eure Wünsche"));
   h+=card("",go('data-go="wichtig"',"🔔","<b>Wichtig</b> · alle Erinnerungen"));
   h+=card("📲 Benachrichtigungen",pushRow(),"push");
-  h+=card("🌦️ Ort und Wetter",`<div class="freq">Für Himmel, Wetter und den Wochenvorschlag.</div>${wxPlaceRow()}`,"ort");
+  h+=card("🌦️ Ort und Wetter",`<div class="freq">Für Himmel, Wetter und den Wochenvorschlag.</div>${wxPlaceRow()}${placeList()}`,"ort");
   {const o=otherP(),oi=o==="p1"?1:0,ct=(S.food&&S.food.contact)||{},nm=i=>esc((per[i]&&(per[i].name||per[i]))||(i?"Person 2":"Person 1"));
    h+=card("🫶 Wir",`<div class="freq">Ich bin (nur dieses Handy)</div><div class="unl">${["p0","p1"].map((p,i)=>`<button class="chipbtn neutral" data-me="${p}" aria-pressed="${S.me===p}">${nm(i)}</button>`).join("")}</div>
     <div class="freq" style="margin-top:10px">Namen</div><div class="telrow">${[0,1].map(i=>`<input data-pname="${i}" value="${nm(i)}" maxlength="20" aria-label="Name ${i+1}" autocomplete="off">`).join("")}</div>

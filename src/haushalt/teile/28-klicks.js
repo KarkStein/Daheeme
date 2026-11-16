@@ -141,6 +141,10 @@ app.addEventListener("click",async e=>{
   if(b.dataset.teredit){const x=termine().find(y=>y.id===b.dataset.teredit);if(x){S.terDraft=terDraftOf(x);render();window.scrollTo(0,0)}return}
   if(b.dataset.act==="teraltadd"&&S.terDraft){const d=S.terDraft;d.alt=d.alt||[];if(!d.alt.length&&!d.ask)d.ask=choiceOther(S.me)||"p1";d.alt.push({date:"",time:d.time||""});render();const l=document.querySelectorAll("[data-teralt][data-k=date]");if(l.length)l[l.length-1].focus();return}
   if(b.dataset.teraltrm!=null&&S.terDraft){S.terDraft.alt.splice(+b.dataset.teraltrm,1);render();return}
+  if(b.dataset.tertag!=null&&S.terDraft){const d=S.terDraft;d.tag=b.dataset.tertag;const t=terTag(d);if(t&&!String(d.place||"").trim()&&placeFind(t[2]))d.place=placeFind(t[2]).name;render();return}
+  if(b.dataset.placeset!=null){if(S.terDraft){S.terDraft.place=b.dataset.placeset;render()}return}
+  if(b.dataset.placenew!=null){placeEdit(null,b.dataset.placenew);return}
+  if(b.dataset.placeedit){placeEdit(b.dataset.placeedit);return}
   if(b.dataset.terask!=null&&S.terDraft){S.terDraft.ask=b.dataset.terask;render();return}
   if(b.dataset.act==="pushtoggle"){try{await pushToggle()}catch(_){toast("Hat nicht geklappt.")}return}
   if(b.dataset.act==="pushtest"){pushTest();return}

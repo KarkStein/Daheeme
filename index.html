@@ -790,8 +790,8 @@ function fwWho(id,x){const E=(S.food&&S.food.ext)||{},ov=(E.fwwho||{})[id];if(ov
   const M=E.fwmap||{},ws=[...new Set((x.a||[]).map(h=>M[h]).filter(Boolean))];return ws.length===1?ws[0]:ws.length?"both":""}
 function freiLine(x){return x.ic==="🏖️"?`🏖️ ${esc(x.name)} ${x.to===x.k?WD2[x.d.getDay()]+" "+rDate(x.k)+" (schulfrei)":rDate(x.k)+"–"+rDate(x.to)}`:`🎉 ${WD2[x.d.getDay()]} ${rDate(x.k)} ${esc(x.name)}${x.bridge?` · Brückentag ${x.bridge}`:""}`}
 const CAL_SRC=[
-  (a,z)=>{const out=[];termine().forEach(x=>{if(!x.date)return;if(x.ask&&altOf(x).length&&!x.rep){choiceEvents(x,a,z,out);return}if(!x.rep){if(x.to&&x.to>x.date){let d=ymdD(x.date),n=0;while(ymd(d)<=x.to&&n<60){const k=ymd(d);if(k>=a&&k<=z)out.push({d:k,t:k===x.date?x.time||"":"",name:x.name+(n?" (Tag "+(n+1)+")":""),icon:"📅",src:"own",id:x.id,who:x.who||"",note:x.note||"",place:x.place||"",link:x.link||"",link:x.link||"",remind:x.remind||false});d=addDays(d,1);n++}return}if(x.date>=a&&x.date<=z)out.push({d:x.date,t:x.time||"",name:x.name,icon:"📅",src:"own",id:x.id,who:x.who||"",note:x.note||"",place:x.place||"",link:x.link||"",link:x.link||"",remind:x.remind||false});return}
-    let d=ymdD(x.date);const end=ymdD(z);let n=0;while(d<=end&&n<800){const k=ymd(d);if(k>=a)out.push({d:k,t:x.time||"",name:x.name,icon:x.rep==="y"?"🎂":"🔁",src:"own",id:x.id,who:x.who||"",note:x.note||"",place:x.place||"",link:x.link||"",link:x.link||"",remind:x.remind||false});d=x.rep==="w"?addDays(d,7):x.rep==="m"?new Date(d.getFullYear(),d.getMonth()+1,d.getDate(),12):new Date(d.getFullYear()+1,d.getMonth(),d.getDate(),12);n++}});return out},
+  (a,z)=>{const out=[];termine().forEach(x=>{if(!x.date)return;if(x.ask&&altOf(x).length&&!x.rep){choiceEvents(x,a,z,out);return}if(!x.rep){if(x.to&&x.to>x.date){let d=ymdD(x.date),n=0;while(ymd(d)<=x.to&&n<60){const k=ymd(d);if(k>=a&&k<=z)out.push({d:k,t:k===x.date?x.time||"":"",name:x.name+(n?" (Tag "+(n+1)+")":""),icon:terIcon(x),src:"own",tag:x.tag||"",id:x.id,who:x.who||"",note:x.note||"",place:x.place||"",link:x.link||"",link:x.link||"",remind:x.remind||false});d=addDays(d,1);n++}return}if(x.date>=a&&x.date<=z)out.push({d:x.date,t:x.time||"",name:x.name,icon:terIcon(x),src:"own",tag:x.tag||"",id:x.id,who:x.who||"",note:x.note||"",place:x.place||"",link:x.link||"",link:x.link||"",remind:x.remind||false});return}
+    let d=ymdD(x.date);const end=ymdD(z);let n=0;while(d<=end&&n<800){const k=ymd(d);if(k>=a)out.push({d:k,t:x.time||"",name:x.name,icon:x.rep==="y"?"🎂":x.tag?terIcon(x):"🔁",src:"own",tag:x.tag||"",id:x.id,who:x.who||"",note:x.note||"",place:x.place||"",link:x.link||"",link:x.link||"",remind:x.remind||false});d=x.rep==="w"?addDays(d,7):x.rep==="m"?new Date(d.getFullYear(),d.getMonth()+1,d.getDate(),12):new Date(d.getFullYear()+1,d.getMonth(),d.getDate(),12);n++}});return out},
   (a,z)=>kitas().filter(x=>x.sec==="termine"&&x.date&&x.date>=a&&x.date<=z).map(x=>({d:x.date,t:"",name:"Kita: "+x.name,icon:"🎒",src:"kita",who:"kid",nav:"kita|ks:termine"})),
   (a,z)=>prios().filter(x=>x.due&&x.due>=a&&x.due<=z).map(x=>({d:x.due,t:x.time||"",name:x.name,icon:"🔔",src:"prio",from:x.from,who:x.who||"",nav:"wichtig|"})),
   (a,z)=>{const out=[];for(let d=ymdD(a);ymd(d)<=z;d=addDays(d,1)){const m=mealInfo(planDays(mondayOf(d))["d"+((d.getDay()+6)%7)]);if(m)out.push({d:ymd(d),t:"",name:m.name,icon:"🍲",src:"food",nav:"essen|ft:plan"})}return out},
@@ -808,13 +808,13 @@ const CAL_SRC=[
   (a,z)=>{const out=[];for(let d=ymdD(a);ymd(d)<=z;d=addDays(d,1)){const k=ymd(d),ft=feiertag(k);if(ft)out.push({d:k,t:"",name:ft,icon:"🎉",src:"frei",note:"Feiertag in Bayern. Die Kita hat zu."})}
     ferienList().forEach(f=>{if(f.from>=a&&f.from<=z)out.push({d:f.from,t:"",name:f.from===f.to?f.name+" (schulfrei)":f.name+" beginnen",icon:"🏖️",src:"frei",note:"Schulferien Bayern bis "+rDate(f.to)+"."});if(f.to!==f.from&&f.to>=a&&f.to<=z)out.push({d:f.to,t:"",name:"Letzter Tag "+f.name,icon:"🏖️",src:"frei"})});return out}];
 // Was der Kalender zeigt (Filter nach Bereich und Person). dayStress und Rückseite nutzen calEvents ungefiltert.
-function calShown(a,z){const off=S.calOff||[],w=S.calWho||"";return calEvents(a,z).filter(e=>!off.includes(CAL_LBL.some(l=>l[0]===e.src)?e.src:"own")&&(!w||!e.who||e.who==="both"||e.who===w))}
+function calShown(a,z){const off=S.calOff||[],w=S.calWho||"";return calEvents(a,z).filter(e=>!off.includes(e.tag==="kita"?"kita":CAL_LBL.some(l=>l[0]===e.src)?e.src:"own")&&(!w||!e.who||e.who==="both"||e.who===w))}
 function calEvents(a,z){const out=[];CAL_SRC.forEach(f=>{try{out.push(...f(a,z))}catch(_){}});return out.sort((x,y)=>(x.d+(x.t||"99")+(x.src==="food"?"1":"0"))<(y.d+(y.t||"99")+(y.src==="food"?"1":"0"))?-1:1)}
 function evRow(e,showDay){const who="";const day=showDay?`<span class="t">${esc(dLabel(e.d))}</span>`:`<span class="t">${esc(e.t||"")}</span>`;
   const body=`<span>${pDot(e.who)}${e.icon?e.icon+" ":""}${esc(e.name)}${showDay&&e.t?` <span class="freq">${esc(e.t)}</span>`:""}${who?`<span class="freq">${who}</span>`:""}${e.note&&e.src!=="ext"?`<br><span class="freq">${telNote(e.note)}</span>`:""}</span>`;
   const gift=e.icon==="🎂"?`<button class="catbtn" data-nav="projekte|pf:geschenk" aria-label="Geschenkideen ansehen" style="background:none;border:none">🎁</button>`:"";
   return `<li data-who="${esc(e.who||"both")}"${e.tent?' class="tent"':""} aria-label="${esc(whoLabel(e.who||"both"))}${e.tent?", noch offen":""}">${day}${e.tent?`<button class="ev" data-chopen="termin|${esc(e.id)}">${body}</button><i class="freq">🗳️</i>`:e.src==="own"?`<button class="ev" data-teredit="${esc(e.id)}">${body}</button>${gift}${e.link&&safeLink(e.link)?`<a class="catbtn routebtn" href="${esc(safeLink(e.link))}" target="_blank" rel="noopener" aria-label="Webseite">🔗</a>`:""}${e.place?transitA(e.place):""}${telA(e.note)}<button class="catbtn" data-terbell="${esc(e.id)}" aria-pressed="${!!e.remind}" aria-label="${esc(e.name)}: ${e.remind?"nicht mehr erinnern":"erinnern"}" style="background:none;border:none;${e.remind?"":"opacity:.35"}">🔔</button><button class="catbtn" data-terrm="${esc(e.id)}" aria-label="${esc(e.name)} löschen" style="background:none;border:none;opacity:.6">✕</button>`:e.attr?`<button class="ev" ${e.attr}>${body}</button><i class="freq">›</i>`:e.fw?`<button class="ev" data-fwpick="${esc(e.fw)}">${body}</button>${e.place?transitA(e.place):`<i class="freq">›</i>`}`:e.pack?`<button class="ev" data-gopack="${esc(e.pack)}">${body}</button><i class="freq">›</i>`:e.nav?`<button class="ev" data-nav="${esc(e.nav)}">${body}</button><i class="freq">›</i>`:`<span class="ev">${body}</span>`}</li>`}
-function terDraftOf(x){return {id:x.id,name:x.name||"",date:x.date||"",to:x.to||"",time:x.time||"",who:x.who||"both",rep:x.rep||"",note:x.note||"",place:x.place||"",link:x.link||"",remind:x.remind||null,alt:altOf(x).map(o=>({date:o.date,time:o.time||""})),ask:x.ask&&altOf(x).length?x.ask.who||"":"",askdue:x.ask&&x.ask.due||""}}
+function terDraftOf(x){return {id:x.id,name:x.name||"",date:x.date||"",to:x.to||"",time:x.time||"",who:x.who||"both",rep:x.rep||"",note:x.note||"",place:x.place||"",link:x.link||"",remind:x.remind||null,tag:x.tag||"",alt:altOf(x).map(o=>({date:o.date,time:o.time||""})),ask:x.ask&&altOf(x).length?x.ask.who||"":"",askdue:x.ask&&x.ask.due||""}}
 // Mehrere Möglichkeiten (29c-auswahl.js): weitere Tage/Zeiten, wer auswählt (auch man selbst oder beide), Frist
 function terAltHtml(d){const alt=d.alt||[],pn=k=>esc(pname(k));if(d.rep)return "";
   return `${alt.map((o,j)=>`<div class="teralt"><label class="fld" style="flex:1"><span>Möglichkeit ${j+2}</span><input type="date" data-teralt="${j}" data-k="date" value="${esc(o.date||"")}"></label><label class="fld" style="flex:1"><span>Uhrzeit</span><input type="time" data-teralt="${j}" data-k="time" value="${esc(o.time||"")}"></label><button type="button" class="catbtn" data-teraltrm="${j}" aria-label="Möglichkeit ${j+2} entfernen" style="background:none;border:none">✕</button></div>`).join("")}
@@ -828,10 +828,11 @@ function renderTerForm(){const d=S.terDraft,pn=k=>esc(pname(k)),many=(d.alt||[])
     <div style="display:flex;gap:8px"><label class="fld" style="flex:1"><span>${many?"Möglichkeit 1":"Tag"}</span><input type="date" data-terf="date" value="${esc(d.date)}"></label><label class="fld" style="flex:1"><span>Uhrzeit</span><input type="time" data-terf="time" value="${esc(d.time)}"></label></div>
     ${terAltHtml(d)}
     ${d.rep||many?"":`<label class="fld"><span>Bis (nur bei mehreren Tagen)</span><input type="date" data-terf="to" value="${esc(d.to||"")}" min="${esc(d.date)}"></label>`}
+    ${terTagHtml(d)}
     <div class="fld"><span>Für wen</span><div class="unl">${[["both","Alle"],["p0",pn("p0")],["p1",pn("p1")],["kid","Kind"]].map(o=>`<button type="button" class="chipbtn neutral" data-terwho="${o[0]}" aria-pressed="${(d.who||"both")===o[0]}">${o[1]}</button>`).join("")}</div></div>
     <div class="fld"><span>Wiederholen</span><div class="unl">${[["","Nein"],["w","Jede Woche"],["m","Jeden Monat"],["y","Jedes Jahr"]].map(o=>`<button type="button" class="chipbtn neutral" data-terrep="${o[0]}" aria-pressed="${(d.rep||"")===o[0]}">${o[1]}</button>`).join("")}</div></div>
     <div class="fld"><span>🔔 Erinnern (zählt an der Glocke)</span><div class="unl">${[["","Nein"],["tag","Am Tag"],["1d","1 Tag vorher"],["1h","1 Stunde vorher"]].map(o=>`<button type="button" class="chipbtn neutral" data-terrem="${o[0]}" aria-pressed="${(d.remind===true?"tag":d.remind||"")===o[0]}">${o[1]}</button>`).join("")}</div></div>
-    <label class="fld"><span>Ort (optional, für 🚆)</span><input data-terf="place" value="${esc(d.place||"")}" maxlength="120" placeholder="z. B. Praxis, Adresse" autocomplete="off"></label>
+    <label class="fld"><span>Ort (optional, für 🚆)</span><input data-terf="place" value="${esc(d.place||"")}" maxlength="120" placeholder="z. B. Kita oder Adresse" autocomplete="off"></label>${placeChips(d.place||"")}
     <label class="fld"><span>Notiz</span><input data-terf="note" value="${esc(d.note)}" maxlength="200" autocomplete="off"></label>
     <div class="btnrow"><button class="primary" type="submit">Speichern</button><button class="ghost" type="button" data-act="tercancel">Abbrechen</button>${d.id?`<button class="ghost danger" type="button" data-terrm="${esc(d.id)}">Löschen</button>`:""}</div></form></section>`}
 function calWhoRow(){const w=S.calWho||"",me=S.me,oth=me==="p0"?"p1":me==="p1"?"p0":"";const o=[["","Alle"]].concat(me?[[me,"Ich"],[oth,pname(oth)]]:[["p0",pname("p0")],["p1",pname("p1")]]).concat([["kid",kidName()]]);
@@ -1741,7 +1742,7 @@ function renderSettings(){const per=(S.config&&S.config.persons)||[];const G=S.g
   h+=card("",go('data-go="recherchen"',"🤖","<b>Recherchen</b> · alle festen Aufträge, Neues und eure Wünsche"));
   h+=card("",go('data-go="wichtig"',"🔔","<b>Wichtig</b> · alle Erinnerungen"));
   h+=card("📲 Benachrichtigungen",pushRow(),"push");
-  h+=card("🌦️ Ort und Wetter",`<div class="freq">Für Himmel, Wetter und den Wochenvorschlag.</div>${wxPlaceRow()}`,"ort");
+  h+=card("🌦️ Ort und Wetter",`<div class="freq">Für Himmel, Wetter und den Wochenvorschlag.</div>${wxPlaceRow()}${placeList()}`,"ort");
   {const o=otherP(),oi=o==="p1"?1:0,ct=(S.food&&S.food.contact)||{},nm=i=>esc((per[i]&&(per[i].name||per[i]))||(i?"Person 2":"Person 1"));
    h+=card("🫶 Wir",`<div class="freq">Ich bin (nur dieses Handy)</div><div class="unl">${["p0","p1"].map((p,i)=>`<button class="chipbtn neutral" data-me="${p}" aria-pressed="${S.me===p}">${nm(i)}</button>`).join("")}</div>
     <div class="freq" style="margin-top:10px">Namen</div><div class="telrow">${[0,1].map(i=>`<input data-pname="${i}" value="${nm(i)}" maxlength="20" aria-label="Name ${i+1}" autocomplete="off">`).join("")}</div>
@@ -1852,10 +1853,10 @@ function reiseWhen(x){const f=d=>{const z=new Date(d+"T12:00:00");return z.getDa
 function transitQ(dest,from){return "https://www.google.com/maps/dir/?api=1&travelmode=transit"+(from?"&origin="+encodeURIComponent(from):"")+"&destination="+encodeURIComponent(dest)}
 const homeAddr=()=>String((S.food&&S.food.pref&&S.food.pref.home)||"").trim();
 const transitA=(dest,cls)=>dest?`<button type="button" class="${cls||"catbtn"} routebtn" data-route="${esc(String(dest).slice(0,200))}" aria-label="Weg dorthin: ${esc(dest)}">🚆</button>`:"";
-function routePick(dest){if(document.getElementById("mbox"))return;S.mboxAt=Date.now();const home=homeAddr();let last="hier";try{last=localStorage.getItem("hq-routefrom")||"hier"}catch(_){}
+function routePick(dest){if(document.getElementById("mbox"))return;const shown=dest;dest=placeAddr(dest);S.mboxAt=Date.now();const home=homeAddr();let last="hier";try{last=localStorage.getItem("hq-routefrom")||"hier"}catch(_){}
   const go=w=>{try{localStorage.setItem("hq-routefrom",w)}catch(_){}mboxClose();window.open(transitQ(dest,w==="home"?home:""),"_blank","noopener")};
   const O=[["hier","📍","Von hier","Standort des Handys"]].concat(home?[["home","🏠","Von zu Hause","feste Adresse"]]:[]);if(home&&last==="home")O.reverse();
-  const el=document.createElement("div");el.id="mbox";el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="Weg dorthin"><div class="section-head"><h2>🚆 ${esc(String(dest).slice(0,60))}</h2></div><div class="quicklist">${O.map(o=>`<button class="quickbtn" data-routefrom="${o[0]}"${o[0]===last?' aria-pressed="true"':""}><span class="qi">${o[1]}</span><span>${o[2]} <small>(${o[3]})</small></span></button>`).join("")}${home?"":`<div class="freq">Für „Von zu Hause“ die Adresse unter <button class="linkish" data-routeset="1">Einstellungen › Ort und Wetter</button> eintragen. Sie bleibt nur bei euch.</div>`}<div class="freq">Öffnet Google Maps mit Bahn und MVV, dort lässt sich auf Auto oder Rad umstellen.</div></div></div>`;
+  const el=document.createElement("div");el.id="mbox";el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="Weg dorthin"><div class="section-head"><h2>🚆 ${esc(String(shown).slice(0,60))}</h2></div><div class="quicklist">${O.map(o=>`<button class="quickbtn" data-routefrom="${o[0]}"${o[0]===last?' aria-pressed="true"':""}><span class="qi">${o[1]}</span><span>${o[2]} <small>(${o[3]})</small></span></button>`).join("")}${home?"":`<div class="freq">Für „Von zu Hause“ die Adresse unter <button class="linkish" data-routeset="1">Einstellungen › Ort und Wetter</button> eintragen. Sie bleibt nur bei euch.</div>`}<div class="freq">Öffnet Google Maps mit Bahn und MVV, dort lässt sich auf Auto oder Rad umstellen.</div></div></div>`;
   document.body.appendChild(el);
   el.addEventListener("click",e=>{const b=e.target.closest("[data-routefrom]");if(b){go(b.dataset.routefrom);return}if(e.target.closest("[data-routeset]")){mboxClose();S.setOpen=Object.assign(S.setOpen||{},{ort:true});goNav("settings|");return}if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose()})}
 const STOER=[["S-Bahn München","https://www.s-bahn-muenchen.de/aktuell"],["MVG (U-Bahn, Tram, Bus)","https://www.mvg.de/dienste/betriebsaenderungen.html"]];
@@ -2968,6 +2969,10 @@ app.addEventListener("click",async e=>{
   if(b.dataset.teredit){const x=termine().find(y=>y.id===b.dataset.teredit);if(x){S.terDraft=terDraftOf(x);render();window.scrollTo(0,0)}return}
   if(b.dataset.act==="teraltadd"&&S.terDraft){const d=S.terDraft;d.alt=d.alt||[];if(!d.alt.length&&!d.ask)d.ask=choiceOther(S.me)||"p1";d.alt.push({date:"",time:d.time||""});render();const l=document.querySelectorAll("[data-teralt][data-k=date]");if(l.length)l[l.length-1].focus();return}
   if(b.dataset.teraltrm!=null&&S.terDraft){S.terDraft.alt.splice(+b.dataset.teraltrm,1);render();return}
+  if(b.dataset.tertag!=null&&S.terDraft){const d=S.terDraft;d.tag=b.dataset.tertag;const t=terTag(d);if(t&&!String(d.place||"").trim()&&placeFind(t[2]))d.place=placeFind(t[2]).name;render();return}
+  if(b.dataset.placeset!=null){if(S.terDraft){S.terDraft.place=b.dataset.placeset;render()}return}
+  if(b.dataset.placenew!=null){placeEdit(null,b.dataset.placenew);return}
+  if(b.dataset.placeedit){placeEdit(b.dataset.placeedit);return}
   if(b.dataset.terask!=null&&S.terDraft){S.terDraft.ask=b.dataset.terask;render();return}
   if(b.dataset.act==="pushtoggle"){try{await pushToggle()}catch(_){toast("Hat nicht geklappt.")}return}
   if(b.dataset.act==="pushtest"){pushTest();return}
@@ -3284,7 +3289,7 @@ app.addEventListener("submit",async e=>{if(e.target.classList&&e.target.classLis
     if(!P.due){S.terDraft={id:null,name,date:S.calDay||ymd(new Date()),time:P.time||"",who:who||"both",rep:rp||"",note:""};render();toast("Tag bitte wählen");return}
     try{await S.store.setPath("food/termin/"+newId("t"),{name,date:P.due,time:P.time||null,who,rep:rp,at:Date.now(),by:S.me||""});S.calDay=P.due;const d=ymdD(P.due);S.calMonth=new Date(d.getFullYear(),d.getMonth(),1,12);toast("Eingetragen: "+dLabel(P.due)+(P.time?" "+P.time:""));render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(e.target.id==="terform"){e.preventDefault();const d=S.terDraft;if(!d)return;const name=(d.name||"").trim().slice(0,80);if(!name||!/^\d{4}-\d{2}-\d{2}$/.test(d.date||"")){toast("Bitte Was und Tag eintragen.");return}
-    const id=d.id||newId("t"),old=termine().find(y=>y.id===id),v={name,date:d.date,to:!d.rep&&d.to&&d.to>d.date?d.to:null,time:d.time||null,who:d.who&&d.who!=="both"?d.who:null,rep:d.rep||null,note:(d.note||"").trim().slice(0,200)||null,place:(d.place||"").trim().slice(0,120)||null,link:safeLink(d.link)||null,remind:d.remind===undefined?(old&&old.remind||null):(d.remind||null),at:Date.now(),by:S.me||""};
+    const id=d.id||newId("t"),old=termine().find(y=>y.id===id),v={name,date:d.date,to:!d.rep&&d.to&&d.to>d.date?d.to:null,time:d.time||null,who:d.who&&d.who!=="both"?d.who:null,rep:d.rep||null,note:(d.note||"").trim().slice(0,200)||null,place:(d.place||"").trim().slice(0,120)||null,link:safeLink(d.link)||null,tag:d.tag||null,remind:d.remind===undefined?(old&&old.remind||null):(d.remind||null),at:Date.now(),by:S.me||""};
     {const seen=new Set([d.date+"|"+(d.time||"")]),alt=d.rep?[]:(d.alt||[]).filter(o=>/^\d{4}-\d{2}-\d{2}$/.test(o.date||"")&&!seen.has(o.date+"|"+(o.time||""))&&seen.add(o.date+"|"+(o.time||""))).map(o=>({date:o.date,time:o.time||null}));
       v.alt=alt.length?alt:null;const oa=old&&old.ask,same=old&&old.date===v.date&&(old.time||null)===v.time&&JSON.stringify(altOf(old).map(o=>[o.date,o.time||null]))===JSON.stringify(alt.map(o=>[o.date,o.time]));
       v.ask=alt.length&&d.ask?{who:d.ask,from:(oa&&oa.from)||S.me||"",at:(oa&&oa.at)||Date.now(),due:/^\d{4}-\d{2}-\d{2}$/.test(d.askdue||"")?d.askdue:null,votes:oa&&oa.who===d.ask&&same?oa.votes||null:null}:null;
@@ -3406,6 +3411,7 @@ const CAT_DEFS={
   trip:{lbl:"Art von Ausflug",path:"trip",field:"kind",fb:null,ph:"z. B. Burgen",ic:"🏰"},
   fund:{lbl:"Art in der Sammlung (Reisen)",path:"fund",field:"kind",fb:"sonst",ph:"z. B. Souvenirs",ic:"🧭"},
   hfund:{lbl:"Art in der Sammlung (Am Haus)",path:"fund",field:"kind",fb:"sonst",ph:"z. B. Bad",ic:"🛁"},
+  ter:{lbl:"Art von Termin",path:"termin",field:"tag",fb:null,ph:"z. B. Schwimmen",ic:"🏷️"},
   idea:{lbl:"Kachel bei Ideen",path:"idea",field:"cat",fb:"sonst",ph:"z. B. Hochzeit",ic:"✨"}};
 function ownCats(key){return listOf(S.food&&S.food.cats&&S.food.cats[key]).sort((a,b)=>(a.at||0)-(b.at||0)).map(x=>[x.id,x.ic||CAT_DEFS[key].ic,x.name,true])}
 const catsOf=(key,base)=>base.concat(ownCats(key));
@@ -3477,7 +3483,7 @@ function choiceOpen(k,id){const K=CHOICE_KINDS[k],x=choiceGet(k,id);if(!K||!x||d
     if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose()})}
 // Kalender: offene Möglichkeiten gestrichelt und blasser, mit „?“ und „1 von 3“
 function choiceEvents(x,a,z,out){const O=CHOICE_KINDS.termin.opts(x),n=O.length,w=choiceWhoTxt(x.ask);
-  O.forEach((o,i)=>{if(o.date>=a&&o.date<=z)out.push({d:o.date,t:o.time||"",name:"? "+x.name+" ("+(i+1)+" von "+n+")",icon:"📅",src:"own",tent:true,id:x.id,who:x.who||"",note:"Noch offen: "+w+(x.ask.due?", Frist "+rDate(x.ask.due):""),place:x.place||""})})}
+  O.forEach((o,i)=>{if(o.date>=a&&o.date<=z)out.push({d:o.date,t:o.time||"",name:"? "+x.name+" ("+(i+1)+" von "+n+")",icon:terIcon(x),src:"own",tag:x.tag||"",tent:true,id:x.id,who:x.who||"",note:"Noch offen: "+w+(x.ask.due?", Frist "+rDate(x.ask.due):""),place:x.place||""})})}
 // Wichtig: Karte „Bitte wählen“ plus Hinweise „hat gewählt“ und was beim anderen liegt
 function choiceCard(){const {A,N,W}=choiceBell(),today=ymd(new Date());if(!A.length&&!N.length&&!W.length)return "";
   const K=c=>CHOICE_KINDS[c.k],row=(c,txt,cls)=>`<div class="prow${cls?" "+cls:""}"><span class="pchk" aria-hidden="true">${K(c).icon}</span><button class="pnm" data-chopen="${c.k}|${esc(c.x.id)}">${esc(c.x.name)}<br><i>${txt}</i></button></div>`;
@@ -3510,6 +3516,30 @@ async function pushToggle(){const dev=pushDev(),m=pushMine();
   toast("Benachrichtigungen auf diesem Handy an");render()}
 async function pushTest(){const r=await pushReg();if(!r)return;await navigator.serviceWorker.ready;r.showNotification("🏕️🧹 Test",{body:"So sieht eine Meldung aus. Das Morgen-Briefing kommt, sobald der Versand läuft.",icon:"icon-192.png"})}
 if("serviceWorker" in navigator)navigator.serviceWorker.addEventListener("message",e=>{const v=e.data&&e.data.nav;if(v)goNav(v)});
+
+// ---------- Gespeicherte Orte und Arten von Terminen (Florian 16.11.2026) ----------
+// Orte: food/place/<id> {name,addr,at}. Adressen nur in der Datenbank. Im Ort-Feld als Chips wählbar; 🚆 löst den Namen erst beim Tipp
+// in die Adresse auf (routePick → placeAddr), die Adresse steht also nie im Bild. Gilt überall, wo ein Ort steht.
+const places=()=>listOf(S.food&&S.food.place).sort((a,b)=>a.name.localeCompare(b.name,"de"));
+const placeFind=n=>{const k=String(n||"").trim().toLowerCase();return k?places().find(p=>p.name.trim().toLowerCase()===k)||null:null};
+const placeAddr=n=>{const p=placeFind(n);return p&&p.addr?p.addr:n};
+function placeEdit(id,pre){const x=id?places().find(p=>p.id===id):null;
+  editBox(x?"Ort ändern":"Ort speichern",[{k:"name",label:"Name (z. B. Kita, Kinderarzt)",type:"text",val:x?x.name:pre||""},{k:"addr",label:"Adresse (bleibt nur in eurer Datenbank)",type:"text",val:x?x.addr||"":""}],
+    async V=>{const name=String(V.name||"").trim().slice(0,40),addr=String(V.addr||"").trim().slice(0,160);if(!name){toast("Bitte einen Namen eintragen.");return}
+      await S.store.setPath("food/place/"+(x?x.id:newId("o")),{name,addr:addr||null,at:(x&&x.at)||Date.now(),by:S.me||""});if(S.terDraft&&(!x||S.terDraft.place===x.name))S.terDraft.place=name;toast("Ort gespeichert");render()},
+    x?async()=>{await S.store.setPath("food/place/"+x.id,null);toast("Ort gelöscht");render()}:null)}
+// Chips unter einem Ort-Feld: gespeicherte Orte, „＋ als Ort speichern“
+function placeChips(cur){const L=places(),f=placeFind(cur);
+  return `<div class="unl placechips">${L.map(p=>`<button type="button" class="chipbtn neutral" data-placeset="${esc(p.name)}" aria-pressed="${!!f&&f.id===p.id}">📍 ${esc(p.name)}${p.addr?"":" ⚠️"}</button>`).join("")}${cur&&!f?`<button type="button" class="chipbtn neutral" data-placenew="${esc(cur)}">＋ „${esc(String(cur).slice(0,24))}“ als Ort speichern</button>`:!L.length?`<button type="button" class="chipbtn neutral" data-placenew="">＋ Ort speichern</button>`:""}</div>`}
+// Einstellungen › Ort und Wetter: Liste der Orte
+function placeList(){const L=places();
+  return `<div class="freq" style="margin-top:var(--sp3)"><b>📍 Gespeicherte Orte</b> · stehen im Termin zur Auswahl, 🚆 nimmt die Adresse.</div>${L.length?`<ul class="shop">${L.map(p=>`<li><span class="nm">📍 ${esc(p.name)}${p.addr?"":` <span class="freq">(ohne Adresse)</span>`}</span><button type="button" class="ghost small" data-placeedit="${esc(p.id)}">✎</button></li>`).join("")}</ul>`:""}<div class="btnrow"><button type="button" class="ghost small" data-placenew="">＋ Ort</button></div>`}
+// Arten von Terminen: Symbol im Kalender statt 📅; Kita-Termine laufen beim Bereich Kita mit (Filter); eigene Arten über „＋ Eigene“
+const TER_TAGS=[["kita","🎒","Kita"],["arzt","🩺","Arzt"],["familie","👪","Familie"],["feier","🎉","Feier"],["sport","⚽","Sport"],["arbeit","💼","Arbeit"]];
+const terTags=()=>catsOf("ter",TER_TAGS);
+const terTag=x=>x&&x.tag?terTags().find(t=>t[0]===x.tag)||null:null;
+const terIcon=x=>{const t=terTag(x);return t?t[1]:"📅"};
+function terTagHtml(d){return `<div class="fld"><span>Art</span><div class="unl">${[["","Keine"]].concat(terTags().map(t=>[t[0],t[1]+" "+t[2]])).map(o=>`<button type="button" class="chipbtn neutral" data-tertag="${esc(o[0])}" aria-pressed="${(d.tag||"")===o[0]}">${esc(o[1])}</button>`).join("")}${catBtn("ter")}</div></div>`}
 // ---------- Motive und Bildstil (Nachtauftrag 15.11.2026) ----------
 // Motiv: "meer" (Haus am Meer, Standard) oder "stadt" (Stadthaus in München, Entwurf).
 // Bildstil fürs Haus am Meer: "" (wie bisher), "licht" (Licht und Schatten), "aquarell", "fein" (Texturen und Licht).
