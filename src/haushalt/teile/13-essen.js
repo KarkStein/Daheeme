@@ -62,15 +62,31 @@ const BOOK_EMO=["📕","📗","📘","📙","📓","📒"];
 function books(){const m=(S.food&&S.food.book)||{};const l=Object.keys(m).filter(k=>m[k]&&m[k].name&&k!=="main").map(k=>Object.assign({id:k},m[k])).sort((a,b)=>(a.at||0)-(b.at||0));return [{id:"main",name:(m.main&&m.main.name)||"Unsere Rezepte",emoji:"🍲"},...l]}
 const recBook=r=>{const b=r&&r.book;return b&&((S.food&&S.food.book)||{})[b]?b:"main"};
 // Eingefügten Rezepttext zerlegen: Titel, Link, Zutaten (mit Mengen), Zubereitung
+// Florian 16.11.2026: Auch der ganze kopierte Seitentext einer Rezeptseite (z. B. Emmi, WP Recipe Maker) wird erkannt: es zählt der letzte Zutaten-Block mit Mengen (die Rezeptkarte),
+// „Anleitungen“ startet die Zubereitung, Notizen/Nährwerte/Equipment werden übersprungen, Kommentare und Fußzeile beenden. Name: Titel der Rezeptkarte, sonst aus dem Link.
 function parseRecipe(txt){const out={name:"",link:"",ing:[],note:[]};const um=/https?:\/\/\S+/.exec(txt||"");if(um)out.link=um[0].replace(/[).,]+$/,"");
-  let mode="";const qs=l=>/^(\d+(?:[.,/]\d+)?(?!\d*[.)]\s)|[½¼¾⅓]|ca\.?\s*\d|eine?n?\s|etwas\s|prise|msp\.?\s)/i.test(l);
-  for(let raw of String(txt||"").split(/\r?\n/)){let l=raw.replace(/https?:\/\/\S+/g,"").replace(/^[\s•\-*–·▢☐□✓]+/,"").replace(/\s+/g," ").trim();if(!l)continue;
-    if(/^(zutaten|einkaufsliste|du brauchst|ihr braucht)\b/i.test(l)){mode="ing";continue}
-    if(/^(zubereitung|anleitung|so geht'?s|so wird'?s gemacht|schritte|arbeitsschritte|zubereitungsschritte|und so geht'?s)\b/i.test(l)){mode="note";continue}
-    if(/^(für\s+)?\d+\s*(portionen|personen)\b|^portionen\b|^(arbeitszeit|zubereitungszeit|kochzeit|gesamtzeit|schwierigkeit|kalorien|drucken|teilen|merken|bewertung)\b/i.test(l))continue;
-    if(!out.name&&!mode&&!qs(l)&&l.length<=80){out.name=l;continue}
+  const qs=l=>/^(\d+(?:[.,/]\d+)?(?!\d*[.)]\s)|[½¼¾⅓⅔]|ca\.?\s*\d|eine?n?\s|etwas\s|prise|msp\.?\s|nach geschmack|n\.\s?b\.)/i.test(l);
+  const H=(rx,l)=>l.length<=45&&rx.test(l);
+  const ING=/^(zutaten|einkaufsliste|du brauchst|ihr braucht|das brauchst du)\b/i,NOTE=/^(zubereitung|anleitungen?|so geht'?s|so wird'?s gemacht|schritte|arbeitsschritte|zubereitungsschritte|und so geht'?s|so gehst du vor)\b/i,
+    SKIP=/^(equipment|küchenutensilien|utensilien|notizen|notiz|tipps?|hinweise?|nährwerte?|nährwertangaben|video|anmerkungen)\b/i,
+    STOP=/^(hast du (das|dieses) rezept|hat dir (das|dieses) rezept|rezept ausprobiert|\d*\s*kommentare?\b|schreibe einen kommentar|kommentar verfassen|das könnte dir|weitere rezepte|ähnliche rezepte|newsletter|teile (das|dieses) rezept|folge mir)/i,
+    META=/^(vorbereitungszeit|zubereitungszeit|arbeitszeit|kochzeit|backzeit|ruhezeit|gesamtzeit|wartezeit|portionen?|personen|gericht|küche|keyword|stichwort|autor|kalorien|schwierigkeit|zeit|für\s+\d|\d+\s*(portionen|personen|min|minuten|std))\b/i,
+    BTN=/^(rezept drucken|drucken|pin|pinnen|rezept bewerten|bewerten|merken|teilen|springe zum rezept|zum rezept|rezept speichern|jump to recipe|print|\d+([.,]\d+)?\s*(von|\/)\s*5|\d+\s*(sterne|bewertungen|stimmen))\b/i;
+  const L=String(txt||"").split(/\r?\n/).map(raw=>raw.replace(/https?:\/\/\S+/g,"").replace(/^[\s•\-*–·▢☐□✓✔]+/,"").replace(/\s+/g," ").trim()).filter(Boolean);
+  // Rezeptkarte: letzter Zutaten-Kopf, nach dem bald Mengen kommen
+  let start=-1;L.forEach((l,i)=>{if(H(ING,l)&&L.slice(i+1,i+9).some(qs))start=i});
+  let mode="",i0=0;if(start>=0){mode="ing";i0=start+1}
+  for(let i=i0;i<L.length;i++){const l=L[i];
+    if(start>=0&&H(STOP,l))break;
+    if(H(ING,l)){mode="ing";continue}if(H(NOTE,l)){mode="note";continue}if(H(SKIP,l)){mode="skip";continue}
+    if(mode==="skip")continue;
+    if(H(META,l)||H(BTN,l))continue;
+    if(start<0&&!out.name&&!mode&&!qs(l)&&l.length<=80){out.name=l;continue}
     const step=/^\d+[.)]\s/.test(l)||/^schritt\s*\d/i.test(l);
-    if(mode==="ing"&&!step&&l.length<=90)out.ing.push(l);else if(mode==="note"||step||l.length>90)out.note.push(l.replace(/^schritt\s*\d+:?\s*/i,""));else if(qs(l))out.ing.push(l);else out.note.push(l)}
+    if(mode==="ing"&&!step&&l.length<=90){if(/^für\s.{2,40}:?$/i.test(l)&&!qs(l))continue;out.ing.push(l)}else if(mode==="note"||step||l.length>90)out.note.push(l.replace(/^schritt\s*\d+:?\s*/i,""));else if(qs(l))out.ing.push(l);else out.note.push(l)}
+  // Name aus der Rezeptkarte: nächste kurze Zeile vor dem Zutaten-Kopf, die kein Knopf, keine Angabe und kein Satz ist
+  if(start>=0){let from=start-1,lm=-1,sk=-1;for(let i=0;i<start;i++){if(H(META,L[i]))lm=i;if(H(SKIP,L[i]))sk=i}if(sk>lm)from=sk-1;for(let i=from;i>=Math.max(0,start-30);i--){const l=L[i];if(H(META,l)||H(BTN,l)||H(ING,l)||l.length>70||l.length<3||/[.:]$/.test(l)||/^\d/.test(l))continue;out.name=l;break}}
+  const slug=out.link?nameFromLink(out.link):"";if(slug&&(!out.name||(start>=0&&!out.name.toLowerCase().includes(slug.toLowerCase().split(" ")[0]))))out.name=slug;
   return out}
 function renderBooks(){const bs=books(),cnt={};recs().forEach(r=>{const b=recBook(r);cnt[b]=(cnt[b]||0)+1});const cur=S.book||"main";
   let h=`<section class="card"><div class="section-head"><h2>📚 Kochbücher</h2></div><div class="tiles books">${bs.map((b,i)=>`<button class="tile" data-book="${esc(b.id)}" aria-pressed="${cur===b.id}"><span class="te">${b.emoji||BOOK_EMO[(i-1)%BOOK_EMO.length]}</span><span class="tn">${esc(b.name)}</span><span class="freq">${cnt[b.id]||0} ${(cnt[b.id]||0)===1?"Rezept":"Rezepte"}</span></button>`).join("")}<button class="tile add" data-act="booknew"><span class="te">＋</span><span class="tn">Neues Kochbuch</span></button></div>`;
@@ -122,7 +138,7 @@ function renderRecDb(){const q=(S.rdbQ||"").toLowerCase().trim(),sel=S.rdbSel||[
   return h}
 function renderRecipes(){const d=S.recDraft,bk=S.book||"main",list=recs().filter(r=>recBook(r)===bk),bobj=books().find(b=>b.id===bk)||books()[0];
   if(d)return `<section class="card"><h2>${d.id?"Rezept bearbeiten":"Neues Rezept"}</h2>
-    ${d.id?"":`<details class="paste"${d.paste?" open":""}><summary>📋 Rezepttext einfügen und erkennen</summary><div class="freq" style="margin:6px 0">Kopiere ein Rezept aus einer Webseite, einer Nachricht oder von mir und füge es hier ein. Die App füllt Name, Zutaten, Zubereitung und Link aus.</div><textarea id="rec-paste" data-rf="pasteText" rows="6" placeholder="Rezept hier einfügen">${esc(d.pasteText||"")}</textarea><div class="btnrow" style="margin-top:6px"><button class="primary" data-act="recparse">Erkennen</button></div></details>`}
+    ${d.id&&d.ing?"":`<details class="paste"${d.paste||(d.id&&!d.ing)?" open":""}><summary>📋 ${d.id?"Zutaten aus der Rezeptseite holen":"Link oder Rezeptseite einfügen"}</summary><ol class="freq pastehow"><li>Auf der Rezeptseite lange auf den Text drücken, „Alles auswählen“, dann „Kopieren“.</li><li>Hier „📋 Einfügen“ tippen. Die App sucht Name, Zutaten und Zubereitung selbst heraus.</li></ol><div class="freq">Nur den Link einfügen geht auch, dann fehlen die Zutaten. Die holt ihr später genauso.</div><textarea id="rec-paste" data-rf="pasteText" rows="5" placeholder="Link oder kopierten Seitentext hier einfügen">${esc(d.pasteText||"")}</textarea><div class="btnrow" style="margin-top:6px"><button class="primary" data-act="recclip">📋 Einfügen</button><button class="ghost" data-act="recparse">Erkennen</button></div></details>`}
     <div class="fld"><span>Kochbuch</span><div class="unl">${books().map(b=>`<button class="chipbtn neutral" data-recbook="${esc(b.id)}" aria-pressed="${(d.book||"main")===b.id}">${esc(b.name)}</button>`).join("")}</div></div>
     <label class="fld"><span>Name</span><input type="text" id="rec-name" data-rf="name" value="${esc(d.name)}" maxlength="80" placeholder="Zum Beispiel Linsensuppe" autocomplete="off"></label>
     <label class="fld"><span>Zutaten, eine pro Zeile</span><textarea id="rec-ing" data-rf="ing" rows="6" placeholder="250 g rote Linsen">${esc(d.ing)}</textarea></label>
@@ -287,7 +303,7 @@ function renderFood(){
   if(S.foodTab==="heute")return h+renderFoodToday();
   if(S.foodTab==="plan")return h+renderMealPlan();
   if(S.foodTab==="rezepte"&&S.recDb&&!S.recDraft)return h+renderRecDb();
-  if(S.foodTab==="rezepte")return h+(S.mealFor&&!S.recDraft?`<section class="card mealfor"><div class="section-head"><h2>🍲 Essen für heute aussuchen</h2><button class="iconbtn" data-act="mealforx" aria-label="Nicht für heute aussuchen">✕</button></div><div class="freq">Tippe bei einem Rezept auf „🍲 Kochen“ und wähle „Heute“ oder einen anderen Tag. Es landet im Wochenplan und damit überall, wo das Abendessen des Tages steht.</div></section>`:"")+(S.recDraft?"":renderIdeas())+renderRecipes()+(S.recDraft?"":`<section class="card"><button class="todayrow" data-act="rdbopen"><span>🔎</span><span><b>Rezept-Datenbank</b><br><span class="freq">Alle ${recs().length} Rezepte durchsuchen und filtern</span></span><i>›</i></button></section>`+renderSuggest(planWeek(),true));
+  if(S.foodTab==="rezepte")return h+(S.mealFor&&!S.recDraft?`<section class="card mealfor"><div class="section-head"><h2>🍲 Essen für heute aussuchen</h2><button class="iconbtn" data-act="mealforx" aria-label="Nicht für heute aussuchen">✕</button></div><div class="freq">Tippe bei einem Rezept auf „🍲 Kochen“ und wähle „Heute“ oder einen anderen Tag. Es landet im Wochenplan und damit überall, wo das Abendessen des Tages steht.</div>${mealTxtForm(S.mealFor)}</section>`:"")+(S.recDraft?"":`<div class="btnrow"><button class="ghost" data-act="recpaste">🔗 Rezept aus Link oder Seite</button><button class="ghost" data-act="recnew">＋ Neues Rezept</button></div>`+renderIdeas())+renderRecipes()+(S.recDraft?"":`<section class="card"><button class="todayrow" data-act="rdbopen"><span>🔎</span><span><b>Rezept-Datenbank</b><br><span class="freq">Alle ${recs().length} Rezepte durchsuchen und filtern</span></span><i>›</i></button></section>`+renderSuggest(planWeek(),true));
   if(S.foodTab==="kita"){S.foodTab="heute"}
   return h+renderMealPlan()}
 // ---------- Essen: Überblick für heute (Entwurf) ----------
@@ -308,6 +324,8 @@ function cookItem(ref){const [t,id]=String(ref).split("|");let x=null;
   if(t==="idea")x=((S.ideas&&S.ideas.items)||[])[+id];else if(t==="emmi")x=S.emmiCur;if(!x||!x.name)return null;
   const name=String(x.name).slice(0,80),r=recs().find(y=>(y.name||"").toLowerCase()===name.toLowerCase());if(r)return {text:r.name,rec:r.id,ing:recIng(r)};
   const ing=(Array.isArray(x.ing)?x.ing:[]).map(String).filter(Boolean);return Object.assign({text:name,src:"vorschlag",ing},safeLink(x.link||"")?{link:x.link}:{})}
+// Freier Text statt Rezept (Florian 16.11.2026): Gericht einfach eintippen, landet im Wochenplan des Tages
+const mealTxtForm=day=>`<form class="addrow mealtxtform" data-day="${esc(day)}" novalidate style="margin-top:var(--sp2)"><input id="mealtxt" maxlength="80" placeholder="Oder einfach eintippen, z. B. Pfannkuchen" autocomplete="off" enterkeyhint="done" aria-label="Gericht eintippen"><button class="primary" type="submit">Eintragen</button></form>`;
 async function cookSet(it,d){const wk=wkKey(mondayOf(d)),k="d"+((d.getDay()+6)%7),v=Object.assign({text:it.text,at:Date.now(),by:S.me||""},it.rec?{rec:it.rec}:{src:it.src||"vorschlag"},!it.rec&&it.link?{link:it.link}:{},!it.rec&&it.ing&&it.ing.length?{ing:it.ing.join("\n")}:{});
   await S.store.setPath("food/plan/"+wk+"/"+k,v);const isT=ymd(d)===ymd(new Date()),lbl=isT?"heute":dLabel(ymd(d));
   if(it.ing&&it.ing.length&&!shopBlocks()[it.text])toastAct(it.text+" gibt es "+lbl+".","🧺 Zutaten auf die Liste",()=>openPick([{src:it.text,lines:withQty(it.text,it.ing)}]));else toast(it.text+" gibt es "+lbl+".")}
@@ -333,7 +351,7 @@ function renderFoodToday(){const now=new Date(),di=(now.getDay()+6)%7,mon=monday
   if(mi){const meta=[mi.min?"⏱️ ca. "+mi.min+" Min":"⏱️ Kochzeit unbekannt",wx?(WX_FMT?WX_FMT(wx):""):"",st.length?"⚡ voller Tag":""].filter(Boolean);
     h+=`<div class="dishhead"><h2 class="fdish">${dishName(mi,k0)}</h2>${dishRm(now,mi)}</div><div class="freq">${meta.map(esc).join(" · ")}</div>${mi.link&&(mi.r||S.dishOpen!==k0)?`<div class="btnrow" style="margin-top:10px"><a class="primary btnlink" href="${esc(mi.link)}" target="_blank" rel="noopener">🔗 Zum Rezept</a></div>`:""}${dishMore(mi,k0)}`;
     h+=miss.length?`<button class="todayrow minialarm" data-go="einkauf"><span>🧺</span><span>Noch einkaufen: ${esc(miss.slice(0,4).join(", "))}${miss.length>4?" …":""}</span><i>›</i></button>`:mi.ing.length?`<div class="freq" style="margin-top:8px">🧺 Für heute ist alles da.</div>`:"";}
-  else h+=`<h2 class="fdish">Noch nichts geplant</h2><div class="btnrow" style="margin-top:10px"><button class="primary" data-food="rezepte" data-mealfor="1">📖 Rezept aussuchen</button><button class="ghost" data-food="plan">Wochenplan</button></div>`;
+  else h+=`<h2 class="fdish">Noch nichts geplant</h2><div class="btnrow" style="margin-top:10px"><button class="primary" data-food="rezepte" data-mealfor="1">📖 Rezept aussuchen</button><button class="ghost" data-food="plan">Wochenplan</button></div>${mealTxtForm(ymd(now))}`;
   {const n=shopItems().filter(x=>!x.done).length;if(!miss.length)h+=`<button class="todayrow" data-go="einkauf" style="margin-top:8px"><span>🧺</span><span>Einkaufsliste: ${n?n+" offen":"Liste ist leer"}</span><i>›</i></button>`}
   h+=musLinks("kochen",2)+`</section>`;
   h+=`<section class="card"><div class="section-head"><h2><button class="dishlink" data-food="kita">🎒 Kita heute <i>›</i></button></h2></div>${inUrlaub(now)?`<div class="freq">⛵ Urlaub: ${esc(inUrlaub(now).name)}</div>`:di>4?`<div class="freq">Heute ist keine Kita.</div>`:km&&(km.text||km.bz||km.fr)?`<ul class="kline">${km.fr?`<li><b>Frühstück</b> ${esc(km.fr)}</li>`:""}${km.text?`<li><b>Mittag</b> ${esc(km.text)}${km.na?` <span class="freq">· Nachspeise: ${esc(km.na)}</span>`:""}</li>`:""}${km.bz?`<li><b>Brotzeit</b> ${esc(km.bz)}</li>`:""}</ul>`:`<div class="freq">Kein Speiseplan für heute. <button class="ghost" data-food="kita">Speiseplan einfügen</button></div>`}</section>`;
