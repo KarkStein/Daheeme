@@ -144,6 +144,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.tertag!=null&&S.terDraft){const d=S.terDraft;d.tag=b.dataset.tertag;const t=terTag(d);if(t&&!String(d.place||"").trim()&&placeFind(t[2]))d.place=placeFind(t[2]).name;render();return}
   if(b.dataset.placeset!=null){if(S.terDraft){S.terDraft.place=b.dataset.placeset;render()}return}
   if(b.dataset.placenew!=null){placeEdit(null,b.dataset.placenew);return}
+  if(b.dataset.placeask){placeAsk(b.dataset.placeask);return}
   if(b.dataset.placeedit){placeEdit(b.dataset.placeedit);return}
   if(b.dataset.terask!=null&&S.terDraft){S.terDraft.ask=b.dataset.terask;render();return}
   if(b.dataset.act==="pushtoggle"){try{await pushToggle()}catch(_){toast("Hat nicht geklappt.")}return}

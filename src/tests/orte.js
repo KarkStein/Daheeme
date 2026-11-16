@@ -23,6 +23,20 @@ srv.listen(8765,async()=>{
   // 5) Eigene Art
   const id=Object.keys(db().termin)[0];await A.click(`[data-teredit="${id}"]`);await A.waitForTimeout(300);await A.click('[data-catman=ter]');await A.waitForSelector('#mbox [data-catnm]');await A.fill('#mbox [data-catic]','🏊');await A.fill('#mbox [data-catnm]','Schwimmen');await A.click('#mbox button[type=submit]');await A.waitForTimeout(400);await A.click('#mbox [data-catx]');await A.waitForTimeout(200);
   r.own=await A.$$eval('[data-tertag]',l=>l.map(x=>x.innerText).join('|'));
+  // 6) Vorschlag: Termin ohne Ort mit Art Arzt bekommt 📍, Kita-Termin der Kita-Seite bekommt 🚆
+  await A.click('#terform [data-act=tercancel]').catch(()=>{});await A.waitForTimeout(200);
+  const t2=new Date();t2.setDate(t2.getDate()+2);const k2=t2.getFullYear()+'-'+String(t2.getMonth()+1).padStart(2,'0')+'-'+String(t2.getDate()).padStart(2,'0');
+  await fetch('http://localhost:8765/haushalt/'+key+'/food/termin/a1.json',{method:'PUT',body:JSON.stringify({name:'Kinderarzt U7',date:k2,tag:'arzt',at:1})});
+  await fetch('http://localhost:8765/haushalt/'+key+'/food/kita/k1.json',{method:'PUT',body:JSON.stringify({name:'Laternenfest',sec:'termine',date:k2})});await A.waitForTimeout(500);
+  await nav('woche|wp:3');await A.click('[data-calview=liste]');await A.waitForTimeout(300);
+  r.kitaRoute=await A.$$eval('.evlist li',l=>l.some(x=>/Laternenfest/.test(x.innerText)&&x.querySelector('[data-route]')));
+  await A.click('[data-placeask=a1]');await A.waitForSelector('#mbox [data-plnew]');await A.screenshot({path:out+'/ort-vorschlag.png'});await A.click('#mbox [data-plnew]');await A.waitForSelector('#mbox [data-ebf=name]');
+  await A.fill('#mbox [data-ebf=name]','Kinderarzt');await A.fill('#mbox [data-ebf=addr]','Beispielweg 2');await A.click('#mbox button[type=submit]');await A.waitForTimeout(500);
+  r.asked=[db().termin.a1.place,Object.values(db().place).length].join();
+  await fetch('http://localhost:8765/haushalt/'+key+'/food/termin/a2.json',{method:'PUT',body:JSON.stringify({name:'Geburtstag Oma',date:k2,tag:'feier',at:2})});await A.waitForTimeout(500);await nav('woche|wp:3');await A.click('[data-calview=liste]');await A.waitForTimeout(300);
+  await A.click('[data-placeask=a2]');await A.waitForSelector('#mbox [data-plnew]');await A.click('#mbox [data-plnew]');await A.waitForSelector('#mbox [data-ebf=addr]');
+  await A.fill('#mbox [data-ebf=addr]','Gartenweg 5');await A.click('#mbox [data-ebk=keep][data-ebv=einmal]');await A.click('#mbox button[type=submit]');await A.waitForTimeout(500);
+  r.once=[db().termin.a2.place,Object.values(db().place).length].join();
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&r.place==='Kita|Teststraße 1, Musterstadt'&&r.list&&r.autoPlace==='Kita'&&r.saved==='kita,Kita'&&r.icon&&r.noAddr&&/Kita/.test(r.title)&&/Teststra/.test(decodeURIComponent(r.url))&&r.hidden&&/🏊 Schwimmen/.test(r.own);
+  const ok=!errs.length&&r.place==='Kita|Teststraße 1, Musterstadt'&&r.list&&r.autoPlace==='Kita'&&r.saved==='kita,Kita'&&r.icon&&r.noAddr&&/Kita/.test(r.title)&&/Teststra/.test(decodeURIComponent(r.url))&&r.hidden&&/🏊 Schwimmen/.test(r.own)&&r.kitaRoute&&r.asked==='Kinderarzt,2'&&r.once==='Gartenweg 5,2';
   console.error(ok?'ORTE OK':'ORTE FAIL');await b.close();srv.close();process.exit(0)});
