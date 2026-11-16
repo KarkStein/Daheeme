@@ -29,12 +29,17 @@ Zubereitung
   const inBook=await A.$$eval('[data-rec]',l=>l.map(x=>x.innerText.split('\n')[0]));
   await A.screenshot({path:out+'/kochbuch.png',fullPage:true});
   await A.click('[data-book=main]');const inMain=await A.$$eval('[data-rec]',l=>l.map(x=>x.innerText.split('\n')[0]));
+  // Rezept direkt in ein anderes Kochbuch schieben (📚 Anderes Kochbuch)
+  await put('food/rec/r9',{name:'Kaiserschmarrn',ing:'4 Eier',at:9});await A.waitForTimeout(300);await A.click('[data-rec=r9]');await A.click('[data-recbookmv=r9]');await A.waitForTimeout(200);
+  const mvOpts=await A.$$eval('#mbox [data-ebk=book]',l=>l.map(x=>x.innerText));await A.screenshot({path:out+'/kochbuch-verschieben.png'});await A.click('#mbox [data-ebk=book]');await A.click('#mbox [type=submit]');await A.waitForTimeout(400);
+  const mvBook=(get(['haushalt',key,'food','rec','r9'])||{}).book;const mainAfter=await A.$$eval('[data-rec]',l=>l.map(x=>x.innerText.split('\n')[0]));
+  await A.click('#toast .toastbtn');await A.waitForTimeout(300);const mvSeen=await A.$$eval('[data-rec]',l=>l.map(x=>x.innerText.split('\n')[0]));
   // Ohne Überschriften
   await A.click('[data-act=recpaste]');await A.fill('#rec-paste','Schnelle Nudeln\n400 g Spaghetti\n1 Dose Tomaten\nNudeln kochen, Soße erhitzen, mischen.');await A.click('[data-act=recparse]');
   const g={name:await A.inputValue('#rec-name'),ing:await A.inputValue('#rec-ing'),note:await A.inputValue('#rec-note')};await A.click('[data-act=reccancel]');
   // Buch löschen
   const bid=await A.$$eval('[data-book]',l=>l.map(x=>x.dataset.book).find(x=>x!=='main'));await A.click(`[data-book="${bid}"]`);await A.click('[data-act=bookdel]');await A.waitForTimeout(400);const after=await A.$$eval('[data-rec]',l=>l.map(x=>x.innerText.split('\n')[0]));
-  console.log({head,f,inBook,inMain,g,after,errs});
+  console.log({head,f,inBook,inMain,mvOpts,mvBook,mainAfter,mvSeen,g,after,errs});
   const ok=!errs.length&&head.includes('Omas Küche')&&f.name==='Omas Rindsrouladen'&&f.ing.split('\n').length===5&&/^4 Rinderrouladen/.test(f.ing)&&/flach klopfen/.test(f.note)&&!/Portionen/.test(f.ing+f.note)&&f.link==='https://example.org/rouladen'
-    &&inBook.length===1&&/Rindsrouladen/.test(inBook[0])&&inMain.length===1&&/Linsensuppe/.test(inMain[0])&&g.name==='Schnelle Nudeln'&&g.ing.split('\n').length===2&&/kochen/.test(g.note)&&after.length===2;
+    &&inBook.length===1&&/Rindsrouladen/.test(inBook[0])&&inMain.length===1&&/Linsensuppe/.test(inMain[0])&&g.name==='Schnelle Nudeln'&&g.ing.split('\n').length===2&&/kochen/.test(g.note)&&after.length===3&&mvOpts.length===1&&/Omas Küche/.test(mvOpts[0])&&mvBook&&mvBook!=='main'&&!mainAfter.some(x=>/Kaiserschmarrn/.test(x))&&mvSeen.some(x=>/Kaiserschmarrn/.test(x));
   console.log(ok?'BOOK OK':'BOOK FAIL');await b.close();srv.close();process.exit(0)});
