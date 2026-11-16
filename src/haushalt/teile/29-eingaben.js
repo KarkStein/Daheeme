@@ -53,7 +53,7 @@ app.addEventListener("submit",async e=>{if(e.target.classList&&e.target.classLis
   if(e.target.id==="projform"){e.preventDefault();const v=(S.projText||"").trim().slice(0,80);S.projText="";const el=document.getElementById("projinput");if(el)el.value="";if(!v)return;const cat=S.projFilter||projGroup().quick||"";S.store.setPath("food/idea/"+newId("p"),Object.assign({name:v,done:false,at:Date.now(),by:S.me||""},cat?{cat}:{})).catch(()=>toast("Konnte nicht speichern. Bitte Verbindung prüfen."));return}
   if(e.target.id==="packlistform"){e.preventDefault();const el=document.getElementById("packlistinput"),n=(el&&el.value||"").trim().slice(0,40);if(!n)return;const id=newId("l");S.packList=id;S.packListNew=false;S.store.setPath("food/packlist/"+id,{name:n,at:Date.now()}).catch(()=>toast("Konnte nicht speichern."));render();return}
   if(e.target.id==="packform"){e.preventDefault();const v=S.packText;S.packText="";const el=document.getElementById("packinput");if(el)el.value="";packAdd(v);return}
-  if(e.target.id!=="shopform")return;e.preventDefault();const v=S.shopText;S.shopText="";const el=document.getElementById("shopinput");if(el)el.value="";shopAdd(v)});
+  if(e.target.id!=="shopform")return;e.preventDefault();const v=S.shopText;S.shopText="";const el=document.getElementById("shopinput");if(el)el.value="";const u=!!S.shopUrg;S.shopUrg=false;shopAdd(v,u)});
 app.addEventListener("input",e=>{if(e.target.id==="shopinput"){S.shopText=e.target.value;return}
   if(e.target.id==="packinput"){S.packText=e.target.value;return}
   if(e.target.id==="prioinput"){S.prioText=e.target.value;return}
