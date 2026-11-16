@@ -488,6 +488,7 @@ section[id^="sec-"]{scroll-margin-top:calc(var(--sp5)*3)}
 .wxhead{width:100%;background:none;border:none;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer;white-space:nowrap;overflow:hidden}
 .wxhead h1{flex:0 0 auto}.wxhead .wxline{font-size:var(--fs-s);color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wxhead .wxpre{color:var(--ochre);font-weight:600}
 @media (max-width:370px){.wxhead .wxhint{display:none}}
+.wxrow{align-items:center}.wxin{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp2);flex:1;min-width:0}.wxfun{flex:none;background:none;border:none;padding:0 0 0 var(--sp1);font-size:var(--fs-l);line-height:1;cursor:pointer}.wxfunrow{display:flex;align-items:center;gap:var(--sp2);width:100%;margin-top:var(--sp2);padding:var(--sp2) var(--sp3);background:var(--paper-2,rgba(0,0,0,.04));border:1px solid var(--line);border-radius:var(--r);font:inherit;font-size:var(--fs-s);color:inherit;text-align:left;cursor:pointer}.wxfunrow>span:first-child{font-size:var(--fs-l)}.wxfunrow>span:nth-child(2){flex:1}.wxfunrow i{font-style:normal;color:var(--muted);white-space:nowrap}
 /* Mehrere Möglichkeiten (29c-auswahl.js): offen = gestrichelt und blasser */
 .evlist li.tent::before{background:none!important;border-left:3px dashed #7a8594;width:0}
 .evlist li.tent[data-who=p0]::before{border-color:#2e7d6b}.evlist li.tent[data-who=p1]::before{border-color:#b8862b}.evlist li.tent[data-who=kid]::before{border-color:#8a5cc2}

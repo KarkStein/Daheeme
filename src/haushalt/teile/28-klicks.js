@@ -107,6 +107,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="restorecancel"){S.restore=null;render();return}
   if(b.dataset.act==="restoredo"){const r=S.restore;if(!r)return;try{if(r.d.config)await S.store.saveConfig(r.d.config);await S.store.setPath("weeks",r.d.weeks||null);await S.store.setPath("food",r.d.food||null);S.restore=null;toast("Wiederhergestellt");render()}catch(_){toast("Wiederherstellen ging nicht. Bitte Verbindung prüfen.")}return}
   if(b.dataset.act==="labels"){S.labels=!S.labels;try{localStorage.setItem("hq-labels",S.labels?"1":"")}catch(_){}render();return}
+  if(b.dataset.wxfun){const F=WX_FUN.find(x=>x[0]===b.dataset.wxfun);if(F){S.atipWX=F[4]||"";S.atipC=F[5]||"";S.atipIO="";S.atipZ="woche";S.wxPop=false;S.tFold=S.tFold||{};S.tFold.fix_immer=true;S.tFold["fix_"+season()]=true;goNav("ausflug|tt:ideen");toast(F[1]+" "+F[2]+": passende Ausflüge")}return}
   if(b.dataset.act==="wxpop"){S.wxPop=!S.wxPop;S.flip=false;render();return}
   if(b.dataset.wpage!=null){setWeekPage(+b.dataset.wpage);return}
   if(b.dataset.calm!=null){const n=+b.dataset.calm,c=S.calMonth||new Date(new Date().getFullYear(),new Date().getMonth(),1,12);S.calMonth=n===0?null:new Date(c.getFullYear(),c.getMonth()+n,1,12);if(n===0)S.calDay=null;render();return}

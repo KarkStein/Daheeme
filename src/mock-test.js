@@ -34,7 +34,7 @@ srv.listen(8765,async()=>{
   await A.waitForSelector('[data-task=einkaufen][data-slot="0"]:not(.on)');
   await A.evaluate(()=>{const b=document.createElement('button');b.dataset.nav='woche|wp:1';b.id='zznav';document.getElementById('app').appendChild(b);b.click()});await A.waitForTimeout(300);await A.click('[data-wmwsec=pakete]');await A.click('[data-act=swap]');await B.waitForTimeout(300);
   await A.click('.appbar [data-go]');await A.click('[data-tab=einkauf]');await B.click('[data-tab=einkauf]');
-  await A.fill('#shopinput','Milch');await A.press('#shopinput','Enter');await A.fill('#shopinput','Brot');await A.click('#shopform button');
+  await A.fill('#shopinput','Milch');await A.press('#shopinput','Enter');await A.fill('#shopinput','Brot');await A.click('#shopform button[type=submit]');
   await B.waitForSelector(':nth-match(.shop li, 2)');await B.click(':nth-match(.shop li .item, 1)');
   await A.waitForSelector('.shop li.done');await A.click('[data-act=shopclear]');await B.waitForSelector('.shop li.done',{state:'detached'});
   await A.click('[data-tab=essen]');await B.click('[data-tab=essen]');await A.click('[data-food=rezepte]');await A.click('[data-act=recnew]');await A.fill('#rec-name','Linsensuppe');await A.fill('#rec-ing','250 g Linsen\n1 Zwiebel');await A.fill('#rec-note','Alles kochen.');await A.click('[data-act=recsave]');

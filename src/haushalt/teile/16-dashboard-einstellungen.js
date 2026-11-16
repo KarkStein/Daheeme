@@ -53,6 +53,7 @@ function moonName(p){return p<0.03||p>0.97?"Neumond":p<0.22?"zunehmende Sichel":
 function wxPanel(night){const pl=S.food&&S.food.wxplace,now=new Date(),lat=pl&&pl.lat!=null?+pl.lat:51.0,lon=pl&&pl.lon!=null?+pl.lon:10.4,t=sunTimes(now,lat,lon),hm=m=>{m=Math.round(m);return Math.floor(m/60)+":"+String(m%60).padStart(2,"0")},mp=moonPhase(now);
   let h=`<section class="card wxpanel"><div class="section-head"><h2>${night?"🌙":"☀️"} Wetter${pl&&pl.name?" in "+esc(pl.name):""}</h2><button class="ghost" data-act="wxpop" aria-label="Schließen">✕</button></div>
     <div class="freq">🌅 ${hm(t.rise)} · 🌇 ${hm(t.set)} · 🌙 ${moonName(mp)}</div>`;
+  {const F=wxFun();if(F)h+=`<button class="wxfunrow" data-wxfun="${F.k}"><span>${F.e}</span><span><b>${F.pre?"Morgen: ":""}${esc(F.n)}</b> · ${esc(F.t)}</span><i>Ausflüge ›</i></button>`}
   if(!pl||pl.lat==null)h+=`<div class="freq" style="margin-top:8px">Für die Vorhersage tragt einen Ort ein.</div><div class="btnrow"><button class="ghost" data-go="settings">Ort in den Einstellungen</button></div>`;
   else{loadWx();const days=(S.wx&&S.wx.days)||{},l=[];for(let i=0;i<6;i++){const d=addDays(startOfDay(now),i),w=days[ymd(d)];if(w)l.push([d,w])}
     const hr=S.wx&&S.wx.hours,WI={"":"☀️",wolkig:"⛅",bedeckt:"☁️",nebel:"🌫️",regen:"🌧️",schnee:"🌨️",gewitter:"⛈️"};

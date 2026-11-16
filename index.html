@@ -507,6 +507,7 @@ section[id^="sec-"]{scroll-margin-top:calc(var(--sp5)*3)}
 .wxhead{width:100%;background:none;border:none;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer;white-space:nowrap;overflow:hidden}
 .wxhead h1{flex:0 0 auto}.wxhead .wxline{font-size:var(--fs-s);color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wxhead .wxpre{color:var(--ochre);font-weight:600}
 @media (max-width:370px){.wxhead .wxhint{display:none}}
+.wxrow{align-items:center}.wxin{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp2);flex:1;min-width:0}.wxfun{flex:none;background:none;border:none;padding:0 0 0 var(--sp1);font-size:var(--fs-l);line-height:1;cursor:pointer}.wxfunrow{display:flex;align-items:center;gap:var(--sp2);width:100%;margin-top:var(--sp2);padding:var(--sp2) var(--sp3);background:var(--paper-2,rgba(0,0,0,.04));border:1px solid var(--line);border-radius:var(--r);font:inherit;font-size:var(--fs-s);color:inherit;text-align:left;cursor:pointer}.wxfunrow>span:first-child{font-size:var(--fs-l)}.wxfunrow>span:nth-child(2){flex:1}.wxfunrow i{font-style:normal;color:var(--muted);white-space:nowrap}
 /* Mehrere Möglichkeiten (29c-auswahl.js): offen = gestrichelt und blasser */
 .evlist li.tent::before{background:none!important;border-left:3px dashed #7a8594;width:0}
 .evlist li.tent[data-who=p0]::before{border-color:#2e7d6b}.evlist li.tent[data-who=p1]::before{border-color:#b8862b}.evlist li.tent[data-who=kid]::before{border-color:#8a5cc2}
@@ -980,9 +981,32 @@ function wxToday(){const W=S.wx,hr=W&&W.hours;if(!W||!hr||!hr.time||Date.now()-W
   else if((j=first(k=>K[k]==="regen"||P[k]>=60))>=0)hint=(at(j)==="jetzt"?"Regen":"Regen "+at(j));
   else if(lo<=0)hint="Frost";else if((d.w||0)>=40)hint="Sturmböen";else if((d.w||0)>=28)hint="windig";else if(hi>=28)hint="heiß";
   return {pre:eve?"Morgen":"",emo:WI[main]||"☀️",rng:lo===hi?lo+"°":lo+" bis "+hi+"°",hint}}
+// Was das Wetter heute möglich macht (Florian 16.11.2026): höchstens ein Symbol, nur wenn es wirklich passt, sonst nichts.
+// Reihenfolge = Vorrang. wx/cat führen zu den passenden Ausflügen (Filter „Passt zum Wetter“ bzw. Rubrik, feste Orte aufgeklappt).
+const WX_FUN=[
+  ["schneemann","⛄","Schneemann bauen","Frischer Schnee um null Grad, der klebt gut.","schnee","",(d,p)=>((d.s||0)>=2||(p.s||0)>=2)&&d.t!=null&&d.t>=-3&&d.t<=3],
+  ["schlitten","🛷","Schlitten fahren","Es liegt Schnee.","schnee","",d=>(d.sd||0)>=0.05||(d.s||0)>=5],
+  ["eis","⛸️","Eislaufen","Dauerfrost seit Tagen, Natureis wird fest (vorher prüfen, ob freigegeben).","schnee","",(d,p,q)=>d.t!=null&&d.t<0&&p.t!=null&&p.t<0&&q.t!=null&&q.t<0],
+  ["baden","🏊","Baden","Heiß und sonnig: Freibad oder Badesee.","sonne","wasser",d=>d.t>=27&&(d.r||0)<1],
+  ["wasser","💦","Wasserspielplatz","Warm genug zum Planschen.","sonne","wasser",d=>d.t>=24&&(d.r||0)<1&&(d.sun==null||d.sun>=6)],
+  ["eisw","🍦","Eis-Wetter","Der erste richtig warme Tag.","sonne","",(d,p,q,P)=>d.t>=20&&(d.r||0)<1&&P.length>=4&&P.every(x=>x.t!=null&&x.t<18)],
+  ["drachen","🪁","Drachen steigen","Kräftiger Wind und trocken.","wind","",d=>d.w>=28&&d.w<=50&&(d.r||0)<1&&!/regen|schnee|gewitter/.test(wxKind(d.c))],
+  ["regenbogen","🌈","Regenbogen-Chance","Schauer und Sonne im Wechsel.","","",d=>d.c>=80&&d.c<=82&&(d.sun||0)>=4],
+  ["seifen","🫧","Seifenblasen","Mild und fast windstill.","sonne","",d=>d.t>=15&&d.t<=26&&d.w!=null&&d.w<8&&(d.r||0)<0.5],
+  ["picknick","🧺","Picknick","Warm, trocken, wenig Wind.","sonne","",d=>d.t>=20&&d.t<=28&&d.w!=null&&d.w<18&&(d.r||0)<0.2&&(d.sun||0)>=9],
+  ["abend","🌙","Lauer Abend","Abends noch warm: draußen essen, Biergarten.","sonne","",(d,p,q,P,ev)=>ev!=null&&ev>=20&&(d.r||0)<0.5],
+  ["rad","🚲","Laufrad und Radtour","Mild, trocken, wenig Wind.","sonne","",(d,p,q,P,ev,wk)=>wk&&d.t>=13&&d.t<=22&&d.w!=null&&d.w<18&&(d.r||0)<0.2&&(d.sun||0)>=6],
+  ["laub","🍂","Laub rascheln","Trockener, windiger Herbsttag.","wind","",(d,p,q,P,ev,wk,se)=>se==="autumn"&&d.w>=18&&d.w<28&&(d.r||0)<0.2&&(p.r||0)<1&&(d.sun||0)>=3]];
+function wxFun(){const W=S.wx;if(!W||!W.days||Date.now()-W.at>6*3600e3)return null;const now=new Date(),eve=now.getHours()>=19,k=ymd(eve?addDays(now,1):now),d=W.days[k];if(!d||d.t==null)return null;
+  const dk=n=>W.days[ymd(addDays(new Date(k+"T12:00:00"),n))]||{},p=dk(-1),q=dk(-2),P=[1,2,3,4,5].map(n=>dk(-n)).filter(x=>x.t!=null);
+  let ev=null;const hr=W.hours;if(hr&&hr.time){const i=hr.time.indexOf(k+"T20:00");if(i>=0)ev=hr.temperature_2m[i]}
+  const dw=new Date(k+"T12:00:00").getDay(),wk=dw===0||dw===6||!!feiertag(k);
+  const f=WX_FUN.find(x=>{try{return x[6](d,p,q,P,ev,wk,season())}catch(_){return false}});return f?{k:f[0],e:f[1],n:f[2],t:f[3],wx:f[4],cat:f[5],pre:eve}:null}
+const wxFunBtn=F=>F?`<button class="wxfun" data-wxfun="${F.k}" aria-label="${esc((F.pre?"Morgen: ":"")+F.n)}: passende Ausflüge zeigen">${F.e}</button>`:"";
 function startHead(sea){const g=greetTxt(new Date().getHours()),w=wxToday();
   if(!w)return `<div class="starthead"><h1>${g}</h1><span class="eyebrow">${SEASON_NAME[sea]} ${motivPlace()}</span></div>`;
-  return `<button class="starthead wxhead" data-act="wxpop" aria-label="${esc(g)}. Wetter${w.pre?" morgen":""}: ${esc(w.rng)}${w.hint?", "+esc(w.hint):""}. Tippen zeigt die Vorhersage."><h1>${g}</h1><span class="wxline">${w.pre?`<span class="wxpre">${w.pre}:</span> `:""}${w.emo} ${esc(w.rng)}${w.hint?`<span class="wxhint"> · ${esc(w.hint)}</span>`:""}</span></button>`}
+  const F=wxFun();
+  return `<div class="starthead wxrow"><button class="wxhead wxin" data-act="wxpop" aria-label="${esc(g)}. Wetter${w.pre?" morgen":""}: ${esc(w.rng)}${w.hint?", "+esc(w.hint):""}. Tippen zeigt die Vorhersage."><h1>${g}</h1><span class="wxline">${w.pre?`<span class="wxpre">${w.pre}:</span> `:""}${w.emo} ${esc(w.rng)}${w.hint?`<span class="wxhint"> · ${esc(w.hint)}</span>`:""}</span></button>${wxFunBtn(F)}</div>`}
 function wxKind(code){if(code==null||code==="")return "";code=+code;if(isNaN(code))return "";if(code>=95)return "gewitter";if(code>=71&&code<=77||code===85||code===86)return "schnee";if(code>=51&&code<=67||code>=80&&code<=82)return "regen";if(code===45||code===48)return "nebel";if(code===3)return "bedeckt";if(code===2)return "wolkig";return ""}
 // Ausschnitt des Hausbilds (Florian 15.11.2026: weniger Himmel, Haus und Wiese größer). Spots rechnen damit.
 const HVB=[4,32,352,228];
@@ -1311,7 +1335,7 @@ function wxLink(kind){const own=safeLink(S.food&&S.food.pref&&S.food.pref.wxlink
   return "https://kachelmannwetter.com/de"}
 const wxA=(inner,cls,kind)=>`<a class="wxlink${cls?" "+cls:""}" href="${esc(wxLink(kind))}" target="_blank" rel="noopener" aria-label="Wetter in der Wetter-App öffnen">${inner}</a>`;
 function loadWx(force){const pl=S.food&&S.food.wxplace;if(!pl||pl.lat==null)return;if(!force&&S.wx&&S.wx.key===pl.lat+","+pl.lon&&Date.now()-S.wx.at<(S.tab==="camp"?45*60e3:3*3600e3))return;if(S.wxBusy)return;S.wxBusy=true;
-  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pl.lat}&longitude=${pl.lon}&current=weather_code&hourly=temperature_2m,precipitation_probability,weather_code&daily=temperature_2m_max,precipitation_sum,weather_code,wind_speed_10m_max,snowfall_sum&timezone=Europe%2FBerlin&forecast_days=16`).then(r=>r.ok?r.json():null).then(j=>{S.wxBusy=false;if(!j||!j.daily)return;const days={};j.daily.time.forEach((d,i)=>days[d]={t:j.daily.temperature_2m_max[i],r:j.daily.precipitation_sum[i]||0,c:j.daily.weather_code?j.daily.weather_code[i]:null,w:j.daily.wind_speed_10m_max?j.daily.wind_speed_10m_max[i]:null,s:j.daily.snowfall_sum?j.daily.snowfall_sum[i]:null});S.wx={key:pl.lat+","+pl.lon,at:Date.now(),days,hours:j.hourly&&Array.isArray(j.hourly.time)?j.hourly:null,cur:j.current&&j.current.weather_code!=null?j.current.weather_code:null};if(S.tab==="essen"||S.tab==="camp")render()}).catch(()=>{S.wxBusy=false})}
+  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pl.lat}&longitude=${pl.lon}&current=weather_code&hourly=temperature_2m,precipitation_probability,weather_code,snow_depth&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code,wind_speed_10m_max,snowfall_sum,sunshine_duration&timezone=Europe%2FBerlin&forecast_days=16`).then(r=>r.ok?r.json():null).then(j=>{S.wxBusy=false;if(!j||!j.daily)return;const days={};j.daily.time.forEach((d,i)=>days[d]={t:j.daily.temperature_2m_max[i],r:j.daily.precipitation_sum[i]||0,c:j.daily.weather_code?j.daily.weather_code[i]:null,w:j.daily.wind_speed_10m_max?j.daily.wind_speed_10m_max[i]:null,s:j.daily.snowfall_sum?j.daily.snowfall_sum[i]:null,tn:j.daily.temperature_2m_min?j.daily.temperature_2m_min[i]:null,sun:j.daily.sunshine_duration&&j.daily.sunshine_duration[i]!=null?j.daily.sunshine_duration[i]/3600:null});if(j.hourly&&j.hourly.snow_depth)j.hourly.time.forEach((t,i)=>{const d=days[t.slice(0,10)],v=j.hourly.snow_depth[i];if(d&&v!=null&&+t.slice(11,13)>=7&&+t.slice(11,13)<=17)d.sd=Math.max(d.sd||0,v)});S.wx={key:pl.lat+","+pl.lon,at:Date.now(),days,hours:j.hourly&&Array.isArray(j.hourly.time)?j.hourly:null,cur:j.current&&j.current.weather_code!=null?j.current.weather_code:null};if(S.tab==="essen"||S.tab==="camp")render()}).catch(()=>{S.wxBusy=false})}
 function suggestWeek(mon,keep){const days=planDays(mon),kmw=kitaMeals(mon),px=planX(mon),pool=weekPool(),used=new Set(Object.keys(days).filter(k=>/^d\d$/.test(k)&&days[k]).map(k=>String(days[k].text||"").toLowerCase())),res={},skip=S.suggSkip||{};
   const today=startOfDay(new Date());let prevH=[],prevS=[];
   for(let i=0;i<7;i++){const k="d"+i,date=addDays(mon,i);if(days[k]&&days[k].text){prevH=hauptOf(days[k].text);prevS=sauceOf(days[k].text);continue}if(date<today||inUrlaub(date))continue;
@@ -1733,6 +1757,7 @@ function moonName(p){return p<0.03||p>0.97?"Neumond":p<0.22?"zunehmende Sichel":
 function wxPanel(night){const pl=S.food&&S.food.wxplace,now=new Date(),lat=pl&&pl.lat!=null?+pl.lat:51.0,lon=pl&&pl.lon!=null?+pl.lon:10.4,t=sunTimes(now,lat,lon),hm=m=>{m=Math.round(m);return Math.floor(m/60)+":"+String(m%60).padStart(2,"0")},mp=moonPhase(now);
   let h=`<section class="card wxpanel"><div class="section-head"><h2>${night?"🌙":"☀️"} Wetter${pl&&pl.name?" in "+esc(pl.name):""}</h2><button class="ghost" data-act="wxpop" aria-label="Schließen">✕</button></div>
     <div class="freq">🌅 ${hm(t.rise)} · 🌇 ${hm(t.set)} · 🌙 ${moonName(mp)}</div>`;
+  {const F=wxFun();if(F)h+=`<button class="wxfunrow" data-wxfun="${F.k}"><span>${F.e}</span><span><b>${F.pre?"Morgen: ":""}${esc(F.n)}</b> · ${esc(F.t)}</span><i>Ausflüge ›</i></button>`}
   if(!pl||pl.lat==null)h+=`<div class="freq" style="margin-top:8px">Für die Vorhersage tragt einen Ort ein.</div><div class="btnrow"><button class="ghost" data-go="settings">Ort in den Einstellungen</button></div>`;
   else{loadWx();const days=(S.wx&&S.wx.days)||{},l=[];for(let i=0;i<6;i++){const d=addDays(startOfDay(now),i),w=days[ymd(d)];if(w)l.push([d,w])}
     const hr=S.wx&&S.wx.hours,WI={"":"☀️",wolkig:"⛅",bedeckt:"☁️",nebel:"🌫️",regen:"🌧️",schnee:"🌨️",gewitter:"⛈️"};
@@ -1998,7 +2023,9 @@ function foldCard(k,title,n,body,def,cls){const on=tFoldOn(k,def);return `<secti
 function atipLi(i){const u=safeLink(i.link),ix=S.atipps.items.indexOf(i),on=!!(S.atipOpen&&S.atipOpen[ix]),kc=i.dauer&&ATIP_CAT.find(x=>x[0]===atipCat(i));
   const short=i.dauer?(i.where==="umland"?"Umland":""):atipWhen(i);
   return `<li class="atipli${on?" on":""}"><div class="atiprow"><button class="atipnm" data-atipopen="${ix}" aria-expanded="${on}"><span class="atipt">${kc?kc[1]+" ":""}${i.top?"⭐ ":""}${atipLike(i,likeRx())?"💛 ":""}${esc(i.name)}</span>${short?`<span class="freq">${esc(short)}</span>`:""}</button>${transitA(i.place||i.name)}</div>${on?`<div class="atipmore"><span class="freq">${i.top?"⭐ Spielplatz der Woche · ":""}${[i.free?"🆓":"",i.where==="stadt"?"🏙️":i.where==="umland"?"🚆":"",i.io==="drinnen"?"🏠":i.io==="draussen"?"☀️":"",i.dur==="kurz"?"⏱️ kurz":i.dur==="halb"?"⏱️ halber Tag":"",i.pram?"👶 Kinderwagen":"",i.cafe?"☕ Café/Wickeln":"",+i.age?"ab "+i.age+" J.":"",i.place,i.travel,i.price,i.kid?"🧒 "+(i.kid===true?"kindertauglich":i.kid):""].filter(Boolean).map(esc).join(" · ")}</span>${i.note?`<span class="freq">${esc(i.note)}</span>`:""}<div class="atipbtns">${u?`<a class="ghost small btnlink" href="${esc(u)}" target="_blank" rel="noopener">🔗 Website</a>`:""}<button class="ghost small" data-atipcal="${ix}" aria-label="${esc(i.name)} in den Kalender">📅 Kalender</button><button class="ghost small" data-atiptake="${ix}">🚲 Merken</button></div></div>`:""}</li>`}
-function atipFixCards(){const all=atipItems().filter(i=>i.dauer).sort((a,b)=>((a.where||"stadt")==="stadt"?0:1)-((b.where||"stadt")==="stadt"?0:1));if(!all.length)return "";
+// Mit Wetter-Filter oder Rubrik (z. B. vom Wetter-Symbol am Start, Florian 16.11.2026) zeigen auch die festen Orte nur Passendes, sofern es welche gibt
+function atipFixCards(){let all=atipItems().filter(i=>i.dauer).sort((a,b)=>((a.where||"stadt")==="stadt"?0:1)-((b.where||"stadt")==="stadt"?0:1));if(!all.length)return "";
+  const wx=S.atipWX||"",c=S.atipC||"";if(wx||c){const m=all.filter(i=>(wx&&(Array.isArray(i.wx)?i.wx:[i.wx]).includes(wx))||(c&&atipCat(i)===c));if(m.length)all=m}
   const sea=season(),SN={spring:"🌷 Frühling",summer:"☀️ Sommer",autumn:"🍂 Herbst",winter:"❄️ Winter"};
   return [["immer","✅ Geht immer",all.filter(i=>atipSeas(i).includes("immer"))],[sea,SN[sea]+": passt jetzt",all.filter(i=>atipSeas(i).includes(sea))]].map(([k,t,g])=>g.length?foldCard("fix_"+k,t,g.length,`<ul class="evlist atipl">${g.map(atipLi).join("")}</ul>`,false,"atipfix"):"").join("")}
 function renderTripIdeas(){const d=S.tripDraft;
@@ -2976,6 +3003,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="restorecancel"){S.restore=null;render();return}
   if(b.dataset.act==="restoredo"){const r=S.restore;if(!r)return;try{if(r.d.config)await S.store.saveConfig(r.d.config);await S.store.setPath("weeks",r.d.weeks||null);await S.store.setPath("food",r.d.food||null);S.restore=null;toast("Wiederhergestellt");render()}catch(_){toast("Wiederherstellen ging nicht. Bitte Verbindung prüfen.")}return}
   if(b.dataset.act==="labels"){S.labels=!S.labels;try{localStorage.setItem("hq-labels",S.labels?"1":"")}catch(_){}render();return}
+  if(b.dataset.wxfun){const F=WX_FUN.find(x=>x[0]===b.dataset.wxfun);if(F){S.atipWX=F[4]||"";S.atipC=F[5]||"";S.atipIO="";S.atipZ="woche";S.wxPop=false;S.tFold=S.tFold||{};S.tFold.fix_immer=true;S.tFold["fix_"+season()]=true;goNav("ausflug|tt:ideen");toast(F[1]+" "+F[2]+": passende Ausflüge")}return}
   if(b.dataset.act==="wxpop"){S.wxPop=!S.wxPop;S.flip=false;render();return}
   if(b.dataset.wpage!=null){setWeekPage(+b.dataset.wpage);return}
   if(b.dataset.calm!=null){const n=+b.dataset.calm,c=S.calMonth||new Date(new Date().getFullYear(),new Date().getMonth(),1,12);S.calMonth=n===0?null:new Date(c.getFullYear(),c.getMonth()+n,1,12);if(n===0)S.calDay=null;render();return}
