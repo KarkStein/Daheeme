@@ -95,7 +95,7 @@ function houseScene(has,light,night,extras,sea,guests,dots,amb){dots=dots||{};am
   if(!city&&has.boat)g+=`<g class="bob"><path d="M268 150 h34 l-6 9 h-24z" fill="#2f5d8a"/><rect x="276" y="140" width="12" height="10" fill="#f4f1ea"/><path d="M294 150 V130" stroke="#5b4a3a" stroke-width="1.6"/><path d="M294 132 l8 4 l-8 3" fill="#f25f5c"/></g>`;
   if(!city&&has.sail)g+=`<g class="bob" style="animation-delay:1.2s"><path d="M300 198 h36 l-5 7 h-26z" fill="#f4f1ea"/><path d="M318 198 V164 L336 196Z" fill="#c7442f"/><path d="M316 198 V170 L302 196Z" fill="#f4f1ea"/></g>`;
   if(!city)g+=styFar(st,C,night);
-  g+=`<path d="M0 146 Q60 134 132 140 Q206 146 244 172 Q286 202 296 260 H0Z" fill="${C.land}"/>`;if(city)g+=cityLawn(C,night,st);
+  g+=`<path d="M0 146 Q60 134 132 140 Q206 146 244 172 Q286 202 296 260 H0Z" fill="${C.land}"/>`;if(city)g+=cityLawn(C,night,st,sea);
   g+=`<path d="M244 172 Q286 202 296 260 H276 Q270 212 232 184Z" fill="${city?(night?"#6e6a63":"#e6dfd2"):C.sand}"/>`;
   g+=`<path d="M0 222 Q120 206 262 230 L270 260 H0Z" fill="${C.land2}"/>`;
   g+=styLand(st,C,night);
@@ -117,7 +117,7 @@ function houseScene(has,light,night,extras,sea,guests,dots,amb){dots=dots||{};am
    +`<path d="M146 214 V188 a9 9 0 0 1 18 0 V214Z" fill="#3f6fa8"/><circle cx="160" cy="202" r="1.4" fill="#ffd66b"/><path d="M147 214 h16" stroke="#7d7f7a" stroke-width="3"/>`
    +[[116,170],[178,170]].map(w=>`<rect x="${w[0]}" y="${w[1]}" width="16" height="18" fill="${night||w[0]===116?lit:"#cfe3ee"}" stroke="#f4f1ea" stroke-width="1.6"/><path d="M${w[0]+8} ${w[1]} v18 M${w[0]} ${w[1]+9} h16" stroke="#f4f1ea" stroke-width="1"/><rect x="${w[0]-8}" y="${w[1]-1}" width="7" height="20" fill="#3f6fa8"/><rect x="${w[0]+17}" y="${w[1]-1}" width="7" height="20" fill="#3f6fa8"/>`).join("")
    +`<g class="smoke" opacity=".75"><circle cx="118" cy="94" r="5" fill="#e9ecef"/><circle cx="112" cy="82" r="6.5" fill="#e9ecef" opacity=".8"/><circle cx="118" cy="68" r="7.5" fill="#e9ecef" opacity=".6"/></g>`;
-  g+=styHouse(st,H,C,night);
+  g+=styHouse(st,H,C,night);if(city)g+=cityIvy(night,sea);
   if(sea==="winter")g+=`<path d="M114 118 H196 L200 126 H110Z" fill="#fff" opacity=".7"/>`;
   if(night)g+=`<circle cx="124" cy="179" r="22" fill="url(#hglow)" opacity=".35"/>`;
   if(has.flags){g+=`<path d="M198 112 Q224 156 238 186" fill="none" stroke="#3a2a1a" stroke-width="1.2"/><rect x="236.5" y="184" width="3" height="20" fill="#7a5230"/>`;

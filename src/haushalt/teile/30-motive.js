@@ -90,6 +90,9 @@ function cityBack(C,night,sea,light){const far=night?"#26374a":"#cdd6dd",far2=ni
   s+=`<path d="M${tx-16} ${ty} V${ty-40} h11 V${ty}Z M${tx+5} ${ty} V${ty-40} h11 V${ty}Z" fill="${night?"#4a3f3a":"#9a7f6c"}"/><path d="M${tx-5} ${ty} V${ty-22} h10 V${ty}Z" fill="${night?"#3e3532":"#8a705f"}"/>`
     +`<path d="M${tx-17} ${ty-40} q6.5 -14 13 0Z M${tx+4} ${ty-40} q6.5 -14 13 0Z" fill="${night?"#3c5a50":"#6f9a86"}"/><path d="M${tx-10.5} ${ty-53} v-4 M${tx+10.5} ${ty-53} v-4" stroke="${night?"#c9b26a":"#b08d3a"}" stroke-width="1.2"/>`
     +`<rect x="${tx-12.5}" y="${ty-33}" width="4" height="6" rx="2" fill="${win}" opacity="${night?.9:.6}"/><rect x="${tx+8.5}" y="${ty-33}" width="4" height="6" rx="2" fill="${win}" opacity="${night?.9:.6}"/>`;
+  // Baumreihe hinter dem Gehweg (Park), Farbe je Jahreszeit
+  {const T=night?(sea==="winter"?["#3b3a36","#34332f"]:["#1e3a2a","#24432f"]):sea==="spring"?["#7fbf6a","#6aa95c"]:sea==="autumn"?["#d08a3a","#b8642a","#8aa35a"]:sea==="winter"?["#9a9184","#8a8174"]:["#4f8a55","#5f9a5c"];
+   [[6,104,11],[34,99,13],[62,105,10],[92,100,12],[124,104,11],[156,98,13],[188,103,11],[220,100,12],[252,104,10],[282,99,12],[350,101,11]].forEach(([x,y,r],i)=>{s+=`<path d="M${x} 117 V${y+4}" stroke="${night?"#3a2a1e":"#6b4a2e"}" stroke-width="2"/><circle cx="${x}" cy="${y}" r="${r}" fill="${T[i%T.length]}"${sea==="winter"?' opacity=".75"':""}/><circle cx="${x-r*.35}" cy="${y-r*.3}" r="${r*.55}" fill="${T[(i+1)%T.length]}" opacity=".7"/>`+(sea==="winter"?`<path d="M${x-r*.7} ${y-r*.55} q${r*.7} -${r*.45} ${r*1.4} 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>`:"")})}
   // Gehweg hinten, Bordstein, Schienen, Fahrleitung
   s+=`<rect x="0" y="116" width="360" height="7" fill="${walk}"/><rect x="0" y="122.5" width="360" height="1.6" fill="${curb}"/>`
     +`<path d="M0 135 H360 M0 140 H360" stroke="${night?"#777b80":"#b9bcc0"}" stroke-width="1"/><path d="M0 104 H360" stroke="#3a3f45" stroke-width=".6" opacity=".7"/>`
@@ -111,7 +114,30 @@ function cityCafe(night){const w=night?"#2c3138":"#3a3f47",u1=night?"#9c3c34":"#
   return `<path d="M38 121 V99" stroke="${w}" stroke-width="1.2"/><path d="M22 101 Q38 88 54 101Z" fill="${u1}"/><path d="M30 101 Q38 89 38 89 Q38 89 46 101Z" fill="${u2}"/>`
     +`<path d="M31 112 h14 M38 112 v9 M34 121 h8" stroke="${w}" stroke-width="1.3" stroke-linecap="round"/><path d="M33 110.4 h3 v1.6 h-3z M40 110.4 h3 v1.6 h-3z" fill="${u2}"/>`
     +`<path d="M24 107 v14 M24 113 h5 v8 M52 107 v14 M52 113 h-5 v8" stroke="${w}" stroke-width="1.2" fill="none" stroke-linecap="round"/>`}
-// Rasen rechts statt Strand, Hecke zur Straße hin
-function cityLawn(C,night,st){const hd=night?"#24432f":"#4f8a55",L="M200 146 Q280 151 360 145 V260 H200Z";
-  return `<path d="${L}" fill="${C.land}"/>`+(st==="fein"?`<path d="${L}" fill="url(#pGrass)"/><path d="${L}" fill="url(#pGrass2)"/>`:"")+[244,256,268,280,292,304,316,328,340,352].map((x,i)=>`<circle cx="${x}" cy="${148.5-(i%2)*.8}" r="${6.4+(i%3)*.6}" fill="${hd}"/>`).join("")}
+// Viel Grün ums Haus (Florian 16.11.2026 „Viel mehr grün ums Haus!“): Rasen über die ganze Breite, Hecke zur Straße,
+// Tanne rechts, Büsche, Blüten je Jahreszeit; Efeu am Haus über cityIvy
+function cityLawn(C,night,st,sea){const L="M0 139 Q90 133 180 137 Q270 141 360 136 V260 H0Z",hd=night?["#1f3b29","#264a33"]:["#477f4c","#56935a"],tr=night?"#4a3524":"#7a5230",win=sea==="winter";
+  let s=`<path d="${L}" fill="${C.land}"/>`+(st==="fein"?`<path d="${L}" fill="url(#pGrass)"/><path d="${L}" fill="url(#pGrass2)"/>`:"");
+  // Hecke über die ganze Breite (immergrün), deckt die Straße unten ab
+  for(let x=-2,i=0;x<=364;x+=10,i++){const y=139-Math.sin(x/58)*2.4+(i%2)*.8;s+=`<circle cx="${x}" cy="${y}" r="${6.6+(i%3)*.7}" fill="${hd[i%2]}"/>`}
+  if(win)for(let x=4;x<=360;x+=20)s+=`<path d="M${x-5} ${134-Math.sin(x/58)*2.4} q5 -3 10 0" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none" opacity=".85"/>`;
+  // Büsche am Haus und rechts im Garten
+  const bush=(x,y,r,k)=>`<ellipse cx="${x}" cy="${y+r*.8}" rx="${r*1.4}" ry="${r*.25}" fill="#000" opacity=".1"/><circle cx="${x-r*.6}" cy="${y+r*.15}" r="${r*.75}" fill="${hd[k%2]}"/><circle cx="${x+r*.6}" cy="${y+r*.2}" r="${r*.7}" fill="${hd[(k+1)%2]}"/><circle cx="${x}" cy="${y-r*.15}" r="${r}" fill="${hd[(k+1)%2]}"/>`;
+  [[84,154,8,0],[96,150,6,1],[216,150,7,1],[228,172,7,0],[292,186,9,1],[306,244,8,0]].forEach(b=>{s+=bush(...b)});
+  const bl=sea==="spring"?["#f7c1d6","#fff"]:sea==="summer"?["#f25f5c","#ffd66b"]:sea==="autumn"?["#d9792b","#e0a030"]:null;
+  if(bl)[[82,151],[88,156],[226,169],[231,174],[288,183],[296,188],[304,241]].forEach((p,i)=>{s+=`<circle cx="${p[0]}" cy="${p[1]}" r="1.6" fill="${bl[i%2]}" opacity="${night?.5:1}"/>`});
+  if(win)[[84,146],[216,143],[228,165],[292,177]].forEach(p=>{s+=`<path d="M${p[0]-6} ${p[1]} q6 -3 12 0" stroke="#fff" stroke-width="2.2" stroke-linecap="round" fill="none"/>`});
+  // Tanne rechts (Garten), im Winter mit Schnee
+  {const fx=334,fb=226,fc=night?"#1d3a2a":"#2f6b4c",fc2=night?"#264a35":"#3d7f58";
+   s+=`<ellipse cx="${fx}" cy="${fb}" rx="18" ry="2.8" fill="#000" opacity=".13"/><rect x="${fx-2.2}" y="${fb-12}" width="4.4" height="12" fill="${tr}"/>`
+    +`<path d="M${fx} ${fb-78} L${fx+13} ${fb-52} H${fx+7} L${fx+20} ${fb-30} H${fx+12} L${fx+25} ${fb-10} H${fx-25} L${fx-12} ${fb-30} H${fx-20} L${fx-7} ${fb-52} H${fx-13}Z" fill="${fc}"/>`
+    +`<path d="M${fx} ${fb-78} L${fx-13} ${fb-52} H${fx-7} L${fx-20} ${fb-30} H${fx-12} L${fx-25} ${fb-10} H${fx}Z" fill="${fc2}"/>`
+    +(win?`<path d="M${fx-6} ${fb-62} L${fx} ${fb-72} L${fx+6} ${fb-62} M${fx-13} ${fb-52} h7 M${fx+7} ${fb-52} h6 M${fx-20} ${fb-30} h8 M${fx+12} ${fb-30} h8 M${fx-25} ${fb-10} h10 M${fx+15} ${fb-10} h10" stroke="#fff" stroke-width="2.2" stroke-linecap="round" fill="none"/>`:"")
+    +(sea==="winter"||night?"":`<circle cx="${fx-6}" cy="${fb-40}" r="1.5" fill="#8a5a34"/><circle cx="${fx+8}" cy="${fb-22}" r="1.5" fill="#8a5a34"/>`)}
+  return s}
+// Efeu (im Sommer Kletterrose) an der linken Hausecke
+function cityIvy(night,sea){if(sea==="winter")return "";const c=night?["#2a4d36","#355d42"]:["#4f8a55","#6aa95c"];let s=`<path d="M103 214 C99 200 106 188 101 176 C98 168 104 162 110 159" stroke="${night?"#3a2a1e":"#6b4a2e"}" stroke-width="1" fill="none"/>`;
+  [[101,211],[104,205],[100,199],[104,193],[100,187],[103,181],[100,175],[103,169],[106,164],[110,160],[98,206],[98,192]].forEach((p,i)=>{s+=`<ellipse cx="${p[0]}" cy="${p[1]}" rx="3.4" ry="2.3" fill="${sea==="autumn"&&i%3===0?"#b3402a":c[i%2]}" transform="rotate(${i%2?28:-28} ${p[0]} ${p[1]})"/>`});
+  if(sea==="summer"&&!night)[[102,196],[101,180],[107,163]].forEach(p=>{s+=`<circle cx="${p[0]}" cy="${p[1]}" r="1.8" fill="#e05a6a"/>`});
+  return s}
 const CITY_GUESTS={spring:["🐦","🐝","🦋"],summer:["🦋","🐦","🐝"],autumn:["🐿️","🍄","🦔"],winter:["🐦","🐿️","🦉"]};
