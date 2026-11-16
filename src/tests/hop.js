@@ -10,9 +10,10 @@ srv.listen(8765,async()=>{
   const card=await A.$('#mbox .mboxcard');
   await A.screenshot({path:out+'/hausdienst-auswahl.png'});
   r.order=await A.$$eval('#mbox [data-hop]',l=>l.map(x=>x.dataset.hop).join(','));await A.click('#mbox [data-hop="p1"]');await A.waitForTimeout(400);r.p1=await A.$eval('.slot.hoslot[data-slot="1"]',e=>e.innerText);
+  await A.dispatchEvent('.slot.hoslot[data-slot="2"]','contextmenu');await A.waitForTimeout(250);await A.click('#mbox [data-hop="p0|vm"]');await A.waitForTimeout(400);r.half=(await A.$eval('.slot.hoslot[data-slot="2"]',e=>e.innerText)).replace(/\s/g,'');
   await A.dispatchEvent('.slot.hoslot[data-slot="0"]','contextmenu');await A.waitForTimeout(250);await A.click('#mbox [data-hop="clear"]');await A.waitForTimeout(400);r.clear=await A.$eval('.slot.hoslot[data-slot="0"]',e=>e.innerText);
   await A.addStyleTag({content:'#tabs{display:none!important}'});const el=await A.$('.slot.hoslot[data-slot="1"]');await el.scrollIntoViewIfNeeded();const box=await (await el.evaluateHandle(e=>e.closest('.task')||e.parentElement)).asElement().boundingBox();
   await A.screenshot({path:out+'/hausdienst-tage.png',clip:{x:0,y:Math.max(0,box.y-10),width:400,height:box.height+20}});
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&r.tap==='F'&&r.p1.replace(/\s/g,'')==='J'&&r.order==='p0,p1'&&r.clear==='Mo';
+  const ok=!errs.length&&r.tap==='F'&&r.p1.replace(/\s/g,'')==='J'&&r.order==='p0,p1,p0|vm,p1|vm'&&r.half==='F/J'&&r.clear==='Mo';
   console.error(ok?'HOP OK':'HOP FAIL');await b.close();srv.close();process.exit(0)});

@@ -3,7 +3,7 @@
 const QUICK={
   einkauf:["🧺 Einkauf",[["➕","Artikel hinzufügen",{nav:"einkauf",focus:"#shopinput"}],["📋","Offene Posten",{nav:"einkauf",scroll:".shop"}]]],
   essen:["🍲 Essen",[["🔗","Rezept aus Link speichern",{nav:"essen|ft:rezepte",click:'[data-act="recpaste"]'}]]],
-  woche:["🧹 Woche",[["🙋","Meine offenen Aufgaben",{nav:"woche|wp:1",fn:()=>{S.wmwWho=S.me||"p0";S.wmwView="zeit"}}],["✅","Aufgabe abhaken",{nav:"woche"}],["🏠","Hausdienst eintragen",{nav:"woche",scroll:".hoslot"}]]],
+  woche:["🧹 Woche",[["🙋","Meine offenen Aufgaben",{nav:"woche|wp:1",fn:()=>{S.wmwWho=S.me||"p0";S.wmwView="zeit"}}],["✅","Aufgabe abhaken",{nav:"woche",fn:()=>setTimeout(goTasks0,120)}],["🏠","Hausdienst eintragen",{nav:"woche",scroll:".hoslot"}]]],
   kalender:["📅 Kalender",[["➕","Neuer Termin",{nav:"woche|wp:3",click:"[data-act=ternew]"}],["🗓️","Heute und morgen",{nav:"woche|wp:3",fn:()=>{S.calView="liste"}}]]],
   kita:["🎒 Kita",[["📦","Mitbringen für morgen",{nav:"kita|ks:tasche"}],["🍽️","Kita-Essen heute",{nav:"kita|ks:essen",fn:()=>{S.foodWeek=null;S.kitaEdit=false},scroll:".kmday.today"}]]],
   amhaus:["🏠 Am Haus",[["➕","Neues Projekt",{nav:"amhaus|pf:wohnen",click:'[data-act="hprojnew"]'}],["🔧","Reparatur notieren",{nav:"amhaus|pf:haus",focus:"#projinput"}],["📍","Sammlung",{nav:"amhaus|pf:wohnen",click:'[data-act="hsamm"]'}]]]
@@ -29,10 +29,10 @@ const AREAS=[["🏠","Start","camp","","",()=>[["Kalender","sp:kalender"],["Wich
   ["🧺","Einkauf","einkauf","Einkauf","einkauf|",()=>[["Ausgaben","sp:ausgaben"],["Weitere Listen","bl:"]].concat(BUY_FIX.map(x=>[x[2],"bl:"+x[0]])),"essen"],
   ["🏠","Am Haus","amhaus","Am Haus","amhaus|",()=>PROJ_CATS.filter(c=>["wohnen","ordnung","haus","garten"].includes(c[0])).map(c=>[c[2],"pf:"+c[0]]),"zuhause"],
   ["🧭","Reisen und Ausflüge","ausflug","Reisen","ausflug|tt:urlaub",()=>[["Urlaube","tt:urlaub"],["Ausflüge","tt:ideen"],["Packlisten","tt:pack"],["Sammlung","tt:recherche"]],"freizeit"],
-  ["⚽","Sport und Spiel","spiel","Sport","spiel|",()=>PLAY_SECS.map(p=>[p[2],"ps:"+p[0]]),"freizeit"],["🎵","Musik","musik","Musik","musik|",()=>[],"freizeit"],
+  ["⚽","Sport und Spiel","spiel","Sport","spiel|",()=>playSecs().map(p=>[p[2],"ps:"+p[0]]),"freizeit"],["🎵","Musik","musik","Musik","musik|",()=>[],"freizeit"],
   ["🫶","Partner","privat","Partner","privat|",()=>[["Mittagessen","pv:lunch"],["Briefe","pv:briefe"],["Kontakte","pv:kontakte"]],"wir"],
   ["🧒","Kind","kind","Kind","kind|",()=>[["Bringen und Abholen","sp:kind"]],"wir"],
-  ["💡","Ideen","projekte","Ideen","projekte|",()=>PROJ_CATS.filter(c=>PROJ_GROUPS.projekte&&PROJ_GROUPS.projekte.cats?PROJ_GROUPS.projekte.cats.includes(c[0]):["geschenk","sonst"].includes(c[0])).map(c=>[c[2],"pf:"+c[0]]).concat([["Adventskalender","pf:advent"],["Alle Projekte","pf:alle"]]),"wir"],
+  ["💡","Ideen","projekte","Ideen","projekte|",()=>projCats().filter(c=>PROJ_GROUPS.projekte&&PROJ_GROUPS.projekte.cats?PROJ_GROUPS.projekte.cats.includes(c[0]):["geschenk","sonst"].includes(c[0])).map(c=>[c[2],"pf:"+c[0]]).concat([["Adventskalender","pf:advent"],["Alle Projekte","pf:alle"]]),"wir"],
   ["🔔","Wichtig","wichtig","Wichtig","wichtig|",()=>[],"quer"],["🤖","Recherchen","recherchen","","",()=>[],"quer"],["⚙️","Einstellungen","settings","","",()=>[],"quer"]];
 // Reihenfolge folgt den Gruppen (Florian 15.11.2026: Essen, dann Woche und Kita, dann Wir)
 AREAS.sort((x,y)=>(x[6]?AREA_GROUPS.findIndex(g=>g[0]===x[6]):-1)-(y[6]?AREA_GROUPS.findIndex(g=>g[0]===y[6]):-1));
@@ -57,6 +57,9 @@ function focusApply(m){if(!m)return;const cm=mondayOf(new Date()),cur=+m===+cm,n
   if(S.tab==="kind")S.kidWk=Math.max(-1,Math.min(2,n))}
 function goNav(v){const fw=focusWeek(),[tab,sub]=v.split("|"),[k,val]=(sub||"").split(":");S.prev=S.tab;S.tab=tab;S.weekPage=0;if(tab==="essen")S.foodTab="heute";if(tab==="projekte"||tab==="amhaus")S.projFilter="";
   if(k==="wp")S.weekPage=+val||0;if(k==="ft")S.foodTab=val;if(tab==="kita")S.kitaSec=k==="ks"?val:"termine";if(tab==="musik")S.musFilter="";if(tab==="ausflug"||tab==="reisen"){S.reiseOpen=null;S.tripTab=tab==="reisen"?"urlaub":"ideen"}if(k==="tt")S.tripTab=val;if(k==="pf")S.projFilter=val;if(k==="sp")S.tab=val;if(k==="bl"){S.tab="listen";if(val)(S.buyOpen||(S.buyOpen={}))[val]=true;setTimeout(()=>{const el=document.getElementById("buy-"+val);if(el)el.scrollIntoView({block:"start"})},40)}if(k==="ps")S.playSec=val;if(tab==="privat")S.privSec=k==="pv"&&val!=="kontakte"?val:"";focusApply(fw);render();window.scrollTo(0,0);if(k==="pv"&&val==="kontakte")setTimeout(()=>{const el=document.getElementById("kontakte");if(el)el.scrollIntoView({block:"start"})},30)}
+// Offene Aufgaben (Florian 16.11.2026): Sprung auf Woche › Tag und Woche, gescrollt an den Anfang der Aufgaben (erster Abschnitt, z. B. Hausdienst), erste offene Aufgabe kurz hervorgehoben
+function goTasks0(){const sec=document.querySelector('section[id^="sec-"]');if(!sec)return;sec.scrollIntoView({block:"start"});const t=document.querySelector('section[id^="sec-"] article.task:not(.done)')||sec;t.classList.add("hlflash");setTimeout(()=>t.classList.remove("hlflash"),1600)}
+function goTasks(){goNav("woche|wp:0");setTimeout(goTasks0,60)}
 // ---------- Einstellungen (Zahnrad oben rechts, Entwurf) ----------
 const ALL_AREAS=[["🧹","Woche",{go:"woche"}],["👥","Wer macht was",{go:"woche",wp:1}],["🍲","Essen heute",{go:"essen",ft:"heute"}],["📅","Wochenplan",{go:"essen",ft:"plan"}],["📖","Rezepte und Kochbücher",{go:"essen",ft:"rezepte"}],["🎒","Kita-Essen",{go:"essen",ft:"kita"}],["🧺","Einkauf",{go:"einkauf"}],["🎒","Kita",{go:"kita"}],["🚲","Ausflüge",{go:"ausflug",tt:"ideen"}],["🧳","Packliste",{go:"ausflug",tt:"pack"}],["⛵","Urlaub",{go:"ausflug",tt:"urlaub"}],["💡","Ideen",{go:"projekte"}],["🏠","Am Haus",{go:"amhaus"}],["⚽","Sport und Spiel",{go:"spiel"}],["💞","Privat",{go:"privat"}],["📮","Briefkasten",{go:"post"}],["🔔","Wichtig",{go:"wichtig"}]];
 // Rückseite des Startbilds (Medaille/Postkarte, Florian 15.11.2026): kurzer Tipp auf eine freie Stelle dreht das Bild um. Entwurf.

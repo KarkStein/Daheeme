@@ -19,10 +19,12 @@ srv.listen(8765,async()=>{
   const kp=async(fld,sel)=>{await A.click('[data-kidset="'+wk+'|'+fld+'"]');await A.waitForTimeout(300);await A.click('#mbox '+sel);await A.waitForTimeout(500)};
   // Mo: beide Felder auf p1 -> p0 bekommt den Hausdienst, keine Hand-Änderung
   await kp('0|br','[data-kp="p1"]');r.mo=await cells(0);r.ho0=(ticks().essen__0||{}).by;r.ov0=JSON.stringify(bh().d0||null);
-  // Mo: einer bringt, der andere holt -> geteilter Tag, kein Hausdienst
+  // Mo: einer bringt, der andere holt -> geteilter Hausdienst (vormittags hat ihn, wer holt)
   await kp('0|br','[data-kp="p0"]');r.split=await cells(0);r.ho0b=ticks().essen__0||null;r.ov0b=JSON.stringify(bh().d0||null);
   // Hausdienst aus der Auswahl: p1 hat Dienst -> p0 bringt und holt
   await kp('0|ab','[data-kh="p1"]');r.kh=await cells(0);r.ho0c=(ticks().essen__0||{}).by;r.ov0c=JSON.stringify(bh().d0||null);
+  // geteilt aus der Auswahl: p0 vormittags -> p1 bringt, p0 holt
+  await kp('0|br','[data-kh="p0|vm"]');r.kv=await cells(0);r.kvt=ticks().essen__0||{};
   // jede Woche
   await kp('2|ab','[data-kp="p0|rule"]');r.rule1=JSON.stringify((db().food.kid||{}).rule);
   r.noTick=!(await A.$('[data-kidbrought]'));r.noIcon=!/[✋🏠]/.test((await A.$$eval('.kidwho',l=>l.map(x=>x.innerText).join(''))));
@@ -39,5 +41,5 @@ srv.listen(8765,async()=>{
   console.error(JSON.stringify(r),errs);
   const n0=r.mon0[0],F=r.tue[0],J=r.thu[0];
   const ok=!errs.length&&r.name==='Testkind'&&/Partner/.test(r.pager)&&/Testkind/.test(r.pager)&&r.h1==='Testkind'&&r.rows.length===5&&r.tue[0]===r.tue[1]&&r.thu[0]!==r.thu[1]&&/Kita zu/.test(r.rows[4])
-    &&r.mo[0]===r.mo[1]&&r.ho0==='p0'&&r.ov0==='null'&&r.split[0]!==r.split[1]&&r.ho0b===null&&/"br":"p0"/.test(r.ov0b)&&r.kh[0]===r.kh[1]&&r.kh[0]!==r.mo[0]&&r.ho0c==='p1'&&r.ov0c==='null'&&/"ab":\["p1","p0","p0"/.test(r.rule1)&&r.noTick&&r.noIcon&&/"br"/.test(r.rule)&&/bringt/.test(r.dash)&&/holt ab/.test(r.dash)&&r.swing==='Testkind'&&r.ppager;
+    &&r.mo[0]===r.mo[1]&&r.ho0==='p0'&&r.ov0==='null'&&r.split[0]!==r.split[1]&&r.ho0b&&r.ho0b.by==='p1'&&r.ho0b.half==='vm'&&r.ov0b==='null'&&r.kh[0]===r.kh[1]&&r.kh[0]!==r.mo[0]&&r.ho0c==='p1'&&r.ov0c==='null'&&/"ab":\["p1","p0","p0"/.test(r.rule1)&&r.noTick&&r.noIcon&&/"br"/.test(r.rule)&&/bringt/.test(r.dash)&&/holt ab/.test(r.dash)&&r.swing==='Testkind'&&r.ppager&&r.kvt.by==='p0'&&r.kvt.half==='vm'&&r.kv[0]!==r.kv[1]&&r.kv[1]===F;
   console.error(ok?'KIND OK':'KIND FAIL');await b.close();srv.close();process.exit(0)});

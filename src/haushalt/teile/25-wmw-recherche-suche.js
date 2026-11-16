@@ -104,12 +104,12 @@ function searchHits(q){const W=sNorm(q).split(/\s+/).filter(Boolean);if(!W.lengt
   termine().forEach(x=>add("Kalender","📅",x.name,(x.date?x.date.split("-").reverse().join("."):"")+(x.time?" "+x.time:""),'data-nav="woche|wp:3"',x.note));
   buys().forEach(x=>{const L=buyLists().find(l=>l.id===x.list);if(!L||x.done)return;add("Einkauf",L.emo,x.name,"Weitere Listen · "+L.name,`data-nav="listen|bl:${esc(L.id)}"`)});
   prios().forEach(x=>{if(x.from==="mittag")return;add("Wichtig","🔔",x.name,"Erinnerung"+(x.due?" · "+x.due.split("-").reverse().slice(0,2).join("."):""),'data-go="wichtig"',x.note)});
-  listOf(F.idea).forEach(x=>{const c=x.cat==="spiel"?"sonst":x.cat||"sonst",haus=["wohnen","ordnung","haus","garten"].includes(c),pc=PROJ_CATS.find(p=>p[0]===c);add(haus?"Am Haus":"Ideen",pc?pc[1]:"💡",x.name,pc?pc[2]:"",`data-nav="${haus?"amhaus":"projekte"}|pf:${esc(c)}"`,x.note)});
+  listOf(F.idea).forEach(x=>{const c=x.cat==="spiel"?"sonst":x.cat||"sonst",haus=["wohnen","ordnung","haus","garten"].includes(c),pc=projCats().find(p=>p[0]===c);add(haus?"Am Haus":"Ideen",pc?pc[1]:"💡",x.name,pc?pc[2]:"",`data-nav="${haus?"amhaus":"projekte"}|pf:${esc(c)}"`,x.note)});
   hprojs().forEach(x=>add("Am Haus",x.emo||"🏠",x.name,"Projekt",`data-hproj="${esc(x.id)}"`,x.note));
   urlaube().forEach(x=>add("Reisen und Ausflüge",x.emo||"⛵",x.name,"Urlaub"+(x.place?" · "+x.place:""),`data-reise="${esc(x.id)}"`,x.note));
   trips().forEach(x=>add("Reisen und Ausflüge","🚲",x.name,"Ausflug",'data-nav="ausflug|tt:ideen"',x.note));
   listOf(F.fund).forEach(x=>{const h=x.area==="haus";add(h?"Am Haus":"Reisen",h?"🛋️":"📍",x.name,(h?"Sammlung Am Haus":"Sammlung Reisen und Ausflüge")+(x.place?" · "+x.place:""),h?(x.proj?`data-hproj="${esc(x.proj)}"`:'data-nav="amhaus|"'):(x.reise?`data-reise="${esc(x.reise)}"`:'data-nav="ausflug|tt:recherche"'),x.note)});
-  plays().forEach(x=>add("Sport und Spiel","⚽",x.name,(PLAY_SECS.find(p=>p[0]===x.sec)||[0,0,"Sonstiges"])[2],`data-nav="spiel|ps:${esc(x.sec||"sonst")}"`,x.note));
+  plays().forEach(x=>add("Sport und Spiel","⚽",x.name,(playSecs().find(p=>p[0]===x.sec)||[0,0,"Sonstiges"])[2],`data-nav="spiel|ps:${esc(x.sec||"sonst")}"`,x.note));
   musics().forEach(x=>add("Musik","🎵",x.name,"Playlist",'data-nav="musik|"',x.note));
   return H}
 function renderSearch(){const q=S.sq||"",H=searchHits(q);

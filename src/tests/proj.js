@@ -4,7 +4,7 @@ srv.listen(8765,async()=>{
   const A=await mk();await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');
   const link=A.url();const B=await mk();await B.goto(link.replace('/#','/?bild=haus#'));await B.waitForSelector('[data-me=p1]');await B.click('[data-me=p1]');
   // Leuchtturm: nur Geschenke und Sonstiges
-  await A.click('.spot[data-go=projekte]');await A.waitForSelector('.tiles');const lt=await A.$$eval('.tile',l=>l.map(x=>x.dataset.pfilter));
+  await A.click('.spot[data-go=projekte]');await A.waitForSelector('.tiles');const lt=await A.$$eval('.tile',l=>l.filter(x=>x.dataset.pfilter).map(x=>x.dataset.pfilter));
   await A.fill('#projinput','Fotobuch fürs Wohnzimmer');await A.press('#projinput','Enter');await A.waitForTimeout(200);
   await A.screenshot({path:out+'/leuchtturm.png',fullPage:true});
   // Werkzeugkoffer

@@ -10,14 +10,14 @@ srv.listen(8765,async()=>{
   const nav=async v=>{await A.evaluate(v=>{const b=document.createElement("button");b.dataset.nav=v;b.id="zz";document.getElementById("app").appendChild(b)},v);await A.click("#zz");await A.waitForTimeout(400)};
   for(let i=1;i<=5;i++)await put('food/trip/t'+i,{name:'Ziel '+i,kind:'wandern',at:i});await A.waitForTimeout(400);
   await nav('ausflug|tt:ideen');
-  r.order=await A.$$eval('#app .card .section-head h2',l=>l.map(x=>x.innerText));r.shown=await A.$$eval('[data-tripcal]',l=>l.length);
+  r.order=await A.$$eval('#app .card h2',l=>l.map(x=>x.innerText));r.shown=await A.$$eval('[data-tripcal]',l=>l.length);
   await A.click('[data-act=tripall]');await A.waitForTimeout(200);r.all=await A.$$eval('[data-tripcal]',l=>l.length);
   await A.screenshot({path:out+'/ausfluege-gemerkt.png'});
   // gemerktes Ziel: Tag wählen -> Datum am Ausflug
   await A.click('[data-tripcal=t2]');await A.waitForTimeout(300);r.opts=await A.$$eval('#mbox [data-dpk]',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));await A.screenshot({path:out+'/ausfluege-tag.png'});
   await A.click('#mbox [data-dpk]');await A.waitForTimeout(400);r.tdate=db().trip.t2.date;
   // Tipp ohne Merken: Termin mit Ort, Link, Uhrzeit
-  await A.click('[data-atipcal="0"]');await A.waitForTimeout(300);r.sugg=await A.$eval('#mbox [data-dpk]',x=>x.dataset.dpk);await A.click('#mbox [data-dpk]');await A.waitForTimeout(400);
+  await A.click('.atip [data-atipopen]');await A.waitForTimeout(200);await A.click('[data-atipcal="0"]');await A.waitForTimeout(300);r.sugg=await A.$eval('#mbox [data-dpk]',x=>x.dataset.dpk);await A.click('#mbox [data-dpk]');await A.waitForTimeout(400);
   const T=Object.values(db().termin||{});r.ter=T.map(x=>[x.name,x.date,x.time,x.place,x.link].join('|'));
   await nav('woche|wp:3');await A.click('[data-calview=liste]');await A.waitForTimeout(300);r.row=await A.$$eval('.evlist li',l=>l.filter(x=>/Flohmarkt/.test(x.innerText)).map(x=>[!!x.querySelector('[data-route]'),!!x.querySelector('a[href*="example.com"]')].join()));
   console.error(JSON.stringify(r),errs);

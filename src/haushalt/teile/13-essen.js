@@ -270,7 +270,7 @@ function renderLunch(){const d=S.lunchDraft,mapUrl=(S.food&&S.food.lunchmap)||""
   const stars=(l,p)=>{const cur=+((l.r||{})[p])||0,mine=!S.me||S.me===p;return `<div class="starrow"><span class="who">${esc(pname(p))}</span><span class="stars">${[1,2,3,4,5].map(n=>mine?`<button class="star ${n<=cur?"on":""}" data-star="${esc(l.id)}|${p}|${n}" aria-label="${n} von 5 Sternen">★</button>`:`<span class="star ${n<=cur?"on":""}">★</span>`).join("")}</span></div>`};
   h+=list.map(l=>{const open=S.lunchOpen===l.id,avg=lunchAvg(l),dishes=(l.dishes||"").split("\n").map(x=>x.trim()).filter(Boolean);
     const link=/^https?:\/\//i.test(l.maps||"")?l.maps:"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(l.name);
-    return `<section class="card rec"><div class="recbar"><button class="rechead" data-lunch="${esc(l.id)}" aria-expanded="${open}"><span class="nm">${esc(l.name)}</span><span class="freq">${avg?"★ "+avg.toFixed(1).replace(".",","):"noch ohne Sterne"} ${open?"▴":"▾"}</span></button></div>
+    return `<section class="card rec"><div class="recbar"><button class="rechead" data-lunch="${esc(l.id)}" aria-expanded="${open}"><span class="nm">${esc(l.name)}</span><span class="freq">${avg?"★ "+avg.toFixed(1).replace(".",","):"noch ohne Sterne"} ${open?"▴":"▾"}</span></button>${transitA(l.name)}</div>
       ${!open&&dishes.length?`<div class="freq">${esc(dishes.slice(0,3).join(", "))}</div>`:""}
       ${open?`${dishes.length?`<div><div class="eyebrow" style="margin-bottom:4px">Lieblingsgerichte</div><ul class="ing">${dishes.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`:""}
       ${stars(l,"p0")}${stars(l,"p1")}${l.note?`<div class="recnote">${esc(l.note)}</div>`:""}
