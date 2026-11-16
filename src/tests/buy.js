@@ -12,7 +12,7 @@ srv.listen(8765,async()=>{
   r.counts=await A.$$eval('.buylist .setsum',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));
   await A.click('[data-buysum=kleidung]');await A.click('[data-buyfor="kleidung|kid"]');await A.fill('.buyform[data-bl=kleidung] input','Matschhose Gr. 98');await A.press('.buyform[data-bl=kleidung] input','Enter');await A.waitForTimeout(300);
   r.kl=Object.values(db().buy||{}).map(x=>x.name+'|'+x.list+'|'+(x.for||''));
-  for(const l of ['geschenke','spiel','baumarkt'])await A.click(`[data-buysum=${l}]`);await A.waitForTimeout(200);
+  for(const l of ['geschenke','baumarkt'])await A.click(`[data-buysum=${l}]`);await A.waitForTimeout(200);
   await A.addStyleTag({content:'#tabs{display:none!important}'});await A.screenshot({path:out+'/weitere-listen.png',fullPage:true});await A.addStyleTag({content:'#tabs{display:flex!important}'});
   r.lists=await A.$$eval('.buylist .shop',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));
   await A.click('[data-projdone=g1]');await A.click('[data-advbought="a1|5"]');await A.click('[data-fundbought=f1]');await A.waitForTimeout(500);

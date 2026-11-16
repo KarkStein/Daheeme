@@ -11,7 +11,7 @@ srv.listen(8765,async()=>{
   await put('food/adoor/a1_8',{cal:'a1',day:8,name:'Knete',kind:'suess',st:'idee',need:'Knete',at:1});
   await put('food/shop/s1',{name:'Knete',done:false,at:1,src:'Adventskalender: Türchen 8'});await A.waitForTimeout(400);
   await nav('projekte|pf:advent');await A.click('.advdoor[data-advdoor="3"]');await A.waitForTimeout(300);
-  r.noShopBtn=!(await A.$('[data-advshop]'));r.spielBtn=!!(await A.$('.advedit [data-nav="listen|bl:spiel"]'));
+  r.noShopBtn=!(await A.$('[data-advshop]'));r.spielBtn=!!(await A.$('.advedit [data-nav="listen|bl:geschenke"]'));
   await A.click('.advdoor[data-advdoor="3"]');await A.click('.advdoor[data-advdoor="6"]');await A.waitForTimeout(300);r.shopBtn6=!!(await A.$('[data-advshop="6"]'));
   // Was fehlt: nur Türchen 6 und 8, nicht 3
   await A.click('[data-act=advshopall]');await A.waitForTimeout(300);const pk=await A.$eval('.pickwrap',e=>e.innerText);r.pickHas3=/Türchen 3/.test(pk);r.pickHas6=/Türchen 6/.test(pk);
@@ -19,7 +19,7 @@ srv.listen(8765,async()=>{
   // Türchen 8 auf Kleinigkeit umstellen: Einkaufsliste wird geleert
   await nav('projekte|pf:advent');await A.click('.advdoor[data-advdoor="8"]');await A.waitForTimeout(300);await A.click('[data-advkind=klein]');await A.waitForTimeout(500);
   r.shop8=Object.values(db().shop||{}).filter(x=>x.src==='Adventskalender: Türchen 8').length;
-  await nav('einkauf|bl:spiel');await A.waitForTimeout(300);r.spiel=await A.$eval('#buy-spiel',e=>e.innerText.replace(/\n/g,' '));
+  await nav('einkauf|bl:geschenke');await A.waitForTimeout(300);r.spiel=await A.$eval('#buy-geschenke',e=>e.innerText.replace(/\n/g,' '));
   await A.addStyleTag({content:'#tabs{display:none!important}'});await A.screenshot({path:out+'/advent-spielsachen.png',fullPage:true});
   // Türchen leeren, dann anbieten, Einkaufsliste mit zu leeren
   await put('food/shop/s6',{name:'Nüsse',done:false,at:2,src:'Adventskalender: Türchen 6'});await A.waitForTimeout(300);

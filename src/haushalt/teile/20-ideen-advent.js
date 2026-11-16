@@ -10,7 +10,7 @@ const projs=()=>listOf(S.food&&S.food.idea);
 const HP_ST=[["geplant","💭","Geplant"],["aktuell","🔨","Läuft"],["pause","⏸️","Pausiert"],["erledigt","✅","Fertig"]];
 const hpSt=x=>HP_ST.find(s=>s[0]===(x&&x.state))||HP_ST[1];
 const hprojs=()=>listOf(S.food&&S.food.hproj).sort((a,b)=>(a.at||0)-(b.at||0));
-const HPROJ_EMO=["🛋️","🛏️","🍳","🛁","🧸","💻","🚪","🪴","🧺","🏡","📦","🔨","🌱","🌳","🥕"];
+const HPROJ_EMO=["🛋️","🛏️","🍳","🛁","🧸","💻","🚪","🪴","🧺","🏡","📦","🔨","🌱","🌳","🥕","🎪","⛺","🎁","🎨","🪑","💡","🧰","🚲","🛝","🏊","🐔","🐝","🔥","🪵","🧹","👶","🎄","📚","🎵","🧱","🚿"];
 const euro=n=>Math.round(n).toLocaleString("de-DE")+" €";
 const priceOf=f=>{const v=parseFloat(String(f.price||"").replace(/\./g,"").replace(",","."));return isFinite(v)?v:0};
 function hprojTiles(cat){cat=cat||"wohnen";const L=hprojs().filter(x=>hprojCat(x)===cat),A=L.filter(x=>x.state!=="erledigt"),E=L.filter(x=>x.state==="erledigt");
@@ -22,10 +22,11 @@ function renderHProj(x){const F=funde("haus").filter(f=>f.proj===x.id),fo=F.filt
   let h=`<div class="btnrow"><button class="ghost" data-act="hprojback">‹ ${HCAT[hprojCat(x)][0]}</button></div><div><div class="eyebrow">${esc(x.emo||"🛋️")} Projekt${x.room?" · "+esc(x.room):""}</div><h1>${esc(x.name)}</h1></div>`;
   h+=`<section class="card"><div class="section-head"><h2>📌 Stand</h2></div><div class="unl">${HP_ST.map(s=>`<button class="chipbtn" data-hpst="${s[0]}" aria-pressed="${hpSt(x)[0]===s[0]}">${s[1]} ${s[2]}</button>`).join("")}</div><div class="btnrow" style="margin-top:8px"><button class="ghost danger" data-act="hprojdel">🗑 Projekt löschen</button></div></section>`;
   h+=`<section class="card"><div class="section-head"><h2>💶 Budget</h2></div><div class="freq" style="font-size:1rem">${bud?`${euro(sb)} gekauft von ${euro(bud)}`:`${euro(sb)} gekauft`}${sp?` · ⭐ vorgemerkt ${euro(sp)}`:""}</div>${bud?`<div class="bar"><span style="width:${Math.min(100,sb/bud*100).toFixed(0)}%"></span></div>`:""}<div class="freq">Rechnet mit den Preisen der Funde (✅ gekauft, ⭐ vorgemerkt).</div>${splitChips("hproj:"+x.id)}${splitFor("hproj:"+x.id).length?"":splitAddForm("hproj:"+x.id)}</section>`;
-  h+=`<section class="card"><div class="section-head"><h2>🔎 Ideen und Funde</h2><button class="ghost" data-fundopen="${esc(x.id)}" data-ar="haus">📍 In der Sammlung</button></div>${F.some(f=>f.kind==="werkzeug"||f.kind==="material")?`<div class="btnrow"><button class="ghost" data-nav="listen|bl:baumarkt">🔨 Werkzeug und Material: Einkauf › Baumarkt</button></div>`:""}${fo.length?`<ul class="evlist fundlist">${fo.map(f=>fundLi(f,"proj","haus")).join("")}</ul>`:`<div class="freq">Link aus einem Shop oder einfach ein Name. ⭐ merkt vor, ✅ heißt gekauft.</div>`}${fundForm("hpfundform",x.id,"haus")}</section>`;
+  h+=`<section class="card"><div class="section-head"><h2>🔎 Ideen und Funde</h2><button class="ghost" data-fundopen="${esc(x.id)}" data-ar="haus">📍 Sammlung</button></div><div class="freq">Alles, was ihr hier eintragt, steht auch in der Sammlung: dem gemeinsamen Ort für die Funde aller Am-Haus-Projekte, mit Filtern. ✎ ändert einen Eintrag und zeigt ihn auf Wunsch auch bei Geschenke, Einkaufsliste oder Wichtig.</div>${F.some(f=>f.kind==="werkzeug"||f.kind==="material")?`<div class="btnrow"><button class="ghost" data-nav="listen|bl:baumarkt">🔨 Werkzeug und Material: Einkauf › Baumarkt</button></div>`:""}${fo.length?`<ul class="evlist fundlist">${fo.map(f=>fundLi(f,"proj","haus")).join("")}</ul>`:`<div class="freq">Link aus einem Shop oder einfach ein Name. ⭐ merkt vor, ✅ heißt gekauft.</div>`}${fundForm("hpfundform",x.id,"haus")}</section>`;
   if(fb.length)h+=`<section class="card"><div class="section-head"><h2>✅ Gekauft</h2><span class="freq num">${euro(sb)}</span></div><ul class="evlist fundlist">${fb.map(f=>fundLi(f,"proj","haus")).join("")}</ul></section>`;
   h+=`<section class="card"><div class="section-head"><h2>✏️ Eckdaten</h2></div>${fld("name","Name")}${fld("room","Raum","","z. B. Wohnzimmer")}${fld("budget","💶 Budget (€)","number","z. B. 800")}
     <div class="fld"><span>Symbol</span><div class="unl">${HPROJ_EMO.map(e=>`<button class="chipbtn neutral" data-hpemo="${e}" aria-pressed="${(x.emo||"🛋️")===e}">${e}</button>`).join("")}</div></div>
+    <label class="fld"><span>Oder eigenes Symbol (jedes Emoji von der Tastatur)</span><input data-hpf="emo" value="${esc(HPROJ_EMO.includes(x.emo)?"":x.emo||"")}" placeholder="z. B. 🦖" maxlength="8" autocomplete="off" style="max-width:8em"></label>
     <label class="fld"><span>Notiz</span><textarea data-hpf="note" rows="3" placeholder="Maße, Farben, Ideen">${esc(x.note||"")}</textarea></label></section>`;
   return h}
 // Überblick aller laufenden Projekte am Leuchtturm (Florian 15.11.2026, Variante A): Projekte bleiben im Bereich, hier nur Übersicht und Sprung
@@ -48,7 +49,7 @@ function renderProjects(){const d=S.projDraft;
     <label class="fld"><span>Was?</span><input type="text" id="pj-name" data-pf="name" value="${esc(d.name)}" maxlength="80" placeholder="Zum Beispiel Regal für den Flur" autocomplete="off"></label>
     <div class="fld"><span>Bereich</span>${one("cat",PROJ_CATS.filter(c=>G.cats.includes(c[0])))}</div>
     <div class="fld"><span>Stand</span>${one("state",PROJ_STATE)}</div>
-    ${d.cat==="geschenk"?`<label class="fld"><span>Für wen, und zu welchem Anlass?</span><input type="text" id="pj-for" data-pf="for" value="${esc(d.for)}" maxlength="60" placeholder="Zum Beispiel Oma, Weihnachten" autocomplete="off"></label>`:""}
+    ${d.cat==="geschenk"?`<div class="fld"><span>Für wen</span>${one("who",whoOpts().filter(o=>o[0]!=="both").map(o=>[o[0],o[1]]))}</div><label class="fld"><span>Oder für jemand anderen, und zu welchem Anlass?</span><input type="text" id="pj-for" data-pf="for" value="${esc(d.for)}" maxlength="60" placeholder="Zum Beispiel Oma, Weihnachten" autocomplete="off"></label>`:""}
     <label class="fld"><span>Link (Shop, Anleitung, Bild)</span><input type="url" id="pj-link" data-pf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off"></label>
     <label class="fld"><span>Notiz</span><textarea id="pj-note" data-pf="note" rows="4" placeholder="Maße, Preis, nächste Schritte">${esc(d.note)}</textarea></label>
     <div class="btnrow"><button class="primary" data-act="projsave">Speichern</button><button class="ghost" data-act="projcancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="projdel">Löschen</button>`:""}</div></section>`}
@@ -64,7 +65,7 @@ function renderProjects(){const d=S.projDraft;
   const cat=PROJ_CATS.find(k=>k[0]===F)||PROJ_CATS[1],inCat=x=>projCat(x)===F,open=all.filter(x=>!x.done&&inCat(x)),done=all.filter(x=>x.done&&inCat(x)).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0));
   const ord=x=>{const i=PROJ_STATE.findIndex(s=>s[0]===x.state);return i<0?0:-i};open.sort((a,b)=>ord(a)-ord(b)||(a.at||0)-(b.at||0));
   const card=x=>{const l=safeLink(x.link),st=PROJ_STATE.find(s=>s[0]===x.state)||PROJ_STATE[0];
-    return `<li class="${x.done?"done":""}"><button class="item" data-projdone="${esc(x.id)}" aria-pressed="${!!x.done}" aria-label="${esc(x.name)}: ${x.done?"doch nicht erledigt":"erledigt"}"><span class="box">${x.done?"✓":""}</span><span class="nm">${esc(x.name)}${x.for?`<br><span class="freq">für ${esc(x.for)}</span>`:""}${x.note&&!x.done?`<br><span class="freq">${esc(x.note)}</span>`:""}</span></button>${x.done?"":`<button class="stbadge st-${st[0]}" data-projstate="${esc(x.id)}" aria-label="Stand: ${st[1]}, antippen zum Weiterschalten">${st[1]}</button>`}${l?`<a class="catbtn" href="${esc(l)}" target="_blank" rel="noopener" aria-label="Link öffnen">🔗</a>`:""}${x.done?"":bell(S.tab==="amhaus"?"amhaus":"projekte",x)}${!x.done&&HCAT[projCat(x)]?`<button class="catbtn" data-proj2hp="${esc(x.id)}" aria-label="${esc(x.name)} zum Projekt machen">🧩</button>`:""}<button class="rm" data-projedit="${esc(x.id)}" aria-label="${esc(x.name)} bearbeiten">✎</button></li>`};
+    return `<li class="${x.done?"done":""}"><button class="item" data-projdone="${esc(x.id)}" aria-pressed="${!!x.done}" aria-label="${esc(x.name)}: ${x.done?"doch nicht erledigt":"erledigt"}"><span class="box">${x.done?"✓":""}</span><span class="nm">${esc(x.name)}${giftFor(x)?`<br><span class="freq">${esc(giftFor(x))}</span>`:""}${String(x.ref||"").startsWith("fund:")?`<br><span class="freq">🧩 auch im Projekt</span>`:""}${x.note&&!x.done?`<br><span class="freq">${esc(x.note)}</span>`:""}</span></button>${x.done?"":`<button class="stbadge st-${st[0]}" data-projstate="${esc(x.id)}" aria-label="Stand: ${st[1]}, antippen zum Weiterschalten">${st[1]}</button>`}${l?`<a class="catbtn" href="${esc(l)}" target="_blank" rel="noopener" aria-label="Link öffnen">🔗</a>`:""}${x.done?"":bell(S.tab==="amhaus"?"amhaus":"projekte",x)}${!x.done&&HCAT[projCat(x)]?`<button class="catbtn" data-proj2hp="${esc(x.id)}" aria-label="${esc(x.name)} zum Projekt machen">🧩</button>`:""}<button class="rm" data-projedit="${esc(x.id)}" aria-label="${esc(x.name)} bearbeiten">✎</button></li>`};
   h+=`<div class="btnrow"><button class="ghost" data-pfilter="">‹ Alle Bereiche</button>${F==="geschenk"?`<button class="ghost" data-nav="listen|bl:geschenke">🛍️ Einkauf › Geschenke</button>`:""}</div><h2 style="margin:0">${cat[1]} ${esc(cat[2])}</h2>${F==="geschenk"?`<div class="freq">Steht eine Idee auf Geplant oder Sind dran, erscheint sie bei Einkauf › Weitere Listen › Geschenke.</div>`:""}`;
   const hp=S.tab==="amhaus"&&HCAT[F];
   if(hp){h+=hprojTiles(F);
@@ -145,7 +146,7 @@ function renderAdvent(){const L=advCals(),y=advYear(),cur=L.filter(x=>x.year===y
     ${buy?"":`<div class="unl">${ADV_ST.map(s=>`<button class="chipbtn neutral" data-advst="${s[0]}" aria-pressed="${x.st===s[0]}">${s[2]} ${s[1]}</button>`).join("")}</div>`}
     <label class="fld"><span>${k==="klein"?"🧸 Dafür besorgen (steht bei Einkauf › Spielsachen)":"🛒 Dafür einkaufen (eine Zeile pro Sache)"}</span><textarea data-advneed="${sd}" rows="3" placeholder="${k==="klein"?"z. B. Holzauto&#10;Batterien":"z. B. Nüsse&#10;Mandarinen"}">${esc(x.need||"")}</textarea></label>
     <div class="advrow"><label class="fld"><span>💶 Preis</span><input data-advprice="${sd}" value="${esc(x.price||"")}" inputmode="decimal" placeholder="z. B. 3,50"></label>
-    ${k==="klein"?((x.st||"idee")==="idee"?`<button class="ghost" data-nav="listen|bl:spiel">🧸 Steht bei Spielsachen ›</button>`:""):advNeed(x).length?`<button class="ghost" data-advshop="${sd}">🛒 Auf die Einkaufsliste</button>`:""}${shopItems().some(i=>i.src===advSrc(sd)&&!i.done)?`<button class="ghost" data-advshopsee="${sd}">🧺 Auf der Liste ansehen</button>`:""}</div>
+    ${k==="klein"?((x.st||"idee")==="idee"?`<button class="ghost" data-nav="listen|bl:geschenke">🎁 Steht bei Geschenke ›</button>`:""):advNeed(x).length?`<button class="ghost" data-advshop="${sd}">🛒 Auf die Einkaufsliste</button>`:""}${shopItems().some(i=>i.src===advSrc(sd)&&!i.done)?`<button class="ghost" data-advshopsee="${sd}">🧺 Auf der Liste ansehen</button>`:""}</div>
     ${advLinks(c,x)}
     <div class="btnrow"><button class="ghost danger" data-advclear="${sd}">Türchen leeren</button></div>`:""}</div>`}
   if(!mine){h+=`<div class="btnrow" style="margin-top:10px">${buy?"":`<button class="ghost" data-act="advfill">🎲 Freie Türchen füllen</button>`}<button class="ghost" data-act="advpaste">📋 ${buy?"Inhaltsverzeichnis einfügen":"Liste einfügen"}</button>${buy?"":`<button class="ghost" data-act="advshopall">🛒 Was fehlt</button>`}</div>`;
@@ -158,3 +159,50 @@ function renderAdvent(){const L=advCals(),y=advYear(),cur=L.filter(x=>x.year===y
   return h}
 function advBack(){const n=new Date();if(n.getMonth()!==11||n.getDate()>24)return "";const d=n.getDate(),L=advCals().filter(c=>c.year===n.getFullYear());if(!L.length)return "";
   return `<div class="btasks">${L.map(c=>{const D=advDoors(c.id),x=D[d],m=d<24&&D[d+1],hid=advHidden(c,d);return `<button class="btask" data-advgo="${esc(c.id)}"><span>🎄</span><b>${hid?"Türchen "+d+" wartet auf dich":x?"Türchen "+d+": "+esc(x.name):"Türchen "+d+" ist noch leer"}</b><small>${c.for==="kid"?"Kind":esc(pname(c.for))}${m&&!advHidden(c,d+1)&&n.getHours()>=16?" · morgen: "+esc(m.name):""}</small></button>`}).join("")}</div>`}
+// ---------- Funde bearbeiten, entfernen, verknüpfen (Florian 16.11.2026) ----------
+// Ein Fund (food/fund) kann zusätzlich an anderer Stelle stehen. Verknüpfung in f.links {<ziel>: <id dort>}; Ziele hier austauschbar.
+// geschenk = Geschenk-Idee unter Ideen (food/idea, cat geschenk, who, ref "fund:<id>"), einkauf = Einkaufsliste, wichtig = Erinnerung.
+const FUND_LINKS={
+  geschenk:{lbl:"🎁 Geschenke",nav:"projekte|pf:geschenk",has:id=>!!projs().find(x=>x.id===id),
+    make:async(f,o)=>{const id=newId("p");await S.store.setPath("food/idea/"+id,{name:f.name,cat:"geschenk",state:"idee",who:o.who||null,link:f.link||null,ref:"fund:"+f.id,at:Date.now(),by:S.me||""});return id},
+    sync:async(id,f)=>{await S.store.setPath("food/idea/"+id+"/name",f.name);await S.store.setPath("food/idea/"+id+"/link",f.link||null)},
+    drop:async id=>S.store.setPath("food/idea/"+id,null)},
+  einkauf:{lbl:"🧺 Einkaufsliste",nav:"einkauf|",has:id=>!!shopItems().find(x=>x.id===id&&!x.done),
+    make:async f=>{const id="i"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);await S.store.setPath("food/shop/"+id,{name:f.name.slice(0,80),done:false,at:Date.now(),by:S.me||"",src:"Projekt: "+fundProjName(f)});return id},
+    sync:async(id,f)=>S.store.setPath("food/shop/"+id+"/name",f.name.slice(0,80)),
+    drop:async id=>S.store.setPath("food/shop/"+id,null)},
+  wichtig:{lbl:"🔔 Wichtig",nav:"wichtig|",has:id=>!!prios().find(x=>x.id===id),
+    make:async f=>{const id=newId("w");await S.store.setPath("food/prio/"+id,{name:f.name.slice(0,80),from:f.area==="haus"?"amhaus":"reisen",ref:f.proj?"hproj:"+f.proj:f.reise?"urlaub:"+f.reise:null,at:Date.now(),by:S.me||""});return id},
+    sync:async(id,f)=>S.store.setPath("food/prio/"+id+"/name",f.name.slice(0,80)),
+    drop:async id=>S.store.setPath("food/prio/"+id,null)}};
+function fundProjName(f){const ar=f.area||"reise",A=FAREA[ar],p=f[A.key]&&A.projs().find(y=>y.id===f[A.key]);return p?p.name:A.title.replace(/^\S+\s/,"")}
+const fundLinked=f=>Object.keys(FUND_LINKS).filter(k=>f.links&&f.links[k]&&FUND_LINKS[k].has(f.links[k]));
+// Vorschlag, wohin ein Fund passt (Florian: vorschlagen, aber selbst auswählen)
+function fundSugg(f){const t=((f.name||"")+" "+(f.link||"")).toLowerCase(),out=[];
+  if(f.kind==="spielzeug"||/geschenk|tonie|lego|duplo|playmobil|puzzle|spielzeug|kuscheltier|buch|bilderbuch|gutschein/.test(t))out.push("geschenk");
+  if(/drogerie|dm\b|rossmann|lebensmittel|reiniger|putzmittel/.test(t))out.push("einkauf");
+  return out.filter(k=>!fundLinked(f).includes(k))}
+async function fundSetLinks(f,want,o){const L=Object.assign({},f.links||{});
+  for(const k of Object.keys(FUND_LINKS)){const on=fundLinked(f).includes(k),w=want.includes(k);
+    if(w&&!on)L[k]=await FUND_LINKS[k].make(f,o||{});else if(!w&&on){await FUND_LINKS[k].drop(L[k]);delete L[k]}else if(w&&on)await FUND_LINKS[k].sync(L[k],f)}
+  await S.store.setPath("food/fund/"+f.id+"/links",Object.keys(L).length?L:null)}
+async function fundDropAll(f){for(const k of fundLinked(f))await FUND_LINKS[k].drop(f.links[k]);await S.store.setPath("food/fund/"+f.id,null)}
+function fundEdit(id){const f=listOf(S.food&&S.food.fund).find(y=>y.id===id);if(!f)return;const ar=f.area||"reise",A=FAREA[ar],sg=fundSugg(f),lk=fundLinked(f);
+  const gift=f.links&&f.links.geschenk&&projs().find(x=>x.id===f.links.geschenk);
+  editBox(f.name,[{k:"name",label:"Name",type:"text",val:f.name},{k:"link",label:"Link",type:"url",val:f.link||""},
+    {k:"kind",label:"Art",type:"chips",opts:A.kinds.map(c=>[c[0],c[1]+" "+c[2]]),val:f.kind||"sonst"},
+    {k:"st",label:"Stand",type:"chips",opts:A.st.map(s=>[s[0],s[1]+" "+s[2]]),val:f.st||"idee"},
+    {k:"price",label:"Preis in €",type:"text",val:f.price||""},
+    {k:"proj",label:"Gehört zu",type:"chips",opts:[["",A.none]].concat(A.projs().filter(p=>ar==="reise"||p.state!=="erledigt"||p.id===f[A.key]).map(p=>[p.id,(p.emo||A.emo)+" "+p.name])),val:f[A.key]||""},
+    {k:"links",label:"Auch zeigen bei",type:"multi",opts:Object.keys(FUND_LINKS).map(k=>[k,(sg.includes(k)?"✨ ":"")+FUND_LINKS[k].lbl]),val:lk,hint:sg.length?"✨ = passt vermutlich. Antippen wählt aus, nichts passiert von allein. Abwählen nimmt den Eintrag dort wieder weg.":"Antippen wählt aus. Abwählen nimmt den Eintrag dort wieder weg."},
+    {k:"who",label:"Geschenk für wen",type:"chips",opts:[["","Offen"]].concat(whoOpts().filter(o=>o[0]!=="both")),val:(gift&&gift.who)||""}],
+    async V=>{const name=String(V.name||"").trim().slice(0,120)||f.name,link=safeLink(V.link)||null,n=Object.assign({},f,{name,link});
+      const up={name,link,kind:V.kind||"sonst",st:V.st||"idee",price:String(V.price||"").replace(/[^0-9,.]/g,"").slice(0,10)||null};up[A.key]=V.proj||null;
+      for(const k of Object.keys(up))await S.store.setPath("food/fund/"+f.id+"/"+k,up[k]);
+      await fundSetLinks(n,V.links||[],{who:V.who});if(V.links&&V.links.includes("geschenk")&&f.links&&f.links.geschenk)await S.store.setPath("food/idea/"+f.links.geschenk+"/who",V.who||null);toast("Gespeichert")},
+    fundDelOpts(f))}
+function fundDelOpts(f){const A=FAREA[f.area||"reise"],o=[];
+  if(f[A.key])o.push(["Nur aus dem "+A.word+" nehmen",async()=>{await S.store.setPath("food/fund/"+f.id+"/"+A.key,null);toast("Steht weiter in der Sammlung")},false]);
+  o.push([fundLinked(f).length?"Ganz löschen, auch dort":"Ganz löschen",async()=>{await fundDropAll(f);toast("Gelöscht")},true]);return o}
+function fundRmAsk(id){const f=listOf(S.food&&S.food.fund).find(y=>y.id===id);if(!f)return;const lk=fundLinked(f);
+  editBox(f.name,[{k:"x",type:"note",label:(f[FAREA[f.area||"reise"].key]?"Nur aus dem "+FAREA[f.area||"reise"].word+" nehmen: der Eintrag bleibt in der Sammlung. ":"")+"Ganz löschen: weg aus Sammlung"+(lk.length?" und bei "+lk.map(k=>FUND_LINKS[k].lbl).join(", "):"")+"."}],async()=>{},fundDelOpts(f))}

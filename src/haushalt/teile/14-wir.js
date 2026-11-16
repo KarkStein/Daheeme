@@ -53,10 +53,10 @@ function renderKind(){const now=new Date(),cm=mondayOf(now),off=S.kidWk|0,mon=ad
     +row("📦",kb.length?kb.length+" Sachen mitbringen":"Nichts mitzubringen",kb.slice(0,3).map(x=>esc(x.name)).join(", "),'data-nav="kita|ks:tasche"')
     +row("📅",nx?esc(nx.name):"Kein Kita-Termin",nx?esc(dLabel(nx.date)):"",'data-nav="kita|ks:termine"')+`</section>`;
   // Verknüpft
-  const kids=buys().filter(x=>!x.done&&x.for==="kid"),cnt=l=>kids.filter(x=>x.list===l).length+(l==="spiel"?buyLinked("spiel").length:0);
+  const kids=buys().filter(x=>!x.done&&x.for==="kid"),cnt=l=>kids.filter(x=>x.list===l).length+(l==="geschenke"?buyLinked("geschenke").filter(x=>x.kid).length:0);
   h+=`<section class="card tagcard"><div class="section-head"><h2>🧸 Für ${esc(nm)}</h2></div>`
     +row("👕","Kleidung",cnt("kleidung")?cnt("kleidung")+" offen":"",'data-nav="listen|bl:kleidung"')
-    +row("🧸","Spielsachen",cnt("spiel")?cnt("spiel")+" offen":"",'data-nav="listen|bl:spiel"')
+    +row("🎁","Geschenke und Spielsachen",cnt("geschenke")?cnt("geschenke")+" offen":"",'data-nav="listen|bl:geschenke"')
     +row("🎄","Adventskalender","",'data-nav="projekte|pf:advent"')
     +row("🚲","Ausflüge mit Kleinkind","",'data-nav="ausflug|tt:ideen"')
     +row("🛝","Spielplätze und Spielideen","",'data-nav="spiel|ps:spielplatz"')+`</section>`;
