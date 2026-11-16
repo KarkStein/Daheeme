@@ -52,7 +52,7 @@ function focusWeek(){const cm=mondayOf(new Date()),wp=S.weekPage|0;
   return null}
 function focusApply(m){if(!m)return;const cm=mondayOf(new Date()),cur=+m===+cm,n=Math.round((m-cm)/(7*864e5)),wp=S.weekPage|0;
   if(S.tab==="woche"&&wp===0){S.view=n>4?addDays(cm,28):m;S.wkEdit=null}
-  if(S.tab==="woche"&&wp===3){if(cur){S.calDay=null;S.calMonth=null}else{S.calDay=ymd(m);S.calMonth=new Date(m.getFullYear(),m.getMonth(),1,12)}}
+  if(S.tab==="woche"&&wp===3){if(cur){S.calDay=null;S.calMonth=null}else{S.calDay=ymd(m);S.calScroll=ymd(m);S.calMonth=new Date(m.getFullYear(),m.getMonth(),1,12)}}
   if((S.tab==="essen"&&S.foodTab==="plan")||(S.tab==="kita"&&S.kitaSec==="essen"))S.foodWeek=cur?null:m;
   if(S.tab==="kind")S.kidWk=Math.max(-1,Math.min(2,n))}
 function goNav(v){const fw=focusWeek(),[tab,sub]=v.split("|"),[k,val]=(sub||"").split(":");S.prev=S.tab;S.tab=tab;S.weekPage=0;if(tab==="essen")S.foodTab="heute";if(tab==="projekte"||tab==="amhaus")S.projFilter="";

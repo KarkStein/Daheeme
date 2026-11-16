@@ -176,7 +176,7 @@ const atipCat=i=>i.cat==="markt"?"fest":i.cat;
 // Passt zum Wetter: Tage der nächsten Woche nach Vorhersage; Einträge mit wx:["schnee"|"wind"|"regen"|"sonne"]
 const ATIP_WX=[["schnee","❄️","Schnee","Schlitten fahren, Schneemann"],["wind","🪁","Wind","Drachen steigen"],["regen","🌧️","Regen","Drinnen spielen"],["sonne","☀️","Sonne","Spielplatz, Tierpark"]];
 function atipWxDays(){const D=S.wx&&S.wx.days;if(!D)return {};const out={},DN=["So","Mo","Di","Mi","Do","Fr","Sa"];for(let n=0;n<7;n++){const d=addDays(startOfDay(new Date()),n),k=ymd(d),x=D[k];if(!x)continue;const kd=wxKind(x.c);
-  const tags=[];if((x.s||0)>0||kd==="schnee")tags.push("schnee");if((x.w||0)>=28&&(x.r||0)<1)tags.push("wind");if((x.r||0)>=2||kd==="regen"||kd==="gewitter")tags.push("regen");else if((kd===""||kd==="wolkig")&&(x.t||0)>=6)tags.push("sonne");
+  const tags=[];if((x.s||0)>0||kd==="schnee")tags.push("schnee");if(windy(x)&&(x.r||0)<1)tags.push("wind");if((x.r||0)>=2||kd==="regen"||kd==="gewitter")tags.push("regen");else if((kd===""||kd==="wolkig")&&(x.t||0)>=6)tags.push("sonne");
   tags.forEach(t=>{(out[t]=out[t]||[]).push(n===0?"heute":n===1?"morgen":DN[d.getDay()])})}return out}
 function atipItems(){const j=S.atipps;if(!j||!Array.isArray(j.items))return [];const t=ymd(new Date()),have=new Set(trips().map(x=>(x.name||"").toLowerCase()));
   return j.items.filter(i=>i&&i.name&&((i.to||i.date||"9999")>=t)&&!have.has(String(i.name).toLowerCase()))}

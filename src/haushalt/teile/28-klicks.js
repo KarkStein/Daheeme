@@ -130,13 +130,13 @@ app.addEventListener("click",async e=>{
   if(b.dataset.fwkwrm){try{await S.store.setPath("food/ext/fwkw/"+b.dataset.fwkwrm,null)}catch(_){}return}
   if(b.dataset.fwpick){const id=b.dataset.fwpick,fw=S.food&&S.food.ext&&S.food.ext.fw,x=fw&&fw.items&&fw.items[id];if(!x)return;const cur=((S.food.ext.fwwho||{})[id])||"",X=((S.food.ext.fwx||{})[id])||{},pl=X.place&&placeFind(X.place)?placeFind(X.place).name:"";
     // Familywall-Termin (Florian 16.11.2026): Titel und Zeit nur in Familywall; Für wen, Art, Ort und Erinnern ergänzt die App (food/ext/fwx/<id>)
-    editBox("„"+x.name+"“",[{k:"note",type:"note",label:rDate(x.date)+(x.time?" "+x.time:"")+(x.place?" · "+x.place:"")+". Aus Familywall: Titel und Zeit ändern geht nur dort."},{k:"who",label:"Für wen",type:"chips",opts:[["","Automatisch"]].concat(whoOpts()),val:cur},
+    editBox("„"+x.name+"“",[{k:"note",type:"note",label:rDate(x.date)+(x.time?" "+x.time:"")+(x.place?" · "+x.place:"")+". Aus Familywall: Titel und Zeit ändern geht nur dort."},{k:"who",label:"Für wen (mehrere gehen)",type:"multi",excl:["","both"],opts:[["","Automatisch"]].concat(whoOpts()),val:!cur?[""]:cur==="both"?["both"]:whoL(cur)},
       {k:"tag",label:"Art",type:"chips",opts:[["","Keine"]].concat(terTags().map(t=>[t[0],t[1]+" "+t[2]])),val:X.tag||""},
       {k:"pl",label:"Ort"+(x.place?" (sonst wie in Familywall)":""),type:"chips",opts:[["",x.place?"Wie in Familywall":"Keiner"]].concat(places().map(p=>[p.name,"📍 "+p.name])),val:pl},
       {k:"plx",label:"Oder Adresse nur für diesen Termin",type:"text",val:X.place&&!pl?X.place:""},
       {k:"remind",label:"🔔 Erinnern",type:"chips",opts:[["","Nein"],["tag","Am Tag"],["1d","1 Tag vorher"],["1h","1 Stunde vorher"]],val:X.remind===true?"tag":X.remind||""},
       {k:"kw",label:"Optional: Für-wen-Regel für alle Termine mit diesem Wort im Titel",type:"text",val:""}],
-      async V=>{await S.store.setPath("food/ext/fwwho/"+id,V.who||null);const kw=String(V.kw||"").trim().slice(0,40);if(kw&&V.who)await S.store.setPath("food/ext/fwkw/"+newId("k"),{kw,who:V.who});
+      async V=>{const W=V.who||[],who=W.includes("both")?"both":WHO_ORD.filter(x=>W.includes(x)).join(",");await S.store.setPath("food/ext/fwwho/"+id,who||null);const kw=String(V.kw||"").trim().slice(0,40);if(kw&&who)await S.store.setPath("food/ext/fwkw/"+newId("k"),{kw,who});
         const place=String(V.plx||"").trim().slice(0,160)||V.pl||null,rm=V.remind==="tag"?true:V.remind||null;await S.store.setPath("food/ext/fwx/"+id,V.tag||place||rm?{tag:V.tag||null,place,remind:rm}:null);toast("Gespeichert");render()},
       [["🙈 In der App ausblenden (auch Wiederholungen)",async()=>{await S.store.setPath("food/ext/fwhide/"+fwHideKey(x.name),{name:String(x.name).slice(0,80),at:Date.now()});toast("Ausgeblendet. Zurückholen unter Kalender › Bereiche.")},false]]);return}
   if(b.dataset.fwunhide){try{await S.store.setPath("food/ext/fwhide/"+b.dataset.fwunhide,null);toast("Wird wieder gezeigt")}catch(_){toast("Konnte nicht speichern.")}return}
@@ -149,9 +149,10 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="ternew"){S.terDraft={id:null,name:"",date:S.calDay||ymd(new Date()),time:"",who:"both",rep:"",note:""};render();window.scrollTo(0,0);const el=document.getElementById("ter-name");if(el)el.focus();return}
   if(b.dataset.teredit){const x=termine().find(y=>y.id===b.dataset.teredit);if(x){S.terDraft=terDraftOf(x);render();window.scrollTo(0,0)}return}
   if(b.dataset.act==="teraltadd"&&S.terDraft){const d=S.terDraft;d.alt=d.alt||[];if(!d.alt.length&&!d.ask)d.ask=choiceOther(S.me)||"p1";d.alt.push({date:"",time:d.time||""});render();const l=document.querySelectorAll("[data-teralt][data-k=date]");if(l.length)l[l.length-1].focus();return}
+  if(b.dataset.act==="terallday"&&S.terDraft){const d=S.terDraft;d.allday=!d.allday;render();return}
   if(b.dataset.teraltrm!=null&&S.terDraft){S.terDraft.alt.splice(+b.dataset.teraltrm,1);render();return}
   if(b.dataset.tertag!=null&&S.terDraft){const d=S.terDraft;d.tag=b.dataset.tertag;const t=terTag(d);if(t&&!String(d.place||"").trim()&&placeFind(t[2]))d.place=placeFind(t[2]).name;render();return}
-  if(b.dataset.placeset!=null){const D=S.tripDraft||S.terDraft;if(D){D.place=b.dataset.placeset;render()}return}
+  if(b.dataset.placeset!=null){const D=S.tripDraft||S.terDraft;if(D){D.place=b.getAttribute("aria-pressed")==="true"?"":b.dataset.placeset;render()}return}
   if(b.dataset.placenew!=null){placeEdit(null,b.dataset.placenew);return}
   if(b.dataset.placeask){placeAsk(b.dataset.placeask);return}
   if(b.dataset.placeedit){placeEdit(b.dataset.placeedit);return}
@@ -160,7 +161,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="pushtest"){pushTest();return}
   if(b.dataset.chopen){const [k,id]=b.dataset.chopen.split("|");choiceOpen(k,id);return}
   if(b.dataset.chseen){const [k,id]=b.dataset.chseen.split("|");try{await choiceSet(k,id,{["told/seen/"+(S.me||"x")]:true})}catch(_){toast("Konnte nicht speichern.")}render();return}
-  if(b.dataset.terwho){S.terDraft.who=b.dataset.terwho;render();return}
+  if(b.dataset.terwho){S.terDraft.who=whoToggle(S.terDraft.who,b.dataset.terwho);render();return}
   if(b.dataset.terrem!=null&&S.terDraft){S.terDraft.remind=b.dataset.terrem==="tag"?true:b.dataset.terrem||null;render();return}
   if(b.dataset.terrep!=null&&S.terDraft){S.terDraft.rep=b.dataset.terrep;render();return}
   if(b.dataset.act==="tercancel"){S.terDraft=null;render();return}

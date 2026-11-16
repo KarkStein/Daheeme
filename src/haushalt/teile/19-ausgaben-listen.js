@@ -58,7 +58,7 @@ function editBox(title,fields,onSave,onDel){S.mboxAt=Date.now();if(document.getE
   el.addEventListener("input",e=>{const k=e.target.dataset&&e.target.dataset.ebf;if(k)V[k]=e.target.value});
   el.addEventListener("submit",async e=>{e.preventDefault();mboxClose();try{await onSave(V)}catch(_){toast("Konnte nicht speichern.")}});
   el.addEventListener("click",async e=>{const c=e.target.closest("[data-ebk]");if(c){V[c.dataset.ebk]=c.dataset.ebv;draw();return}
-    const m=e.target.closest("[data-ebm]");if(m){const L=V[m.dataset.ebm]||(V[m.dataset.ebm]=[]),i=L.indexOf(m.dataset.ebv);if(i<0)L.push(m.dataset.ebv);else L.splice(i,1);draw();return}
+    const m=e.target.closest("[data-ebm]");if(m){const f=fields.find(x=>x.k===m.dataset.ebm)||{},v=m.dataset.ebv,X=f.excl||[];let L=(V[m.dataset.ebm]||[]).filter(x=>!X.includes(x));if(X.includes(v))L=[v];else{const i=L.indexOf(v);if(i<0)L.push(v);else L.splice(i,1);if(!L.length&&X.length)L=[X[0]]}V[m.dataset.ebm]=L;draw();return}
     if(e.target.closest("[data-ebx]")){mboxClose();return}
     const d=e.target.closest("[data-ebdel]");if(d){const D=Array.isArray(onDel)?onDel[+d.dataset.ebdel]:["Löschen",onDel,true];if(D[2]&&d.dataset.sure!=="1"){d.dataset.sure="1";d.textContent="Wirklich "+D[0].toLowerCase()+"?";return}mboxClose();try{await D[1](V)}catch(_){toast("Konnte nicht speichern.")}return}
     if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose()})}

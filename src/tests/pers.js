@@ -11,7 +11,7 @@ srv.listen(8765,async()=>{
   r.view=await A.$eval('[data-calview][aria-pressed=true]',e=>e.innerText);await A.click('[data-calview=monat]');await A.waitForTimeout(200);r.strip=!(await A.$('.caltoday'))&&(await A.evaluate(()=>{const c=document.querySelector('.cal');return c.getBoundingClientRect().bottom<innerHeight}));await A.click('[data-calview=liste]');await A.waitForTimeout(200);
   await A.click('[data-act=calfilt]');await A.click('[data-fwmap=ha][data-v=p1]');await A.waitForTimeout(400);
   r.map=JSON.stringify(get(['haushalt',key,'food','ext','fwmap']));
-  await A.click('[data-fwpick=f2]');await A.waitForTimeout(200);await A.click('#mbox [data-ebk=who][data-ebv=kid]');await A.fill('#mbox [data-ebf=kw]','kurs');await A.click('#mbox button[type=submit]');await A.waitForTimeout(400);
+  await A.click('[data-fwpick=f2]');await A.waitForTimeout(200);await A.click('#mbox [data-ebm=who][data-ebv=kid]');await A.fill('#mbox [data-ebf=kw]','kurs');await A.click('#mbox button[type=submit]');await A.waitForTimeout(400);
   r.ov=JSON.stringify(get(['haushalt',key,'food','ext','fwwho']));r.kw=Object.values(get(['haushalt',key,'food','ext','fwkw'])||{}).map(x=>x.kw+':'+x.who).join();
   await A.click('[data-calwho=kid]');await A.waitForTimeout(200);const wk=(await A.$$eval('.evlist li',l=>l.map(x=>x.innerText))).join(' ');
   r.kidView={yoga:/Yoga/.test(wk),schwimm:/Schwimmkurs/.test(wk),essen:/Familienessen/.test(wk),eltern:/Elternabend/.test(wk)};

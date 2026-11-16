@@ -350,7 +350,7 @@ details.reisemap summary{cursor:pointer;font-weight:600}
 .cal .dots{display:flex;gap:2px;height:5px}.cal .dots i{width:5px;height:5px;border-radius:50%}
 .evlist{list-style:none;margin:0;padding:0}.evlist li{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}.evlist li:first-child{border-top:none}
 .evlist .ev{flex:1;min-width:0;text-align:left;background:none;border:none;padding:0;color:inherit;font:inherit}
-.evlist .t{font-variant-numeric:tabular-nums;color:var(--muted);font-size:var(--fs-s);min-width:44px}
+.evlist .t{font-variant-numeric:tabular-nums;color:var(--muted);font-size:var(--fs-s);min-width:44px}.evlist .t small{display:block;font-size:var(--fs-xs);line-height:1.2;white-space:nowrap}.terwhen{display:flex;gap:var(--sp2);align-items:flex-end;margin-bottom:var(--sp3)}.terwhen .chipbtn{flex:none;margin-bottom:var(--sp1)}.terwhen .fld{min-width:0}.terwhen input{min-width:0;width:100%;padding-left:var(--sp2);padding-right:var(--sp1)}.teralt input{min-width:0}
 .pdot[aria-pressed=true]{background:var(--ink);color:var(--surface)}
 .pdot[aria-pressed=true] b{font-weight:600}
 .prow .pnm{flex:1;min-width:0;background:none;border:none;text-align:left;padding:4px 0;font-size:var(--fs-m);color:inherit}
@@ -476,7 +476,7 @@ h2{font-weight:700}
 .unl span.kz{color:#fff;padding:0 5px;border:none;font-size:var(--fs-xs)}
 .evlist li[data-who]{position:relative;padding-left:var(--sp3)}
 .evlist li[data-who]::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:5px;border-radius:3px;background:#7a8594}
-.evlist li[data-who=p0]::before{background:#2e7d6b}.evlist li[data-who=p1]::before{background:#b8862b}.evlist li[data-who=kid]::before{background:#8a5cc2}
+.evlist li[data-who=p0]::before{background:#2e7d6b}.evlist li[data-who=p1]::before{background:#b8862b}.evlist li[data-who=kid]::before{background:#8a5cc2}.evlist li[data-who*=","]::before{background:var(--wb)}
 .cal .dots i{width:8px!important;height:4px!important;border-radius:2px!important}.catbtn.routebtn{background:none;border:none;padding:4px 6px;font-size:var(--fs-m);cursor:pointer}
 
 .tfold>.setsum h2{margin:0;font-size:var(--fs-l)}.tfold{padding-top:var(--sp3);padding-bottom:var(--sp3)}.tfold .tfoldb{margin-top:var(--sp2)}

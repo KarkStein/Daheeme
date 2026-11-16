@@ -25,10 +25,12 @@ function wxToday(){const W=S.wx,hr=W&&W.hours;if(!W||!hr||!hr.time||Date.now()-W
   if((j=first(k=>K[k]==="gewitter"))>=0)hint="Gewitter "+at(j);
   else if((j=first(k=>K[k]==="schnee"))>=0)hint="Schnee "+at(j);
   else if((j=first(k=>K[k]==="regen"||P[k]>=60))>=0)hint=(at(j)==="jetzt"?"Regen":"Regen "+at(j));
-  else if(lo<=0)hint="Frost";else if((d.w||0)>=40)hint="Sturmböen";else if((d.w||0)>=28)hint="windig";else if(hi>=28)hint="heiß";
+  else if(lo<=0)hint="Frost";else if((d.w||0)>=40||(d.g||0)>=65)hint="Sturmböen";else if(windy(d))hint="windig";else if(hi>=28)hint="heiß";
   return {pre:eve?"Morgen":"",emo:WI[main]||"☀️",rng:lo===hi?lo+"°":lo+" bis "+hi+"°",hint}}
 // Was das Wetter heute möglich macht (Florian 16.11.2026): höchstens ein Symbol, nur wenn es wirklich passt, sonst nichts.
 // Reihenfolge = Vorrang. wx/cat führen zu den passenden Ausflügen (Filter „Passt zum Wetter“ bzw. Rubrik, feste Orte aufgeklappt).
+// Wind (Florian 16.11.2026 „mega Wind, warum kein 🪁“): Mittelwind ab 20 km/h oder Böen ab 40 km/h zählen als windig
+const windy=d=>(d.w||0)>=20||(d.g||0)>=40;
 const WX_FUN=[
   ["schneemann","⛄","Schneemann bauen","Frischer Schnee um null Grad, der klebt gut.","schnee","",(d,p)=>((d.s||0)>=2||(p.s||0)>=2)&&d.t!=null&&d.t>=-3&&d.t<=3],
   ["schlitten","🛷","Schlitten fahren","Es liegt Schnee.","schnee","",d=>(d.sd||0)>=0.05||(d.s||0)>=5],
@@ -36,13 +38,13 @@ const WX_FUN=[
   ["baden","🏊","Baden","Heiß und sonnig: Freibad oder Badesee.","sonne","wasser",d=>d.t>=27&&(d.r||0)<1],
   ["wasser","💦","Wasserspielplatz","Warm genug zum Planschen.","sonne","wasser",d=>d.t>=24&&(d.r||0)<1&&(d.sun==null||d.sun>=6)],
   ["eisw","🍦","Eis-Wetter","Der erste richtig warme Tag.","sonne","",(d,p,q,P)=>d.t>=20&&(d.r||0)<1&&P.length>=4&&P.every(x=>x.t!=null&&x.t<18)],
-  ["drachen","🪁","Drachen steigen","Kräftiger Wind und trocken.","wind","",d=>d.w>=28&&d.w<=50&&(d.r||0)<1&&!/regen|schnee|gewitter/.test(wxKind(d.c))],
+  ["drachen","🪁","Drachen steigen","Kräftiger Wind und trocken.","wind","",d=>windy(d)&&(d.w||0)<=50&&(d.g||0)<=80&&(d.r||0)<1&&!/schnee|gewitter/.test(wxKind(d.c))],
   ["regenbogen","🌈","Regenbogen-Chance","Schauer und Sonne im Wechsel.","","",d=>d.c>=80&&d.c<=82&&(d.sun||0)>=4],
   ["seifen","🫧","Seifenblasen","Mild und fast windstill.","sonne","",d=>d.t>=15&&d.t<=26&&d.w!=null&&d.w<8&&(d.r||0)<0.5],
   ["picknick","🧺","Picknick","Warm, trocken, wenig Wind.","sonne","",d=>d.t>=20&&d.t<=28&&d.w!=null&&d.w<18&&(d.r||0)<0.2&&(d.sun||0)>=9],
   ["abend","🌙","Lauer Abend","Abends noch warm: draußen essen, Biergarten.","sonne","",(d,p,q,P,ev)=>ev!=null&&ev>=20&&(d.r||0)<0.5],
   ["rad","🚲","Laufrad und Radtour","Mild, trocken, wenig Wind.","sonne","",(d,p,q,P,ev,wk)=>wk&&d.t>=13&&d.t<=22&&d.w!=null&&d.w<18&&(d.r||0)<0.2&&(d.sun||0)>=6],
-  ["laub","🍂","Laub rascheln","Trockener, windiger Herbsttag.","wind","",(d,p,q,P,ev,wk,se)=>se==="autumn"&&d.w>=18&&d.w<28&&(d.r||0)<0.2&&(p.r||0)<1&&(d.sun||0)>=3]];
+  ["laub","🍂","Laub rascheln","Trockener, windiger Herbsttag.","wind","",(d,p,q,P,ev,wk,se)=>se==="autumn"&&d.w>=12&&!windy(d)&&(d.r||0)<0.2&&(p.r||0)<1&&(d.sun||0)>=3]];
 function wxFun(){const W=S.wx;if(!W||!W.days||Date.now()-W.at>6*3600e3)return null;const now=new Date(),eve=now.getHours()>=19,k=ymd(eve?addDays(now,1):now),d=W.days[k];if(!d||d.t==null)return null;
   const dk=n=>W.days[ymd(addDays(new Date(k+"T12:00:00"),n))]||{},p=dk(-1),q=dk(-2),P=[1,2,3,4,5].map(n=>dk(-n)).filter(x=>x.t!=null);
   let ev=null;const hr=W.hours;if(hr&&hr.time){const i=hr.time.indexOf(k+"T20:00");if(i>=0)ev=hr.temperature_2m[i]}

@@ -24,7 +24,7 @@ function renderBack(night,dash){const now=new Date(),today=ymd(now),D=backDay(no
   // Zeitstrahl des Tages
   const T=[];if(D.di<5){const bh=bhDay(mondayOf(now),D.di);if(!bh.off){T.push({t:"08:00",ic:"🚸",n:pname(bh.br.p)+" bringt",nav:"kind|"});T.push({t:"16:00",ic:"🚸",n:pname(bh.ab.p)+" holt ab",nav:"kind|"})}}
   if(D.km&&D.km.text)T.push({t:"12:00",ic:"🎒",n:"Kita: "+D.km.text,nav:"kita|ks:essen",go:"essen",ft:"kita"});
-  D.ev.forEach(e=>T.push({t:e.t||"",ic:e.icon||"📅",n:e.name,nav:e.nav||"woche|wp:3"}));
+  D.ev.forEach(e=>T.push({t:e.t||"",ic:e.icon||"📅",n:e.name+(e.te?" (bis "+e.te+")":""),nav:e.nav||"woche|wp:3"}));
   T.push({t:"18:30",ic:"🍲",n:D.meal?D.meal.name:"Abendessen noch offen",go:"essen",ft:"heute",dim:!D.meal});
   const nm=String(now.getHours()).padStart(2,"0")+":"+String(now.getMinutes()).padStart(2,"0");
   const timed=T.filter(x=>x.t).sort((a,b)=>a.t<b.t?-1:1),untimed=T.filter(x=>!x.t);

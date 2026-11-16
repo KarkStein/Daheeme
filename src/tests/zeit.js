@@ -9,10 +9,10 @@ srv.listen(8765,async()=>{
   await nav('essen|ft:plan');r.plan=/Mo 23\.11\./.test(await txt());
   await A.click('[data-food=kita]');await A.waitForTimeout(200);r.kita=/KW 48/.test(await txt());
   await nav('kind|');r.kind=/KW 48/.test(await A.$eval('.kidbh',e=>e.innerText));
-  await nav('woche|wp:3');r.cal=await A.$$eval('[data-calday="2026-11-23"]',l=>l.map(x=>x.className+'|'+(x.getAttribute('aria-pressed')||'')).join());
+  await nav('woche|wp:3');r.cal=await A.$eval('#calfocus',e=>e.innerText).catch(()=>'');
   await nav('woche|wp:0');r.back=/KW 48/.test(await txt());
   await A.click('[data-wknav="0"]');await A.waitForTimeout(200);await nav('essen|ft:plan');r.now=/Mo 16\.11\./.test(await txt());
   await nav('camp|sp:tag');await nav('essen|ft:plan');r.neutral=/Mo 16\.11\./.test(await txt());
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&r.woche&&r.plan&&r.kita&&r.kind&&/sel|true/.test(r.cal)&&r.back&&r.now&&r.neutral;
+  const ok=!errs.length&&r.woche&&r.plan&&r.kita&&r.kind&&/23\./.test(r.cal)&&r.back&&r.now&&r.neutral;
   console.error(ok?'ZEIT OK':'ZEIT FAIL');await b.close();srv.close();process.exit(0)});

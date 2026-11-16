@@ -369,7 +369,7 @@ details.reisemap summary{cursor:pointer;font-weight:600}
 .cal .dots{display:flex;gap:2px;height:5px}.cal .dots i{width:5px;height:5px;border-radius:50%}
 .evlist{list-style:none;margin:0;padding:0}.evlist li{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}.evlist li:first-child{border-top:none}
 .evlist .ev{flex:1;min-width:0;text-align:left;background:none;border:none;padding:0;color:inherit;font:inherit}
-.evlist .t{font-variant-numeric:tabular-nums;color:var(--muted);font-size:var(--fs-s);min-width:44px}
+.evlist .t{font-variant-numeric:tabular-nums;color:var(--muted);font-size:var(--fs-s);min-width:44px}.evlist .t small{display:block;font-size:var(--fs-xs);line-height:1.2;white-space:nowrap}.terwhen{display:flex;gap:var(--sp2);align-items:flex-end;margin-bottom:var(--sp3)}.terwhen .chipbtn{flex:none;margin-bottom:var(--sp1)}.terwhen .fld{min-width:0}.terwhen input{min-width:0;width:100%;padding-left:var(--sp2);padding-right:var(--sp1)}.teralt input{min-width:0}
 .pdot[aria-pressed=true]{background:var(--ink);color:var(--surface)}
 .pdot[aria-pressed=true] b{font-weight:600}
 .prow .pnm{flex:1;min-width:0;background:none;border:none;text-align:left;padding:4px 0;font-size:var(--fs-m);color:inherit}
@@ -495,7 +495,7 @@ h2{font-weight:700}
 .unl span.kz{color:#fff;padding:0 5px;border:none;font-size:var(--fs-xs)}
 .evlist li[data-who]{position:relative;padding-left:var(--sp3)}
 .evlist li[data-who]::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:5px;border-radius:3px;background:#7a8594}
-.evlist li[data-who=p0]::before{background:#2e7d6b}.evlist li[data-who=p1]::before{background:#b8862b}.evlist li[data-who=kid]::before{background:#8a5cc2}
+.evlist li[data-who=p0]::before{background:#2e7d6b}.evlist li[data-who=p1]::before{background:#b8862b}.evlist li[data-who=kid]::before{background:#8a5cc2}.evlist li[data-who*=","]::before{background:var(--wb)}
 .cal .dots i{width:8px!important;height:4px!important;border-radius:2px!important}.catbtn.routebtn{background:none;border:none;padding:4px 6px;font-size:var(--fs-m);cursor:pointer}
 
 .tfold>.setsum h2{margin:0;font-size:var(--fs-l)}.tfold{padding-top:var(--sp3);padding-bottom:var(--sp3)}.tfold .tfoldb{margin-top:var(--sp2)}
@@ -793,11 +793,19 @@ function freiNext(n,days){const out=[],t=new Date();for(let i=0;i<(days||400)&&o
 const WD2=["So","Mo","Di","Mi","Do","Fr","Sa"];
 // Personen (Florian 15.11.2026): ein Merkmal über alle Bereiche; im Kalender trägt nur die Person eine Farbe, der Bereich ist das Symbol
 const PCOL={p0:"#2e7d6b",p1:"#b8862b",kid:"#8a5cc2",both:"#7a8594"};
-function whoLabel(w){return w==="kid"?kidName():w==="p0"||w==="p1"?pname(w):"Alle"}
+// Mehrere Personen (Florian 16.11.2026): who = "p0,kid" (Komma, feste Reihenfolge); leer oder "both" = Alle
+const WHO_ORD=["p0","p1","kid"];
+const whoL=w=>!w||w==="both"?[]:String(w).split(",").filter(x=>WHO_ORD.includes(x)).sort((a,b)=>WHO_ORD.indexOf(a)-WHO_ORD.indexOf(b));
+function whoHas(w,p){const l=whoL(w);return !l.length||l.includes(p)}
+function whoToggle(w,p){if(p==="both"||!p)return "both";const l=whoL(w),i=l.indexOf(p);if(i<0)l.push(p);else l.splice(i,1);return l.length?WHO_ORD.filter(x=>l.includes(x)).join(","):"both"}
+function whoLabel1(w){return w==="kid"?kidName():w==="p0"||w==="p1"?pname(w):"Alle"}
+function whoLabel(w){const l=whoL(w);return l.length?l.map(whoLabel1).join(" und "):"Alle"}
 function whoOpts(){return [["both","Alle"],["p0",pname("p0")],["p1",pname("p1")],["kid",kidName()]]}
 // Person als Kürzel im Farbkreis (Florian 16.11.2026: „Farben dick vorne“, überall gleich); Termine bekommen dazu links einen Streifen (CSS li[data-who])
 const pInit=w=>w==="kid"?kidName().charAt(0):w==="p0"||w==="p1"?pname(w).charAt(0):"Alle";
-const pDot=w=>!w||w==="both"?"":`<span class="kz" style="background:${PCOL[w||"both"]||PCOL.both}" aria-hidden="true">${esc(pInit(w||"both"))}</span>`;
+const pDot=w=>whoL(w).map(x=>`<span class="kz" style="background:${PCOL[x]}" aria-hidden="true">${esc(pInit(x))}</span>`).join("");
+// Streifen links: bei mehreren Personen geteilt
+const whoStripe=w=>{const l=whoL(w);if(l.length<2)return "";const n=l.length;return ` style="--wb:linear-gradient(${l.map((x,i)=>`${PCOL[x]} ${Math.round(i*100/n)}% ${Math.round((i+1)*100/n)}%`).join(",")})"`};
 // Familywall: wem gehört ein Termin? Hand-Zuordnung > Wort im Titel > Teilnehmer/Ersteller (einmal zugeordnet) > Alle
 // Familywall-Termin in der App ausblenden (Florian 16.11.2026): alle mit demselben Titel, auch Wiederholungen; food/ext/fwhide/<key> {name}. Zurückholen unter Kalender › Bereiche.
 function fwHideKey(n){const s=String(n||"").toLowerCase().replace(/[^a-z0-9äöüß]/g,"");let h=5381;for(let i=0;i<s.length;i++)h=((h*33)^s.charCodeAt(i))>>>0;return "h"+h.toString(36)}
@@ -806,8 +814,8 @@ function fwWho(id,x){const E=(S.food&&S.food.ext)||{},ov=(E.fwwho||{})[id];if(ov
   const M=E.fwmap||{},ws=[...new Set((x.a||[]).map(h=>M[h]).filter(Boolean))];return ws.length===1?ws[0]:ws.length?"both":""}
 function freiLine(x){return x.ic==="🏖️"?`🏖️ ${esc(x.name)} ${x.to===x.k?WD2[x.d.getDay()]+" "+rDate(x.k)+" (schulfrei)":rDate(x.k)+"–"+rDate(x.to)}`:`🎉 ${WD2[x.d.getDay()]} ${rDate(x.k)} ${esc(x.name)}${x.bridge?` · Brückentag ${x.bridge}`:""}`}
 const CAL_SRC=[
-  (a,z)=>{const out=[];termine().forEach(x=>{if(!x.date)return;if(x.ask&&altOf(x).length&&!x.rep){choiceEvents(x,a,z,out);return}if(!x.rep){if(x.to&&x.to>x.date){let d=ymdD(x.date),n=0;while(ymd(d)<=x.to&&n<60){const k=ymd(d);if(k>=a&&k<=z)out.push({d:k,t:k===x.date?x.time||"":"",name:x.name+(n?" (Tag "+(n+1)+")":""),icon:terIcon(x),src:"own",tag:x.tag||"",id:x.id,who:x.who||"",note:x.note||"",place:x.place||"",link:x.link||"",link:x.link||"",remind:x.remind||false});d=addDays(d,1);n++}return}if(x.date>=a&&x.date<=z)out.push({d:x.date,t:x.time||"",name:x.name,icon:terIcon(x),src:"own",tag:x.tag||"",id:x.id,who:x.who||"",note:x.note||"",place:x.place||"",link:x.link||"",link:x.link||"",remind:x.remind||false});return}
-    let d=ymdD(x.date);const end=ymdD(z);let n=0;while(d<=end&&n<800){const k=ymd(d);if(k>=a)out.push({d:k,t:x.time||"",name:x.name,icon:x.rep==="y"?"🎂":x.tag?terIcon(x):"🔁",src:"own",tag:x.tag||"",id:x.id,who:x.who||"",note:x.note||"",place:x.place||"",link:x.link||"",link:x.link||"",remind:x.remind||false});d=x.rep==="w"?addDays(d,7):x.rep==="m"?new Date(d.getFullYear(),d.getMonth()+1,d.getDate(),12):new Date(d.getFullYear()+1,d.getMonth(),d.getDate(),12);n++}});return out},
+  (a,z)=>{const out=[];termine().forEach(x=>{if(!x.date)return;if(x.ask&&altOf(x).length&&!x.rep){choiceEvents(x,a,z,out);return}if(!x.rep){if(x.to&&x.to>x.date){let d=ymdD(x.date),n=0;while(ymd(d)<=x.to&&n<60){const k=ymd(d);if(k>=a&&k<=z)out.push({d:k,t:k===x.date?x.time||"":"",te:k===x.to?x.tend||"":"",ad:!!x.allday,name:x.name+(n?" (Tag "+(n+1)+")":""),icon:terIcon(x),src:"own",tag:x.tag||"",id:x.id,who:x.who||"",note:x.note||"",place:x.place||"",link:x.link||"",link:x.link||"",remind:x.remind||false});d=addDays(d,1);n++}return}if(x.date>=a&&x.date<=z)out.push({d:x.date,t:x.time||"",te:x.tend||"",ad:!!x.allday,name:x.name,icon:terIcon(x),src:"own",tag:x.tag||"",id:x.id,who:x.who||"",note:x.note||"",place:x.place||"",link:x.link||"",link:x.link||"",remind:x.remind||false});return}
+    let d=ymdD(x.date);const end=ymdD(z);let n=0;while(d<=end&&n<800){const k=ymd(d);if(k>=a)out.push({d:k,t:x.time||"",te:x.tend||"",ad:!!x.allday,name:x.name,icon:x.rep==="y"?"🎂":x.tag?terIcon(x):"🔁",src:"own",tag:x.tag||"",id:x.id,who:x.who||"",note:x.note||"",place:x.place||"",link:x.link||"",link:x.link||"",remind:x.remind||false});d=x.rep==="w"?addDays(d,7):x.rep==="m"?new Date(d.getFullYear(),d.getMonth()+1,d.getDate(),12):new Date(d.getFullYear()+1,d.getMonth(),d.getDate(),12);n++}});return out},
   (a,z)=>kitas().filter(x=>x.sec==="termine"&&x.date&&x.date>=a&&x.date<=z).map(x=>({d:x.date,t:"",name:"Kita: "+x.name,icon:"🎒",src:"kita",who:"kid",nav:"kita|ks:termine",place:(placeFind("Kita")||{}).name||""})),
   (a,z)=>prios().filter(x=>x.due&&x.due>=a&&x.due<=z).map(x=>({d:x.due,t:x.time||"",name:x.name,icon:"🔔",src:"prio",from:x.from,who:x.who||"",nav:"wichtig|"})),
   (a,z)=>{const out=[];for(let d=ymdD(a);ymd(d)<=z;d=addDays(d,1)){const m=mealInfo(planDays(mondayOf(d))["d"+((d.getDay()+6)%7)]);if(m)out.push({d:ymd(d),t:"",name:m.name,icon:"🍲",src:"food",nav:"essen|ft:plan"})}return out},
@@ -820,20 +828,20 @@ const CAL_SRC=[
     const nrm=t=>String(t||"").toLowerCase().replace(/[^a-zäöüß]/g,"");
     const hid=(S.food.ext&&S.food.ext.fwhide)||{},E2=S.food.ext||{};
     Object.keys(fw.items).forEach(id=>{const x=fw.items[id];if(!x||!x.date||!x.name||hid[fwHideKey(x.name)]||own.has(x.name.trim().toLowerCase()+"|"+x.date))return;const ft=nrm(feiertag(x.date));if(ft&&!x.time&&(nrm(x.name).includes(ft)||ft.includes(nrm(x.name))))return;const to=x.to&&x.to>x.date?x.to:x.date;if(to<a||x.date>z)return;let d=ymdD(x.date),n=0;const X0=(E2.fwx||{})[id]||{},X=X0.tag||!KITA_RX.test(x.name)?X0:Object.assign({},X0,{tag:"kita"});
-      while(ymd(d)<=to&&n<60){const k=ymd(d);if(k>=a&&k<=z)out.push({d:k,t:k===x.date?x.time||"":"",name:x.name+(n?" (Tag "+(n+1)+")":""),icon:X.tag?terIcon(X):"",tag:X.tag||"",remind:X.remind||false,src:"ext",who:fwWho(id,x),fw:id,place:X.place||x.place||(X.tag==="kita"&&placeFind("Kita")?placeFind("Kita").name:""),note:"Aus Familywall"+(x.end?", bis "+x.end:"")+(x.place?" · "+x.place:"")+". Ändern geht in Familywall."});d=addDays(d,1);n++}});return out},
+      while(ymd(d)<=to&&n<60){const k=ymd(d);if(k>=a&&k<=z)out.push({d:k,t:k===x.date?x.time||"":"",te:k===x.to?x.tend||"":"",ad:!!x.allday,name:x.name+(n?" (Tag "+(n+1)+")":""),icon:X.tag?terIcon(X):"",tag:X.tag||"",remind:X.remind||false,src:"ext",who:fwWho(id,x),fw:id,place:X.place||x.place||(X.tag==="kita"&&placeFind("Kita")?placeFind("Kita").name:""),note:"Aus Familywall"+(x.end?", bis "+x.end:"")+(x.place?" · "+x.place:"")+". Ändern geht in Familywall."});d=addDays(d,1);n++}});return out},
   (a,z)=>{const out=[];for(let d=ymdD(a);ymd(d)<=z;d=addDays(d,1)){const k=ymd(d),ft=feiertag(k);if(ft)out.push({d:k,t:"",name:ft,icon:"🎉",src:"frei",note:"Feiertag in Bayern. Die Kita hat zu."})}
     ferienList().forEach(f=>{if(f.from>=a&&f.from<=z)out.push({d:f.from,t:"",name:f.from===f.to?f.name+" (schulfrei)":f.name+" beginnen",icon:"🏖️",src:"frei",note:"Schulferien Bayern bis "+rDate(f.to)+"."});if(f.to!==f.from&&f.to>=a&&f.to<=z)out.push({d:f.to,t:"",name:"Letzter Tag "+f.name,icon:"🏖️",src:"frei"})});return out}];
 // Was der Kalender zeigt (Filter nach Bereich und Person). dayStress und Rückseite nutzen calEvents ungefiltert.
-function calShown(a,z){const off=S.calOff||[],w=S.calWho||"";return calEvents(a,z).filter(e=>!off.includes(e.tag==="kita"?"kita":CAL_LBL.some(l=>l[0]===e.src)?e.src:"own")&&(!w||!e.who||e.who==="both"||e.who===w))}
+function calShown(a,z){const off=S.calOff||[],w=S.calWho||"";return calEvents(a,z).filter(e=>!off.includes(e.tag==="kita"?"kita":CAL_LBL.some(l=>l[0]===e.src)?e.src:"own")&&(!w||whoHas(e.who,w)))}
 function calEvents(a,z){const out=[];CAL_SRC.forEach(f=>{try{out.push(...f(a,z))}catch(_){}});return out.sort((x,y)=>(x.d+(x.t||"99")+(x.src==="food"?"1":"0"))<(y.d+(y.t||"99")+(y.src==="food"?"1":"0"))?-1:1)}
-function evRow(e,showDay){const who="";const day=showDay?`<span class="t">${esc(dLabel(e.d))}</span>`:`<span class="t">${esc(e.t||"")}</span>`;
-  const body=`<span>${pDot(e.who)}${e.icon?e.icon+" ":""}${esc(e.name)}${showDay&&e.t?` <span class="freq">${esc(e.t)}</span>`:""}${who?`<span class="freq">${who}</span>`:""}${e.note&&e.src!=="ext"?`<br><span class="freq">${telNote(e.note)}</span>`:""}</span>`;
+function evRow(e,showDay){const who="";const day=showDay?`<span class="t">${esc(dLabel(e.d))}</span>`:`<span class="t">${esc(e.t||"")}${e.te?`<small>bis ${esc(e.te)}</small>`:e.ad&&!e.t?`<small>ganztägig</small>`:""}</span>`;
+  const body=`<span>${pDot(e.who)}${e.icon?e.icon+" ":""}${esc(e.name)}${showDay&&(e.t||e.te)?` <span class="freq">${esc(e.t||"")}${e.te?" bis "+esc(e.te):""}</span>`:showDay&&e.ad?` <span class="freq">ganztägig</span>`:""}${who?`<span class="freq">${who}</span>`:""}${e.note&&e.src!=="ext"?`<br><span class="freq">${telNote(e.note)}</span>`:""}</span>`;
   const gift=e.icon==="🎂"?`<button class="catbtn" data-nav="projekte|pf:geschenk" aria-label="Geschenkideen ansehen" style="background:none;border:none">🎁</button>`:"";
-  return `<li data-who="${esc(e.who||"both")}"${e.tent?' class="tent"':""} aria-label="${esc(whoLabel(e.who||"both"))}${e.tent?", noch offen":""}">${day}${e.tent?`<button class="ev" data-chopen="termin|${esc(e.id)}">${body}</button>${e.place?transitA(e.place):`<i class="freq">🗳️</i>`}`:e.src==="own"?`<button class="ev" data-teredit="${esc(e.id)}">${body}</button>${gift}${e.link&&safeLink(e.link)?`<a class="catbtn routebtn" href="${esc(safeLink(e.link))}" target="_blank" rel="noopener" aria-label="Webseite">🔗</a>`:""}${e.place?transitA(e.place):placeHint(e)}${telA(e.note)}<button class="catbtn" data-terbell="${esc(e.id)}" aria-pressed="${!!e.remind}" aria-label="${esc(e.name)}: ${e.remind?"nicht mehr erinnern":"erinnern"}" style="background:none;border:none;${e.remind?"":"opacity:.35"}">🔔</button><button class="catbtn" data-terrm="${esc(e.id)}" aria-label="${esc(e.name)} löschen" style="background:none;border:none;opacity:.6">✕</button>`:e.attr?`<button class="ev" ${e.attr}>${body}</button><i class="freq">›</i>`:e.fw?`<button class="ev" data-fwpick="${esc(e.fw)}">${body}</button>${e.place?transitA(e.place):`<i class="freq">›</i>`}`:e.pack?`<button class="ev" data-gopack="${esc(e.pack)}">${body}</button><i class="freq">›</i>`:e.nav?`<button class="ev" data-nav="${esc(e.nav)}">${body}</button>${e.place?transitA(e.place):`<i class="freq">›</i>`}`:`<span class="ev">${body}</span>`}</li>`}
-function terDraftOf(x){return {id:x.id,name:x.name||"",date:x.date||"",to:x.to||"",time:x.time||"",who:x.who||"both",rep:x.rep||"",note:x.note||"",place:x.place||"",link:x.link||"",remind:x.remind||null,tag:x.tag||"",alt:altOf(x).map(o=>({date:o.date,time:o.time||""})),ask:x.ask&&altOf(x).length?x.ask.who||"":"",askdue:x.ask&&x.ask.due||""}}
+  return `<li data-who="${esc(e.who||"both")}"${whoStripe(e.who)}${e.tent?' class="tent"':""} aria-label="${esc(whoLabel(e.who||"both"))}${e.tent?", noch offen":""}">${day}${e.tent?`<button class="ev" data-chopen="termin|${esc(e.id)}">${body}</button>${e.place?transitA(e.place):`<i class="freq">🗳️</i>`}`:e.src==="own"?`<button class="ev" data-teredit="${esc(e.id)}">${body}</button>${gift}${e.link&&safeLink(e.link)?`<a class="catbtn routebtn" href="${esc(safeLink(e.link))}" target="_blank" rel="noopener" aria-label="Webseite">🔗</a>`:""}${e.place?transitA(e.place):placeHint(e)}${telA(e.note)}<button class="catbtn" data-terbell="${esc(e.id)}" aria-pressed="${!!e.remind}" aria-label="${esc(e.name)}: ${e.remind?"nicht mehr erinnern":"erinnern"}" style="background:none;border:none;${e.remind?"":"opacity:.35"}">🔔</button><button class="catbtn" data-terrm="${esc(e.id)}" aria-label="${esc(e.name)} löschen" style="background:none;border:none;opacity:.6">✕</button>`:e.attr?`<button class="ev" ${e.attr}>${body}</button><i class="freq">›</i>`:e.fw?`<button class="ev" data-fwpick="${esc(e.fw)}">${body}</button>${e.place?transitA(e.place):`<i class="freq">›</i>`}`:e.pack?`<button class="ev" data-gopack="${esc(e.pack)}">${body}</button><i class="freq">›</i>`:e.nav?`<button class="ev" data-nav="${esc(e.nav)}">${body}</button>${e.place?transitA(e.place):`<i class="freq">›</i>`}`:`<span class="ev">${body}</span>`}</li>`}
+function terDraftOf(x){return {id:x.id,name:x.name||"",date:x.date||"",to:x.to||"",time:x.time||"",tend:x.tend||"",allday:!!x.allday,who:x.who||"both",rep:x.rep||"",note:x.note||"",place:x.place||"",link:x.link||"",remind:x.remind||null,tag:x.tag||"",alt:altOf(x).map(o=>({date:o.date,time:o.time||"",tend:o.tend||""})),ask:x.ask&&altOf(x).length?x.ask.who||"":"",askdue:x.ask&&x.ask.due||""}}
 // Mehrere Möglichkeiten (29c-auswahl.js): weitere Tage/Zeiten, wer auswählt (auch man selbst oder beide), Frist
 function terAltHtml(d){const alt=d.alt||[],pn=k=>esc(pname(k));if(d.rep)return "";
-  return `${alt.map((o,j)=>`<div class="teralt"><label class="fld" style="flex:1"><span>Möglichkeit ${j+2}</span><input type="date" data-teralt="${j}" data-k="date" value="${esc(o.date||"")}"></label><label class="fld" style="flex:1"><span>Uhrzeit</span><input type="time" data-teralt="${j}" data-k="time" value="${esc(o.time||"")}"></label><button type="button" class="catbtn" data-teraltrm="${j}" aria-label="Möglichkeit ${j+2} entfernen" style="background:none;border:none">✕</button></div>`).join("")}
+  return `${alt.map((o,j)=>`<div class="teralt"><label class="fld" style="flex:1"><span>Möglichkeit ${j+2}</span><input type="date" data-teralt="${j}" data-k="date" value="${esc(o.date||"")}"></label>${d.allday?"":`<label class="fld" style="flex:1"><span>Von</span><input type="time" data-teralt="${j}" data-k="time" value="${esc(o.time||"")}"></label><label class="fld" style="flex:1"><span>Bis</span><input type="time" data-teralt="${j}" data-k="tend" value="${esc(o.tend||"")}"></label>`}<button type="button" class="catbtn" data-teraltrm="${j}" aria-label="Möglichkeit ${j+2} entfernen" style="background:none;border:none">✕</button></div>`).join("")}
     ${d.id&&alt.length&&!d.ask&&termine().some(y=>y.id===d.id&&!y.ask)?`<div class="btnrow" style="margin-top:0"><button type="button" class="ghost small" data-chopen="termin|${esc(d.id)}">🗳️ Andere Möglichkeit nehmen</button></div>`:""}
     ${alt.length<4?`<div class="btnrow" style="margin-top:0"><button type="button" class="ghost small" data-act="teraltadd">＋ Weitere Möglichkeit</button></div>`:""}
     ${alt.length?`<div class="fld"><span>🗳️ Wer wählt aus</span><div class="unl">${[["p0",pn("p0")+(S.me==="p0"?" (ich)":"")],["p1",pn("p1")+(S.me==="p1"?" (ich)":"")],["both","Beide stimmen ab"],["","Steht fest (Möglichkeit 1)"]].map(o=>`<button type="button" class="chipbtn neutral" data-terask="${o[0]}" aria-pressed="${(d.ask||"")===o[0]}">${o[1]}</button>`).join("")}</div></div>
@@ -841,11 +849,12 @@ function terAltHtml(d){const alt=d.alt||[],pn=k=>esc(pname(k));if(d.rep)return "
 function renderTerForm(){const d=S.terDraft,pn=k=>esc(pname(k)),many=(d.alt||[]).length;
   return `<section class="card"><div class="section-head"><h2>${d.id?"Termin ändern":"Neuer Termin"}</h2></div><form id="terform" novalidate>
     <label class="fld"><span>Was</span><input id="ter-name" data-terf="name" value="${esc(d.name)}" maxlength="80" placeholder="z. B. Zahnarzt" autocomplete="off"></label>
-    <div style="display:flex;gap:8px"><label class="fld" style="flex:1"><span>${many?"Möglichkeit 1":"Tag"}</span><input type="date" data-terf="date" value="${esc(d.date)}"></label><label class="fld" style="flex:1"><span>Uhrzeit</span><input type="time" data-terf="time" value="${esc(d.time)}"></label></div>
+    <label class="fld"><span>${many?"Möglichkeit 1":"Tag"}</span><input type="date" data-terf="date" value="${esc(d.date)}"></label>
+    <div class="terwhen">${d.allday?"":`<label class="fld" style="flex:1"><span>Von</span><input type="time" data-terf="time" value="${esc(d.time)}"></label><label class="fld" style="flex:1"><span>Bis (optional)</span><input type="time" data-terf="tend" value="${esc(d.tend||"")}"></label>`}<button type="button" class="chipbtn neutral" data-act="terallday" aria-pressed="${!!d.allday}">☀️ Ganztägig</button></div>
     ${terAltHtml(d)}
-    ${d.rep||many?"":`<label class="fld"><span>Bis (nur bei mehreren Tagen)</span><input type="date" data-terf="to" value="${esc(d.to||"")}" min="${esc(d.date)}"></label>`}
+    ${d.rep||many?"":`<label class="fld"><span>Letzter Tag (nur bei mehreren Tagen)</span><input type="date" data-terf="to" value="${esc(d.to||"")}" min="${esc(d.date)}"></label>`}
     ${terTagHtml(d)}
-    <div class="fld"><span>Für wen</span><div class="unl">${[["both","Alle"],["p0",pn("p0")],["p1",pn("p1")],["kid","Kind"]].map(o=>`<button type="button" class="chipbtn neutral" data-terwho="${o[0]}" aria-pressed="${(d.who||"both")===o[0]}">${o[1]}</button>`).join("")}</div></div>
+    <div class="fld"><span>Für wen</span><div class="unl">${[["both","Alle"],["p0",pn("p0")],["p1",pn("p1")],["kid","Kind"]].map(o=>`<button type="button" class="chipbtn neutral" data-terwho="${o[0]}" aria-pressed="${o[0]==="both"?!whoL(d.who).length:whoL(d.who).includes(o[0])}">${o[1]}</button>`).join("")}</div><div class="freq">Mehrere gehen, z. B. Kind und ${pn(S.me||"p0")}.</div></div>
     <div class="fld"><span>Wiederholen</span><div class="unl">${[["","Nein"],["w","Jede Woche"],["m","Jeden Monat"],["y","Jedes Jahr"]].map(o=>`<button type="button" class="chipbtn neutral" data-terrep="${o[0]}" aria-pressed="${(d.rep||"")===o[0]}">${o[1]}</button>`).join("")}</div></div>
     <div class="fld"><span>🔔 Erinnern (zählt an der Glocke)</span><div class="unl">${[["","Nein"],["tag","Am Tag"],["1d","1 Tag vorher"],["1h","1 Stunde vorher"]].map(o=>`<button type="button" class="chipbtn neutral" data-terrem="${o[0]}" aria-pressed="${(d.remind===true?"tag":d.remind||"")===o[0]}">${o[1]}</button>`).join("")}</div></div>
     <label class="fld"><span>Ort (optional, für 🚆)</span><input data-terf="place" value="${esc(d.place||"")}" maxlength="120" placeholder="z. B. Kita oder Adresse" autocomplete="off"></label>${placeChips(d.place||"")}
@@ -873,7 +882,7 @@ function renderCal(){if(S.terDraft)return renderTerForm();const today=ymd(new Da
   // Liste (Florian 16.11.2026: Symbiose aus Woche und Liste): ab heute 60 Tage, kleine Wochen-Trenner, leere Tage nur in den nächsten 14 Tagen als schmale Zeile (Tipp = neuer Termin)
   if(v==="liste"||v==="woche"){const l=calShown(today,ymd(addDays(new Date(),60))),by={};l.forEach(e=>{(by[e.d]=by[e.d]||[]).push(e)});let lastW="",out="";
     for(let n=0;n<=60;n++){const d=addDays(new Date(),n),k=ymd(d),ev=by[k];if(!ev&&n>13)continue;const mon=mondayOf(d),{w}=isoWeek(mon);
-      if(w+"|"+ymd(mon)!==lastW){lastW=w+"|"+ymd(mon);const su=addDays(mon,6);out+=`<div class="calwsep">KW ${w} · ${mon.getDate()}.${mon.getMonth()!==su.getMonth()?" "+MN[mon.getMonth()].slice(0,3)+".":""} bis ${su.getDate()}. ${MN[su.getMonth()].slice(0,3)}.</div>`}
+      if(w+"|"+ymd(mon)!==lastW){lastW=w+"|"+ymd(mon);const su=addDays(mon,6);const fc=S.calScroll&&ymd(mon)===S.calScroll;if(fc){S.calScroll=null;setTimeout(()=>{const el=document.getElementById("calfocus");if(el)el.scrollIntoView({block:"start"})},0)}out+=`<div class="calwsep"${fc?' id="calfocus"':""}>KW ${w} · ${mon.getDate()}.${mon.getMonth()!==su.getMonth()?" "+MN[mon.getMonth()].slice(0,3)+".":""} bis ${su.getDate()}. ${MN[su.getMonth()].slice(0,3)}.</div>`}
       const fe=ferienAt(k),ft=feiertag(k),note=ft?`🎉 ${esc(typeof ft==="string"?ft:"Feiertag")}`:fe?`🏖️ ${esc(fe.name)}`:"";
       if(!ev){out+=`<button class="calfree${ft?" ft":fe?" fe":""}" data-calnew="${k}" aria-label="${esc(dLabel(k))} frei, Termin anlegen"><b>${DAYS[(d.getDay()+6)%7]} ${d.getDate()}.</b> · frei${note?` · <span>${note}</span>`:""}<i>＋</i></button>`;continue}
       out+=`<section class="card"><div class="section-head"><h2>${esc(dLabel(k))}</h2><span class="freq">${d.getDate()}. ${MN[d.getMonth()]}${fe&&!ft?" · 🏖️ "+esc(fe.name):""}</span></div><ul class="evlist">${ev.map(e=>evRow(e,false)).join("")}</ul></section>`}
@@ -882,7 +891,7 @@ function renderCal(){if(S.terDraft)return renderTerForm();const today=ymd(new Da
   const first=mondayOf(m0),last=addDays(mondayOf(new Date(m0.getFullYear(),m0.getMonth()+1,0,12)),6),ev=calShown(ymd(first),ymd(last)),by={};ev.forEach(e=>{(by[e.d]=by[e.d]||[]).push(e)});
   h+=`<section class="card"><div class="section-head" style="align-items:center"><h2>${MN[m0.getMonth()]} ${m0.getFullYear()}</h2><div class="weeknav"><button class="iconbtn" data-calm="-1" aria-label="Voriger Monat">‹</button>${m0.getMonth()!==new Date().getMonth()||m0.getFullYear()!==new Date().getFullYear()?`<button class="ghost" data-calm="0">Heute</button>`:""}<button class="iconbtn" data-calm="1" aria-label="Nächster Monat">›</button></div></div>
     <div class="cal">${["Mo","Di","Mi","Do","Fr","Sa","So"].map(x=>`<span class="cw">${x}</span>`).join("")}`;
-  for(let d=first;d<=last;d=addDays(d,1)){const k=ymd(d),l=(by[k]||[]),ws=[...new Set(l.filter(e=>e.src!=="food"&&e.src!=="reise"&&e.src!=="frei").map(e=>e.who||"both"))].sort((a,b)=>["p0","p1","kid","both"].indexOf(a)-["p0","p1","kid","both"].indexOf(b)),u=l.some(e=>e.src==="reise");
+  for(let d=first;d<=last;d=addDays(d,1)){const k=ymd(d),l=(by[k]||[]),ws=[...new Set(l.filter(e=>e.src!=="food"&&e.src!=="reise"&&e.src!=="frei").flatMap(e=>whoL(e.who).length?whoL(e.who):["both"]))].sort((a,b)=>["p0","p1","kid","both"].indexOf(a)-["p0","p1","kid","both"].indexOf(b)),u=l.some(e=>e.src==="reise");
     h+=`<button data-calday="${k}" class="${d.getMonth()!==m0.getMonth()?"out ":""}${k===today?"today ":""}${u?"urlaub ":""}${feiertag(k)?"ft ":ferienAt(k)?"fe":""}" aria-pressed="${k===sel}" aria-label="${d.getDate()}. ${MN[d.getMonth()]}${u?", Urlaub":""}${l.length?", "+l.length+" Einträge":""}"><span>${d.getDate()}</span><span class="dots">${ws.slice(0,4).map(x=>l.filter(e=>(e.who||"both")===x).every(e=>e.tent)?`<i class="tent" style="border-color:${PCOL[x]}"></i>`:`<i style="background:${PCOL[x]}"></i>`).join("")}</span></button>`}
   h+=`</div></section>`;
   h+=calDayCard(sel,MN);
@@ -993,10 +1002,12 @@ function wxToday(){const W=S.wx,hr=W&&W.hours;if(!W||!hr||!hr.time||Date.now()-W
   if((j=first(k=>K[k]==="gewitter"))>=0)hint="Gewitter "+at(j);
   else if((j=first(k=>K[k]==="schnee"))>=0)hint="Schnee "+at(j);
   else if((j=first(k=>K[k]==="regen"||P[k]>=60))>=0)hint=(at(j)==="jetzt"?"Regen":"Regen "+at(j));
-  else if(lo<=0)hint="Frost";else if((d.w||0)>=40)hint="Sturmböen";else if((d.w||0)>=28)hint="windig";else if(hi>=28)hint="heiß";
+  else if(lo<=0)hint="Frost";else if((d.w||0)>=40||(d.g||0)>=65)hint="Sturmböen";else if(windy(d))hint="windig";else if(hi>=28)hint="heiß";
   return {pre:eve?"Morgen":"",emo:WI[main]||"☀️",rng:lo===hi?lo+"°":lo+" bis "+hi+"°",hint}}
 // Was das Wetter heute möglich macht (Florian 16.11.2026): höchstens ein Symbol, nur wenn es wirklich passt, sonst nichts.
 // Reihenfolge = Vorrang. wx/cat führen zu den passenden Ausflügen (Filter „Passt zum Wetter“ bzw. Rubrik, feste Orte aufgeklappt).
+// Wind (Florian 16.11.2026 „mega Wind, warum kein 🪁“): Mittelwind ab 20 km/h oder Böen ab 40 km/h zählen als windig
+const windy=d=>(d.w||0)>=20||(d.g||0)>=40;
 const WX_FUN=[
   ["schneemann","⛄","Schneemann bauen","Frischer Schnee um null Grad, der klebt gut.","schnee","",(d,p)=>((d.s||0)>=2||(p.s||0)>=2)&&d.t!=null&&d.t>=-3&&d.t<=3],
   ["schlitten","🛷","Schlitten fahren","Es liegt Schnee.","schnee","",d=>(d.sd||0)>=0.05||(d.s||0)>=5],
@@ -1004,13 +1015,13 @@ const WX_FUN=[
   ["baden","🏊","Baden","Heiß und sonnig: Freibad oder Badesee.","sonne","wasser",d=>d.t>=27&&(d.r||0)<1],
   ["wasser","💦","Wasserspielplatz","Warm genug zum Planschen.","sonne","wasser",d=>d.t>=24&&(d.r||0)<1&&(d.sun==null||d.sun>=6)],
   ["eisw","🍦","Eis-Wetter","Der erste richtig warme Tag.","sonne","",(d,p,q,P)=>d.t>=20&&(d.r||0)<1&&P.length>=4&&P.every(x=>x.t!=null&&x.t<18)],
-  ["drachen","🪁","Drachen steigen","Kräftiger Wind und trocken.","wind","",d=>d.w>=28&&d.w<=50&&(d.r||0)<1&&!/regen|schnee|gewitter/.test(wxKind(d.c))],
+  ["drachen","🪁","Drachen steigen","Kräftiger Wind und trocken.","wind","",d=>windy(d)&&(d.w||0)<=50&&(d.g||0)<=80&&(d.r||0)<1&&!/schnee|gewitter/.test(wxKind(d.c))],
   ["regenbogen","🌈","Regenbogen-Chance","Schauer und Sonne im Wechsel.","","",d=>d.c>=80&&d.c<=82&&(d.sun||0)>=4],
   ["seifen","🫧","Seifenblasen","Mild und fast windstill.","sonne","",d=>d.t>=15&&d.t<=26&&d.w!=null&&d.w<8&&(d.r||0)<0.5],
   ["picknick","🧺","Picknick","Warm, trocken, wenig Wind.","sonne","",d=>d.t>=20&&d.t<=28&&d.w!=null&&d.w<18&&(d.r||0)<0.2&&(d.sun||0)>=9],
   ["abend","🌙","Lauer Abend","Abends noch warm: draußen essen, Biergarten.","sonne","",(d,p,q,P,ev)=>ev!=null&&ev>=20&&(d.r||0)<0.5],
   ["rad","🚲","Laufrad und Radtour","Mild, trocken, wenig Wind.","sonne","",(d,p,q,P,ev,wk)=>wk&&d.t>=13&&d.t<=22&&d.w!=null&&d.w<18&&(d.r||0)<0.2&&(d.sun||0)>=6],
-  ["laub","🍂","Laub rascheln","Trockener, windiger Herbsttag.","wind","",(d,p,q,P,ev,wk,se)=>se==="autumn"&&d.w>=18&&d.w<28&&(d.r||0)<0.2&&(p.r||0)<1&&(d.sun||0)>=3]];
+  ["laub","🍂","Laub rascheln","Trockener, windiger Herbsttag.","wind","",(d,p,q,P,ev,wk,se)=>se==="autumn"&&d.w>=12&&!windy(d)&&(d.r||0)<0.2&&(p.r||0)<1&&(d.sun||0)>=3]];
 function wxFun(){const W=S.wx;if(!W||!W.days||Date.now()-W.at>6*3600e3)return null;const now=new Date(),eve=now.getHours()>=19,k=ymd(eve?addDays(now,1):now),d=W.days[k];if(!d||d.t==null)return null;
   const dk=n=>W.days[ymd(addDays(new Date(k+"T12:00:00"),n))]||{},p=dk(-1),q=dk(-2),P=[1,2,3,4,5].map(n=>dk(-n)).filter(x=>x.t!=null);
   let ev=null;const hr=W.hours;if(hr&&hr.time){const i=hr.time.indexOf(k+"T20:00");if(i>=0)ev=hr.temperature_2m[i]}
@@ -1349,7 +1360,7 @@ function wxLink(kind){const own=safeLink(S.food&&S.food.pref&&S.food.pref.wxlink
   return "https://kachelmannwetter.com/de"}
 const wxA=(inner,cls,kind)=>`<a class="wxlink${cls?" "+cls:""}" href="${esc(wxLink(kind))}" target="_blank" rel="noopener" aria-label="Wetter in der Wetter-App öffnen">${inner}</a>`;
 function loadWx(force){const pl=S.food&&S.food.wxplace;if(!pl||pl.lat==null)return;if(!force&&S.wx&&S.wx.key===pl.lat+","+pl.lon&&Date.now()-S.wx.at<(S.tab==="camp"?45*60e3:3*3600e3))return;if(S.wxBusy)return;S.wxBusy=true;
-  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pl.lat}&longitude=${pl.lon}&current=weather_code&hourly=temperature_2m,precipitation_probability,weather_code,snow_depth&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code,wind_speed_10m_max,snowfall_sum,sunshine_duration&timezone=Europe%2FBerlin&forecast_days=16`).then(r=>r.ok?r.json():null).then(j=>{S.wxBusy=false;if(!j||!j.daily)return;const days={};j.daily.time.forEach((d,i)=>days[d]={t:j.daily.temperature_2m_max[i],r:j.daily.precipitation_sum[i]||0,c:j.daily.weather_code?j.daily.weather_code[i]:null,w:j.daily.wind_speed_10m_max?j.daily.wind_speed_10m_max[i]:null,s:j.daily.snowfall_sum?j.daily.snowfall_sum[i]:null,tn:j.daily.temperature_2m_min?j.daily.temperature_2m_min[i]:null,sun:j.daily.sunshine_duration&&j.daily.sunshine_duration[i]!=null?j.daily.sunshine_duration[i]/3600:null});if(j.hourly&&j.hourly.snow_depth)j.hourly.time.forEach((t,i)=>{const d=days[t.slice(0,10)],v=j.hourly.snow_depth[i];if(d&&v!=null&&+t.slice(11,13)>=7&&+t.slice(11,13)<=17)d.sd=Math.max(d.sd||0,v)});S.wx={key:pl.lat+","+pl.lon,at:Date.now(),days,hours:j.hourly&&Array.isArray(j.hourly.time)?j.hourly:null,cur:j.current&&j.current.weather_code!=null?j.current.weather_code:null};if(S.tab==="essen"||S.tab==="camp")render()}).catch(()=>{S.wxBusy=false})}
+  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pl.lat}&longitude=${pl.lon}&current=weather_code&hourly=temperature_2m,precipitation_probability,weather_code,snow_depth&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code,wind_speed_10m_max,wind_gusts_10m_max,snowfall_sum,sunshine_duration&timezone=Europe%2FBerlin&forecast_days=16`).then(r=>r.ok?r.json():null).then(j=>{S.wxBusy=false;if(!j||!j.daily)return;const days={};j.daily.time.forEach((d,i)=>days[d]={t:j.daily.temperature_2m_max[i],r:j.daily.precipitation_sum[i]||0,c:j.daily.weather_code?j.daily.weather_code[i]:null,w:j.daily.wind_speed_10m_max?j.daily.wind_speed_10m_max[i]:null,g:j.daily.wind_gusts_10m_max?j.daily.wind_gusts_10m_max[i]:null,s:j.daily.snowfall_sum?j.daily.snowfall_sum[i]:null,tn:j.daily.temperature_2m_min?j.daily.temperature_2m_min[i]:null,sun:j.daily.sunshine_duration&&j.daily.sunshine_duration[i]!=null?j.daily.sunshine_duration[i]/3600:null});if(j.hourly&&j.hourly.snow_depth)j.hourly.time.forEach((t,i)=>{const d=days[t.slice(0,10)],v=j.hourly.snow_depth[i];if(d&&v!=null&&+t.slice(11,13)>=7&&+t.slice(11,13)<=17)d.sd=Math.max(d.sd||0,v)});S.wx={key:pl.lat+","+pl.lon,at:Date.now(),days,hours:j.hourly&&Array.isArray(j.hourly.time)?j.hourly:null,cur:j.current&&j.current.weather_code!=null?j.current.weather_code:null};if(S.tab==="essen"||S.tab==="camp")render()}).catch(()=>{S.wxBusy=false})}
 function suggestWeek(mon,keep){const days=planDays(mon),kmw=kitaMeals(mon),px=planX(mon),pool=weekPool(),used=new Set(Object.keys(days).filter(k=>/^d\d$/.test(k)&&days[k]).map(k=>String(days[k].text||"").toLowerCase())),res={},skip=S.suggSkip||{};
   const today=startOfDay(new Date());let prevH=[],prevS=[];
   for(let i=0;i<7;i++){const k="d"+i,date=addDays(mon,i);if(days[k]&&days[k].text){prevH=hauptOf(days[k].text);prevS=sauceOf(days[k].text);continue}if(date<today||inUrlaub(date))continue;
@@ -1511,7 +1522,7 @@ function renderFoodToday(){const now=new Date(),di=(now.getDay()+6)%7,mon=monday
   else h+=`<h2 class="fdish">Noch nichts geplant</h2><div class="btnrow" style="margin-top:10px"><button class="primary" data-food="rezepte" data-mealfor="1">📖 Rezept aussuchen</button><button class="ghost" data-food="plan">Wochenplan</button></div>`;
   {const n=shopItems().filter(x=>!x.done).length;if(!miss.length)h+=`<button class="todayrow" data-go="einkauf" style="margin-top:8px"><span>🧺</span><span>Einkaufsliste: ${n?n+" offen":"Liste ist leer"}</span><i>›</i></button>`}
   h+=musLinks("kochen",2)+`</section>`;
-  h+=`<section class="card"><div class="section-head"><h2><button class="dishlink" data-food="kita">🎒 Kita heute <i>›</i></button></h2></div>${inUrlaub(now)?`<div class="freq">⛵ Urlaub: ${esc(inUrlaub(now).name)}</div>`:di>4?`<div class="freq">Heute ist keine Kita.</div>`:km&&(km.text||km.bz||km.fr)?`<ul class="kline">${km.text?`<li><b>Mittag</b> ${esc(km.text)}</li>`:""}${km.bz?`<li><b>Brotzeit</b> ${esc(km.bz)}</li>`:""}${km.fr?`<li><b>Frühstück</b> ${esc(km.fr)}</li>`:""}${km.na?`<li><b>Nachspeise</b> ${esc(km.na)}</li>`:""}</ul>`:`<div class="freq">Kein Speiseplan für heute. <button class="ghost" data-food="kita">Speiseplan einfügen</button></div>`}</section>`;
+  h+=`<section class="card"><div class="section-head"><h2><button class="dishlink" data-food="kita">🎒 Kita heute <i>›</i></button></h2></div>${inUrlaub(now)?`<div class="freq">⛵ Urlaub: ${esc(inUrlaub(now).name)}</div>`:di>4?`<div class="freq">Heute ist keine Kita.</div>`:km&&(km.text||km.bz||km.fr)?`<ul class="kline">${km.fr?`<li><b>Frühstück</b> ${esc(km.fr)}</li>`:""}${km.text?`<li><b>Mittag</b> ${esc(km.text)}${km.na?` <span class="freq">· Nachspeise: ${esc(km.na)}</span>`:""}</li>`:""}${km.bz?`<li><b>Brotzeit</b> ${esc(km.bz)}</li>`:""}</ul>`:`<div class="freq">Kein Speiseplan für heute. <button class="ghost" data-food="kita">Speiseplan einfügen</button></div>`}</section>`;
   const hints=ti?prepHint(ti.name,ti.ing):[];
   h+=`<section class="card"><div class="section-head"><h2>Morgen · ${DAYN[tdi]}</h2></div>${ti?`<div class="dishhead"><div class="nm" style="font-weight:600">${dishName(ti,k1)}</div>${dishRm(tm,ti)}</div>${ti.min?`<div class="freq">⏱️ ca. ${ti.min} Min</div>`:""}${dishMore(ti,k1)}`:`<div class="freq">Abends noch nichts geplant.</div>`}${hints.map(x=>`<div class="todayrow minialarm" style="margin-top:8px"><span>⏰</span><span>${esc(x)}</span></div>`).join("")}${tdi<=4&&tkm&&tkm.text?`<button class="dishlink small" data-food="kita" style="margin-top:8px">🎒 Kita mittags: ${esc(tkm.text)} <i>›</i></button>`:""}</section>`;
   // Danach: die nächsten geplanten Abende
@@ -1717,7 +1728,7 @@ function focusWeek(){const cm=mondayOf(new Date()),wp=S.weekPage|0;
   return null}
 function focusApply(m){if(!m)return;const cm=mondayOf(new Date()),cur=+m===+cm,n=Math.round((m-cm)/(7*864e5)),wp=S.weekPage|0;
   if(S.tab==="woche"&&wp===0){S.view=n>4?addDays(cm,28):m;S.wkEdit=null}
-  if(S.tab==="woche"&&wp===3){if(cur){S.calDay=null;S.calMonth=null}else{S.calDay=ymd(m);S.calMonth=new Date(m.getFullYear(),m.getMonth(),1,12)}}
+  if(S.tab==="woche"&&wp===3){if(cur){S.calDay=null;S.calMonth=null}else{S.calDay=ymd(m);S.calScroll=ymd(m);S.calMonth=new Date(m.getFullYear(),m.getMonth(),1,12)}}
   if((S.tab==="essen"&&S.foodTab==="plan")||(S.tab==="kita"&&S.kitaSec==="essen"))S.foodWeek=cur?null:m;
   if(S.tab==="kind")S.kidWk=Math.max(-1,Math.min(2,n))}
 function goNav(v){const fw=focusWeek(),[tab,sub]=v.split("|"),[k,val]=(sub||"").split(":");S.prev=S.tab;S.tab=tab;S.weekPage=0;if(tab==="essen")S.foodTab="heute";if(tab==="projekte"||tab==="amhaus")S.projFilter="";
@@ -1756,7 +1767,7 @@ function renderBack(night,dash){const now=new Date(),today=ymd(now),D=backDay(no
   // Zeitstrahl des Tages
   const T=[];if(D.di<5){const bh=bhDay(mondayOf(now),D.di);if(!bh.off){T.push({t:"08:00",ic:"🚸",n:pname(bh.br.p)+" bringt",nav:"kind|"});T.push({t:"16:00",ic:"🚸",n:pname(bh.ab.p)+" holt ab",nav:"kind|"})}}
   if(D.km&&D.km.text)T.push({t:"12:00",ic:"🎒",n:"Kita: "+D.km.text,nav:"kita|ks:essen",go:"essen",ft:"kita"});
-  D.ev.forEach(e=>T.push({t:e.t||"",ic:e.icon||"📅",n:e.name,nav:e.nav||"woche|wp:3"}));
+  D.ev.forEach(e=>T.push({t:e.t||"",ic:e.icon||"📅",n:e.name+(e.te?" (bis "+e.te+")":""),nav:e.nav||"woche|wp:3"}));
   T.push({t:"18:30",ic:"🍲",n:D.meal?D.meal.name:"Abendessen noch offen",go:"essen",ft:"heute",dim:!D.meal});
   const nm=String(now.getHours()).padStart(2,"0")+":"+String(now.getMinutes()).padStart(2,"0");
   const timed=T.filter(x=>x.t).sort((a,b)=>a.t<b.t?-1:1),untimed=T.filter(x=>!x.t);
@@ -2037,7 +2048,7 @@ const atipCat=i=>i.cat==="markt"?"fest":i.cat;
 // Passt zum Wetter: Tage der nächsten Woche nach Vorhersage; Einträge mit wx:["schnee"|"wind"|"regen"|"sonne"]
 const ATIP_WX=[["schnee","❄️","Schnee","Schlitten fahren, Schneemann"],["wind","🪁","Wind","Drachen steigen"],["regen","🌧️","Regen","Drinnen spielen"],["sonne","☀️","Sonne","Spielplatz, Tierpark"]];
 function atipWxDays(){const D=S.wx&&S.wx.days;if(!D)return {};const out={},DN=["So","Mo","Di","Mi","Do","Fr","Sa"];for(let n=0;n<7;n++){const d=addDays(startOfDay(new Date()),n),k=ymd(d),x=D[k];if(!x)continue;const kd=wxKind(x.c);
-  const tags=[];if((x.s||0)>0||kd==="schnee")tags.push("schnee");if((x.w||0)>=28&&(x.r||0)<1)tags.push("wind");if((x.r||0)>=2||kd==="regen"||kd==="gewitter")tags.push("regen");else if((kd===""||kd==="wolkig")&&(x.t||0)>=6)tags.push("sonne");
+  const tags=[];if((x.s||0)>0||kd==="schnee")tags.push("schnee");if(windy(x)&&(x.r||0)<1)tags.push("wind");if((x.r||0)>=2||kd==="regen"||kd==="gewitter")tags.push("regen");else if((kd===""||kd==="wolkig")&&(x.t||0)>=6)tags.push("sonne");
   tags.forEach(t=>{(out[t]=out[t]||[]).push(n===0?"heute":n===1?"morgen":DN[d.getDay()])})}return out}
 function atipItems(){const j=S.atipps;if(!j||!Array.isArray(j.items))return [];const t=ymd(new Date()),have=new Set(trips().map(x=>(x.name||"").toLowerCase()));
   return j.items.filter(i=>i&&i.name&&((i.to||i.date||"9999")>=t)&&!have.has(String(i.name).toLowerCase()))}
@@ -2192,7 +2203,7 @@ function editBox(title,fields,onSave,onDel){S.mboxAt=Date.now();if(document.getE
   el.addEventListener("input",e=>{const k=e.target.dataset&&e.target.dataset.ebf;if(k)V[k]=e.target.value});
   el.addEventListener("submit",async e=>{e.preventDefault();mboxClose();try{await onSave(V)}catch(_){toast("Konnte nicht speichern.")}});
   el.addEventListener("click",async e=>{const c=e.target.closest("[data-ebk]");if(c){V[c.dataset.ebk]=c.dataset.ebv;draw();return}
-    const m=e.target.closest("[data-ebm]");if(m){const L=V[m.dataset.ebm]||(V[m.dataset.ebm]=[]),i=L.indexOf(m.dataset.ebv);if(i<0)L.push(m.dataset.ebv);else L.splice(i,1);draw();return}
+    const m=e.target.closest("[data-ebm]");if(m){const f=fields.find(x=>x.k===m.dataset.ebm)||{},v=m.dataset.ebv,X=f.excl||[];let L=(V[m.dataset.ebm]||[]).filter(x=>!X.includes(x));if(X.includes(v))L=[v];else{const i=L.indexOf(v);if(i<0)L.push(v);else L.splice(i,1);if(!L.length&&X.length)L=[X[0]]}V[m.dataset.ebm]=L;draw();return}
     if(e.target.closest("[data-ebx]")){mboxClose();return}
     const d=e.target.closest("[data-ebdel]");if(d){const D=Array.isArray(onDel)?onDel[+d.dataset.ebdel]:["Löschen",onDel,true];if(D[2]&&d.dataset.sure!=="1"){d.dataset.sure="1";d.textContent="Wirklich "+D[0].toLowerCase()+"?";return}mboxClose();try{await D[1](V)}catch(_){toast("Konnte nicht speichern.")}return}
     if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose()})}
@@ -3081,13 +3092,13 @@ app.addEventListener("click",async e=>{
   if(b.dataset.fwkwrm){try{await S.store.setPath("food/ext/fwkw/"+b.dataset.fwkwrm,null)}catch(_){}return}
   if(b.dataset.fwpick){const id=b.dataset.fwpick,fw=S.food&&S.food.ext&&S.food.ext.fw,x=fw&&fw.items&&fw.items[id];if(!x)return;const cur=((S.food.ext.fwwho||{})[id])||"",X=((S.food.ext.fwx||{})[id])||{},pl=X.place&&placeFind(X.place)?placeFind(X.place).name:"";
     // Familywall-Termin (Florian 16.11.2026): Titel und Zeit nur in Familywall; Für wen, Art, Ort und Erinnern ergänzt die App (food/ext/fwx/<id>)
-    editBox("„"+x.name+"“",[{k:"note",type:"note",label:rDate(x.date)+(x.time?" "+x.time:"")+(x.place?" · "+x.place:"")+". Aus Familywall: Titel und Zeit ändern geht nur dort."},{k:"who",label:"Für wen",type:"chips",opts:[["","Automatisch"]].concat(whoOpts()),val:cur},
+    editBox("„"+x.name+"“",[{k:"note",type:"note",label:rDate(x.date)+(x.time?" "+x.time:"")+(x.place?" · "+x.place:"")+". Aus Familywall: Titel und Zeit ändern geht nur dort."},{k:"who",label:"Für wen (mehrere gehen)",type:"multi",excl:["","both"],opts:[["","Automatisch"]].concat(whoOpts()),val:!cur?[""]:cur==="both"?["both"]:whoL(cur)},
       {k:"tag",label:"Art",type:"chips",opts:[["","Keine"]].concat(terTags().map(t=>[t[0],t[1]+" "+t[2]])),val:X.tag||""},
       {k:"pl",label:"Ort"+(x.place?" (sonst wie in Familywall)":""),type:"chips",opts:[["",x.place?"Wie in Familywall":"Keiner"]].concat(places().map(p=>[p.name,"📍 "+p.name])),val:pl},
       {k:"plx",label:"Oder Adresse nur für diesen Termin",type:"text",val:X.place&&!pl?X.place:""},
       {k:"remind",label:"🔔 Erinnern",type:"chips",opts:[["","Nein"],["tag","Am Tag"],["1d","1 Tag vorher"],["1h","1 Stunde vorher"]],val:X.remind===true?"tag":X.remind||""},
       {k:"kw",label:"Optional: Für-wen-Regel für alle Termine mit diesem Wort im Titel",type:"text",val:""}],
-      async V=>{await S.store.setPath("food/ext/fwwho/"+id,V.who||null);const kw=String(V.kw||"").trim().slice(0,40);if(kw&&V.who)await S.store.setPath("food/ext/fwkw/"+newId("k"),{kw,who:V.who});
+      async V=>{const W=V.who||[],who=W.includes("both")?"both":WHO_ORD.filter(x=>W.includes(x)).join(",");await S.store.setPath("food/ext/fwwho/"+id,who||null);const kw=String(V.kw||"").trim().slice(0,40);if(kw&&who)await S.store.setPath("food/ext/fwkw/"+newId("k"),{kw,who});
         const place=String(V.plx||"").trim().slice(0,160)||V.pl||null,rm=V.remind==="tag"?true:V.remind||null;await S.store.setPath("food/ext/fwx/"+id,V.tag||place||rm?{tag:V.tag||null,place,remind:rm}:null);toast("Gespeichert");render()},
       [["🙈 In der App ausblenden (auch Wiederholungen)",async()=>{await S.store.setPath("food/ext/fwhide/"+fwHideKey(x.name),{name:String(x.name).slice(0,80),at:Date.now()});toast("Ausgeblendet. Zurückholen unter Kalender › Bereiche.")},false]]);return}
   if(b.dataset.fwunhide){try{await S.store.setPath("food/ext/fwhide/"+b.dataset.fwunhide,null);toast("Wird wieder gezeigt")}catch(_){toast("Konnte nicht speichern.")}return}
@@ -3100,9 +3111,10 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="ternew"){S.terDraft={id:null,name:"",date:S.calDay||ymd(new Date()),time:"",who:"both",rep:"",note:""};render();window.scrollTo(0,0);const el=document.getElementById("ter-name");if(el)el.focus();return}
   if(b.dataset.teredit){const x=termine().find(y=>y.id===b.dataset.teredit);if(x){S.terDraft=terDraftOf(x);render();window.scrollTo(0,0)}return}
   if(b.dataset.act==="teraltadd"&&S.terDraft){const d=S.terDraft;d.alt=d.alt||[];if(!d.alt.length&&!d.ask)d.ask=choiceOther(S.me)||"p1";d.alt.push({date:"",time:d.time||""});render();const l=document.querySelectorAll("[data-teralt][data-k=date]");if(l.length)l[l.length-1].focus();return}
+  if(b.dataset.act==="terallday"&&S.terDraft){const d=S.terDraft;d.allday=!d.allday;render();return}
   if(b.dataset.teraltrm!=null&&S.terDraft){S.terDraft.alt.splice(+b.dataset.teraltrm,1);render();return}
   if(b.dataset.tertag!=null&&S.terDraft){const d=S.terDraft;d.tag=b.dataset.tertag;const t=terTag(d);if(t&&!String(d.place||"").trim()&&placeFind(t[2]))d.place=placeFind(t[2]).name;render();return}
-  if(b.dataset.placeset!=null){const D=S.tripDraft||S.terDraft;if(D){D.place=b.dataset.placeset;render()}return}
+  if(b.dataset.placeset!=null){const D=S.tripDraft||S.terDraft;if(D){D.place=b.getAttribute("aria-pressed")==="true"?"":b.dataset.placeset;render()}return}
   if(b.dataset.placenew!=null){placeEdit(null,b.dataset.placenew);return}
   if(b.dataset.placeask){placeAsk(b.dataset.placeask);return}
   if(b.dataset.placeedit){placeEdit(b.dataset.placeedit);return}
@@ -3111,7 +3123,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="pushtest"){pushTest();return}
   if(b.dataset.chopen){const [k,id]=b.dataset.chopen.split("|");choiceOpen(k,id);return}
   if(b.dataset.chseen){const [k,id]=b.dataset.chseen.split("|");try{await choiceSet(k,id,{["told/seen/"+(S.me||"x")]:true})}catch(_){toast("Konnte nicht speichern.")}render();return}
-  if(b.dataset.terwho){S.terDraft.who=b.dataset.terwho;render();return}
+  if(b.dataset.terwho){S.terDraft.who=whoToggle(S.terDraft.who,b.dataset.terwho);render();return}
   if(b.dataset.terrem!=null&&S.terDraft){S.terDraft.remind=b.dataset.terrem==="tag"?true:b.dataset.terrem||null;render();return}
   if(b.dataset.terrep!=null&&S.terDraft){S.terDraft.rep=b.dataset.terrep;render();return}
   if(b.dataset.act==="tercancel"){S.terDraft=null;render();return}
@@ -3426,8 +3438,8 @@ app.addEventListener("submit",async e=>{if(e.target.classList&&e.target.classLis
     if(!P.due){S.terDraft={id:null,name,date:S.calDay||ymd(new Date()),time:P.time||"",who:who||"both",rep:rp||"",note:""};render();toast("Tag bitte wählen");return}
     try{await S.store.setPath("food/termin/"+newId("t"),{name,date:P.due,time:P.time||null,who,rep:rp,at:Date.now(),by:S.me||""});S.calDay=P.due;const d=ymdD(P.due);S.calMonth=new Date(d.getFullYear(),d.getMonth(),1,12);toast("Eingetragen: "+dLabel(P.due)+(P.time?" "+P.time:""));render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(e.target.id==="terform"){e.preventDefault();const d=S.terDraft;if(!d)return;const name=(d.name||"").trim().slice(0,80);if(!name||!/^\d{4}-\d{2}-\d{2}$/.test(d.date||"")){toast("Bitte Was und Tag eintragen.");return}
-    const id=d.id||newId("t"),old=termine().find(y=>y.id===id),v={name,date:d.date,to:!d.rep&&d.to&&d.to>d.date?d.to:null,time:d.time||null,who:d.who&&d.who!=="both"?d.who:null,rep:d.rep||null,note:(d.note||"").trim().slice(0,200)||null,place:(d.place||"").trim().slice(0,120)||null,link:safeLink(d.link)||null,tag:d.tag||null,remind:d.remind===undefined?(old&&old.remind||null):(d.remind||null),at:Date.now(),by:S.me||""};
-    {const seen=new Set([d.date+"|"+(d.time||"")]),alt=d.rep?[]:(d.alt||[]).filter(o=>/^\d{4}-\d{2}-\d{2}$/.test(o.date||"")&&!seen.has(o.date+"|"+(o.time||""))&&seen.add(o.date+"|"+(o.time||""))).map(o=>({date:o.date,time:o.time||null}));
+    const id=d.id||newId("t"),old=termine().find(y=>y.id===id),v={name,date:d.date,to:!d.rep&&d.to&&d.to>d.date?d.to:null,time:d.allday?null:d.time||null,tend:!d.allday&&d.tend&&(d.to&&d.to>d.date||!d.time||d.tend>d.time)?d.tend:null,allday:d.allday||null,who:d.who&&d.who!=="both"?d.who:null,rep:d.rep||null,note:(d.note||"").trim().slice(0,200)||null,place:(d.place||"").trim().slice(0,120)||null,link:safeLink(d.link)||null,tag:d.tag||null,remind:d.remind===undefined?(old&&old.remind||null):(d.remind||null),at:Date.now(),by:S.me||""};
+    {const seen=new Set([d.date+"|"+(d.time||"")]),alt=d.rep?[]:(d.alt||[]).filter(o=>/^\d{4}-\d{2}-\d{2}$/.test(o.date||"")&&!seen.has(o.date+"|"+(o.time||""))&&seen.add(o.date+"|"+(o.time||""))).map(o=>({date:o.date,time:d.allday?null:o.time||null,tend:!d.allday&&o.tend&&(!o.time||o.tend>o.time)?o.tend:null}));
       v.alt=alt.length?alt:null;const oa=old&&old.ask,same=old&&old.date===v.date&&(old.time||null)===v.time&&JSON.stringify(altOf(old).map(o=>[o.date,o.time||null]))===JSON.stringify(alt.map(o=>[o.date,o.time]));
       v.ask=alt.length&&d.ask?{who:d.ask,from:(oa&&oa.from)||S.me||"",at:(oa&&oa.at)||Date.now(),due:/^\d{4}-\d{2}-\d{2}$/.test(d.askdue||"")?d.askdue:null,votes:oa&&oa.who===d.ask&&same?oa.votes||null:null}:null;
       v.told=v.ask?null:(old&&old.told)||null;if(v.ask)v.to=null}
@@ -3581,9 +3593,9 @@ const emoClean=v=>String(v||"").trim().slice(0,8)||null;
 const altOf=x=>Object.values((x&&x.alt)||{}).filter(o=>o&&/^\d{4}-\d{2}-\d{2}$/.test(o.date||""));
 const CHOICE_KINDS={
   termin:{path:"termin",list:()=>termine(),icon:"📅",
-    opts:x=>[{date:x.date,time:x.time||""}].concat(altOf(x).map(o=>({date:o.date,time:o.time||""}))),
-    label:o=>WD2[ymdD(o.date).getDay()]+" "+rDate(o.date)+(o.time?" "+o.time:""),
-    pick:(x,i)=>{const O=CHOICE_KINDS.termin.opts(x),c=O[i];return {date:c.date,time:c.time||null,alt:O.filter((_,j)=>j!==i).map(o=>({date:o.date,time:o.time||null}))}},
+    opts:x=>[{date:x.date,time:x.time||"",tend:x.tend||""}].concat(altOf(x).map(o=>({date:o.date,time:o.time||"",tend:o.tend||""}))),
+    label:o=>WD2[ymdD(o.date).getDay()]+" "+rDate(o.date)+(o.time?" "+o.time:"")+(o.tend?" bis "+o.tend:""),
+    pick:(x,i)=>{const O=CHOICE_KINDS.termin.opts(x),c=O[i];return {date:c.date,time:c.time||null,tend:c.tend||null,alt:O.filter((_,j)=>j!==i).map(o=>({date:o.date,time:o.time||null,tend:o.tend||null}))}},
     edit:x=>{goNav("woche|wp:3");S.terDraft=terDraftOf(x);render();window.scrollTo(0,0)},
     nav:"woche|wp:3"}};
 const choiceOther=p=>p==="p0"?"p1":p==="p1"?"p0":"";
@@ -3620,7 +3632,7 @@ function choiceOpen(k,id){const K=CHOICE_KINDS[k],x=choiceGet(k,id);if(!K||!x||d
     if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose()})}
 // Kalender: offene Möglichkeiten gestrichelt und blasser, mit „?“ und „1 von 3“
 function choiceEvents(x,a,z,out){const O=CHOICE_KINDS.termin.opts(x),n=O.length,w=choiceWhoTxt(x.ask);
-  O.forEach((o,i)=>{if(o.date>=a&&o.date<=z)out.push({d:o.date,t:o.time||"",name:"? "+x.name+" ("+(i+1)+" von "+n+")",icon:terIcon(x),src:"own",tag:x.tag||"",tent:true,id:x.id,who:x.who||"",note:"Noch offen: "+w+(x.ask.due?", Frist "+rDate(x.ask.due):""),place:x.place||""})})}
+  O.forEach((o,i)=>{if(o.date>=a&&o.date<=z)out.push({d:o.date,t:o.time||"",te:o.tend||"",ad:!!x.allday,name:"? "+x.name+" ("+(i+1)+" von "+n+")",icon:terIcon(x),src:"own",tag:x.tag||"",tent:true,id:x.id,who:x.who||"",note:"Noch offen: "+w+(x.ask.due?", Frist "+rDate(x.ask.due):""),place:x.place||""})})}
 // Wichtig: Karte „Bitte wählen“ plus Hinweise „hat gewählt“ und was beim anderen liegt
 function choiceCard(){const {A,N,W}=choiceBell(),today=ymd(new Date());if(!A.length&&!N.length&&!W.length)return "";
   const K=c=>CHOICE_KINDS[c.k],row=(c,txt,cls)=>`<div class="prow${cls?" "+cls:""}"><span class="pchk" aria-hidden="true">${K(c).icon}</span><button class="pnm" data-chopen="${c.k}|${esc(c.x.id)}">${esc(c.x.name)}<br><i>${txt}</i></button></div>`;
