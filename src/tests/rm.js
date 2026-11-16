@@ -8,7 +8,7 @@ srv.listen(8765,async()=>{
   await A.click('[data-sugrec]');await A.waitForTimeout(300);await A.click('[data-sugok]');await A.click('#mbox [data-sugto=plan]');await A.waitForTimeout(400);
   const recRow=await A.$$eval('ul.meals .dish',l=>l.map(x=>x.innerText).filter(x=>/Kürbissuppe/.test(x)));
   await A.click('[data-act=mealshop]');await A.click('[data-pickmode=alle]');await A.waitForTimeout(500);
-  await A.click('[data-food=plan]').catch(()=>{});
+  await A.click('[data-food=heute]');await A.click('[data-food=plan]').catch(()=>{});
   await A.click(`[data-planrm=${k}]`);await A.waitForTimeout(500);
   const plan=await A.$$eval('ul.meals .dish',l=>l.map(x=>x.innerText).filter(x=>/Kürbissuppe/.test(x)));
   await A.click('#tabs [data-tab=einkauf]');const shop=await A.$$eval('.shop .nm',l=>l.map(x=>x.innerText));

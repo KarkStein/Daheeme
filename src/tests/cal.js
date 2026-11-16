@@ -13,11 +13,11 @@ srv.listen(8765,async()=>{
   await A.click('#tabs [data-tab=camp]');await A.waitForTimeout(500);r.start=await A.$$eval('.todayrow',l=>l.map(x=>x.innerText.replace(/\n/g,' ')).filter(t=>/Zahnarzt/.test(t)));
   await A.click('#tabs [data-tab=einkauf]');await dbl('camp');r.camp=await A.evaluate(()=>{const e=document.querySelector('.pdot[aria-pressed=true]');return e&&e.innerText});
   await dbl('essen');r.essen=await A.$eval('[data-food][aria-pressed=true],[data-food].on',e=>e.innerText).catch(()=>'?');
-  await A.click('[data-meal=d5]');await A.fill('#mealinput','Kürbissuppe');await A.click('[data-act=mealsave]');await A.waitForTimeout(300);
+  await A.click('[data-food=heute]');await A.waitForTimeout(150);await A.click('[data-food=plan]');await A.waitForTimeout(200);await A.click('[data-meal=d5]');await A.fill('#mealinput','Kürbissuppe');await A.click('[data-act=mealsave]');await A.waitForTimeout(300);
   await dbl('einkauf');r.einkauf=await A.$eval('#app h1',e=>e.innerText).catch(()=>'?');
   await A.click('#tabs [data-tab=woche]');await A.waitForTimeout(500);await A.click('#tabs [data-tab=essen]');await A.waitForTimeout(300);
   r.rmBtns=await A.$$eval('.dishrm',l=>l.length);await A.screenshot({path:out+'/heute-storno.png',fullPage:true});
   await A.click('.dishrm');await A.waitForTimeout(400);r.after=await A.$eval('.fdish',e=>e.innerText);
   console.log(r,errs);
-  const ok=!errs.length&&r.cal>=35&&r.pager[1]==='Kalender*'&&r.day.some(x=>/Omas/.test(x))&&/Kalender/.test(r.camp)&&/Wochenplan/.test(r.essen)&&/Ausgaben/.test(r.einkauf)&&r.rmBtns===1&&/Noch nichts/.test(r.after);
+  const ok=!errs.length&&r.cal>=35&&r.pager[1]==='Kalender*'&&r.day.some(x=>/Omas/.test(x))&&/Kalender/.test(r.camp)&&/Rezepte/.test(r.essen)&&/Ausgaben/.test(r.einkauf)&&r.rmBtns===1&&/Noch nichts/.test(r.after);
   console.log(ok?'CAL OK':'CAL FAIL');await b.close();srv.close();process.exit(0)});

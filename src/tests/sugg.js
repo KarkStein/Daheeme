@@ -30,7 +30,7 @@ srv.listen(8765,async()=>{
   await A.click('[data-act=sugall]');await A.click('#mbox [data-sugto=plan]');await A.waitForTimeout(800);
   await B.click('[data-tab=essen]');await B.click('[data-food=plan]');await B.click('[data-fnav="1"]');await B.waitForTimeout(400);
   const bplan=await B.$$eval('ul.meals .dish',l=>l.map(x=>x.innerText.split('\n')[0]));const stressB=await B.$eval('[data-stress=d0]',e=>e.getAttribute('aria-pressed'));
-  await B.click('[data-act=mealshop]');await B.click('[data-pickmode=alle]');await B.waitForTimeout(800);await B.click('[data-food=plan]').catch(()=>{});
+  await B.click('[data-act=mealshop]');await B.click('[data-pickmode=alle]');await B.waitForTimeout(800);await B.click('[data-food=heute]').catch(()=>{});await B.click('[data-food=plan]').catch(()=>{});
   const shop=await B.evaluate(()=>0);
   await B.screenshot({path:out+'/plan-b.png',fullPage:true});
   console.log({rows,checks,before,after,bplan,stressB,errs});

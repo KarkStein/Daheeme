@@ -267,10 +267,11 @@ details.reisemap summary{cursor:pointer;font-weight:600}
 #app.swl{animation:swl .18s ease-out}#app.swr{animation:swr .18s ease-out}
 @keyframes beam{from{transform:rotate(-5deg)}to{transform:rotate(6deg)}}
 .bob{animation:bob 3s ease-in-out infinite alternate}
+.plane{animation:plane 6s ease-in-out infinite alternate}@keyframes plane{to{transform:translate(4px,-1.5px)}}
 @keyframes bob{to{transform:translateY(2px)}}
 .smoke{animation:smoke 3.5s ease-in-out infinite alternate}
 @keyframes smoke{to{transform:translate(3px,-3px);opacity:.45}}
-@media (prefers-reduced-motion: reduce){.flame,.twinkle,.beam,.bob,.smoke,.rain,.snow{animation:none}.bolt{animation:none;opacity:0}}
+@media (prefers-reduced-motion: reduce){.flame,.twinkle,.beam,.bob,.plane,.smoke,.rain,.snow{animation:none}.bolt{animation:none;opacity:0}}
 .unl{display:flex;flex-wrap:wrap;gap:6px}
 .unl span{font-size:var(--fs-s);font-weight:600;border-radius:999px;padding:4px 11px;background:var(--done-soft);color:var(--done);border:1px solid transparent}
 .unl span.lock{background:transparent;color:var(--muted);border:1px dashed var(--line)}
@@ -431,7 +432,7 @@ a.primary,a.primary:visited{color:var(--bg)}
 .srclink{background:none;border:none;padding:8px 4px;font-size:var(--fs-m);cursor:pointer}
 .areacard .areahead{font-weight:700;font-size:var(--fs-l)}.areacard .te{font-size:var(--fs-l)}
 .toast .toastbtn{margin-left:8px;background:var(--bg);color:var(--fg);border:0;border-radius:999px;padding:5px 12px;font:inherit;font-weight:700;cursor:pointer}
-.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:var(--fs-s);font-weight:600;z-index:9;max-width:calc(100% - 32px)}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:var(--fs-s);font-weight:600;z-index:65;max-width:calc(100% - 32px)}
 .celebrate{background:var(--lemon);color:var(--lemon-ink);border-radius:var(--r);padding:12px 14px;font-weight:700;display:flex;gap:10px;align-items:center}
 /* ---------- Look „Bretagne“ (Florian 15.11.2026): Papier, Marine-Tinte, Serifen-Überschriften, feiner Doppelstrich ---------- */
 h1{font-weight:800;letter-spacing:-.02em}
@@ -549,13 +550,17 @@ section[id^="sec-"]{scroll-margin-top:calc(var(--sp5)*3)}
 .pastehow{margin:var(--sp1) 0;padding-left:1.2em}
 .wishcard .fld{margin-top:var(--sp2)}.wishweb{margin-top:var(--sp4);padding-top:var(--sp3);border-top:1px solid var(--line)}.wishweb .unl{margin:var(--sp2) 0}.wishweb .btnrow{margin-top:var(--sp2)}.wishweb .btnrow+.freq{margin-top:var(--sp2)}
 .wishlist{margin-top:var(--sp3)}.wishlist .n{flex:1;min-width:0;overflow-wrap:anywhere}.wishlist .n small{display:block;font-size:var(--fs-xs);color:var(--muted)}.wishlist .t{font-size:var(--fs-l);min-width:0}.wishbtns a{text-decoration:none}.wishbtns{display:flex;gap:var(--sp1)}.wishlist .linkbtn{background:none;border:none;padding:0;color:inherit;font:inherit;text-align:left;text-decoration:underline;text-underline-offset:3px}.wishnone{margin-top:var(--sp3)}.wishcopy{width:100%;box-sizing:border-box;margin-top:var(--sp2);font-size:var(--fs-s)}
+/* Fenster (16.11.2026): lange Masken scrollen im Fenster, der Titel bleibt erreichbar; Abstände zwischen Feldern und vor den Knöpfen */
+#mbox .mboxcard{max-height:calc(100vh - 112px);max-height:calc(100dvh - 112px);overflow-y:auto;overscroll-behavior:contain;box-sizing:border-box}
+#mbox .editbox{display:grid;gap:var(--sp3)}#mbox .editbox>.btnrow{margin-top:var(--sp1)}#mbox .editbox .fld>.freq{margin-top:var(--sp1)}
+.sclist li{display:flex;align-items:center;gap:var(--sp1)}.sclist .scic{width:40px;flex:0 0 40px;text-align:center;padding:6px 2px}.sclist .scnm{flex:1;min-width:0;padding:6px 8px}.sclist .iconbtn{flex:0 0 auto;width:32px;height:32px;font-size:var(--fs-m)}.sclist .scsp{width:32px;flex:0 0 32px}.sclist .iconbtn.sure{width:auto;padding:0 var(--sp2);font-size:var(--fs-xs)}
 </style>
 
 <div class="app" id="app">
   <div class="empty" id="boot">🏕️🧹 wird geladen …</div>
 </div>
 <nav class="tabs" role="tablist" id="tabs">
-  <button role="tab" data-tab="camp" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20 12 4l9 16H3z"/><path d="M12 12l3.5 8h-7z"/><path d="M10.5 2.5 12 4l1.5-1.5"/></svg>Start</button>
+  <button role="tab" data-tab="camp" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v11h14V9"/><path d="M10 20v-6h4v6"/></svg>Start</button>
   <button role="tab" data-tab="woche" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18M8 15l2.5 2.5L16 13"/></svg>Woche</button>
   <button role="tab" data-tab="essen" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v8M4 3v5a3 3 0 0 0 6 0V3M7 11v10"/><path d="M17 3c-2 1.5-3 4-3 7h3v11"/></svg>Essen</button>
   <button role="tab" data-tab="einkauf" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18l-2 9H5z"/><path d="M8 10l3-6M16 10l-3-6M9 14v2M12 14v2M15 14v2"/></svg>Einkauf</button>
@@ -1057,7 +1062,7 @@ function wxKind(code){if(code==null||code==="")return "";code=+code;if(isNaN(cod
 // Ausschnitt des Hausbilds (Florian 15.11.2026: weniger Himmel, Haus und Wiese größer). Spots rechnen damit.
 const HVB=[4,32,352,228];
 function spotPos(x,y,w,h){const V=HVB;return `left:${((x-V[0])/V[2]*100).toFixed(1)}%;top:${((y-V[1])/V[3]*100).toFixed(1)}%;width:${(w/V[2]*100).toFixed(1)}%;height:${(h/V[3]*100).toFixed(1)}%`}
-function houseScene(has,light,night,extras,sea,guests,dots,amb){dots=dots||{};amb=amb||{};const st=amb.st!=null?amb.st:bildStil();const ph=amb.ph||(night?"night":"day"),wk=amb.wx||"";const grey=/regen|gewitter|schnee|bedeckt|nebel/.test(wk);
+function houseScene(has,light,night,extras,sea,guests,dots,amb){dots=dots||{};amb=amb||{};const st=amb.st!=null?amb.st:bildStil();const ph=amb.ph||(night?"night":"day"),wk=amb.wx||"";const grey=/regen|gewitter|schnee|bedeckt|nebel/.test(wk),city=!!amb.city;
   const C=night?{sky1:"#0e1d30",sky2:"#2a4560",sea1:"#1d3d5c",sea2:"#16314b",land:"#2d5040",land2:"#254436",sand:"#6f6a55",wall:"#7d7d7c",stone:"#666868",roof:"#283340",head:"#3a4a4a"}
                :{sky1:"#b8dcec",sky2:"#f3efe0",sea1:"#4f8fb8",sea2:"#2f6c97",land:"#8fbf7f",land2:"#7aae6c",sand:"#e8d8ac",wall:"#bdb8ad",stone:"#a39e93",roof:"#4b5866",head:"#8aa38b"};
   Object.assign(C,(night?{winter:{land:"#55675f",land2:"#4a5b53"},autumn:{land:"#4a4f33",land2:"#3d422a"}}
@@ -1076,25 +1081,25 @@ function houseScene(has,light,night,extras,sea,guests,dots,amb){dots=dots||{};am
     if(grey)g+=`<path d="M0 22h90a20 20 0 0 0-40-14 16 16 0 0 0-50 14z M250 18h110v-18h-60a20 20 0 0 0-50 18z M90 58h60a14 14 0 0 0-28-9 11 11 0 0 0-32 9z" fill="${night?"#2f3a46":"#b9c0c6"}"/>`}
   if(!night)g+=`<path d="M176 70 q5 -5 10 0 q5 -5 10 0 M222 86 q4 -4 8 0 q4 -4 8 0" fill="none" stroke="#4b5866" stroke-width="1.6" stroke-linecap="round"/>`;
   if(has.kite)g+=`<path d="M246 52 L256 40 L266 52 L256 70Z" fill="#f25f5c"/><path d="M256 40 V70 M246 52 H266" stroke="#fff" stroke-width="1"/><path d="M256 70 Q262 120 248 176" fill="none" stroke="#5b4a3a" stroke-width=".8"/><path d="M256 70 q-4 6 2 10 q-6 4 0 10" fill="none" stroke="#ffd66b" stroke-width="2"/>`;
-  g+=`</g><rect x="0" y="118" width="360" height="142" fill="url(#hsea)"/><path d="M180 132h22M262 150h26M206 170h18" stroke="#fff" stroke-opacity=".45" stroke-width="2" stroke-linecap="round"/>`;
+  if(city)g+="</g>"+cityBack(C,night,sea,light);else g+=`</g><rect x="0" y="118" width="360" height="142" fill="url(#hsea)"/><path d="M180 132h22M262 150h26M206 170h18" stroke="#fff" stroke-opacity=".45" stroke-width="2" stroke-linecap="round"/>`;
   // Segelboot rechts im Meer: führt zu Urlauben (Florian 15.11.2026, ersetzt die Welle)
-  g+=`<g class="hwave"><path d="M300 230 q8 -3 16 0 t16 0 t16 0 t12 0" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="1.8" stroke-linecap="round"/><path d="M296 219 H350 L342 229 H303Z" fill="${night?"#5a3b25":"#8a5a34"}"/><path d="M296 219 H350" stroke="#f4f1ea" stroke-width="1.6"/><path d="M322 219 V166" stroke="#5b4a3a" stroke-width="1.8" stroke-linecap="round"/><path d="M324.5 169 Q342 190 346 216 H324.5Z" fill="#f4f1ea"/><path d="M319.5 174 Q307 196 301 216 H319.5Z" fill="${night?"#c9c2b3":"#e8dcc4"}"/><path d="M322 166 l9 3 l-9 3z" fill="#d6453d"/><path d="M332 196 q4 2 8 0" stroke="#3f6fa8" stroke-width="1.4" fill="none" opacity=".6"/></g>`;
+  if(city)g+=cityPlane(night);else g+=`<g class="hwave"><path d="M300 230 q8 -3 16 0 t16 0 t16 0 t12 0" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="1.8" stroke-linecap="round"/><path d="M296 219 H350 L342 229 H303Z" fill="${night?"#5a3b25":"#8a5a34"}"/><path d="M296 219 H350" stroke="#f4f1ea" stroke-width="1.6"/><path d="M322 219 V166" stroke="#5b4a3a" stroke-width="1.8" stroke-linecap="round"/><path d="M324.5 169 Q342 190 346 216 H324.5Z" fill="#f4f1ea"/><path d="M319.5 174 Q307 196 301 216 H319.5Z" fill="${night?"#c9c2b3":"#e8dcc4"}"/><path d="M322 166 l9 3 l-9 3z" fill="#d6453d"/><path d="M332 196 q4 2 8 0" stroke="#3f6fa8" stroke-width="1.4" fill="none" opacity=".6"/></g>`;
   // Klippen links hinten: klein, kantig, zur Sonne hin ansteigend (Privat)
-  {const rk=night?"#55524c":"#b3a796",rk2=night?"#403d38":"#8f8476",tp=C.head,ink=night?"#2a2a2a":"#5b4a3a";
+  if(city)g+=cityCafe(night);else {const rk=night?"#55524c":"#b3a796",rk2=night?"#403d38":"#8f8476",tp=C.head,ink=night?"#2a2a2a":"#5b4a3a";
    g+=`<path d="M4 144 L5 112 L10 106 L16 108 L21 102 L27 105 L33 110 L38 109 L44 116 L50 119 L55 125 L61 128 L66 134 L72 144Z" fill="${rk}"/>`
      +`<path d="M21 102 L25 118 L19 144 L10 144 L14 122Z M38 109 L41 124 L36 144 L30 144 L34 126Z M55 125 L57 134 L54 144 L48 144 L51 133Z" fill="${rk2}" opacity=".7"/>`
      +`<path d="M5 112 L10 106 L16 108 L21 102 L27 105 L33 110 L38 109 L44 116 L50 119 L55 125 L61 128 L61 129.5 L54 126.5 L49 121 L43 118 L37 111 L33 112 L27 107 L21 104.5 L16 110 L10 108 L5 114Z" fill="${tp}"/>`
      +`<path d="M12 104.5 h5 M12.6 104.5 v1.6 M16.4 104.5 v1.6" stroke="${ink}" stroke-width=".9" stroke-linecap="round"/><circle cx="13.6" cy="102.6" r="1" fill="${ink}"/><circle cx="15.6" cy="102.6" r="1" fill="${ink}"/>`}
-  g+=`<path d="M262 124 Q292 98 360 102 V126 H262Z" fill="${C.head}"/><path d="M262 124 l10 -6 l8 7 l10 -4 l12 6Z" fill="#7d7f7a"/>`;
+  if(!city)g+=`<path d="M262 124 Q292 98 360 102 V126 H262Z" fill="${C.head}"/><path d="M262 124 l10 -6 l8 7 l10 -4 l12 6Z" fill="#7d7f7a"/>`;
   const bx=318,by=106,a=(0.25+0.75*light)*(night?1:.7);
-  if(light>0){g+=`<circle cx="${bx}" cy="${by-44}" r="${10+26*light}" fill="url(#hglow)" opacity="${night?1:.7}"/><path class="beam" d="M${bx-4} ${by-46} L${bx-150} ${by-74} L${bx-150} ${by-24}Z" fill="url(#hbeam)" opacity="${a.toFixed(2)}"/>`}
-  g+=`<path d="M${bx-8} ${by} L${bx-5.5} ${by-38} H${bx+5.5} L${bx+8} ${by}Z" fill="#f4f1ea"/><path d="M${bx-7.4} ${by-10} H${bx+7.4} L${bx+7} ${by-17} H${bx-7}Z M${bx-6.3} ${by-25} H${bx+6.3} L${bx+6} ${by-31} H${bx-6}Z" fill="#d6453d"/><rect x="${bx-6}" y="${by-41}" width="12" height="3" fill="#2b2b2b"/><rect x="${bx-4}" y="${by-48}" width="8" height="7" fill="${light>0?"#ffe08a":"#cfd8dc"}" stroke="#2b2b2b" stroke-width="1"/><path d="M${bx-5} ${by-48} L${bx} ${by-54} L${bx+5} ${by-48}Z" fill="#d6453d"/>`;
-  if(has.isles)g+=`<path d="M206 136 q10 -14 24 -4 q8 -6 14 4Z" fill="#7d7f7a"/><path d="M232 142 q6 -8 14 0Z" fill="#8c8f89"/>`;
-  if(has.boat)g+=`<g class="bob"><path d="M268 150 h34 l-6 9 h-24z" fill="#2f5d8a"/><rect x="276" y="140" width="12" height="10" fill="#f4f1ea"/><path d="M294 150 V130" stroke="#5b4a3a" stroke-width="1.6"/><path d="M294 132 l8 4 l-8 3" fill="#f25f5c"/></g>`;
-  if(has.sail)g+=`<g class="bob" style="animation-delay:1.2s"><path d="M300 198 h36 l-5 7 h-26z" fill="#f4f1ea"/><path d="M318 198 V164 L336 196Z" fill="#c7442f"/><path d="M316 198 V170 L302 196Z" fill="#f4f1ea"/></g>`;
-  g+=styFar(st,C,night);
-  g+=`<path d="M0 146 Q60 134 132 140 Q206 146 244 172 Q286 202 296 260 H0Z" fill="${C.land}"/>`;
-  g+=`<path d="M244 172 Q286 202 296 260 H276 Q270 212 232 184Z" fill="${C.sand}"/>`;
+  if(!city&&light>0){g+=`<circle cx="${bx}" cy="${by-44}" r="${10+26*light}" fill="url(#hglow)" opacity="${night?1:.7}"/><path class="beam" d="M${bx-4} ${by-46} L${bx-150} ${by-74} L${bx-150} ${by-24}Z" fill="url(#hbeam)" opacity="${a.toFixed(2)}"/>`}
+  if(!city)g+=`<path d="M${bx-8} ${by} L${bx-5.5} ${by-38} H${bx+5.5} L${bx+8} ${by}Z" fill="#f4f1ea"/><path d="M${bx-7.4} ${by-10} H${bx+7.4} L${bx+7} ${by-17} H${bx-7}Z M${bx-6.3} ${by-25} H${bx+6.3} L${bx+6} ${by-31} H${bx-6}Z" fill="#d6453d"/><rect x="${bx-6}" y="${by-41}" width="12" height="3" fill="#2b2b2b"/><rect x="${bx-4}" y="${by-48}" width="8" height="7" fill="${light>0?"#ffe08a":"#cfd8dc"}" stroke="#2b2b2b" stroke-width="1"/><path d="M${bx-5} ${by-48} L${bx} ${by-54} L${bx+5} ${by-48}Z" fill="#d6453d"/>`;
+  if(!city&&has.isles)g+=`<path d="M206 136 q10 -14 24 -4 q8 -6 14 4Z" fill="#7d7f7a"/><path d="M232 142 q6 -8 14 0Z" fill="#8c8f89"/>`;
+  if(!city&&has.boat)g+=`<g class="bob"><path d="M268 150 h34 l-6 9 h-24z" fill="#2f5d8a"/><rect x="276" y="140" width="12" height="10" fill="#f4f1ea"/><path d="M294 150 V130" stroke="#5b4a3a" stroke-width="1.6"/><path d="M294 132 l8 4 l-8 3" fill="#f25f5c"/></g>`;
+  if(!city&&has.sail)g+=`<g class="bob" style="animation-delay:1.2s"><path d="M300 198 h36 l-5 7 h-26z" fill="#f4f1ea"/><path d="M318 198 V164 L336 196Z" fill="#c7442f"/><path d="M316 198 V170 L302 196Z" fill="#f4f1ea"/></g>`;
+  if(!city)g+=styFar(st,C,night);
+  g+=`<path d="M0 146 Q60 134 132 140 Q206 146 244 172 Q286 202 296 260 H0Z" fill="${C.land}"/>`;if(city)g+=cityLawn(C,night,st);
+  g+=`<path d="M244 172 Q286 202 296 260 H276 Q270 212 232 184Z" fill="${city?(night?"#6e6a63":"#e6dfd2"):C.sand}"/>`;
   g+=`<path d="M0 222 Q120 206 262 230 L270 260 H0Z" fill="${C.land2}"/>`;
   g+=styLand(st,C,night);
   if(sea==="spring")[[20,246,"#f7a8c4"],[86,252,"#fff"],[238,250,"#f7a8c4"],[70,236,"#ffd66b"],[18,206,"#fff"],[60,176,"#ffd66b"],[226,214,"#f7a8c4"]].forEach(p=>{g+=`<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="${p[2]}"/><circle cx="${p[0]}" cy="${p[1]}" r="1.1" fill="#e0a030"/>`});
@@ -1122,8 +1127,8 @@ function houseScene(has,light,night,extras,sea,guests,dots,amb){dots=dots||{};am
     [[206,128,"#f25f5c"],[215,144,"#ffd66b"],[224,158,"#3f6fa8"],[231,172,"#f4f1ea"]].forEach(p=>{g+=`<path d="M${p[0]-5} ${p[1]} h10 l-5 10z" fill="${p[2]}"/>`})}
   if(has.hortensia)[[84,222],[186,219],[226,214]].forEach((p,i)=>{g+=`<circle cx="${p[0]}" cy="${p[1]}" r="9" fill="#2f6b4c"/><circle cx="${p[0]-3}" cy="${p[1]-3}" r="5" fill="${i%2?"#8fa8e8":"#6d8fd8"}"/><circle cx="${p[0]+4}" cy="${p[1]-1}" r="4.5" fill="${i%2?"#c9a3e0":"#8fa8e8"}"/>`});
   if(has.bench)g+=`<path d="M58 222 h34 M60 222 v10 M90 222 v10 M58 216 h34" stroke="#7a5230" stroke-width="3.2" stroke-linecap="round"/>`;
-  if(has.strandkorb)g+=`<path d="M262 212 h20 v20 h-20z" fill="#f4f1ea"/><path d="M262 212 q10 -14 20 0" fill="#3f6fa8"/><path d="M266 212 v20 M272 212 v20 M278 212 v20" stroke="#3f6fa8" stroke-width="2"/><rect x="264" y="220" width="16" height="9" fill="#d6c7a0"/>`;
-  if(has.seal)g+=`<path d="M318 252 q14 -16 30 -6 q4 4 -2 6Z" fill="#7d7f7a"/><ellipse cx="332" cy="242" rx="11" ry="5" fill="#5d5f62"/><circle cx="342" cy="237" r="4" fill="#5d5f62"/><circle cx="344" cy="236" r=".9" fill="#111"/>`;
+  if(!city&&has.strandkorb)g+=`<path d="M262 212 h20 v20 h-20z" fill="#f4f1ea"/><path d="M262 212 q10 -14 20 0" fill="#3f6fa8"/><path d="M266 212 v20 M272 212 v20 M278 212 v20" stroke="#3f6fa8" stroke-width="2"/><rect x="264" y="220" width="16" height="9" fill="#d6c7a0"/>`;
+  if(!city&&has.seal)g+=`<path d="M318 252 q14 -16 30 -6 q4 4 -2 6Z" fill="#7d7f7a"/><ellipse cx="332" cy="242" rx="11" ry="5" fill="#5d5f62"/><circle cx="342" cy="237" r="4" fill="#5d5f62"/><circle cx="344" cy="236" r=".9" fill="#111"/>`;
   if(has.wall){g+=`<path d="M0 244 Q120 236 250 248 V260 H0Z" fill="${C.stone}"/>`;for(let x=6;x<246;x+=16)g+=`<rect x="${x}" y="${246-Math.sin(x/40)*2}" width="12" height="6" rx="2" fill="${C.wall}"/>`}
   // Rucksack (Kita), rechts an die Hauswand gelehnt
   g+=`<g transform="rotate(-8 208 214)"><path d="M199 214 v-14 q0 -9 9 -9 q9 0 9 9 v14z" fill="#c7442f"/><path d="M199 202 q9 6 18 0 v-3 q-9 -6 -18 0z" fill="#9c3324"/><rect x="203" y="205" width="10" height="7" rx="2" fill="#9c3324"/><path d="M205 191 q3 -5 6 0" fill="none" stroke="#5b4a3a" stroke-width="1.6"/><circle cx="208" cy="203" r="1.2" fill="#ffd66b"/></g>`;
@@ -1141,7 +1146,7 @@ function houseScene(has,light,night,extras,sea,guests,dots,amb){dots=dots||{};am
   {const rp=night?"#8a7a62":"#b9a78a",sw=night?"#5a3b25":"#8a5a34";g+=treeSvg+`<g class="swing"><path d="M35 190 L33 213 M46 190 L46 213" stroke="${rp}" stroke-width="1.3" stroke-linecap="round"/><path d="M30 189 Q40 185 52 188" stroke="${night?"#4a3524":"#7a5230"}" stroke-width="2.4" stroke-linecap="round" fill="none"/><rect x="30" y="212" width="19" height="3.2" rx="1.4" fill="${sw}"/></g>`}
   const cd=new Date();g+=`<g transform="rotate(-4 62 214)"><rect x="54" y="205" width="17" height="19" rx="1" fill="#f4f1ea" stroke="#c9c2b3" stroke-width=".6"/><rect x="54" y="205" width="17" height="5" rx="1" fill="#c7442f"/><circle cx="62.5" cy="205.5" r="1.2" fill="#2b2b2b"/><text x="62.5" y="220.5" font-size="8.5" font-weight="700" text-anchor="middle" fill="#2b2b2b" font-family="system-ui,sans-serif">${cd.getDate()}</text></g>`;
   g+=`<g transform="translate(-9 0) rotate(-7 66 240)"><g fill="none" stroke="#2f4f6f" stroke-width="2.2"><circle cx="78" cy="240" r="10"/><circle cx="110" cy="240" r="10"/><path d="M78 240 L90 226 H104 L110 240 M90 226 L96 240 L104 226 M88 222 h6 M104 226 l2 -6 h5"/></g><g transform="translate(16 2)"><path d="M88 212 h18 l-3 11 h-12z" fill="#b5854a"/><path d="M90 216 h14 M91 220 h12" stroke="#8a6334" stroke-width="1"/><path d="M90 213 L104 203" stroke="#d9a05a" stroke-width="4.2" stroke-linecap="round"/><path d="M93 211 l1.5 -2 M97 208 l1.5 -2 M101 205.5 l1.5 -2" stroke="#a8702f" stroke-width=".9"/></g></g>`;
-  [[84,240],[48,250],[112,250]].slice(0,guests|0).forEach((p,i)=>{g+=`<text x="${p[0]}" y="${p[1]}" font-size="20" text-anchor="middle">${HOUSE_GUESTS[sea][i]}</text>`});
+  [[84,240],[48,250],[112,250]].slice(0,guests|0).forEach((p,i)=>{g+=`<text x="${p[0]}" y="${p[1]}" font-size="20" text-anchor="middle">${(city?CITY_GUESTS:HOUSE_GUESTS)[sea][i]}</text>`});
   const SPOTS=[[14,252],[110,242],[200,252],[60,226],[40,176],[170,238],[78,180],[226,252]];
   (extras||[]).forEach((e,i)=>{const sp=SPOTS[i%SPOTS.length];g+=`<text x="${sp[0]}" y="${sp[1]}" font-size="20" text-anchor="middle">${esc(e.emoji)}</text>`});
   // Briefkasten ganz vorne am linken Rand, dünner Pfosten; Fähnchen oben, wenn Briefe offen sind
@@ -1157,7 +1162,7 @@ function houseScene(has,light,night,extras,sea,guests,dots,amb){dots=dots||{};am
   if(wk==="gewitter")g+=`<path class="bolt" d="M232 30 l-10 22 h8 l-8 20 l18 -26 h-8 l8 -16z" fill="#ffe27a"/>`;
   if(wk==="schnee"){let r="";for(let i=0;i<40;i++){const x=(i*97+i*i*13+11)%360,y=(i*61+i*i*29+7)%250;r+=`<circle cx="${x}" cy="${y}" r="${1.2+(i%3)*.5}"/>`}g+=`<g class="snow" fill="#fff" opacity=".9">${r}</g>`}
   if(st==="aquarell"){const k=g.indexOf("</defs>")+7;g=g.slice(0,k)+`<g filter="url(#sAq)">`+g.slice(k)+"</g>"}
-  return `<svg viewBox="${HVB.join(" ")}" role="img" aria-label="Euer Haus am Meer"${styCss(st)}>${g}</svg>`}
+  return `<svg viewBox="${HVB.join(" ")}" role="img" aria-label="Euer Haus ${city?"in der Stadt":"am Meer"}"${styCss(st)}>${g}</svg>`}
 function campTotal(){let n=0;for(const wk in S.weeks){const tk=ticksOf(wk);for(const k in tk)if(tk[k])n++}return n}
 const SEASON_NAME={spring:"Frühling",summer:"Sommer",autumn:"Herbst",winter:"Winter"};
 function season(){const q=/[?&]saison=(spring|summer|autumn|winter)/.exec(location.search);if(q)return q[1];const m=new Date().getMonth();return m<2||m===11?"winter":m<5?"spring":m<8?"summer":"autumn"}
@@ -1211,8 +1216,8 @@ function renderCamp(){S.flip=false;loadWx();
     if(t.freq==="day")chk(di);else for(let i=0;i<slotsOf(t);i++)chk(i)});{const hm=hoMine();if(hm&&!hm.done)openW++}
   const openS=shopItems().filter(i=>!i.done).length,meal=planDays(mon)["d"+di],mealTxt=meal?(meal.text||""):"";
   const spot=(x,y,w,hh,go,label,ft)=>`<button class="spot" style="${spotPos(x,y,w,hh)}" data-go="${go}"${ft?` data-ft="${ft}"`:""} aria-label="${label}">${S.labels?`<span class="lab">${label.split(":")[0].replace(" mit dem Bus","").replace("Einkaufsliste","Einkauf")}</span>`:""}</button>`;
-  let h=`${startPager(0)}${startHead(sea)}${S.me?"":meChooser()}
-   <div class="flipbox"><div class="flipin${S.flip?" flipped":""}"><div class="camp">${(motiv()==="stadt"?cityScene(Math.max(fire,0.12),night,sea,{post:briefe().length>0},{ph:skyPh,wx:S.wx&&S.wx.cur!=null&&Date.now()-S.wx.at<3*3600e3?wxKind(S.wx.cur):""})+citySpots(spot):houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:false,shop:openS>0,post:briefe().length>0},{ph:skyPh,wx:S.wx&&S.wx.cur!=null&&Date.now()-S.wx.at<3*3600e3?wxKind(S.wx.cur):""})+spot(166,196,50,48,"woche","Woche: offene Aufträge")+spot(119,148,42,96,"essen","Essen",mealTxt?"plan":"")+spot(112,212,26,22,"einkauf","Einkauf: Korb mit Baguette")+spot(208,203,24,30,"kita","Kita")+spot(80,243,40,24,"ausflug","Ausflüge: Fahrrad")+spot(62,214,20,22,"woche","Kalender: Aushang am Baum").replace('data-go="woche"','data-nav="woche|wp:3"')+spot(318,80,34,64,"projekte","Ideen")+spot(38,122,70,42,"privat","Partner: Klippen")+spot(24,244,18,26,"post","Briefkasten")+spot(155,168,22,20,"amhaus","Am Haus: Lampe")+spot(58,176,60,52,"amhaus","Garten: Baum").replace('data-go="amhaus"','data-go="amhaus" data-pf="garten"')+spot(40,203,22,28,"kind","Kind: Schaukel")+spot(15,205,18,14,"ausgaben","Ausgaben: Sparschwein")+spot(240,238,26,26,"spiel","Sport und Spiel")+spot(322,196,56,66,"reisen","Urlaube: Segelboot")+spot(254,189,22,22,"musik","Musik: Ghettoblaster"))+(()=>{const y=(night?40:(skyPh==="dusk"||skyPh==="dawn")?98:44)+13,x=night?52:56;return `<button class="spot" style="${spotPos(x,y,46,46)}" data-act="wxpop" aria-expanded="${!!S.wxPop}" aria-label="${night?"Mond":"Sonne"}: Wetter">${S.labels?`<span class="lab">Wetter</span>`:""}</button>`})()+"</div>"+renderBack(night)+"</div>"}</div>
+  const city=motiv()==="stadt";let h=`${startPager(0)}${startHead(sea)}${S.me?"":meChooser()}
+   <div class="flipbox"><div class="flipin${S.flip?" flipped":""}"><div class="camp">${(houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:false,shop:openS>0,post:briefe().length>0},{ph:skyPh,wx:S.wx&&S.wx.cur!=null&&Date.now()-S.wx.at<3*3600e3?wxKind(S.wx.cur):"",city})+spot(166,196,50,48,"woche","Woche: offene Aufträge")+spot(119,148,42,96,"essen","Essen",mealTxt?"plan":"")+spot(112,212,26,22,"einkauf","Einkauf: Korb mit Baguette")+spot(208,203,24,30,"kita","Kita")+spot(80,243,40,24,"ausflug","Ausflüge: Fahrrad")+spot(62,214,20,22,"woche","Kalender: Aushang am Baum").replace('data-go="woche"','data-nav="woche|wp:3"')+(city?spot(318,86,36,60,"projekte","Ideen: Kirchtürme")+spot(38,108,40,30,"privat","Partner: Café-Tisch"):spot(318,80,34,64,"projekte","Ideen")+spot(38,122,70,42,"privat","Partner: Klippen"))+spot(24,244,18,26,"post","Briefkasten")+spot(155,168,22,20,"amhaus","Am Haus: Lampe")+spot(58,176,60,52,"amhaus","Garten: Baum").replace('data-go="amhaus"','data-go="amhaus" data-pf="garten"')+spot(40,203,22,28,"kind","Kind: Schaukel")+spot(15,205,18,14,"ausgaben","Ausgaben: Sparschwein")+spot(240,238,26,26,"spiel","Sport und Spiel")+(city?spot(270,52,44,26,"reisen","Urlaube: Flugzeug")+spot(288,125,124,28,"ausflug","Ausflüge: Tram"):spot(322,196,56,66,"reisen","Urlaube: Segelboot"))+spot(254,189,22,22,"musik","Musik: Ghettoblaster"))+(()=>{const y=(night?40:(skyPh==="dusk"||skyPh==="dawn")?98:44)+13,x=night?52:56;return `<button class="spot" style="${spotPos(x,y,46,46)}" data-act="wxpop" aria-expanded="${!!S.wxPop}" aria-label="${night?"Mond":"Sonne"}: Wetter">${S.labels?`<span class="lab">Wetter</span>`:""}</button>`})()+"</div>"+renderBack(night)+"</div>"}</div>
    ${S.wxPop?wxPanel(night):""}
    <section class="card today"><h2>Heute</h2>
      <button class="todayrow" data-act="gotasks"><span>🧹</span><span>${openW?"Offene Aufträge":"Alles erledigt, was gerade ansteht ✅"}</span><i>›</i></button>
@@ -1220,7 +1225,9 @@ function renderCamp(){S.flip=false;loadWx();
      ${prioLinkRow()}</section>`;
   // "Als Nächstes" und "Ausstattung" sind gestrichen (Florian 15.11.2026); Leuchtturm und Gäste im Bild bleiben, weil sie den Wochenstand zeigen
   return h}
-const FOODTABS=[["plan","Wochenplan"],["rezepte","Rezepte"],["kita","🎒 Kita-Essen ›"]];
+const FOODTABS=[["plan","Wochenplan"],["kita","🎒 Kita-Essen ›"]];
+// Essen hat zwei Seiten (Florian 16.11.2026): „Heute und Wochenplan“ (Chips Heute, Wochenplan, Kita-Essen) und „Rezepte“; Tipp auf den Reiter blättert weiter
+function foodPager(p){return `<div class="pager" role="group" aria-label="Seiten von Essen"><div class="pdots">${[["heute","Heute und Wochenplan"],["rezepte","Rezepte"]].map((x,i)=>`<button class="pdot" data-food="${x[0]}" aria-pressed="${i===p}"><b>${x[1]}</b></button>`).join("")}</div></div>`}
 function shopItems(){const m=(S.food&&S.food.shop)||{};return Object.keys(m).filter(k=>m[k]).map(k=>Object.assign({id:k},m[k])).sort((a,b)=>(a.at||0)-(b.at||0))}
 function shopFavs(){const f=(S.food&&S.food.fav)||{};const open=new Set(shopItems().filter(i=>!i.done).map(i=>i.name.toLowerCase()));
   return Object.keys(f).filter(k=>f[k]&&f[k].n>0&&!open.has((f[k].name||"").toLowerCase())).sort((a,b)=>f[b].n-f[a].n).slice(0,14).map(k=>f[k].name)}
@@ -1374,7 +1381,7 @@ function renderRecipes(){const d=S.recDraft,bk=S.book||"main",list=recs().filter
     const meta=recMeta(r,ing,link),onList=!!shopBlocks()[r.name];
     return `<section class="card rec${open?"":" compact"}"><div class="recbar"><button class="rechead" data-rec="${esc(r.id)}" aria-expanded="${open}"><span style="min-width:0"><span class="nm">${esc(r.name)}</span>${meta.length?`<br><span class="freq">${meta.map(esc).join(" · ")}</span>`:""}</span><span class="freq">${open?"▴":"▾"}</span></button>${ing.length?`<button class="catbtn" ${onList?`data-shopblockrm="${esc(r.name)}" aria-label="Zutaten von ${esc(r.name)} wieder von der Liste nehmen" style="background:none;border:none;padding:8px 4px"`:`data-recshop="${esc(r.id)}" aria-label="Zutaten von ${esc(r.name)} auf die Einkaufsliste" style="background:none;border:none;padding:8px 4px;filter:grayscale(1);opacity:.6"`}>🧺</button>`:""}${bell("rezepte",r)}<button class="catbtn" data-cook="rec|${esc(r.id)}" aria-label="${esc(r.name)} kochen: Tag wählen" style="background:none;border:none;padding:8px 4px">🍲</button><button class="catbtn" data-recrm="${esc(r.id)}" aria-label="${esc(r.name)} entfernen" style="background:none;border:none;opacity:.6;padding:8px 4px">✕</button></div>
       ${open?`${link?`<div class="btnrow" style="margin:4px 0 8px"><a class="primary btnlink" href="${esc(link)}" target="_blank" rel="noopener noreferrer">🔗 Zum Originalrezept</a></div>`:""}${ing.length?`<ul class="ing">${ing.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}${r.note?`<div class="recnote">${esc(r.note)}</div>`:""}
-      <div class="btnrow">${ing.length?(shopBlocks()[r.name]?`<button class="ghost" data-shopview="${esc(r.name)}">🧺 Auf der Liste ansehen</button><button class="ghost" data-shopblockrm="${esc(r.name)}">Zutaten wieder von der Liste nehmen</button>`:`<button class="primary" data-recshop="${esc(r.id)}">Zutaten auf die Einkaufsliste</button>`):""}${cookBtn("rec|"+r.id,"primary")}<button class="ghost" data-recedit="${esc(r.id)}">Bearbeiten</button><button class="ghost danger" data-recrm="${esc(r.id)}">Entfernen</button></div>`:""}</section>`}).join("");
+      <div class="btnrow">${ing.length?(shopBlocks()[r.name]?`<button class="ghost" data-shopview="${esc(r.name)}">🧺 Auf der Liste ansehen</button><button class="ghost" data-shopblockrm="${esc(r.name)}">Zutaten wieder von der Liste nehmen</button>`:`<button class="primary" data-recshop="${esc(r.id)}">Zutaten auf die Einkaufsliste</button>`):""}${cookBtn("rec|"+r.id,"primary")}<button class="ghost" data-recedit="${esc(r.id)}">Bearbeiten</button>${books().length>1?`<button class="ghost" data-recbookmv="${esc(r.id)}">📚 Anderes Kochbuch</button>`:""}<button class="ghost danger" data-recrm="${esc(r.id)}">Entfernen</button></div>`:""}</section>`}).join("");
   return h}
 const IDEA_CATS=[["gesund","🥗","Gesund"],["schnell","⏱️","Schnell"],["vegetarisch","🌱","Vegetarisch"],["saisonal","🍂","Saisonal"],["exotisch","🌶️","Exotisch"]];
 const ideaCat=x=>IDEA_CATS.find(c=>c[0]===x.cat);
@@ -1386,7 +1393,10 @@ function extraTipRows(){const td=startOfDay(new Date()),em=emmiPick(td),ow=ownPi
     out.push(`<li class="tiprow"><div class="tiptxt"><div class="eyebrow" style="margin:0">📚 Kochbuch</div><div style="font-weight:600;overflow-wrap:anywhere">${esc(x.name)}</div><div class="freq">${esc(bk?bk.name:"Unsere Rezepte")}</div>${why(ow)}</div><button class="ghost" data-openrec="${esc(x.rec)}">📖 Öffnen</button>${cookBtn("rec|"+x.rec)}${x.ing.length?(shopBlocks()[x.name]?`<button class="ghost" data-shopblockrm="${esc(x.name)}">− Liste</button>`:`<button class="ghost" data-recshop="${esc(x.rec)}">+ Liste</button>`):""}</li>`)}
   return out.join("")}
 function renderIdeas(){const l=ideaList(),ex=extraTipRows();if(!l.length&&!ex)return "";const u=S.ideas&&S.ideas.updated?String(S.ideas.updated).split("-").reverse().join("."):"";
-  return `<section class="card"><div class="section-head"><h2>Tagesrezepte</h2>${u?`<span class="freq">Stand ${esc(u)}</span>`:""}</div>
+  // Florian 16.11.2026: Tagesrezepte erst eingeklappt, Tipp klappt auf (S.ideasOpen, bis zum Neuladen)
+  const n=l.length+(ex?(ex.match(/class="tiprow/g)||[]).length:0),cats=[...new Set(l.map(x=>ideaCat(x)?ideaCat(x)[1]:"").filter(Boolean))].join("")+(ex?(/🍳/.test(ex)?"🍳":"")+(/📚/.test(ex)?"📚":""):"");
+  if(!S.ideasOpen)return `<section class="card ideasfold"><button class="setsum" data-act="ideastog" aria-expanded="false"><span><h2>Tagesrezepte <span class="freq">(${n})</span></h2><span class="freq">${esc(cats)}${u?" · Stand "+esc(u):""}</span></span><i>›</i></button></section>`;
+  return `<section class="card ideasfold"><button class="setsum" data-act="ideastog" aria-expanded="true"><span><h2>Tagesrezepte <span class="freq">(${n})</span></h2>${u?`<span class="freq">Stand ${esc(u)}</span>`:""}</span><i>▾</i></button>
     <ul class="shop">${l.map(x=>{const link=safeLink(x.link);return `<li class="tiprow"><div class="tiptxt">${ideaCat(x)?`<div class="eyebrow" style="margin:0">${ideaCat(x)[1]} ${ideaCat(x)[2]}</div>`:""}<div style="font-weight:600;overflow-wrap:anywhere">${esc(x.name)}</div><div class="freq">${link?`<a href="${esc(link)}" target="_blank" rel="noopener noreferrer">${esc(x.source||"Zum Rezept")}</a>`:esc(x.source||"")}</div></div>${x.taken?`<button class="ghost danger" data-recrm="${esc(x.taken)}" aria-label="${esc(x.name)} wieder aus euren Rezepten entfernen">✕ Entfernen</button>`:`<button class="ghost" data-idea="${x.i}">Übernehmen</button>`}${cookBtn("idea|"+x.i)}${Array.isArray(x.ing)&&x.ing.length?(shopBlocks()[x.name]?`<button class="ghost" data-shopblockrm="${esc(x.name)}" aria-label="Zutaten von ${esc(x.name)} wieder von der Liste nehmen">− Liste</button>`:`<button class="ghost" data-ideashop="${x.i}" aria-label="Zutaten von ${esc(x.name)} auf die Einkaufsliste">+ Liste</button>`):""}</li>`}).join("")}${ex}</ul></section>`}
 const HAUPT_KW=[["Nudeln",["nudel","spätzle","spaetzle","pasta","spaghetti","penne","fusilli","maultasche","lasagne","tortellini","makkaroni","tagliatelle","ravioli"]],["Reis",["reis","risotto","paella"]],["Kartoffeln",["kartoffel","püree","pueree","pommes","reiberdatschi","rösti","gnocchi","krokette","schupfnudel"]],["Geflügel",["hähnchen","haehnchen","huhn","hühnchen","pute","chicken"]],["Fleisch",["rind","schwein","hack","wurst","würstl","schinken","speck","gulasch","frikadelle","fleischpflanzerl","leberkäs","bolognese","lamm"]],["Fisch",["fisch","lachs","forelle","thunfisch","kabeljau","garnele"]],["Eier",["eier","omelett","pfannkuchen","rührei","frittata","quiche"]],["Hülsenfrüchte",["linse","bohne","kichererbse","erbse","dal"]],["Brot",["brot","semmel","toast","pizza","flammkuchen","brezn","burger","sandwich","wrap"]],["Getreide",["dinkel","couscous","bulgur","quinoa","hirse","grieß","polenta","graupen"]]];
 // Soßen-Art für "ähnlich wie Mittag": Pilzsoße zählt auch als Sahnesoße (Wunsch 14.11.2026)
@@ -1486,10 +1496,10 @@ const CATS=[
  ["drogerie","🧴","Drogerie und Haushalt",["klopapier","toilettenpapier","küchenrolle","taschentücher","zahnpasta","zahnbürste","shampoo","duschgel","seife","deo","creme","windel","feuchttücher","waschmittel","spülmittel","spülmaschine","tabs","müllbeutel","müllsäcke","schwamm","putzmittel","reiniger","alufolie","backpapier","frischhaltefolie","batterie","kerze","pflaster","rasier","watte","binden","tampons","weichspüler"]],
  ["sonst","🧺","Sonstiges",[]]];
 const CATSHORT=[["milch","kuehl"],["ei","kuehl"],["eis","tk"],["tee","trinken"],["öl","vorrat"],["reis","vorrat"],["rind","fleisch"]];
-function catGuess(name){const s=(name||"").toLowerCase();const f=((S.food&&S.food.fav)||{})[favKey(name||"")];if(f&&f.cat)return f.cat;
-  for(const w of CATSHORT)if(new RegExp("(^|[^a-zäöüß])"+w[0]+"($|[^a-zäöüß])").test(s))return w[1];
-  for(const c of CATS)if(c[3].some(w=>s.includes(w)))return c[0];return "sonst"}
-function itemCat(i){return i.cat&&CATS.some(c=>c[0]===i.cat)?i.cat:catGuess(i.name)}
+function catGuess(name){const s=(name||"").toLowerCase();const f=((S.food&&S.food.fav)||{})[favKey(name||"")];if(f&&f.cat&&shopCatOk(f.cat))return f.cat;const ok=shopCats().map(c=>c[0]);
+  for(const w of CATSHORT)if(ok.includes(w[1])&&new RegExp("(^|[^a-zäöüß])"+w[0]+"($|[^a-zäöüß])").test(s))return w[1];
+  for(const c of CATS)if(ok.includes(c[0])&&c[3].some(w=>s.includes(w)))return c[0];return "sonst"}
+function itemCat(i){return i.cat&&shopCatOk(i.cat)?i.cat:catGuess(i.name)}
 function lunches(){const m=(S.food&&S.food.lunch)||{};return Object.keys(m).filter(k=>m[k]&&m[k].name).map(k=>Object.assign({id:k},m[k]))}
 function lunchAvg(l){const r=l.r||{},v=["p0","p1"].map(p=>+r[p]||0).filter(Boolean);return v.length?v.reduce((a,b)=>a+b,0)/v.length:0}
 function mapOk(u){return /^https:\/\/(maps\.app\.goo\.gl|goo\.gl\/maps|(www\.|maps\.)?google\.[a-z.]+\/maps)/.test(u||"")}
@@ -1520,8 +1530,8 @@ function renderLunch(){const d=S.lunchDraft,mapUrl=(S.food&&S.food.lunchmap)||""
 function foodChips(){const shop=S.tab==="einkauf";return `<div class="filters" role="group" aria-label="Bereich">${[["heute","Heute"],...FOODTABS].map(t=>`<button class="chipbtn neutral" data-food="${t[0]}" aria-pressed="${!shop&&S.foodTab===t[0]}">${t[1]}</button>`).join("")}</div>`}
 function renderFood(){
   if(S.tab==="einkauf")return shopPager(0)+renderShop();
-  let h=`<div><div class="eyebrow">Gemeinsam planen</div><h1>Essen</h1></div>${bellRow("essen")}
-   ${foodChips()}`;
+  const fpg=S.foodTab==="rezepte"?1:0;let h=foodPager(fpg)+`<div><div class="eyebrow">Gemeinsam planen</div><h1>Essen</h1></div>${bellRow("essen")}
+   ${fpg?"":foodChips()}`;
   if(S.foodTab==="heute")return h+renderFoodToday();
   if(S.foodTab==="plan")return h+renderMealPlan();
   if(S.foodTab==="rezepte"&&S.recDb&&!S.recDraft)return h+renderRecDb();
@@ -1972,16 +1982,56 @@ function shopToday(){const now=new Date(),m=planDays(mondayOf(now))["d"+((now.ge
 function renderShop(){let h=`<div class="top"><div><div class="eyebrow">Einkaufsliste</div><h1>Einkauf</h1></div><button class="iconbtn" data-prionew="einkauf" aria-label="Erinnerung anlegen">🔔</button></div>${shopSwitch("einkauf")}`;
   const bl=shopBlocks(),bk=Object.keys(bl);if(S.shopFilter&&S.shopFilter!==SHOP_TODAY&&!bl[S.shopFilter])S.shopFilter="";if(S.shopFilter===SHOP_TODAY&&!shopToday().length)S.shopFilter="";const fl=S.shopFilter,tdy=fl===SHOP_TODAY?new Set(shopToday().map(i=>i.id)):null,nT=shopToday().length;
   const items=shopItems(),open=items.filter(i=>!i.done&&(!fl||(tdy?tdy.has(i.id):i.src===fl))).sort((a,b)=>(b.urg?1:0)-(a.urg?1:0)),done=items.filter(i=>i.done).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0)),favs=shopFavs();
-  const li=g=>{const i=g.items[0],ids=g.items.map(x=>x.id).join(",");return `<li class="${i.done?"done":""}"><button class="item" data-shop="${esc(ids)}" aria-pressed="${!!i.done}"><span class="box">${i.done?"✓":""}</span><span class="nm">${!i.done&&g.items.some(x=>x.urg)?'<b class="urg" title="Heute nötig">❗</b> ':""}${shopNm(g.name)}${g.srcs.length&&!i.done?`<br><span class="freq">${g.sum?"zusammen ":""}für ${esc(g.srcs.join(", "))}</span>`:""}</span></button>${!i.done&&g.srcs.length&&g.srcs.some(x=>x!=="Liste")?`<button class="srclink" data-srclink="${esc(g.srcs.find(x=>x!=="Liste"))}" aria-label="Zum Rezept ${esc(g.srcs.find(x=>x!=="Liste"))}" style="background:none;border:none;padding:8px 4px">📖</button>`:""}${i.done?"":`<button class="catbtn" data-shopcat="${esc(ids)}" aria-label="Gruppe ändern" aria-expanded="${S.shopCatEdit===ids}">${CATS.find(c=>c[0]===itemCat(i))[1]}</button>`}${i.done?"":`<button class="rm" data-shopedit="${esc(ids)}" aria-label="${esc(g.name)} ändern">✎</button>`}<button class="rm" data-shoprm="${esc(ids)}" aria-label="${esc(g.name)} entfernen">✕</button></li>${!i.done&&S.shopCatEdit===ids?`<li class="catpick"><div class="unl">${CATS.map(c=>`<button class="chipbtn" data-setcat="${c[0]}" aria-pressed="${itemCat(i)===c[0]}">${c[1]} ${c[2]}</button>`).join("")}</div></li>`:""}`};
-  const grp=CATS.map(c=>[c,open.filter(i=>itemCat(i)===c[0])]).filter(g=>g[1].length);
+  const li=g=>{const i=g.items[0],ids=g.items.map(x=>x.id).join(",");return `<li class="${i.done?"done":""}"><button class="item" data-shop="${esc(ids)}" aria-pressed="${!!i.done}"><span class="box">${i.done?"✓":""}</span><span class="nm">${!i.done&&g.items.some(x=>x.urg)?'<b class="urg" title="Heute nötig">❗</b> ':""}${shopNm(g.name)}${g.srcs.length&&!i.done?`<br><span class="freq">${g.sum?"zusammen ":""}für ${esc(g.srcs.join(", "))}</span>`:""}</span></button>${!i.done&&g.srcs.length&&g.srcs.some(x=>x!=="Liste")?`<button class="srclink" data-srclink="${esc(g.srcs.find(x=>x!=="Liste"))}" aria-label="Zum Rezept ${esc(g.srcs.find(x=>x!=="Liste"))}" style="background:none;border:none;padding:8px 4px">📖</button>`:""}${i.done?"":`<button class="catbtn" data-shopcat="${esc(ids)}" aria-label="Gruppe ändern" aria-expanded="${S.shopCatEdit===ids}">${shopCatOf(itemCat(i))[1]}</button>`}${i.done?"":`<button class="rm" data-shopedit="${esc(ids)}" aria-label="${esc(g.name)} ändern">✎</button>`}<button class="rm" data-shoprm="${esc(ids)}" aria-label="${esc(g.name)} entfernen">✕</button></li>${!i.done&&S.shopCatEdit===ids?`<li class="catpick"><div class="unl">${shopCats().map(c=>`<button class="chipbtn" data-setcat="${esc(c[0])}" aria-pressed="${itemCat(i)===c[0]}">${esc(c[1])} ${esc(c[2])}</button>`).join("")}<button class="chipbtn neutral" data-act="shopcatman">✏️ Kategorien bearbeiten</button></div></li>`:""}`};
+  const grp=shopCats().map(c=>[c,open.filter(i=>itemCat(i)===c[0])]).filter(g=>g[1].length);
   h+=`<form class="addrow" id="shopform" novalidate><button type="button" class="chipbtn neutral urgbtn" data-act="shopurg" aria-pressed="${!!S.shopUrg}" aria-label="Als heute nötig hinzufügen">❗</button><input type="text" id="shopinput" placeholder="Was fehlt? Zum Beispiel Milch" value="${esc(S.shopText)}" autocomplete="off" enterkeyhint="done" aria-label="Artikel"><button class="primary" type="submit">Hinzufügen</button></form><div class="unl shopsugg" id="shopsugg" aria-live="polite">${shopSuggHtml(S.shopText)}</div>`;
   if(bk.length||nT||fl)h+=`<div><div class="eyebrow" style="margin-bottom:6px">${bk.length?"Für Rezepte: antippen filtert, ✕ nimmt alles davon runter":"Filter"}</div><div class="unl">${fl?`<button class="chipbtn" data-shopfilter="" aria-pressed="false">↺ Ganze Liste</button>`:""}${nT?`<button class="chipbtn neutral" data-shopfilter="${SHOP_TODAY}" aria-pressed="${!!tdy}"${tdy?' aria-label="Filter Heute nötig aufheben"':""}>❗ Heute nötig · ${nT}${tdy?" ✕":""}</button>`:""}${bk.map(s=>`<span class="blockchip"><button class="chipbtn neutral" data-shopfilter="${esc(s)}" aria-pressed="${fl===s}">🍲 ${esc(s)} · ${bl[s]}${fl===s?" ✕":""}</button><button class="chipbtn blockrm" data-shopblockrm="${esc(s)}" aria-label="Zutaten für ${esc(s)} entfernen">✕</button></span>`).join("")}</div></div>`;
   if(favs.length)h+=`<div><div class="eyebrow" style="margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">Oft gekauft<button class="linkish" data-act="favedit" style="font-size:.8rem">${S.favEdit?"Fertig":"✏️ Bearbeiten"}</button></div><div class="unl">${favs.map(n=>S.favEdit?`<button class="chipbtn neutral" data-favrm="${esc(n)}" aria-label="${esc(n)} aus „Oft gekauft“ entfernen">${esc(n)} ✕</button>`:`<button class="chipbtn" data-shopfav="${esc(n)}">+ ${esc(n)}</button>`).join("")}</div></div>`;
-  h+=open.length?`<section class="card"><div class="section-head"><h2>${tdy?"❗ Heute nötig":fl?`<button class="dishlink" data-srclink="${esc(fl)}">Für ${esc(fl)} <i>›</i></button>`:"Noch zu kaufen"}</h2><span class="freq num">${open.length}</span></div>${grp.map(g=>`<div class="shopgrp"><span aria-hidden="true">${g[0][1]}</span>${g[0][2]}</div><ul class="shop">${shopGroups(g[1]).map(li).join("")}</ul>`).join("")}</section>`
+  h+=open.length?`<section class="card"><div class="section-head"><h2>${tdy?"❗ Heute nötig":fl?`<button class="dishlink" data-srclink="${esc(fl)}">Für ${esc(fl)} <i>›</i></button>`:"Noch zu kaufen"}</h2><span class="freq num">${open.length}</span><button class="iconbtn" data-act="shopcatman" aria-label="Kategorien und Symbole bearbeiten">🏷️</button></div>${grp.map(g=>`<div class="shopgrp"><span aria-hidden="true">${esc(g[0][1])}</span>${esc(g[0][2])}</div><ul class="shop">${shopGroups(g[1]).map(li).join("")}</ul>`).join("")}</section>`
     :`<div class="empty"><h2>${items.length?"Alles eingekauft":"Die Liste ist leer"}</h2><div>Schreib oben auf, was fehlt. Ihr seht beide dieselbe Liste und hakt im Laden ab.</div></div>`;
   if(done.length)h+=`<section class="card"><div class="section-head"><h2>Im Wagen</h2><button class="ghost" data-act="shopclear">Erledigte entfernen</button></div>${shopPayBtn(done)}<ul class="shop">${done.map(i=>li({items:[i],name:i.name,srcs:[]})).join("")}</ul></section>`;
   h+=pantryCard();
   return h}
+// ---------- Einkaufsliste: Kategorien und Symbole bearbeiten (Florian 16.11.2026) ----------
+// food/shopcat/<id> überschreibt die festen CATS ({ic?,name?,ord?,hide?}); eigene Kategorien {ic,name,ord,own:true,at}.
+// „Sonstiges“ bleibt immer (Auffang, nur umbenennen). Gelöschte feste lassen sich zurückholen. Einträge einer gelöschten Kategorie werden neu einsortiert.
+function shopCats(){const O=(S.food&&S.food.shopcat)||{},L=[];
+  CATS.forEach((c,i)=>{const o=O[c[0]]||{};if(o.hide&&c[0]!=="sonst")return;L.push([c[0],String(o.ic||c[1]),String(o.name||c[2]),c[3],o.ord!=null?+o.ord:i*10])});
+  Object.keys(O).forEach(k=>{const o=O[k];if(!o||!o.own||CATS.some(c=>c[0]===k))return;L.push([k,String(o.ic||"🏷️"),String(o.name||"Eigene"),[],o.ord!=null?+o.ord:75])});
+  return L.sort((a,b)=>a[4]-b[4]||String(a[0]).localeCompare(String(b[0])))}
+const shopCatOk=id=>!!id&&shopCats().some(c=>c[0]===id);
+const shopCatOf=id=>shopCats().find(c=>c[0]===id)||shopCats().find(c=>c[0]==="sonst");
+function shopCatManage(){if(document.getElementById("mbox"))return;S.mboxAt=Date.now();const el=document.createElement("div");el.id="mbox";
+  const hidden=()=>{const O=(S.food&&S.food.shopcat)||{};return CATS.filter(c=>c[0]!=="sonst"&&O[c[0]]&&O[c[0]].hide)};
+  const draw=()=>{const sc=(el.querySelector(".mboxcard")||{}).scrollTop||0,L=shopCats(),H=hidden();
+    el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="Kategorien der Einkaufsliste"><div class="section-head"><h2>🏷️ Kategorien</h2></div>
+    <div class="freq">Symbol und Name direkt ändern. Pfeile ändern die Reihenfolge auf der Liste.</div>
+    <ul class="shop sclist">${L.map((c,i)=>`<li><input class="scic" data-scic="${esc(c[0])}" value="${esc(c[1])}" maxlength="8" aria-label="Symbol von ${esc(c[2])}" autocomplete="off"><input class="scnm" data-scnm="${esc(c[0])}" value="${esc(c[2])}" maxlength="30" aria-label="Name" autocomplete="off">
+      <button type="button" class="iconbtn" data-scmv="${esc(c[0])}" data-d="-1" aria-label="${esc(c[2])} nach oben"${i?"":" disabled"}>↑</button><button type="button" class="iconbtn" data-scmv="${esc(c[0])}" data-d="1" aria-label="${esc(c[2])} nach unten"${i<L.length-1?"":" disabled"}>↓</button>${c[0]==="sonst"?`<span class="scsp"></span>`:`<button type="button" class="iconbtn danger" data-scrm="${esc(c[0])}" aria-label="${esc(c[2])} löschen">✕</button>`}</li>`).join("")}</ul>
+    ${H.length?`<div class="freq">Gelöscht: ${H.map(c=>`<button type="button" class="chipbtn neutral" data-scback="${esc(c[0])}">↺ ${esc(c[1])} ${esc(c[2])}</button>`).join(" ")}</div>`:""}
+    <form class="addrow" data-scform novalidate style="margin-top:var(--sp2)"><input data-scnewic maxlength="8" placeholder="🏷️" aria-label="Symbol" style="width:60px;flex:0 0 60px" autocomplete="off"><input data-scnewnm maxlength="30" placeholder="Neue Kategorie, z. B. Bio-Laden" aria-label="Name" autocomplete="off"><button class="primary" type="submit">＋</button></form>
+    <div class="btnrow"><button class="ghost" type="button" data-scx>Fertig</button></div></div>`;if(sc){const c=el.querySelector(".mboxcard");if(c)c.scrollTop=sc}};
+  draw();el._draw=draw;document.body.appendChild(el);
+  const put=async(id,k,v)=>{try{await S.store.setPath("food/shopcat/"+id+"/"+k,v);render()}catch(_){toast("Konnte nicht speichern.")}};
+  el.addEventListener("change",async e=>{const t=e.target,id=t.dataset.scic||t.dataset.scnm;if(!id)return;const v=String(t.value||"").trim();
+    if(t.dataset.scic){await put(id,"ic",v.slice(0,8)||null)}else{if(!v){toast("Bitte einen Namen eintragen.");draw();return}await put(id,"name",v.slice(0,30))}});
+  el.addEventListener("submit",async e=>{e.preventDefault();const ic=(el.querySelector("[data-scnewic]").value||"").trim().slice(0,8)||"🏷️",nm=(el.querySelector("[data-scnewnm]").value||"").trim().slice(0,30);
+    if(!nm){toast("Bitte einen Namen eintragen.");return}if(shopCats().some(c=>c[2].toLowerCase()===nm.toLowerCase())){toast("Die Kategorie gibt es schon.");return}
+    const L=shopCats().filter(c=>c[0]!=="sonst"),ord=(L.length?Math.max(...L.map(c=>c[4])):0)+1;
+    try{await S.store.setPath("food/shopcat/"+newId("k"),{ic,name:nm,own:true,ord,at:Date.now(),by:S.me||""});toast("Angelegt: "+nm);draw();render()}catch(_){toast("Konnte nicht speichern.")}});
+  el.addEventListener("click",async e=>{
+    const mv=e.target.closest("[data-scmv]");if(mv){const L=shopCats(),i=L.findIndex(c=>c[0]===mv.dataset.scmv),j=i+(+mv.dataset.d);if(i<0||j<0||j>=L.length)return;
+      // Reihenfolge fest durchnummerieren, dann tauschen (alte gleiche Werte stören so nicht)
+      const N=L.map(c=>c[0]);[N[i],N[j]]=[N[j],N[i]];try{for(let k=0;k<N.length;k++){const c=L.find(x=>x[0]===N[k]);if(c[4]!==k*10)await S.store.setPath("food/shopcat/"+N[k]+"/ord",k*10)}}catch(_){toast("Konnte nicht speichern.")}draw();render();return}
+    const rm=e.target.closest("[data-scrm]");if(rm){const id=rm.dataset.scrm,c=shopCatOf(id);if(rm.dataset.sure!=="1"){rm.dataset.sure="1";rm.textContent="Löschen?";rm.classList.add("sure");return}
+      const own=!CATS.some(x=>x[0]===id),F=S.food||{};let n=0;
+      try{for(const k of Object.keys(F.shop||{}))if(F.shop[k]&&F.shop[k].cat===id){await S.store.setPath("food/shop/"+k+"/cat",null);n++}
+        for(const k of Object.keys(F.fav||{}))if(F.fav[k]&&F.fav[k].cat===id)await S.store.setPath("food/fav/"+k+"/cat",null);
+        if(own)await S.store.setPath("food/shopcat/"+id,null);else await S.store.setPath("food/shopcat/"+id+"/hide",true);
+        toast("„"+c[2]+"“ gelöscht"+(n?". "+n+(n===1?" Eintrag wurde":" Einträge wurden")+" neu einsortiert.":"."))}catch(_){toast("Konnte nicht speichern.")}draw();render();return}
+    const bk=e.target.closest("[data-scback]");if(bk){try{await S.store.setPath("food/shopcat/"+bk.dataset.scback+"/hide",null);toast("Wieder da")}catch(_){toast("Konnte nicht speichern.")}draw();render();return}
+    if(e.target.closest("[data-scx]")){mboxClose();return}
+    if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose()})}
 // ---------- Ausflüge ----------
 const PACK_IDEAS=["Wasser","Brotzeit","Regenjacke","Sonnencreme","Pflaster","Powerbank","Taschenmesser","Mütze","Sitzkissen","Taschentücher"];
 function listOf(m){m=m||{};return Object.keys(m).filter(k=>m[k]&&m[k].name).map(k=>Object.assign({id:k},m[k]))}
@@ -2308,9 +2358,9 @@ function shopPager(p){return `<div class="pager" role="group" aria-label="Seiten
 // Bearbeiten-Fenster (Florian 15.11.2026: Einträge nachträglich ändern): fields [{k,label,type:text|url|chips|multi|note,opts:[[wert,text]],val,hint?}]; onDel = Funktion oder Liste [[Text,fn(V),mitRückfrage]]
 function editBox(title,fields,onSave,onDel){S.mboxAt=Date.now();if(document.getElementById("mbox"))return;const V={};fields.forEach(f=>V[f.k]=f.type==="multi"?(f.val||[]).slice():f.val==null?"":f.val);
   const el=document.createElement("div");el.id="mbox";
-  const draw=()=>{el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="${esc(title)}"><div class="section-head"><h2>✎ ${esc(title)}</h2></div><form class="editbox" novalidate>${fields.map(f=>f.type==="note"?`<div class="freq">${f.html||esc(f.label)}</div>`:f.type==="multi"?`<div class="fld"><span>${esc(f.label)}</span><div class="unl">${f.opts.map(o=>`<button type="button" class="chipbtn neutral" data-ebm="${f.k}" data-ebv="${esc(o[0])}" aria-pressed="${(V[f.k]||[]).includes(o[0])}">${esc(o[1])}</button>`).join("")}</div>${f.hint?`<div class="freq">${esc(f.hint)}</div>`:""}</div>`:f.type==="chips"?`<div class="fld"><span>${esc(f.label)}</span><div class="unl">${f.opts.map(o=>`<button type="button" class="chipbtn neutral" data-ebk="${f.k}" data-ebv="${esc(o[0])}" aria-pressed="${String(V[f.k])===String(o[0])}">${esc(o[1])}</button>`).join("")}</div></div>`:`<label class="fld"><span>${esc(f.label)}</span><input type="text"${f.type==="url"?' inputmode="url"':""} data-ebf="${f.k}" value="${esc(V[f.k])}" maxlength="${f.type==="url"?400:80}" autocomplete="off"${f.type==="url"?' placeholder="https://"':""}></label>`).join("")}
-    <div class="btnrow">${fields.some(f=>f.type!=="note")?`<button class="primary" type="submit">Speichern</button>`:""}<button class="ghost" type="button" data-ebx="1">Abbrechen</button>${Array.isArray(onDel)?onDel.map((d,i)=>`<button class="ghost${d[2]?" danger":""}" type="button" data-ebdel="${i}">${esc(d[0])}</button>`).join(""):onDel?`<button class="ghost danger" type="button" data-ebdel="x">Löschen</button>`:""}</div></form></div>`};
-  draw();document.body.appendChild(el);
+  const draw=()=>{const sc=(el.querySelector(".mboxcard")||{}).scrollTop||0;el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="${esc(title)}"><div class="section-head"><h2>✎ ${esc(title)}</h2></div><form class="editbox" novalidate>${fields.map(f=>f.type==="note"?`<div class="freq">${f.html||esc(f.label)}</div>`:f.type==="multi"?`<div class="fld"><span>${esc(f.label)}</span><div class="unl">${f.opts.map(o=>`<button type="button" class="chipbtn neutral" data-ebm="${f.k}" data-ebv="${esc(o[0])}" aria-pressed="${(V[f.k]||[]).includes(o[0])}">${esc(o[1])}</button>`).join("")}</div>${f.hint?`<div class="freq">${esc(f.hint)}</div>`:""}</div>`:f.type==="chips"?`<div class="fld"><span>${esc(f.label)}</span><div class="unl">${f.opts.map(o=>`<button type="button" class="chipbtn neutral" data-ebk="${f.k}" data-ebv="${esc(o[0])}" aria-pressed="${String(V[f.k])===String(o[0])}">${esc(o[1])}</button>`).join("")}</div>${f.hint?`<div class="freq">${esc(f.hint)}</div>`:""}</div>`:`<label class="fld"><span>${esc(f.label)}</span><input type="text"${f.type==="url"?' inputmode="url"':""} data-ebf="${f.k}" value="${esc(V[f.k])}" maxlength="${f.type==="url"?400:80}" autocomplete="off"${f.type==="url"?' placeholder="https://"':""}></label>`).join("")}
+    <div class="btnrow">${fields.some(f=>f.type!=="note")?`<button class="primary" type="submit">Speichern</button>`:""}<button class="ghost" type="button" data-ebx="1">Abbrechen</button>${Array.isArray(onDel)?onDel.map((d,i)=>`<button class="ghost${d[2]?" danger":""}" type="button" data-ebdel="${i}">${esc(d[0])}</button>`).join(""):onDel?`<button class="ghost danger" type="button" data-ebdel="x">Löschen</button>`:""}</div></form></div>`;if(sc){const c=el.querySelector(".mboxcard");if(c)c.scrollTop=sc}};
+  draw();el._V=V;el._draw=draw;document.body.appendChild(el);
   el.addEventListener("input",e=>{const k=e.target.dataset&&e.target.dataset.ebf;if(k)V[k]=e.target.value});
   el.addEventListener("submit",async e=>{e.preventDefault();mboxClose();try{await onSave(V)}catch(_){toast("Konnte nicht speichern.")}});
   el.addEventListener("click",async e=>{const c=e.target.closest("[data-ebk]");if(c){V[c.dataset.ebk]=c.dataset.ebv;draw();return}
@@ -3239,8 +3289,8 @@ S.gest={tap:true,swipe:true,ring:true};try{const g=JSON.parse(localStorage.getIt
 try{S.theme=localStorage.getItem("hq-theme")||"";if(S.theme)document.documentElement.dataset.theme=S.theme}catch(_){}
 // Reiter unten (Florian 16.11.2026): Tipp auf einen anderen Reiter = erste Seite; Tipp auf den Reiter, in dem man ist = eine Unterseite weiter (nach der letzten wieder die erste).
 // Schnell mehrfach (unter 450 ms): Doppeltipp = Seite 2, Dreifachtipp = Seite 3, gezählt ab der ersten Seite (TAP_SEQ, aktuelle Seite erkennt TAP_AT)
-const TAP_SEQ={camp:[()=>{S.tab="camp"},()=>{S.tab="woche";S.weekPage=3},()=>{S.tab="wichtig"}],woche:[0,1].map(p=>()=>{S.tab="woche";S.weekPage=p}),essen:["heute","plan","rezepte","kita"].map(f=>()=>{if(f==="kita"){S.tab="kita";S.kitaSec="essen";return}S.tab="essen";S.foodTab=f}),einkauf:[()=>{S.tab="einkauf"},()=>{S.tab="ausgaben"}]};
-const TAP_AT={camp:[()=>S.tab==="camp",()=>S.tab==="woche"&&S.weekPage===3,()=>S.tab==="wichtig"],woche:[0,1].map(p=>()=>S.tab==="woche"&&(S.weekPage|0)===p),essen:["heute","plan","rezepte","kita"].map(f=>()=>f==="kita"?S.tab==="kita"&&S.kitaSec==="essen":S.tab==="essen"&&(S.foodTab||"heute")===f),einkauf:[()=>S.tab==="einkauf"||S.tab==="listen",()=>S.tab==="ausgaben"]};
+const TAP_SEQ={camp:[()=>{S.tab="camp"},()=>{S.tab="woche";S.weekPage=3},()=>{S.tab="wichtig"}],woche:[0,1].map(p=>()=>{S.tab="woche";S.weekPage=p}),essen:["heute","rezepte"].map(f=>()=>{S.tab="essen";S.foodTab=f}),einkauf:[()=>{S.tab="einkauf"},()=>{S.tab="ausgaben"}]};
+const TAP_AT={camp:[()=>S.tab==="camp",()=>S.tab==="woche"&&S.weekPage===3,()=>S.tab==="wichtig"],woche:[0,1].map(p=>()=>S.tab==="woche"&&(S.weekPage|0)===p),essen:[()=>S.tab==="essen"&&S.foodTab!=="rezepte",()=>S.tab==="essen"&&S.foodTab==="rezepte"],einkauf:[()=>S.tab==="einkauf"||S.tab==="listen",()=>S.tab==="ausgaben"]};
 const tapCur=t=>(TAP_AT[t]||[]).findIndex(f=>f());
 // ---------- Alle Bereiche (Florian 16.11.2026): Tipp oben rechts oder lange auf Start öffnet alle Bereiche als Kacheln auf einem Bildschirm ----------
 // Oben Favoriten (lange auf eine Kachel drücken heftet an, je Gerät hq-arfav), ohne Favoriten das zuletzt Benutzte (hq-arrec). Tipp daneben, ✕ und Zurück schließen.
@@ -3447,8 +3497,8 @@ app.addEventListener("click",async e=>{
   if(b.dataset.fwkwrm){try{await S.store.setPath("food/ext/fwkw/"+b.dataset.fwkwrm,null)}catch(_){}return}
   if(b.dataset.fwpick){const id=b.dataset.fwpick,fw=S.food&&S.food.ext&&S.food.ext.fw,x=fw&&fw.items&&fw.items[id];if(!x)return;const cur=((S.food.ext.fwwho||{})[id])||"",X=((S.food.ext.fwx||{})[id])||{},pl=X.place&&placeFind(X.place)?placeFind(X.place).name:"";
     // Familywall-Termin (Florian 16.11.2026): Titel und Zeit nur in Familywall; Für wen, Art, Ort und Erinnern ergänzt die App (food/ext/fwx/<id>)
-    editBox("„"+x.name+"“",[{k:"note",type:"note",label:rDate(x.date)+(x.time?" "+x.time:"")+(x.place?" · "+x.place:"")+". Aus Familywall: Titel und Zeit ändern geht nur dort."},{k:"who",label:"Für wen (mehrere gehen)",type:"multi",excl:["","both"],opts:[["","Automatisch"]].concat(whoOpts()),val:!cur?[""]:cur==="both"?["both"]:whoL(cur)},
-      {k:"tag",label:"Art",type:"chips",opts:[["","Keine"]].concat(terTags().map(t=>[t[0],t[1]+" "+t[2]])),val:X.tag||""},
+    editBox("„"+x.name+"“",[{k:"note",type:"note",label:(rDate(x.date)+(x.time?" "+x.time:"")+(x.place?" · "+x.place:"")).replace(/\.$/,"")+". Aus Familywall: Titel und Zeit ändern geht nur dort."},{k:"who",label:"Für wen (mehrere gehen)",type:"multi",excl:["","both"],opts:[["","Automatisch"]].concat(whoOpts()),val:!cur?[""]:cur==="both"?["both"]:whoL(cur)},
+      {k:"tag",label:"Art",type:"chips",get opts(){return [["","Keine"]].concat(terTags().map(t=>[t[0],t[1]+" "+t[2]]))},val:X.tag||"",hint:ownCats("ter").length?"Eigene Art lange drücken = löschen.":""},
       {k:"pl",label:"Ort"+(x.place?" (sonst wie in Familywall)":""),type:"chips",opts:[["",x.place?"Wie in Familywall":"Keiner"]].concat(places().map(p=>[p.name,"📍 "+p.name])),val:pl},
       {k:"plx",label:"Oder Adresse nur für diesen Termin",type:"text",val:X.place&&!pl?X.place:""},
       {k:"remind",label:"🔔 Erinnern",type:"chips",opts:[["","Nein"],["tag","Am Tag"],["1d","1 Tag vorher"],["1h","1 Stunde vorher"]],val:X.remind===true?"tag":X.remind||""},
@@ -3644,6 +3694,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.shoprm){for(const id of b.dataset.shoprm.split(",")){try{await S.store.setPath("food/shop/"+id,null)}catch(_){toast("Konnte nicht speichern.");return}}return}
   if(b.dataset.shopfilter!=null){S.shopFilter=S.shopFilter===b.dataset.shopfilter?"":b.dataset.shopfilter;render();return}
   if(b.dataset.shopfav){shopAdd(b.dataset.shopfav);return}
+  if(b.dataset.act==="shopcatman"){S.shopCatEdit=null;render();shopCatManage();return}
   if(b.dataset.shopcat){S.shopCatEdit=S.shopCatEdit===b.dataset.shopcat?null:b.dataset.shopcat;render();return}
   if(b.dataset.setcat){const ids=String(S.shopCatEdit||"").split(","),i=shopItems().find(x=>x.id===ids[0]);S.shopCatEdit=null;if(!i){render();return}
     try{for(const id of ids)await S.store.setPath("food/shop/"+id+"/cat",b.dataset.setcat);const fk=favKey(i.name),cur=(S.food.fav||{})[fk]||{};await S.store.setPath("food/fav/"+fk,{name:cur.name||i.name,n:cur.n||0,cat:b.dataset.setcat})}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}render();return}
@@ -3707,6 +3758,10 @@ app.addEventListener("click",async e=>{
     if(!t){toast("Einfügen ging nicht. Bitte lange ins Feld drücken und „Einfügen“ wählen.");if(el)el.focus();return}if(el)el.value=t;if(S.recDraft)S.recDraft.pasteText=t;const p=document.querySelector('[data-act="recparse"]');if(p)p.click();return}
   if(b.dataset.act==="recparse"){const d=S.recDraft;if(!d)return;const el=document.getElementById("rec-paste");const t=el?el.value:(d.pasteText||"");const r=parseRecipe(t);if(r.link&&!r.ing.length&&String(t).trim().split(/\s+/).length<=3){d.link=r.link;d.name=d.name||nameFromLink(r.link);d.paste=false;d.pasteText="";render();toast("Link übernommen. Zutaten könnt ihr später einfügen.");return}if(!r.name&&!r.ing.length){toast("Nichts erkannt. Steht ein Rezept im Feld?");return}
     if(r.name&&!(d.id&&d.name))d.name=r.name.slice(0,80);if(r.ing.length)d.ing=r.ing.join("\n");if(r.note.length)d.note=r.note.join("\n");if(r.link)d.link=r.link;d.paste=false;d.pasteText=t;render();toast(r.ing.length+" Zutaten erkannt. Bitte kurz prüfen und speichern.");return}
+  if(b.dataset.act==="ideastog"){S.ideasOpen=!S.ideasOpen;render();return}
+  if(b.dataset.recbookmv){const id=b.dataset.recbookmv,r=recs().find(x=>x.id===id);if(!r)return;const bs=books(),em=x=>x.emoji||BOOK_EMO[(bs.indexOf(x)-1+BOOK_EMO.length)%BOOK_EMO.length];
+    editBox("📚 "+r.name+" verschieben",[{k:"book",label:"In welches Kochbuch?",type:"chips",opts:bs.filter(x=>x.id!==recBook(r)).map(x=>[x.id,em(x)+" "+x.name]),val:""}],
+      async V=>{const to=bs.find(x=>x.id===V.book);if(!to){toast("Bitte ein Kochbuch antippen.");return}await S.store.setPath("food/rec/"+id+"/book",to.id);S.recOpen=null;toastAct(r.name+" steht jetzt in „"+to.name+"“.","📚 Hingehen",()=>{S.book=to.id;S.recOpen=id;render()})});return}
   if(b.dataset.recedit){const r=recs().find(x=>x.id===b.dataset.recedit);if(r){S.recDraft={id:r.id,name:r.name||"",ing:r.ing||"",note:r.note||"",link:r.link||"",at:r.at||Date.now(),book:recBook(r),tagsOff:r.tagsOff?Object.values(r.tagsOff):[],tagsOwn:r.tagsOwn?Object.values(r.tagsOwn):[],min:r.min||0};render();window.scrollTo(0,0)}return}
   if(b.dataset.rtag&&S.recDraft){const d=S.recDraft,t=b.dataset.rtag,T=draftTags(d);d.tagsOff=T.off.slice();d.tagsOwn=T.own.slice();if(T.auto.includes(t)){d.tagsOff=d.tagsOff.includes(t)?d.tagsOff.filter(x=>x!==t):d.tagsOff.concat(t)}else{d.tagsOwn=d.tagsOwn.includes(t)?d.tagsOwn.filter(x=>x!==t):d.tagsOwn.concat(t)}render();return}
   if(b.dataset.act==="rtagown"&&S.recDraft){const el=document.getElementById("rtagown"),v=(el&&el.value||"").trim().slice(0,30);if(!v)return;const d=S.recDraft;d.tagsOwn=(draftTags(d).own).concat("Eigene|"+v);render();return}
@@ -3917,8 +3972,12 @@ function moveSrc(kind,id){const F=S.food||{};
   if(kind==="buy"){const b=buys().find(x=>x.id===id);return b&&{x:b,here:"liste:"+b.list,note:b.note,drop:()=>S.store.setPath("food/buy/"+id,null),done:()=>{}}}
   return null}
 function moveOpen(kind,id){const M=moveSrc(kind,id);if(!M)return;
-  editBox("Verschieben: "+M.x.name,[{k:"to",label:"Nach",type:"chips",opts:shareTargets().filter(t=>t[0]!==M.here).map(t=>[t[0],t[1]+" "+t[2]]),val:""},{k:"n",type:"note",label:"Der Eintrag zieht mit Name, Link und Notiz um und verschwindet hier. Verknüpftes (Erinnerungen, Einkaufsliste) wird dabei entfernt."}],
-    async V=>{if(!V.to){toast("Bitte antippen, wohin.");return}await shareSave(V.to,M.x.name,M.x.link,M.note);await M.drop();M.done();toast("Verschoben nach "+shareTo(V.to)[2]);shareGo(V.to)})}
+  // Rezept: zuerst die anderen Kochbücher (Florian 16.11.2026: „von einem Kochbuch in ein anderes“), Umzug ohne Neuanlegen
+  const bk=kind==="rec"?books().filter(b=>b.id!==recBook(M.x)).map((b,i)=>["book:"+b.id,"📚 Kochbuch: "+b.name]):[];
+  editBox("Verschieben: "+M.x.name,[{k:"to",label:"Nach",type:"chips",opts:bk.concat(shareTargets().filter(t=>t[0]!==M.here).map(t=>[t[0],t[1]+" "+t[2]])),val:""},{k:"n",type:"note",label:(bk.length?"Ein anderes Kochbuch: Das Rezept zieht einfach um. ":"")+"In einen anderen Bereich: Der Eintrag zieht mit Name, Link und Notiz um und verschwindet hier. Verknüpftes (Erinnerungen, Einkaufsliste) wird dabei entfernt."}],
+    async V=>{if(!V.to){toast("Bitte antippen, wohin.");return}
+      if(V.to.startsWith("book:")){const to=books().find(b=>"book:"+b.id===V.to);if(!to)return;await S.store.setPath("food/rec/"+id+"/book",to.id);M.done();S.book=to.id;S.recOpen=id;toast(M.x.name+" steht jetzt in „"+to.name+"“.");render();return}
+      await shareSave(V.to,M.x.name,M.x.link,M.note);await M.drop();M.done();toast("Verschoben nach "+shareTo(V.to)[2]);shareGo(V.to)})}
 
 // ---------- Eigene Rubriken und Symbole (Florian 16.11.2026, „Alle ja“) ----------
 // Wie bei Musik: eigene Rubriken bei Sport und Spiel (Abschnitte), Arten von Ausflügen, Arten in der Sammlung (Reisen und Am Haus) und Ideen-Kacheln.
@@ -3944,10 +4003,24 @@ function catManage(key){const D=CAT_DEFS[key];if(!D||document.getElementById("mb
     if(!nm){toast("Bitte einen Namen eintragen.");return}try{await S.store.setPath("food/cats/"+key+"/"+newId("c"),{ic,name:nm,at:Date.now(),by:S.me||""});toast("Angelegt: "+nm);draw();render()}catch(_){toast("Konnte nicht speichern.")}});
   el.addEventListener("click",async e=>{const r=e.target.closest("[data-catrm]");
     if(r){if(r.dataset.sure!=="1"){r.dataset.sure="1";r.textContent="Wirklich löschen?";return}const id=r.dataset.catrm,m=(S.food&&S.food[D.path])||{};
-      try{for(const k of Object.keys(m))if(m[k]&&m[k][D.field]===id)await S.store.setPath("food/"+D.path+"/"+k+"/"+D.field,D.fb);await S.store.setPath("food/cats/"+key+"/"+id,null);catGone(key,id);toast("Gelöscht");draw();render()}catch(_){toast("Konnte nicht speichern.")}return}
+      try{await catDel(key,id);toast("Gelöscht");draw();render()}catch(_){toast("Konnte nicht speichern.")}return}
     if(e.target.closest("[data-catx]")){mboxClose();return}
     if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose()})}
 // offene Ansicht auf eine gelöschte Rubrik zurücksetzen
+// Eigene Rubrik löschen: Einträge rutschen auf die Vorgabe (bei Termin-Arten auch die Zusätze an Familywall-Terminen)
+async function catDel(key,id){const D=CAT_DEFS[key],m=(S.food&&S.food[D.path])||{};for(const k of Object.keys(m))if(m[k]&&m[k][D.field]===id)await S.store.setPath("food/"+D.path+"/"+k+"/"+D.field,D.fb);
+  if(key==="ter"){const X=(S.food&&S.food.ext&&S.food.ext.fwx)||{};for(const k of Object.keys(X))if(X[k]&&X[k].tag===id)await S.store.setPath("food/ext/fwx/"+k+"/tag",null);if(S.terDraft&&S.terDraft.tag===id)S.terDraft.tag=""}
+  await S.store.setPath("food/cats/"+key+"/"+id,null);catGone(key,id)}
+// Lange auf eine eigene Termin-Art drücken = löschen (Florian 16.11.2026: ohne Umweg über „＋ Eigene“); fragt per Toast nach. Gilt in der Termin-Maske und im Familywall-Fenster.
+const catOwnBtn=t=>{const b=t&&t.closest&&t.closest("[data-tertag],#mbox [data-ebk=tag]");if(!b)return null;const id=b.dataset.tertag!=null?b.dataset.tertag:b.dataset.ebv;const c=ownCats("ter").find(x=>x[0]===id);return c?{b,key:"ter",id,c}:null};
+function catDelAsk(o){try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}
+  toastAct("Eigene Art „"+o.c[1]+" "+o.c[2]+"“ löschen? Termine bleiben, nur die Art fällt weg.","🗑 Löschen",async()=>{try{await catDel(o.key,o.id);const mb=document.getElementById("mbox");if(mb&&mb._V&&mb._draw){if(mb._V.tag===o.id)mb._V.tag="";mb._draw()}toast("„"+o.c[2]+"“ gelöscht");render()}catch(_){toast("Konnte nicht löschen.")}})}
+(()=>{let t=null,fired=false,x0=0,y0=0;const clear=()=>{clearTimeout(t);t=null};
+  document.addEventListener("pointerdown",e=>{const o=catOwnBtn(e.target);if(!o)return;fired=false;x0=e.clientX;y0=e.clientY;clear();t=setTimeout(()=>{t=null;fired=true;setTimeout(()=>{fired=false},900);catDelAsk(o)},500)});
+  document.addEventListener("pointermove",e=>{if(t&&Math.abs(e.clientX-x0)+Math.abs(e.clientY-y0)>12)clear()});
+  ["pointerup","pointercancel"].forEach(k=>document.addEventListener(k,clear));
+  document.addEventListener("click",e=>{if(fired&&catOwnBtn(e.target)){fired=false;e.stopPropagation();e.preventDefault()}},true);
+  document.addEventListener("contextmenu",e=>{if(catOwnBtn(e.target))e.preventDefault()})})();
 function catGone(key,id){if(key==="play"&&S.playSec===id)S.playSec="sonst";if(key==="idea"&&S.projFilter===id)S.projFilter="";if(key==="trip"&&S.tripFilter===id)S.tripFilter="";if(S.tripDraft&&S.tripDraft.kind===id)S.tripDraft.kind="";if(S.playDraft&&S.playDraft.sec===id)S.playDraft.sec="sonst";if(S.projDraft&&S.projDraft.cat===id)S.projDraft.cat="sonst"}
 // Eigenes Symbol (emo) an Ausflügen, Spielideen, Geschenk-Ideen, Adventskalendern und Packlisten: ein kurzes Feld in der Maske
 const emoFld=(attr,val,ph)=>`<label class="fld emofld"><span>Symbol (optional)</span><input type="text" ${attr}="emo" value="${esc(val||"")}" maxlength="8" placeholder="${esc(ph||"😀")}" autocomplete="off" aria-label="Eigenes Symbol"></label>`;
@@ -4057,7 +4130,7 @@ const TER_TAGS=[["kita","🎒","Kita"],["arzt","🩺","Arzt"],["familie","👪",
 const terTags=()=>catsOf("ter",TER_TAGS);
 const terTag=x=>x&&x.tag?terTags().find(t=>t[0]===x.tag)||null:null;
 const terIcon=x=>{const t=terTag(x);return t?t[1]:"📅"};
-function terTagHtml(d){return `<div class="fld"><span>Art</span><div class="unl">${[["","Keine"]].concat(terTags().map(t=>[t[0],t[1]+" "+t[2]])).map(o=>`<button type="button" class="chipbtn neutral" data-tertag="${esc(o[0])}" aria-pressed="${(d.tag||"")===o[0]}">${esc(o[1])}</button>`).join("")}${catBtn("ter")}</div></div>`}
+function terTagHtml(d){return `<div class="fld"><span>Art</span><div class="unl">${[["","Keine"]].concat(terTags().map(t=>[t[0],t[1]+" "+t[2]])).map(o=>`<button type="button" class="chipbtn neutral" data-tertag="${esc(o[0])}" aria-pressed="${(d.tag||"")===o[0]}">${esc(o[1])}</button>`).join("")}${catBtn("ter")}</div>${ownCats("ter").length?`<div class="freq">Eigene Art lange drücken = löschen.</div>`:""}</div>`}
 // Vorschlag bei Terminen ohne Ort (Florian 16.11.2026): Arten, bei denen ein Ort Sinn hat, oder ein gespeicherter Ort steckt im Namen → 📍 in der Zeile
 const PLACE_TAGS=["kita","arzt","feier","familie","sport"];
 const placeGuess=n=>{const t=String(n||"").toLowerCase();return places().find(p=>p.name.length>2&&t.includes(p.name.toLowerCase()))||null};
@@ -4082,7 +4155,7 @@ const KITA_RX=/\b(kita|kinderhaus|kinderkrippe|krippe|kindergarten)/i;
 // Motiv: "meer" (Haus am Meer, Standard) oder "stadt" (Stadthaus in München, Entwurf).
 // Bildstil fürs Haus am Meer: "" (wie bisher), "licht" (Licht und Schatten), "aquarell", "fein" (Texturen und Licht).
 // Gilt je Gerät (localStorage hq-motiv, hq-bildstil); Vorschau per ?motiv=… und ?stil=… im Link.
-function motivList(){return [["meer","🌊","Haus am Meer"],["stadt","🚋","Stadthaus in München (Entwurf)"]]}
+function motivList(){return [["meer","🌊","Haus am Meer"],["stadt","🚋","Haus in der Stadt"]]}
 function stilList(){return [["licht","☀️","Licht und Schatten"],["","✏️","Flach (alt)"],["aquarell","🖌️","Aquarell"],["fein","🪨","Fein gezeichnet"]]}
 function urlPick(k){try{return new URLSearchParams(location.search).get(k)}catch(_){return null}}
 function motiv(){const u=urlPick("motiv");if(u&&motivList().some(m=>m[0]===u))return u;let v="";try{v=localStorage.getItem("hq-motiv")||""}catch(_){}return motivList().some(m=>m[0]===v)?v:"meer"}
@@ -4157,91 +4230,44 @@ function styTop(st,night){if(!st)return "";
 function styRound(st,svg){if(!st)return svg;return svg.replace(/<circle cx="([\d.]+)" cy="([\d.]+)" r="([\d.]+)" fill="(#[0-9a-fA-F]{3,6})"( opacity="[^"]*")?\/>/g,(m,x,y,r,f,o)=>+r>=6.5?m+`<circle cx="${x}" cy="${y}" r="${r}" fill="url(#sBall)"${o||""}/>`:m)}
 function styCloud(st,g){if(!st)return g;return g.replace(/(<path d="M(?:120 46|30 40)h[^"]*") fill="#fff"/g,'$1 fill="url(#sCloud)"')}
 function styCss(st){return st==="licht"||st==="fein"?' style="filter:saturate(1.12) contrast(1.06)"':st==="aquarell"?' style="filter:saturate(1.05)"':""}
-// ---------- Motiv Stadt: Münchner Altbau mit Balkon an einer Straße mit Tram (Entwurf) ----------
-// Gleiche Bedeutungen wie am Meer, neue Orte: Besen an der Tür (Woche), Schornstein (Essen), Korb mit Baguette am Fahrrad (Einkauf),
-// Rucksack an der Hauswand (Kita), Tram (Ausflüge), Litfaßsäule mit Datum (Kalender), Kirchtürme (Ideen, leuchten mit dem Wochenstand),
-// Balkon mit zwei Stühlen (Partner), Briefkasten an der Tür, Lampe an der Tür (Am Haus), Straßenbaum (Garten) mit Schaukel (Kind),
-// Ball am Gehweg (Spiel), Ghettoblaster auf dem Fensterbrett (Musik), Flugzeug (Urlaube).
-function cityScene(light,night,sea,dots,amb){dots=dots||{};amb=amb||{};const ph=amb.ph||(night?"night":"day"),wk=amb.wx||"",st=amb.st!=null?amb.st:bildStil();const grey=/regen|gewitter|schnee|bedeckt|nebel/.test(wk),low=ph==="dusk"||ph==="dawn";
-  const C=night?{sky1:"#0e1d30",sky2:"#2a4560",far:"#24384d",fac:"#8a7a5c",fac2:"#7d6460",fac3:"#5f6f6a",trim:"#a9a294",roof:"#5a3328",walk:"#55565a",street:"#2f3236",tow:"#5a463c",dome:"#3c5a50",glass:"#2d3f52"}
-    :{sky1:"#b8dcec",sky2:"#f3efe0",far:"#a9bccb",fac:"#ecc987",fac2:"#e6b4a2",fac3:"#b9cfc0",trim:"#f6f1e6",roof:"#a9543c",walk:"#cfc9bd",street:"#686c71",tow:"#a0705a",dome:"#5f9483",glass:"#cfe3ee"};
-  if(!night&&sea==="autumn")C.sky2="#f6e3c4";if(!night&&sea==="winter")Object.assign(C,{sky1:"#cbd9e3",sky2:"#eef1f2"});
-  if(low&&!night)Object.assign(C,ph==="dusk"?{sky1:"#7d8fb8",sky2:"#f2b48a"}:{sky1:"#a9c4e0",sky2:"#f6d2b0"});
-  if(grey&&!night)Object.assign(C,{sky1:wk==="schnee"?"#d5dde3":"#a9b6bf",sky2:wk==="schnee"?"#eef1f3":"#d9dcd8"});if(grey&&night)Object.assign(C,{sky1:"#1b2633",sky2:"#334253"});
-  const lit=night||ph==="dusk"?"#ffd66b":C.glass,lw=(i)=>night?(i%3!==1?"#ffd66b":"#3a4a5c"):C.glass;
-  let g=`<defs><linearGradient id="csky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${C.sky1}"/><stop offset="1" stop-color="${C.sky2}"/></linearGradient><radialGradient id="hglow"><stop offset="0" stop-color="#ffe08a" stop-opacity=".9"/><stop offset="1" stop-color="#ffe08a" stop-opacity="0"/></radialGradient>${styDefs(st,C,night,ph)}</defs><rect width="360" height="260" fill="url(#csky)"/>`;
-  // Himmel
-  if(night){if(!grey)g+=moonSvg(52,53,13,amb.moon!=null?amb.moon:moonPhase(new Date()),"#f3ecd2",C.sky1);[[110,40],[150,62],[196,36],[236,52],[22,90],[88,82],[180,94],[268,40]].forEach((p,i)=>{g+=`<circle class="twinkle" style="animation-delay:${i*0.3}s" cx="${p[0]}" cy="${p[1]}" r="1.5" fill="#fff"/>`})}
-  else{if(!grey||wk==="nebel")g+=low?`<circle cx="56" cy="111" r="24" fill="#ffb27a" opacity=".35"/><circle cx="56" cy="111" r="15" fill="#f4895a"/>`:`<circle cx="56" cy="57" r="17" fill="#ffd66b"${wk==="nebel"?' opacity=".45"':""}/>`;
-    g+=`<path d="M120 59h44a12 12 0 0 0-22-8 10 10 0 0 0-22 8z" fill="${grey&&wk!=="nebel"?"#c9cfd4":low?"#ffe1cc":"#fff"}" opacity=".85"/>`}
-  if(wk==="wolkig"||grey&&wk!=="nebel")g+=`<path d="M30 53h60a16 16 0 0 0-30-10 13 13 0 0 0-30 10z M160 39h70a18 18 0 0 0-34-12 14 14 0 0 0-36 12z" fill="${grey?(night?"#3d4957":"#c9cfd4"):"#fff"}" opacity=".9"/>`;
-  // Flugzeug mit Kondensstreifen (Urlaube)
-  g+=`<g class="plane"><path d="M178 80 L232 66" stroke="#fff" stroke-opacity="${night?.25:.7}" stroke-width="2.2" stroke-linecap="round"/><g transform="translate(240 64) rotate(-15)"><path d="M-9 0 h17 q3 0 3 1.2 q0 1.2 -3 1.2 h-17z" fill="${night?"#c9d2dc":"#f4f1ea"}"/><path d="M0 0.4 l-5 -6 h2.4 l6 6z M0 2 l-5 6 h2.4 l6 -6z M-8 0.4 l-2.5 -3.5 h1.8 l3 3.5z" fill="${night?"#9aa6b2":"#c7442f"}"/>${night?'<circle cx="-9" cy="1" r="1" fill="#f25f5c"/><circle cx="2" cy="-5.6" r=".9" fill="#7dd87d"/>':""}</g></g>`;
-  // Stadt in der Ferne und Kirchtürme (Ideen), leuchten mit dem Wochenstand
-  g+=`<path d="M0 150 V124 h18 v-8 h14 v12 h20 v-18 h12 v18 h30 V150Z M236 150 V118 h16 v-10 h14 v14 h18 V150Z" fill="${C.far}"/>`;
-  {const tw=(x)=>`<rect x="${x-7}" y="70" width="14" height="80" fill="${C.tow}"/><path d="M${x-7} 70 h14 v-4 h-14z" fill="${C.trim}" opacity=".6"/><rect x="${x-2.2}" y="78" width="4.4" height="8" rx="2.2" fill="${light>0.3||night?"#ffd66b":"#3a2a22"}" opacity="${night?.5+.5*light:.9}"/><path d="M${x-7.5} 66 q-1 -9 7.5 -15 q8.5 6 7.5 15z" fill="${C.dome}"/><path d="M${x} 51 v-7" stroke="${C.dome}" stroke-width="1.4"/><circle cx="${x}" cy="44" r="1.3" fill="#d9b44a"/>`;
-   if(light>0)g+=`<circle cx="321" cy="80" r="${12+22*light}" fill="url(#hglow)" opacity="${night?.9:.5}"/>`;g+=tw(310)+tw(332)}
-  // Nachbarhäuser
-  const win=(x,y,w,h,f)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}" stroke="${C.trim}" stroke-width="1.6"/><path d="M${x+w/2} ${y} v${h} M${x} ${y+h*.42} h${w}" stroke="${C.trim}" stroke-width=".9"/><path d="M${x-2} ${y-3} h${w+4}" stroke="${C.trim}" stroke-width="2"/>`;
-  g+=`<path d="M232 92 L240 80 H352 L360 92Z" fill="${C.roof}"/><rect x="230" y="92" width="130" height="122" fill="${C.fac3}"/><path d="M230 96 h130" stroke="${C.trim}" stroke-width="2.4"/>`;
-  [[246,104],[278,104],[310,104],[342,104],[246,140],[278,140],[310,140],[342,140]].forEach((p,i)=>{g+=win(p[0],p[1],14,20,lw(i+1))});
-  g+=`<path d="M4 96 L10 84 H106 L112 96Z" fill="${C.roof}"/><rect x="0" y="96" width="112" height="118" fill="${C.fac2}"/><path d="M0 100 h112" stroke="${C.trim}" stroke-width="2.4"/>`;
-  [[18,108],[50,108],[82,108],[82,142],[82,176]].forEach((p,i)=>{g+=win(p[0],p[1],14,20,lw(i))});
-  // Haupthaus: Schornstein (Essen), Mansarddach mit Gauben
-  g+=`<rect x="198" y="46" width="12" height="18" fill="${C.trim}"/><rect x="196" y="44" width="16" height="4" fill="${C.tow}"/>`
-   +`<g class="smoke" opacity=".75"><circle cx="206" cy="40" r="3.5" fill="#e9ecef"/><circle cx="214" cy="38" r="4.5" fill="#e9ecef" opacity=".8"/><circle cx="224" cy="37" r="5.5" fill="#e9ecef" opacity=".6"/></g>`
-   +`<path d="M106 80 L120 56 H220 L234 80Z" fill="${C.roof}"/><path d="M110 74 H230 M114 67 H226 M117 61 H223" stroke="#000" stroke-opacity=".15" stroke-width=".8"/>`
-   +[140,184].map((x,i)=>`<path d="M${x-2} 76 V64 l12 -7 l12 7 V76Z" fill="${C.trim}"/><rect x="${x+3}" y="64" width="14" height="12" fill="${night&&i===0?"#ffd66b":C.glass}" stroke="${C.trim}" stroke-width="1"/>`).join("")
-   +`<rect x="112" y="80" width="116" height="134" fill="${C.fac}"/><path d="M110 80 h120" stroke="${C.trim}" stroke-width="4"/><path d="M112 113 h116 M112 147 h116" stroke="${C.trim}" stroke-width="1.6"/><rect x="112" y="196" width="116" height="18" fill="#000" opacity=".08"/>`;
-  [[124,88],[162,88],[200,88],[124,120],[200,120],[124,154],[162,154],[200,154]].forEach((p,i)=>{g+=win(p[0],p[1],16,20,i===6?lit:lw(i))});
-  g+=win(124,180,16,16,lw(2))+win(200,180,16,16,lw(4));
-  // Balkon (Partner): Tür, zwei Stühle, Geländer, Blumenkasten
-  g+=`<rect x="160" y="116" width="20" height="28" fill="${night?"#ffd66b":C.glass}" stroke="${C.trim}" stroke-width="1.6"/><path d="M170 116 v28" stroke="${C.trim}" stroke-width="1"/>`
-   +`<path d="M152 144 v-12 h7 v12 M152 138 h7 M181 144 v-12 h7 v12 M181 138 h7" fill="none" stroke="${night?"#c9b28a":"#7a5230"}" stroke-width="1.6"/>`
-   +`<rect x="144" y="143" width="52" height="4" fill="${C.trim}"/><path d="M146 143 V129 H194 V143 ${Array.from({length:11},(_,i)=>`M${150+i*4} 143 V129`).join(" ")}" fill="none" stroke="#2b2b2b" stroke-width=".9"/>`
-   +`<rect x="146" y="125" width="48" height="5" rx="1" fill="#8a5a34"/>`+[150,156,162,168,174,180,186,190].map((x,i)=>`<circle cx="${x}" cy="${124-(i%2)}" r="2.6" fill="${night?"#7a6a4a":["#d6453d","#f7a8c4","#ffd66b"][i%3]}"/>`).join("")
-   +`<path d="M148 126 q3 -4 6 0 M164 126 q3 -4 6 0 M180 126 q3 -4 6 0" stroke="#3f8550" stroke-width="1.2" fill="none"/>`;
-  // Ghettoblaster auf dem Fensterbrett (Musik)
-  {const on=!!(S.food&&S.food.music&&Object.keys(S.food.music).length);g+=`<g class="blaster"><g transform="translate(208 170) scale(.5) translate(-178.5 -244)"><path d="M171 233 v-4 q0 -2 2 -2 h12 q2 0 2 2 v4" fill="none" stroke="#2c3138" stroke-width="1.8"/><rect x="166" y="232" width="25" height="12" rx="2" fill="#3a3f47"/><circle cx="172" cy="238.5" r="3.6" fill="#1e2228" stroke="#9aa3ad" stroke-width=".8"/><circle cx="185" cy="238.5" r="3.6" fill="#1e2228" stroke="#9aa3ad" stroke-width=".8"/><rect x="176.5" y="234" width="4" height="2.4" rx=".5" fill="${on?"#ffd66b":"#6b737c"}"/>${on?`<g class="notes" fill="#2c3138"><circle class="n1" cx="194" cy="226" r="1.6"/><circle class="n2" cx="163" cy="224" r="1.5"/></g>`:""}</g></g>`}
-  // Tür, Lampe (Am Haus), Briefkasten
-  g+=`<path d="M160 214 V188 a10 10 0 0 1 20 0 V214Z" fill="#5a3b25"/><path d="M170 180 V214" stroke="#3f2a1a" stroke-width="1"/><circle cx="174" cy="200" r="1.2" fill="#d9b44a"/><path d="M157 178 a13 13 0 0 1 26 0" fill="none" stroke="${C.trim}" stroke-width="2.4"/>`
-   +`${night?'<circle cx="152" cy="180" r="16" fill="url(#hglow)" opacity=".85"/>':""}<path d="M146 176 h6 v3" stroke="#2b2b2b" stroke-width="1.2" fill="none"/><path d="M148.5 179 h7 l-1.2 7 h-4.6z" fill="${night?"#ffd66b":"#f6e7b0"}" stroke="#2b2b2b" stroke-width="1"/><path d="M147.5 179 h9 l-1.5 -2 h-6z" fill="#2b2b2b"/>`
-   +`<rect x="186" y="190" width="10" height="9" rx="1.2" fill="#3f6fa8" stroke="#2c4f7a" stroke-width=".6"/><path d="M188 193 h6" stroke="#f4f1ea" stroke-width=".8"/>${dots.post?`<path d="M196 192 h4 v3 h-4z" fill="#f25f5c"/>`:""}`;
-  // Gehweg, Bordstein, Straße mit Schienen
-  g+=`<rect x="0" y="212" width="360" height="18" fill="${C.walk}"/><path d="${Array.from({length:12},(_,i)=>`M${i*32+8} 212 l-4 18`).join(" ")} M0 221 H360" stroke="#000" stroke-opacity=".08" stroke-width=".8"/><rect x="0" y="230" width="360" height="3" fill="#000" opacity=".2"/><rect x="0" y="233" width="360" height="27" fill="${C.street}"/><path d="M0 243 H360 M0 246 H360 M0 254 H360 M0 257 H360" stroke="${night?"#7d838a":"#a7acb1"}" stroke-width="1"/>`;
-  if(sea==="winter")g+=`<path d="M106 80 L110 74 H230 L234 80Z M4 96 L7 90 H109 L112 96Z M232 92 L236 86 H356 L360 92Z" fill="#fff" opacity=".8"/><rect x="0" y="210" width="360" height="3" fill="#fff" opacity=".7"/>`;
-  // Straßenbaum (Garten) mit Schaukel (Kind)
-  {const tx=64,tb=226,tr=night?"#4a3524":"#7a5230",dk=night?.6:1;let t=`<ellipse cx="${tx}" cy="${tb}" rx="12" ry="2.4" fill="#000" opacity=".15"/><path d="M${tx-3} ${tb} L${tx-2} ${tb-50} H${tx+2} L${tx+3} ${tb}Z" fill="${tr}"/><path d="M${tx-2} ${tb-46} L${tx-26} ${tb-60} M${tx+2} ${tb-48} L${tx+18} ${tb-66} M${tx} ${tb-50} V${tb-74}" stroke="${tr}" stroke-width="3" stroke-linecap="round"/>`;
-   const cr=(a,b)=>`<g opacity="${dk}"><circle cx="${tx-20}" cy="${tb-70}" r="15" fill="${b}"/><circle cx="${tx+18}" cy="${tb-72}" r="15" fill="${b}"/><circle cx="${tx}" cy="${tb-84}" r="18" fill="${a}"/><circle cx="${tx-10}" cy="${tb-64}" r="12" fill="${a}"/><circle cx="${tx+10}" cy="${tb-62}" r="11" fill="${a}"/></g>`;
-   if(sea==="spring")t+=cr("#8fcf7a","#79b866")+[[-18,-74],[-4,-90],[10,-80],[18,-66],[-10,-62]].map(p=>`<circle cx="${tx+p[0]}" cy="${tb+p[1]}" r="2.4" fill="#f7c1d6"/>`).join("");
-   else if(sea==="summer")t+=cr("#4f9a5a","#3f8550");
-   else if(sea==="autumn")t+=cr("#e0a030","#c96a2a")+[[-24,4,"#d9792b"],[22,2,"#b3402a"],[34,-2,"#e0a030"]].map(p=>`<ellipse cx="${tx+p[0]}" cy="${tb+p[1]}" rx="3" ry="1.4" fill="${p[2]}"/>`).join("");
-   else t+=`<path d="M${tx-26} ${tb-60} l-6 -8 M${tx-14} ${tb-53} l-2 -10 M${tx+18} ${tb-66} l6 -6 M${tx+10} ${tb-57} l2 -9 M${tx} ${tb-74} l-5 -8 M${tx} ${tb-74} l5 -8" stroke="${tr}" stroke-width="1.6" stroke-linecap="round"/><path d="M${tx-30} ${tb-62} l6 -1 M${tx+16} ${tb-68} l6 -1" stroke="#fff" stroke-width="2" stroke-linecap="round"/>`;
-   g+=styRound(st,t)+`<g class="swing"><path d="M40 168 L39 204 M52 167 L52 204" stroke="${night?"#8a7a62":"#b9a78a"}" stroke-width="1.3"/><rect x="36" y="203" width="20" height="3.2" rx="1.4" fill="${night?"#5a3b25":"#8a5a34"}"/></g>`}
-  // Litfaßsäule mit heutigem Datum (Kalender)
-  {const cd=new Date();g+=`<rect x="236" y="182" width="20" height="44" fill="${night?"#4b5a52":"#6f8f7f"}"/><path d="M234 182 h24 l-2 -4 h-20z M236 178 q10 -9 20 0z" fill="${night?"#3a4741":"#56756a"}"/><rect x="234" y="224" width="24" height="4" fill="${night?"#3a4741":"#56756a"}"/><rect x="238.5" y="190" width="15" height="20" fill="#f4f1ea"/><rect x="238.5" y="190" width="15" height="5" fill="#c7442f"/><text x="246" y="206" font-size="8.5" font-weight="700" text-anchor="middle" fill="#2b2b2b" font-family="system-ui,sans-serif">${cd.getDate()}</text><rect x="237" y="212" width="18" height="10" fill="${night?"#8a7a5c":"#e0a030"}" opacity=".7"/>`}
-  // Fahrrad an der Hauswand mit Korb und Baguette (Einkauf), Besen an der Tür (Woche), Rucksack (Kita), Ball (Spiel)
-  g+=`<g fill="none" stroke="#2f4f6f" stroke-width="2"><circle cx="118" cy="216" r="9"/><circle cx="146" cy="216" r="9"/><path d="M118 216 L128 203 H141 L146 216 M128 203 L133 216 L141 203 M126 199 h6 M141 203 l2 -5 h5"/></g>`
-   +`<path d="M138 192 h15 l-2.6 9 h-10z" fill="#b5854a"/><path d="M140 195.5 h11 M141 198.5 h9" stroke="#8a6334" stroke-width=".9"/><path d="M140 193 L152 184" stroke="#d9a05a" stroke-width="3.8" stroke-linecap="round"/><path d="M143 191 l1.3 -1.7 M146.5 188.6 l1.3 -1.7 M150 186.2 l1.3 -1.7" stroke="#a8702f" stroke-width=".8"/>`
-   +`<path d="M188 186 L182 214" stroke="#7a5230" stroke-width="2.4" stroke-linecap="round"/><path d="M179.5 213 L185 214.2 L189 230 L172 230Z" fill="#d9a441"/><path d="M180 214 l-5 15 M182 214.3 l-1.5 15.5 M184 214.6 l2 15" stroke="#a8742a" stroke-width=".7"/>`
-   +`<g transform="rotate(-6 214 214)"><path d="M206 216 v-12 q0 -8 8 -8 q8 0 8 8 v12z" fill="#c7442f"/><path d="M206 206 q8 5 16 0 v-3 q-8 -5 -16 0z" fill="#9c3324"/><rect x="209.5" y="208.5" width="9" height="6" rx="2" fill="#9c3324"/><circle cx="214" cy="206.5" r="1.1" fill="#ffd66b"/></g>`
-   +`<g transform="translate(96 220)"><circle r="6.5" fill="#f4f1ea"/><path d="M0 -6.5 a6.5 6.5 0 0 1 6.5 6.5 h-6.5z M-6.5 0 a6.5 6.5 0 0 0 6.5 6.5 v-6.5z" fill="#f25f5c"/><path d="M0 -6.5 a6.5 6.5 0 0 0 -6.5 6.5 h6.5z" fill="#3f6fa8"/><path d="M6.5 0 a6.5 6.5 0 0 1 -6.5 6.5 v-6.5z" fill="#ffd66b"/><ellipse cy="7" rx="5.5" ry="1.3" fill="#000" opacity=".12"/></g>`;
-  // Tram (Ausflüge)
-  g+=`<g class="tram"><path d="M250 190 H360 M268 190 l10 8 l10 -8" stroke="#2b2b2b" stroke-width=".9" fill="none"/><path d="M264 246 V214 q0 -14 14 -16 H362 V246Z" fill="${night?"#2b4f7a":"#2f6db0"}"/><rect x="264" y="230" width="98" height="5" fill="#f4f1ea"/><path d="M266 246 h96" stroke="#1d2a38" stroke-width="3"/>`
-   +[272,296,318,340].map((x,i)=>`<rect x="${x}" y="206" width="${i?18:14}" height="16" rx="2" fill="${night?"#ffe7a8":"#dcecf5"}" stroke="#1d3c5f" stroke-width="1"/>`).join("")
-   +`<rect x="276" y="200" width="20" height="4" rx="1" fill="#1d2a38"/><path d="M279 202 h14" stroke="#ffb547" stroke-width="1.6"/><circle cx="268" cy="238" r="2" fill="${night?"#fff6c9":"#f4f1ea"}"/>${night?'<circle cx="268" cy="238" r="7" fill="url(#hglow)" opacity=".7"/>':""}</g>`;
-  // Wetter
-  if(wk==="nebel")g+=`<rect x="0" y="0" width="360" height="260" fill="#eef1f2" opacity=".3"/>`;
-  if(wk==="regen"||wk==="gewitter"){let r="";for(let i=0;i<46;i++){const x=(i*97+i*i*13+5)%360,y=(i*61+i*i*29+3)%240+20;r+=`M${x} ${y}l-3 9`}g+=`<path class="rain" d="${r}" stroke="${night?"#9fb3c6":"#6f8aa0"}" stroke-width="1.1" stroke-linecap="round" opacity=".7"/>`}
-  if(wk==="schnee"){let r="";for(let i=0;i<40;i++){const x=(i*97+i*i*13+11)%360,y=(i*61+i*i*29+7)%230+30;r+=`<circle cx="${x}" cy="${y}" r="${1.2+(i%3)*.5}"/>`}g+=`<g class="snow" fill="#fff" opacity=".9">${r}</g>`}
-  g+=styTop(st==="aquarell"?st:st?"licht":"",night);
-  if(st==="aquarell"){const k=g.indexOf("</defs>")+7;g=g.slice(0,k)+`<g filter="url(#sAq)">`+g.slice(k)+"</g>"}
-  return `<svg viewBox="${HVB.join(" ")}" role="img" aria-label="Euer Haus in der Stadt"${styCss(st)}>${g}</svg>`}
-// Antippbare Stellen im Stadtbild (Mitte x, y, Breite, Höhe wie spotPos)
-function citySpots(spot){return spot(184,210,22,40,"woche","Woche: Besen an der Tür")+spot(204,42,26,44,"essen","Essen: Schornstein")+spot(146,194,22,22,"einkauf","Einkauf: Korb mit Baguette")+spot(214,208,20,24,"kita","Kita: Rucksack")
-  +spot(312,222,96,52,"ausflug","Ausflüge: Tram")+spot(246,204,26,48,"woche","Kalender: Litfaßsäule").replace('data-go="woche"','data-nav="woche|wp:3"')+spot(321,70,40,60,"projekte","Ideen: Kirchtürme")+spot(170,134,56,30,"privat","Partner: Balkon")
-  +spot(191,194,14,14,"post","Briefkasten")+spot(152,182,14,16,"amhaus","Am Haus: Lampe")+spot(64,150,64,60,"amhaus","Garten: Baum").replace('data-go="amhaus"','data-go="amhaus" data-pf="garten"')+spot(46,198,22,26,"kind","Kind: Schaukel")
-  +spot(96,220,16,16,"spiel","Sport und Spiel")+spot(240,66,34,22,"reisen","Urlaube: Flugzeug")+spot(208,168,20,14,"musik","Musik: Ghettoblaster")}
+// ---------- Motiv „Haus in der Stadt“ (Florian 16.11.2026) ----------
+// Dasselbe alleinstehende Haus mit Baum, Garten, Fahrrad, Schaukel, Briefkasten wie am Meer (houseScene mit amb.city).
+// Statt Meer: Straße mit Tram (Ausflüge), Flugzeug am Himmel (Urlaube), in der Ferne zwei Kirchtürme (Ideen, leuchten mit dem Wochenstand),
+// Café-Tischchen am Gehweg hinten links (Partner, statt Klippen), Gehweg statt Strand. Keine anderen Häuser im Vordergrund.
+function cityBack(C,night,sea,light){const far=night?"#26374a":"#cdd6dd",far2=night?"#1f2e3e":"#bcc8d1",asph=night?"#34383e":"#8e9399",walk=night?"#57544f":"#d3ccbf",curb=night?"#6e6a63":"#ece6da",win=night?"#ffd66b":"#f6e7b0";
+  let s=`<rect x="0" y="122" width="360" height="138" fill="${asph}"/>`;
+  // ferne Stadt, ganz blass, darin zwei Kirchtürme mit runden Hauben (Ideen)
+  s+=`<path d="M0 118 V106 h16 v-5 h12 v7 h18 v-9 h8 v9 h22 v-4 h14 v4 h40 V118Z M216 118 V104 h14 v-6 h10 v6 h24 v-8 h12 v8 h18 V118Z" fill="${far}"/>`+(night?[[20,108],[58,110],[92,112],[150,109],[232,108],[270,106],[296,110]].map(p=>`<rect x="${p[0]}" y="${p[1]}" width="2.4" height="2.4" fill="#ffd66b" opacity=".55"/>`).join(""):"");
+  const tx=318,ty=116,gl=(0.25+0.75*light)*(night?1:.55);
+  if(light>0)s+=`<circle cx="${tx}" cy="${ty-46}" r="${12+24*light}" fill="url(#hglow)" opacity="${gl.toFixed(2)}"/>`;
+  s+=`<path d="M${tx-16} ${ty} V${ty-40} h11 V${ty}Z M${tx+5} ${ty} V${ty-40} h11 V${ty}Z" fill="${night?"#4a3f3a":"#9a7f6c"}"/><path d="M${tx-5} ${ty} V${ty-22} h10 V${ty}Z" fill="${night?"#3e3532":"#8a705f"}"/>`
+    +`<path d="M${tx-17} ${ty-40} q6.5 -14 13 0Z M${tx+4} ${ty-40} q6.5 -14 13 0Z" fill="${night?"#3c5a50":"#6f9a86"}"/><path d="M${tx-10.5} ${ty-53} v-4 M${tx+10.5} ${ty-53} v-4" stroke="${night?"#c9b26a":"#b08d3a"}" stroke-width="1.2"/>`
+    +`<rect x="${tx-12.5}" y="${ty-33}" width="4" height="6" rx="2" fill="${win}" opacity="${night?.9:.6}"/><rect x="${tx+8.5}" y="${ty-33}" width="4" height="6" rx="2" fill="${win}" opacity="${night?.9:.6}"/>`;
+  // Gehweg hinten, Bordstein, Schienen, Fahrleitung
+  s+=`<rect x="0" y="116" width="360" height="7" fill="${walk}"/><rect x="0" y="122.5" width="360" height="1.6" fill="${curb}"/>`
+    +`<path d="M0 135 H360 M0 140 H360" stroke="${night?"#777b80":"#b9bcc0"}" stroke-width="1"/><path d="M0 104 H360" stroke="#3a3f45" stroke-width=".6" opacity=".7"/>`
+    +[24,140,256].map(x=>`<path d="M${x} 123 V100" stroke="#5b6066" stroke-width="1.4"/>`).join("");
+  // Tram (Ausflüge): blau-weiß, rechts hinter dem Garten
+  {const x0=226,y0=112;s+=`<g class="tram"><path d="M${x0+52} ${y0} l6 -6 l6 6 M${x0+58} ${y0-6} V104" stroke="#3a3f45" stroke-width="1" fill="none"/>`
+    +`<rect x="${x0}" y="${y0}" width="124" height="26" rx="5" fill="#f4f1ea"/><rect x="${x0}" y="${y0+15}" width="124" height="11" rx="3" fill="#2f6c97"/><rect x="${x0}" y="${y0+12}" width="124" height="2.2" fill="#2f6c97"/>`
+    +[0,1,2,3,4,5].map(i=>`<rect x="${x0+6+i*19.5}" y="${y0+3.5}" width="14" height="8" rx="1.5" fill="${night?"#ffd66b":"#9fc3dc"}" opacity="${night?.85:1}"/>`).join("")
+    +`<rect x="${x0+118}" y="${y0+4}" width="5" height="9" rx="1.5" fill="${night?"#ffd66b":"#9fc3dc"}"/><circle cx="${x0+121}" cy="${y0+21}" r="1.6" fill="${night?"#fff3c4":"#ffe9a8"}"/>`
+    +`<rect x="${x0+40}" y="${y0+15}" width="8" height="11" fill="#255a80"/><rect x="${x0+80}" y="${y0+15}" width="8" height="11" fill="#255a80"/></g>`}
+  return s}
+// Flugzeug am Himmel (Urlaube), mit Kondensstreifen; nachts mit Positionslichtern
+function cityPlane(night){const c=night?"#9fb0c2":"#f4f1ea",d=night?"#6c7d90":"#c3ccd4";
+  return `<g class="plane"><path d="M206 52 H254" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity="${night?.15:.55}"/>`
+    +`<path d="M254 52 q2 -3.4 8 -3.4 h18 q5 0 7 3.4 q-2 3.4 -7 3.4 h-18 q-6 0 -8 -3.4Z" fill="${c}"/><path d="M266 52 l-6 -10 h4 l9 10Z M266 52 l-6 10 h4 l9 -10Z" fill="${d}"/><path d="M256 51 l-3 -7 h3 l4 6Z" fill="${d}"/>`
+    +(night?`<circle class="twinkle" cx="263" cy="42.5" r="1.3" fill="#f25f5c"/><circle class="twinkle" style="animation-delay:.6s" cx="263" cy="61.5" r="1.3" fill="#5fd08a"/>`:`<path d="M282 51 h3" stroke="#6f8aa0" stroke-width="1.2" stroke-linecap="round"/>`)+`</g>`}
+// Café-Tischchen hinten links am Gehweg (Partner): Sonnenschirm, Tisch, zwei Stühle, zwei Tassen
+function cityCafe(night){const w=night?"#2c3138":"#3a3f47",u1=night?"#9c3c34":"#c7442f",u2=night?"#d8d2c6":"#f4f1ea";
+  return `<path d="M38 121 V99" stroke="${w}" stroke-width="1.2"/><path d="M22 101 Q38 88 54 101Z" fill="${u1}"/><path d="M30 101 Q38 89 38 89 Q38 89 46 101Z" fill="${u2}"/>`
+    +`<path d="M31 112 h14 M38 112 v9 M34 121 h8" stroke="${w}" stroke-width="1.3" stroke-linecap="round"/><path d="M33 110.4 h3 v1.6 h-3z M40 110.4 h3 v1.6 h-3z" fill="${u2}"/>`
+    +`<path d="M24 107 v14 M24 113 h5 v8 M52 107 v14 M52 113 h-5 v8" stroke="${w}" stroke-width="1.2" fill="none" stroke-linecap="round"/>`}
+// Rasen rechts statt Strand, Hecke zur Straße hin
+function cityLawn(C,night,st){const hd=night?"#24432f":"#4f8a55",L="M200 146 Q280 151 360 145 V260 H200Z";
+  return `<path d="${L}" fill="${C.land}"/>`+(st==="fein"?`<path d="${L}" fill="url(#pGrass)"/><path d="${L}" fill="url(#pGrass2)"/>`:"")+[244,256,268,280,292,304,316,328,340,352].map((x,i)=>`<circle cx="${x}" cy="${148.5-(i%2)*.8}" r="${6.4+(i%3)*.6}" fill="${hd}"/>`).join("")}
+const CITY_GUESTS={spring:["🐦","🐝","🦋"],summer:["🦋","🐦","🐝"],autumn:["🐿️","🍄","🦔"],winter:["🐦","🐿️","🦉"]};
 
 // Teilen an die App (Florian 15./16.11.2026): Share Target aus manifest.json (?su=Link&sx=Text&st=Titel, unverändert) öffnet „Wohin damit?“ (29a-teilen.js)
 function shareIn(){let q;try{q=new URLSearchParams(location.search)}catch(_){return}if(!q.has("su")&&!q.has("sx"))return;
@@ -4254,7 +4280,7 @@ function start(store,mode){S.store=store;S.mode=mode;let gotCfg=false,gotWeeks=f
   store.listen((cfg,fromCache)=>{S.config=cfg;if(cfg&&!fromCache&&Array.isArray(cfg.tasks)&&!(cfg.mig&&cfg.mig.saug1))migSaugen(cfg);else if(cfg&&!fromCache&&Array.isArray(cfg.tasks)&&!(cfg.mig&&cfg.mig.bring1))migBring(cfg);if(!fromCache){gotCfg=true;S.cfgConfirmed=true}if(gotCfg&&gotWeeks){clearTimeout(timer);S.timedOut=false}render()},
     (w,fromCache)=>{S.weeks=w;if(!fromCache)gotWeeks=true;if(gotCfg&&gotWeeks){clearTimeout(timer);S.timedOut=false}render()},
     err=>{clearTimeout(timer);toast("Verbindung zu den gemeinsamen Daten verloren. Seite neu öffnen.")},
-    food=>{S.food=food||{};migSpiel();migShopBell();geldFixBook();if(S.tab==="essen"||S.tab==="privat"||S.tab==="post"||S.tab==="settings"||S.tab==="einkauf"||S.tab==="camp"||S.tab==="ausflug"||S.tab==="projekte"||S.tab==="amhaus"||S.tab==="spiel"||S.tab==="kita"||S.tab==="musik"||S.tab==="recherchen"||S.tab==="wichtig"||S.tab==="tag"||S.tab==="listen"||S.tab==="ausgaben"||S.tab==="reisen"||S.tab==="kind")render()});
+    food=>{S.food=food||{};migSpiel();migShopBell();geldFixBook();render()});// Florian 16.11.2026: früher nur bestimmte Bereiche, dadurch fehlten nach dem Neuladen auf Woche/Kalender/Suche Essen, Kita und Termine
   try{fetch("wochenideen.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.wideas=j;if(S.tab==="essen")render()}}).catch(()=>{})}catch(_){}
   try{fetch("hausfunde.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.hfunde=j;if(S.tab==="amhaus")render()}}).catch(()=>{})}catch(_){}
   shareIn();

@@ -20,7 +20,7 @@ await A.addStyleTag({content:'#tabs{display:flex!important}'});
   // Mehrfachtipp
   const seq=async(t,n)=>{for(let i=0;i<n;i++)await A.click('#tabs [data-tab='+t+']');await A.waitForTimeout(150)};
   await seq('woche',3);r.w3=await A.$eval('.pdot[aria-pressed=true]',e=>e.innerText);await A.click('#tabs [data-tab=camp]');await seq('woche',1);r.w1=await A.$eval('.pdot[aria-pressed=true]',e=>e.innerText);
-  await A.click('#tabs [data-tab=camp]');await seq('essen',3);r.e3=await A.$eval('[data-food][aria-pressed=true]',e=>e.innerText);
+  await A.click('#tabs [data-tab=camp]');await seq('essen',2);r.e3=await A.$eval('[data-food][aria-pressed=true]',e=>e.innerText);
   await seq('camp',2);r.s2=await A.$eval('.pdot[aria-pressed=true]',e=>e.textContent);await A.click('#tabs [data-tab=woche]');await seq('camp',3);r.s3=await A.$eval('#app h1',e=>e.innerText);
   console.error(JSON.stringify(r,null,1),errs);
   const ok=!errs.length&&!/Partner|Mittag zu zweit/.test(r.heute)&&r.tagH1==='Diese Woche'&&r.dash>=3&&/Kinderarzt/.test(r.line.join())&&/Kita/.test(r.line.join())&&r.rows.length===1&&!r.rows[0].some(x=>/monatlich|jährlich/.test(x))&&r.inCal>=28&&r.backTag==='Diese Woche'&&r.dotsRed===0&&r.hours.length>=5&&r.w3==='Tag und Woche'&&r.w1==='Tag und Woche'&&/Rezepte/.test(r.e3)&&/Kalender|November|Dezember/.test(r.s2)&&/Wichtig/.test(r.s3);

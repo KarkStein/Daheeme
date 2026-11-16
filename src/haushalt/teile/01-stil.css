@@ -248,10 +248,11 @@ details.reisemap summary{cursor:pointer;font-weight:600}
 #app.swl{animation:swl .18s ease-out}#app.swr{animation:swr .18s ease-out}
 @keyframes beam{from{transform:rotate(-5deg)}to{transform:rotate(6deg)}}
 .bob{animation:bob 3s ease-in-out infinite alternate}
+.plane{animation:plane 6s ease-in-out infinite alternate}@keyframes plane{to{transform:translate(4px,-1.5px)}}
 @keyframes bob{to{transform:translateY(2px)}}
 .smoke{animation:smoke 3.5s ease-in-out infinite alternate}
 @keyframes smoke{to{transform:translate(3px,-3px);opacity:.45}}
-@media (prefers-reduced-motion: reduce){.flame,.twinkle,.beam,.bob,.smoke,.rain,.snow{animation:none}.bolt{animation:none;opacity:0}}
+@media (prefers-reduced-motion: reduce){.flame,.twinkle,.beam,.bob,.plane,.smoke,.rain,.snow{animation:none}.bolt{animation:none;opacity:0}}
 .unl{display:flex;flex-wrap:wrap;gap:6px}
 .unl span{font-size:var(--fs-s);font-weight:600;border-radius:999px;padding:4px 11px;background:var(--done-soft);color:var(--done);border:1px solid transparent}
 .unl span.lock{background:transparent;color:var(--muted);border:1px dashed var(--line)}
@@ -412,7 +413,7 @@ a.primary,a.primary:visited{color:var(--bg)}
 .srclink{background:none;border:none;padding:8px 4px;font-size:var(--fs-m);cursor:pointer}
 .areacard .areahead{font-weight:700;font-size:var(--fs-l)}.areacard .te{font-size:var(--fs-l)}
 .toast .toastbtn{margin-left:8px;background:var(--bg);color:var(--fg);border:0;border-radius:999px;padding:5px 12px;font:inherit;font-weight:700;cursor:pointer}
-.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:var(--fs-s);font-weight:600;z-index:9;max-width:calc(100% - 32px)}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:var(--fs-s);font-weight:600;z-index:65;max-width:calc(100% - 32px)}
 .celebrate{background:var(--lemon);color:var(--lemon-ink);border-radius:var(--r);padding:12px 14px;font-weight:700;display:flex;gap:10px;align-items:center}
 /* ---------- Look „Bretagne“ (Florian 15.11.2026): Papier, Marine-Tinte, Serifen-Überschriften, feiner Doppelstrich ---------- */
 h1{font-weight:800;letter-spacing:-.02em}
@@ -530,3 +531,7 @@ section[id^="sec-"]{scroll-margin-top:calc(var(--sp5)*3)}
 .pastehow{margin:var(--sp1) 0;padding-left:1.2em}
 .wishcard .fld{margin-top:var(--sp2)}.wishweb{margin-top:var(--sp4);padding-top:var(--sp3);border-top:1px solid var(--line)}.wishweb .unl{margin:var(--sp2) 0}.wishweb .btnrow{margin-top:var(--sp2)}.wishweb .btnrow+.freq{margin-top:var(--sp2)}
 .wishlist{margin-top:var(--sp3)}.wishlist .n{flex:1;min-width:0;overflow-wrap:anywhere}.wishlist .n small{display:block;font-size:var(--fs-xs);color:var(--muted)}.wishlist .t{font-size:var(--fs-l);min-width:0}.wishbtns a{text-decoration:none}.wishbtns{display:flex;gap:var(--sp1)}.wishlist .linkbtn{background:none;border:none;padding:0;color:inherit;font:inherit;text-align:left;text-decoration:underline;text-underline-offset:3px}.wishnone{margin-top:var(--sp3)}.wishcopy{width:100%;box-sizing:border-box;margin-top:var(--sp2);font-size:var(--fs-s)}
+/* Fenster (16.11.2026): lange Masken scrollen im Fenster, der Titel bleibt erreichbar; Abstände zwischen Feldern und vor den Knöpfen */
+#mbox .mboxcard{max-height:calc(100vh - 112px);max-height:calc(100dvh - 112px);overflow-y:auto;overscroll-behavior:contain;box-sizing:border-box}
+#mbox .editbox{display:grid;gap:var(--sp3)}#mbox .editbox>.btnrow{margin-top:var(--sp1)}#mbox .editbox .fld>.freq{margin-top:var(--sp1)}
+.sclist li{display:flex;align-items:center;gap:var(--sp1)}.sclist .scic{width:40px;flex:0 0 40px;text-align:center;padding:6px 2px}.sclist .scnm{flex:1;min-width:0;padding:6px 8px}.sclist .iconbtn{flex:0 0 auto;width:32px;height:32px;font-size:var(--fs-m)}.sclist .scsp{width:32px;flex:0 0 32px}.sclist .iconbtn.sure{width:auto;padding:0 var(--sp2);font-size:var(--fs-xs)}

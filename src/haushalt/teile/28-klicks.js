@@ -130,8 +130,8 @@ app.addEventListener("click",async e=>{
   if(b.dataset.fwkwrm){try{await S.store.setPath("food/ext/fwkw/"+b.dataset.fwkwrm,null)}catch(_){}return}
   if(b.dataset.fwpick){const id=b.dataset.fwpick,fw=S.food&&S.food.ext&&S.food.ext.fw,x=fw&&fw.items&&fw.items[id];if(!x)return;const cur=((S.food.ext.fwwho||{})[id])||"",X=((S.food.ext.fwx||{})[id])||{},pl=X.place&&placeFind(X.place)?placeFind(X.place).name:"";
     // Familywall-Termin (Florian 16.11.2026): Titel und Zeit nur in Familywall; Für wen, Art, Ort und Erinnern ergänzt die App (food/ext/fwx/<id>)
-    editBox("„"+x.name+"“",[{k:"note",type:"note",label:rDate(x.date)+(x.time?" "+x.time:"")+(x.place?" · "+x.place:"")+". Aus Familywall: Titel und Zeit ändern geht nur dort."},{k:"who",label:"Für wen (mehrere gehen)",type:"multi",excl:["","both"],opts:[["","Automatisch"]].concat(whoOpts()),val:!cur?[""]:cur==="both"?["both"]:whoL(cur)},
-      {k:"tag",label:"Art",type:"chips",opts:[["","Keine"]].concat(terTags().map(t=>[t[0],t[1]+" "+t[2]])),val:X.tag||""},
+    editBox("„"+x.name+"“",[{k:"note",type:"note",label:(rDate(x.date)+(x.time?" "+x.time:"")+(x.place?" · "+x.place:"")).replace(/\.$/,"")+". Aus Familywall: Titel und Zeit ändern geht nur dort."},{k:"who",label:"Für wen (mehrere gehen)",type:"multi",excl:["","both"],opts:[["","Automatisch"]].concat(whoOpts()),val:!cur?[""]:cur==="both"?["both"]:whoL(cur)},
+      {k:"tag",label:"Art",type:"chips",get opts(){return [["","Keine"]].concat(terTags().map(t=>[t[0],t[1]+" "+t[2]]))},val:X.tag||"",hint:ownCats("ter").length?"Eigene Art lange drücken = löschen.":""},
       {k:"pl",label:"Ort"+(x.place?" (sonst wie in Familywall)":""),type:"chips",opts:[["",x.place?"Wie in Familywall":"Keiner"]].concat(places().map(p=>[p.name,"📍 "+p.name])),val:pl},
       {k:"plx",label:"Oder Adresse nur für diesen Termin",type:"text",val:X.place&&!pl?X.place:""},
       {k:"remind",label:"🔔 Erinnern",type:"chips",opts:[["","Nein"],["tag","Am Tag"],["1d","1 Tag vorher"],["1h","1 Stunde vorher"]],val:X.remind===true?"tag":X.remind||""},
@@ -327,6 +327,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.shoprm){for(const id of b.dataset.shoprm.split(",")){try{await S.store.setPath("food/shop/"+id,null)}catch(_){toast("Konnte nicht speichern.");return}}return}
   if(b.dataset.shopfilter!=null){S.shopFilter=S.shopFilter===b.dataset.shopfilter?"":b.dataset.shopfilter;render();return}
   if(b.dataset.shopfav){shopAdd(b.dataset.shopfav);return}
+  if(b.dataset.act==="shopcatman"){S.shopCatEdit=null;render();shopCatManage();return}
   if(b.dataset.shopcat){S.shopCatEdit=S.shopCatEdit===b.dataset.shopcat?null:b.dataset.shopcat;render();return}
   if(b.dataset.setcat){const ids=String(S.shopCatEdit||"").split(","),i=shopItems().find(x=>x.id===ids[0]);S.shopCatEdit=null;if(!i){render();return}
     try{for(const id of ids)await S.store.setPath("food/shop/"+id+"/cat",b.dataset.setcat);const fk=favKey(i.name),cur=(S.food.fav||{})[fk]||{};await S.store.setPath("food/fav/"+fk,{name:cur.name||i.name,n:cur.n||0,cat:b.dataset.setcat})}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}render();return}
@@ -390,6 +391,7 @@ app.addEventListener("click",async e=>{
     if(!t){toast("Einfügen ging nicht. Bitte lange ins Feld drücken und „Einfügen“ wählen.");if(el)el.focus();return}if(el)el.value=t;if(S.recDraft)S.recDraft.pasteText=t;const p=document.querySelector('[data-act="recparse"]');if(p)p.click();return}
   if(b.dataset.act==="recparse"){const d=S.recDraft;if(!d)return;const el=document.getElementById("rec-paste");const t=el?el.value:(d.pasteText||"");const r=parseRecipe(t);if(r.link&&!r.ing.length&&String(t).trim().split(/\s+/).length<=3){d.link=r.link;d.name=d.name||nameFromLink(r.link);d.paste=false;d.pasteText="";render();toast("Link übernommen. Zutaten könnt ihr später einfügen.");return}if(!r.name&&!r.ing.length){toast("Nichts erkannt. Steht ein Rezept im Feld?");return}
     if(r.name&&!(d.id&&d.name))d.name=r.name.slice(0,80);if(r.ing.length)d.ing=r.ing.join("\n");if(r.note.length)d.note=r.note.join("\n");if(r.link)d.link=r.link;d.paste=false;d.pasteText=t;render();toast(r.ing.length+" Zutaten erkannt. Bitte kurz prüfen und speichern.");return}
+  if(b.dataset.act==="ideastog"){S.ideasOpen=!S.ideasOpen;render();return}
   if(b.dataset.recbookmv){const id=b.dataset.recbookmv,r=recs().find(x=>x.id===id);if(!r)return;const bs=books(),em=x=>x.emoji||BOOK_EMO[(bs.indexOf(x)-1+BOOK_EMO.length)%BOOK_EMO.length];
     editBox("📚 "+r.name+" verschieben",[{k:"book",label:"In welches Kochbuch?",type:"chips",opts:bs.filter(x=>x.id!==recBook(r)).map(x=>[x.id,em(x)+" "+x.name]),val:""}],
       async V=>{const to=bs.find(x=>x.id===V.book);if(!to){toast("Bitte ein Kochbuch antippen.");return}await S.store.setPath("food/rec/"+id+"/book",to.id);S.recOpen=null;toastAct(r.name+" steht jetzt in „"+to.name+"“.","📚 Hingehen",()=>{S.book=to.id;S.recOpen=id;render()})});return}

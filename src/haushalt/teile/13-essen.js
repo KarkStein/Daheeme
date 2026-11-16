@@ -1,4 +1,6 @@
-const FOODTABS=[["plan","Wochenplan"],["rezepte","Rezepte"],["kita","🎒 Kita-Essen ›"]];
+const FOODTABS=[["plan","Wochenplan"],["kita","🎒 Kita-Essen ›"]];
+// Essen hat zwei Seiten (Florian 16.11.2026): „Heute und Wochenplan“ (Chips Heute, Wochenplan, Kita-Essen) und „Rezepte“; Tipp auf den Reiter blättert weiter
+function foodPager(p){return `<div class="pager" role="group" aria-label="Seiten von Essen"><div class="pdots">${[["heute","Heute und Wochenplan"],["rezepte","Rezepte"]].map((x,i)=>`<button class="pdot" data-food="${x[0]}" aria-pressed="${i===p}"><b>${x[1]}</b></button>`).join("")}</div></div>`}
 function shopItems(){const m=(S.food&&S.food.shop)||{};return Object.keys(m).filter(k=>m[k]).map(k=>Object.assign({id:k},m[k])).sort((a,b)=>(a.at||0)-(b.at||0))}
 function shopFavs(){const f=(S.food&&S.food.fav)||{};const open=new Set(shopItems().filter(i=>!i.done).map(i=>i.name.toLowerCase()));
   return Object.keys(f).filter(k=>f[k]&&f[k].n>0&&!open.has((f[k].name||"").toLowerCase())).sort((a,b)=>f[b].n-f[a].n).slice(0,14).map(k=>f[k].name)}
@@ -164,7 +166,10 @@ function extraTipRows(){const td=startOfDay(new Date()),em=emmiPick(td),ow=ownPi
     out.push(`<li class="tiprow"><div class="tiptxt"><div class="eyebrow" style="margin:0">📚 Kochbuch</div><div style="font-weight:600;overflow-wrap:anywhere">${esc(x.name)}</div><div class="freq">${esc(bk?bk.name:"Unsere Rezepte")}</div>${why(ow)}</div><button class="ghost" data-openrec="${esc(x.rec)}">📖 Öffnen</button>${cookBtn("rec|"+x.rec)}${x.ing.length?(shopBlocks()[x.name]?`<button class="ghost" data-shopblockrm="${esc(x.name)}">− Liste</button>`:`<button class="ghost" data-recshop="${esc(x.rec)}">+ Liste</button>`):""}</li>`)}
   return out.join("")}
 function renderIdeas(){const l=ideaList(),ex=extraTipRows();if(!l.length&&!ex)return "";const u=S.ideas&&S.ideas.updated?String(S.ideas.updated).split("-").reverse().join("."):"";
-  return `<section class="card"><div class="section-head"><h2>Tagesrezepte</h2>${u?`<span class="freq">Stand ${esc(u)}</span>`:""}</div>
+  // Florian 16.11.2026: Tagesrezepte erst eingeklappt, Tipp klappt auf (S.ideasOpen, bis zum Neuladen)
+  const n=l.length+(ex?(ex.match(/class="tiprow/g)||[]).length:0),cats=[...new Set(l.map(x=>ideaCat(x)?ideaCat(x)[1]:"").filter(Boolean))].join("")+(ex?(/🍳/.test(ex)?"🍳":"")+(/📚/.test(ex)?"📚":""):"");
+  if(!S.ideasOpen)return `<section class="card ideasfold"><button class="setsum" data-act="ideastog" aria-expanded="false"><span><h2>Tagesrezepte <span class="freq">(${n})</span></h2><span class="freq">${esc(cats)}${u?" · Stand "+esc(u):""}</span></span><i>›</i></button></section>`;
+  return `<section class="card ideasfold"><button class="setsum" data-act="ideastog" aria-expanded="true"><span><h2>Tagesrezepte <span class="freq">(${n})</span></h2>${u?`<span class="freq">Stand ${esc(u)}</span>`:""}</span><i>▾</i></button>
     <ul class="shop">${l.map(x=>{const link=safeLink(x.link);return `<li class="tiprow"><div class="tiptxt">${ideaCat(x)?`<div class="eyebrow" style="margin:0">${ideaCat(x)[1]} ${ideaCat(x)[2]}</div>`:""}<div style="font-weight:600;overflow-wrap:anywhere">${esc(x.name)}</div><div class="freq">${link?`<a href="${esc(link)}" target="_blank" rel="noopener noreferrer">${esc(x.source||"Zum Rezept")}</a>`:esc(x.source||"")}</div></div>${x.taken?`<button class="ghost danger" data-recrm="${esc(x.taken)}" aria-label="${esc(x.name)} wieder aus euren Rezepten entfernen">✕ Entfernen</button>`:`<button class="ghost" data-idea="${x.i}">Übernehmen</button>`}${cookBtn("idea|"+x.i)}${Array.isArray(x.ing)&&x.ing.length?(shopBlocks()[x.name]?`<button class="ghost" data-shopblockrm="${esc(x.name)}" aria-label="Zutaten von ${esc(x.name)} wieder von der Liste nehmen">− Liste</button>`:`<button class="ghost" data-ideashop="${x.i}" aria-label="Zutaten von ${esc(x.name)} auf die Einkaufsliste">+ Liste</button>`):""}</li>`}).join("")}${ex}</ul></section>`}
 const HAUPT_KW=[["Nudeln",["nudel","spätzle","spaetzle","pasta","spaghetti","penne","fusilli","maultasche","lasagne","tortellini","makkaroni","tagliatelle","ravioli"]],["Reis",["reis","risotto","paella"]],["Kartoffeln",["kartoffel","püree","pueree","pommes","reiberdatschi","rösti","gnocchi","krokette","schupfnudel"]],["Geflügel",["hähnchen","haehnchen","huhn","hühnchen","pute","chicken"]],["Fleisch",["rind","schwein","hack","wurst","würstl","schinken","speck","gulasch","frikadelle","fleischpflanzerl","leberkäs","bolognese","lamm"]],["Fisch",["fisch","lachs","forelle","thunfisch","kabeljau","garnele"]],["Eier",["eier","omelett","pfannkuchen","rührei","frittata","quiche"]],["Hülsenfrüchte",["linse","bohne","kichererbse","erbse","dal"]],["Brot",["brot","semmel","toast","pizza","flammkuchen","brezn","burger","sandwich","wrap"]],["Getreide",["dinkel","couscous","bulgur","quinoa","hirse","grieß","polenta","graupen"]]];
 // Soßen-Art für "ähnlich wie Mittag": Pilzsoße zählt auch als Sahnesoße (Wunsch 14.11.2026)
@@ -264,10 +269,10 @@ const CATS=[
  ["drogerie","🧴","Drogerie und Haushalt",["klopapier","toilettenpapier","küchenrolle","taschentücher","zahnpasta","zahnbürste","shampoo","duschgel","seife","deo","creme","windel","feuchttücher","waschmittel","spülmittel","spülmaschine","tabs","müllbeutel","müllsäcke","schwamm","putzmittel","reiniger","alufolie","backpapier","frischhaltefolie","batterie","kerze","pflaster","rasier","watte","binden","tampons","weichspüler"]],
  ["sonst","🧺","Sonstiges",[]]];
 const CATSHORT=[["milch","kuehl"],["ei","kuehl"],["eis","tk"],["tee","trinken"],["öl","vorrat"],["reis","vorrat"],["rind","fleisch"]];
-function catGuess(name){const s=(name||"").toLowerCase();const f=((S.food&&S.food.fav)||{})[favKey(name||"")];if(f&&f.cat)return f.cat;
-  for(const w of CATSHORT)if(new RegExp("(^|[^a-zäöüß])"+w[0]+"($|[^a-zäöüß])").test(s))return w[1];
-  for(const c of CATS)if(c[3].some(w=>s.includes(w)))return c[0];return "sonst"}
-function itemCat(i){return i.cat&&CATS.some(c=>c[0]===i.cat)?i.cat:catGuess(i.name)}
+function catGuess(name){const s=(name||"").toLowerCase();const f=((S.food&&S.food.fav)||{})[favKey(name||"")];if(f&&f.cat&&shopCatOk(f.cat))return f.cat;const ok=shopCats().map(c=>c[0]);
+  for(const w of CATSHORT)if(ok.includes(w[1])&&new RegExp("(^|[^a-zäöüß])"+w[0]+"($|[^a-zäöüß])").test(s))return w[1];
+  for(const c of CATS)if(ok.includes(c[0])&&c[3].some(w=>s.includes(w)))return c[0];return "sonst"}
+function itemCat(i){return i.cat&&shopCatOk(i.cat)?i.cat:catGuess(i.name)}
 function lunches(){const m=(S.food&&S.food.lunch)||{};return Object.keys(m).filter(k=>m[k]&&m[k].name).map(k=>Object.assign({id:k},m[k]))}
 function lunchAvg(l){const r=l.r||{},v=["p0","p1"].map(p=>+r[p]||0).filter(Boolean);return v.length?v.reduce((a,b)=>a+b,0)/v.length:0}
 function mapOk(u){return /^https:\/\/(maps\.app\.goo\.gl|goo\.gl\/maps|(www\.|maps\.)?google\.[a-z.]+\/maps)/.test(u||"")}
@@ -298,8 +303,8 @@ function renderLunch(){const d=S.lunchDraft,mapUrl=(S.food&&S.food.lunchmap)||""
 function foodChips(){const shop=S.tab==="einkauf";return `<div class="filters" role="group" aria-label="Bereich">${[["heute","Heute"],...FOODTABS].map(t=>`<button class="chipbtn neutral" data-food="${t[0]}" aria-pressed="${!shop&&S.foodTab===t[0]}">${t[1]}</button>`).join("")}</div>`}
 function renderFood(){
   if(S.tab==="einkauf")return shopPager(0)+renderShop();
-  let h=`<div><div class="eyebrow">Gemeinsam planen</div><h1>Essen</h1></div>${bellRow("essen")}
-   ${foodChips()}`;
+  const fpg=S.foodTab==="rezepte"?1:0;let h=foodPager(fpg)+`<div><div class="eyebrow">Gemeinsam planen</div><h1>Essen</h1></div>${bellRow("essen")}
+   ${fpg?"":foodChips()}`;
   if(S.foodTab==="heute")return h+renderFoodToday();
   if(S.foodTab==="plan")return h+renderMealPlan();
   if(S.foodTab==="rezepte"&&S.recDb&&!S.recDraft)return h+renderRecDb();
