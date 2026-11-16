@@ -19,7 +19,7 @@ https://www.essen-und-trinken.de
 https://www.bzfe.de/lebensmittel/einkauf/saisonkalender
 
 # Exotisch
-# Gemeint ist echte Küche aus anderen Ländern, z. B. japanisch, indisch, ghanaisch, äthiopisch, vietnamesisch, nicht nur Kokosmilch oder Erdnusssoße.
+# Gemeint ist echte Küche aus anderen Ländern, z. B. japanisch, indisch, ghanaisch, äthiopisch, vietnamesisch, nicht nur Kokosmilch oder Erdnusssoße und kein normales Curry (das kommt schon in den anderen Kategorien vor).
 https://www.chiliundciabatta.de
 
 # Für alle Kategorien
