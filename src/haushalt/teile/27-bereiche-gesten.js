@@ -53,10 +53,16 @@ new MutationObserver(()=>{const open=ovlOpen();
  const end=()=>{if(lp){clearTimeout(lp.timer);lp=null}};document.addEventListener("touchend",end,{passive:true});document.addEventListener("touchcancel",end,{passive:true});
  tabs.addEventListener("contextmenu",e=>{const b=startBtn(e.target);if(!b)return;e.preventDefault();if(S.gest.ring&&!S.ar){S.fanEat=Date.now();arOpen(true)}});
  tabs.addEventListener("click",e=>{if(S.fanEat&&Date.now()-S.fanEat<1500&&startBtn(e.target)){S.fanEat=0;e.stopImmediatePropagation();e.preventDefault()}},true)}
-document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("button[data-tab]");if(!b)return;const t=b.dataset.tab,now=Date.now();
+document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("button[data-tab]");if(!b)return;const t=b.dataset.tab,now=Date.now();if(t==="einkauf"&&S.tab!=="einkauf")S.shopFilter="";
   if(TAP_SEQ[t]){const lt=S.lastTap,n=S.gest.tap&&lt&&lt.t===t&&lt.on===S.tab&&now-lt.at<450?lt.n+1:0;const q=TAP_SEQ[t],cur=tapCur(t),idx=n?n:S.gest.tap&&cur>=0?cur+1:0;if(S.tab!==t||n||idx)S.prev=S.tab;q[idx%q.length]();S.lastTap={t,at:now,n,on:S.tab};S.draft=null;render();window.scrollTo(0,0);return}
   if(t==="essen"&&S.tab!=="essen")S.foodTab="heute";S.tab=t;S.draft=null;render();window.scrollTo(0,0)});
 
+// Doppelring im Dashboard: lange drücken = Wochenaufgaben (Florian 16.11.2026)
+(()=>{let t=null,fired=false;const clear=()=>{clearTimeout(t);t=null};
+  app.addEventListener("pointerdown",e=>{const b=e.target.closest(".bring2[data-act=gotasks]");if(!b)return;fired=false;clear();t=setTimeout(()=>{fired=true;t=null;setTimeout(()=>{fired=false},900);try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}goTasks("week")},500)});
+  ["pointerup","pointercancel","pointerleave"].forEach(k=>app.addEventListener(k,clear));
+  app.addEventListener("click",e=>{if(fired&&e.target.closest(".bring2")){fired=false;e.stopPropagation();e.preventDefault()}},true);
+  app.addEventListener("contextmenu",e=>{if(e.target.closest(".bring2"))e.preventDefault()})})();
 // Kalender: lange auf einen Tag drücken = neuer Termin an diesem Tag (Florian 15.11.2026); kurzer Tipp öffnet den Tag
 (()=>{let t=null,fired=false,x0=0,y0=0;const clear=()=>{clearTimeout(t);t=null};
   app.addEventListener("pointerdown",e=>{const b=e.target.closest("[data-calday]");if(!b)return;fired=false;x0=e.clientX;y0=e.clientY;clear();

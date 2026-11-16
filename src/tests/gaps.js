@@ -12,5 +12,5 @@ srv.listen(8765,async()=>{
   await A.click('[data-packlist=l2]');await A.waitForTimeout(200);await A.click('[data-act=packlistren]');await box({name:'Sommerurlaub'});r.pl=db().packlist.l2.name;
   await nav('einkauf|bl:b1');await A.click('[data-buylistedit=b1]');await box({name:'Basteln',emo:'✂️'});r.bl=[db().buylist.b1.name,db().buylist.b1.emo].join('|');
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&r.shop==='Milch 2 l'&&r.pack==='Wollmütze'&&r.pl==='Sommerurlaub'&&r.bl==='Basteln|✂️';
+  const ok=!errs.length&&r.shop==='2 l Milch'&&r.pack==='Wollmütze'&&r.pl==='Sommerurlaub'&&r.bl==='Basteln|✂️';
   console.error(ok?'GAPS OK':'GAPS FAIL');await b.close();srv.close();process.exit(0)});

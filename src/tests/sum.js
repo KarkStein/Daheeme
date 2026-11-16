@@ -14,15 +14,15 @@ srv.listen(8765,async()=>{
   await A.screenshot({path:out+'/auswahl.png'});
   const lines=await A.$$eval('[data-pickline]',l=>l.map(x=>x.innerText));const wi=lines.findIndex(x=>/Wirsing/.test(x));await A.click(`[data-pickline="0|${wi}"]`);await A.click('[data-act=pickok]');await A.waitForTimeout(400);
   await A.click('#tabs [data-tab=einkauf]');await A.waitForTimeout(300);
-  const shop=await A.$$eval('.shop .nm',l=>l.map(x=>x.innerText.replace(/\n/g,' | ')));
+  const shop=await A.$$eval('.shop .nm',l=>l.map(x=>(x=>{const q=x.querySelector('.qty'),t=x.innerText.split('\n');if(q)t[0]=q.innerText+' '+t[0].replace(q.innerText,'').trim();return t.join('\n')})(x).replace(/\n/g,' | ')));
   await A.screenshot({path:out+'/summe.png',fullPage:true});
-  await A.click('[data-shopfilter="Wirsingauflauf"]');await A.waitForTimeout(200);const filt=await A.$$eval('.shop .nm',l=>l.map(x=>x.innerText.split('\n')[0]));
+  await A.click('[data-shopfilter="Wirsingauflauf"]');await A.waitForTimeout(200);const filt=await A.$$eval('.shop .nm',l=>l.map(x=>(x=>{const q=x.querySelector('.qty'),t=x.innerText.split('\n');if(q)t[0]=q.innerText+' '+t[0].replace(q.innerText,'').trim();return t.join('\n')})(x).split('\n')[0]));
   await A.click('[data-shopfilter=""]');
   // Block entfernen zieht nur Anteil ab
-  await A.click('[data-shopblockrm="Wirsingauflauf"]');await A.waitForTimeout(400);const after=await A.$$eval('.shop .nm',l=>l.map(x=>x.innerText.split('\n')[0]));
+  await A.click('[data-shopblockrm="Wirsingauflauf"]');await A.waitForTimeout(400);const after=await A.$$eval('.shop .nm',l=>l.map(x=>(x=>{const q=x.querySelector('.qty'),t=x.innerText.split('\n');if(q)t[0]=q.innerText+' '+t[0].replace(q.innerText,'').trim();return t.join('\n')})(x).split('\n')[0]));
   // Nur das: nur Sahne von r2
   await A.click('[data-tab=essen]');await A.click('[data-food=rezepte]');await A.click('[data-rec=r2]').catch(()=>{});await A.click('[data-recshop=r2]');await A.click('[data-pickmode=nur]');const l2=await A.$$eval('[data-pickline]',l=>l.map(x=>x.innerText));await A.click(`[data-pickline="0|${l2.findIndex(x=>/Sahne/.test(x))}"]`);await A.click('[data-act=pickok]');await A.waitForTimeout(400);
-  await A.click('#tabs [data-tab=einkauf]');const fin=await A.$$eval('.shop .nm',l=>l.map(x=>x.innerText.split('\n')[0]));
+  await A.click('#tabs [data-tab=einkauf]');const fin=await A.$$eval('.shop .nm',l=>l.map(x=>(x=>{const q=x.querySelector('.qty'),t=x.innerText.split('\n');if(q)t[0]=q.innerText+' '+t[0].replace(q.innerText,'').trim();return t.join('\n')})(x).split('\n')[0]));
   console.log({shop,filt,after,fin,errs});
   const ok=!errs.length&&shop.some(x=>/^1,6 kg festkochende Kartoffeln \| zusammen für .*Kürbisauflauf/.test(x))&&shop.some(x=>/^3 Knoblauchzehe/.test(x))&&shop.some(x=>/^450 ml Sahne/.test(x))&&!shop.some(x=>/Wirsing \|/.test(x)||/1 kg Wirsing/.test(x))&&!shop.some(x=>/Olivenöl/.test(x))
     &&filt.length===3&&after.includes('600 g festkochende Kartoffeln')&&fin.includes('450 ml Sahne')&&!fin.some(x=>/1,6 kg/.test(x));

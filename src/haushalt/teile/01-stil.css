@@ -500,3 +500,5 @@ section[id^="sec-"]{scroll-margin-top:calc(var(--sp5)*3)}
 .chlist button.chosen{font-weight:700}
 
 .shopsugg:empty{display:none}.shopsugg{margin-top:calc(-1 * var(--sp1))}.unl .suggpair{display:inline-flex;gap:0;padding:0;background:none;border:none}.suggpair .chipbtn:first-child{border-radius:999px 0 0 999px}.suggpair .suggurg{border-radius:0 999px 999px 0;border-left:none;padding-left:var(--sp2);padding-right:var(--sp2)}
+.shop .nm .qty,.chipbtn .qty{color:var(--muted);font-weight:500;font-size:var(--fs-s);margin-left:var(--sp1)}
+.unl .chipbtn span.qty{background:none;padding:0;border:none;border-radius:0;color:var(--muted);font-weight:500}

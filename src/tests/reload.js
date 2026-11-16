@@ -11,7 +11,7 @@ srv.listen(8765,async()=>{
   await A.reload();await A.waitForTimeout(800);
   const t1=await A.$eval('[data-food=rezepte]',e=>e.getAttribute('aria-selected')||e.className).catch(()=>'none');const h1a=await A.$eval('h1',e=>e.textContent);const hasRec=!!(await A.$('[data-rec=r1]'));
   await A.click('[data-rec=r1]');await A.click('[data-recshop]');await A.click('[data-pickmode=alle]');await A.waitForTimeout(500);
-  await A.click('#tabs [data-tab=einkauf]');const shop=await A.$$eval('.shop .nm',l=>l.map(x=>x.innerText.split('\n')[0]));
+  await A.click('#tabs [data-tab=einkauf]');const shop=await A.$$eval('.shop .nm',l=>l.map(x=>(x=>{const q=x.querySelector('.qty'),t=x.innerText.split('\n');if(q)t[0]=q.innerText+' '+t[0].replace(q.innerText,'').trim();return t.join('\n')})(x).split('\n')[0]));
   await A.reload();await A.waitForTimeout(800);const h1b=await A.$eval('h1',e=>e.textContent);
   await A.click('[data-tab=camp]');await A.click('.spot[data-go=kita]');await A.reload();await A.waitForTimeout(800);const h1c=await A.$eval('h1',e=>e.textContent);
   await A.goBack();await A.waitForTimeout(400);const h1d=await A.$eval('h1',e=>e.textContent).catch(()=>'start');const start=!!(await A.$('.camp'));

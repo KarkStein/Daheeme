@@ -3,11 +3,11 @@ function shopItems(){const m=(S.food&&S.food.shop)||{};return Object.keys(m).fil
 function shopFavs(){const f=(S.food&&S.food.fav)||{};const open=new Set(shopItems().filter(i=>!i.done).map(i=>i.name.toLowerCase()));
   return Object.keys(f).filter(k=>f[k]&&f[k].n>0&&!open.has((f[k].name||"").toLowerCase())).sort((a,b)=>f[b].n-f[a].n).slice(0,14).map(k=>f[k].name)}
 function favKey(name){let h=0;const s=name.toLowerCase();for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return "f"+h.toString(36)}
-async function shopAdd(name,urg){name=(name||"").trim();if(/^[!❗]/.test(name)){urg=true;name=name.replace(/^[!❗]+\s*/,"")}name=name.slice(0,80);if(!name)return;
+async function shopAdd(name,urg){name=(name||"").trim();if(/^[!❗]/.test(name)){urg=true;name=name.replace(/^[!❗]+\s*/,"")}name=qtyNorm(name).slice(0,80);if(!name)return;
   const dup=shopItems().find(i=>!i.done&&i.name.toLowerCase()===name.toLowerCase());if(dup){if(urg&&!dup.urg){await S.store.setPath("food/shop/"+dup.id+"/urg",true);toast("❗ Als heute nötig markiert");return}toast("Steht schon auf der Liste");return}
   const id="i"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
   try{await S.store.setPath("food/shop/"+id,Object.assign({name,done:false,at:Date.now(),by:S.me||""},urg?{urg:true}:{}));
-    const fk=favKey(name),cur=((S.food.fav||{})[fk]||{}).n||0;await S.store.setPath("food/fav/"+fk,{name,n:cur+1})}
+    const qs=qtySplit(name),fk=favKey(qs.rest),old=(S.food.fav||{})[fk]||{};await S.store.setPath("food/fav/"+fk,Object.assign({},old,{name:qs.rest,n:(old.n||0)+1},qs.q?{q:qs.q}:{}))}
   catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}
 const DAYN=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"];
 function recs(){const m=(S.food&&S.food.rec)||{};return Object.keys(m).filter(k=>m[k]).map(k=>Object.assign({id:k},m[k])).sort((a,b)=>(a.name||"").localeCompare(b.name||"","de"))}
