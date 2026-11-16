@@ -4,7 +4,7 @@ srv.listen(8765,async()=>{
   await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');await A.evaluate(()=>localStorage.removeItem('hq-calview2'));
   const r={};
   const dbl=async t=>{await A.click(`#tabs [data-tab=${t}]`);await A.waitForTimeout(80);await A.click(`#tabs [data-tab=${t}]`);await A.waitForTimeout(250)};
-  await dbl('camp');r.cal=await A.$$eval('.cal [data-calday]',l=>l.length);r.pager=await A.$$eval('.pdot',l=>l.map(x=>x.innerText+(x.getAttribute('aria-pressed')==='true'?'*':'')));
+  await dbl('camp');await A.click('[data-calview=monat]');await A.waitForTimeout(200);r.cal=await A.$$eval('.cal [data-calday]',l=>l.length);r.pager=await A.$$eval('.pdot',l=>l.map(x=>x.innerText+(x.getAttribute('aria-pressed')==='true'?'*':'')));
   await A.click('[data-act=ternew]');await A.fill('#ter-name','Zahnarzt');await A.fill('[data-terf=time]','15:30');await A.click('[data-terwho=p1]');await A.click('#terform button[type=submit]');await A.waitForTimeout(400);
   await A.click('[data-calday="2026-11-20"]');await A.click('[data-act=ternew]');await A.fill('#ter-name','Omas Geburtstag');await A.click('[data-terrep=y]');await A.click('#terform button[type=submit]');await A.waitForTimeout(400);
   r.day=await A.$$eval('.evlist li',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));r.dots=await A.$$eval('.cal .dots i',l=>l.length);

@@ -10,16 +10,16 @@ srv.listen(8765,async()=>{
   await A.waitForTimeout(300);const r={};
   await A.click('#tabs [data-tab=camp]');await A.waitForTimeout(80);await A.click('#tabs [data-tab=camp]');
   await A.waitForTimeout(300);
-  r.hasQuick=!(await A.$('#calq'))&&(await A.$eval('[data-calview][aria-pressed=true]',x=>x.dataset.calview))==='monat'; // Florian 16.11.2026: Monat zuerst, kein Schnellfeld
+  r.hasQuick=!(await A.$('#calq'))&&(await A.$eval('[data-calview][aria-pressed=true]',x=>x.dataset.calview))==='liste';await A.click('[data-calview=monat]');await A.waitForTimeout(200); // Florian 16.11.2026: Liste zuerst (Woche und Liste zusammengelegt), kein Schnellfeld
   await put('food/termin/hq1',{name:'Kinderarzt',date:'2026-11-19',time:'15:00',who:'kid',at:1});await put('food/termin/hq2',{name:'Geburtstag Oma',date:'2026-11-25',rep:'y',at:2});await A.waitForTimeout(400);
   const db=JSON.parse(JSON.stringify(get(['haushalt',key,'food'])));r.ter=Object.values(db.termin||{}).map(t=>[t.name,t.date,t.time||'',t.who||'',t.rep||''].join('/'));
   await A.click('[data-calm="0"]').catch(()=>{});await A.click('[data-calday="2026-11-17"]');await A.waitForTimeout(200);
   r.di=await A.$$eval('.evlist li',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));
   r.vbtn=await A.$$eval('[data-calview]',l=>l.map(x=>x.outerHTML.slice(0,90)+' '+getComputedStyle(x).backgroundColor));r.urlaubDays=await A.$$eval('.cal button.urlaub',l=>l.length);
   await A.screenshot({path:out+'/kal-monat.png',fullPage:true});
-  await A.click('[data-calview=woche]');await A.waitForTimeout(200);r.week=await A.$$eval('.calwd',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));
+  await A.click('[data-calview=liste]');await A.waitForTimeout(200);r.week=await A.$$eval('.calwsep',l=>l.map(x=>x.innerText));r.free=await A.$$eval('.calfree',l=>l.length);
   await A.screenshot({path:out+'/kal-woche.png',fullPage:true});
-  await A.click('[data-calview=liste]');await A.waitForTimeout(200);r.list=await A.$$eval('.evlist li',l=>l.length);
+  r.list=await A.$$eval('.evlist li',l=>l.length);
   await A.click('[data-act=calfilt]');await A.click('[data-calwho=p1]');await A.waitForTimeout(200);r.listP1=await A.$$eval('.evlist li',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));
   await A.click('[data-calwho=""]');await A.click('[data-caloff=food]');await A.click('[data-caloff=reise]');await A.waitForTimeout(200);r.listNoFood=await A.$$eval('.evlist li',l=>l.length);
   await A.screenshot({path:out+'/kal-liste.png',fullPage:true});
@@ -29,5 +29,5 @@ srv.listen(8765,async()=>{
   await A.screenshot({path:out+'/urlaub-vorher.png',fullPage:true});
   r.stress=['Wildpark'];r.sugg=[];
   console.error(JSON.stringify(r,null,1),errs);
-  const ok=!errs.length&&r.hasQuick&&r.ter.includes('Kinderarzt/2026-11-19/15:00/kid/')&&r.ter.some(t=>/^Geburtstag Oma\/2026-11-25\/\/\/y$/.test(t))&&r.di.some(x=>/Kinderturnen/.test(x)&&/16:30/.test(x))&&r.urlaubDays===4&&r.week.length===7&&r.listP1.every(x=>!/Kinderturnen|Kinderarzt|Laternen/.test(x))&&r.listNoFood<r.list&&r.vor===6&&r.stress.some(x=>/Wildpark/.test(x))&&!r.sugg.some(k=>['d4','d5','d6'].includes(k));
+  const ok=!errs.length&&r.hasQuick&&r.ter.includes('Kinderarzt/2026-11-19/15:00/kid/')&&r.ter.some(t=>/^Geburtstag Oma\/2026-11-25\/\/\/y$/.test(t))&&r.di.some(x=>/Kinderturnen/.test(x)&&/16:30/.test(x))&&r.urlaubDays===4&&r.week.length>=9&&/^KW 47/.test(r.week[0])&&r.free>0&&r.listP1.every(x=>!/Kinderturnen|Kinderarzt|Laternen/.test(x))&&r.listNoFood<r.list&&r.vor===6&&r.stress.some(x=>/Wildpark/.test(x))&&!r.sugg.some(k=>['d4','d5','d6'].includes(k));
   console.error(ok?'HUB OK':'HUB FAIL');await b.close();srv.close();process.exit(0)});

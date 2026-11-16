@@ -145,6 +145,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.caloff){const o=S.calOff||[],k=b.dataset.caloff;S.calOff=o.includes(k)?o.filter(x=>x!==k):o.concat(k);try{localStorage.setItem("hq-caloff",JSON.stringify(S.calOff))}catch(_){}render();return}
   if(b.dataset.calwho!=null){S.calWho=b.dataset.calwho;render();return}
   if(b.dataset.act==="ternewgo"){S.prev=S.tab;S.tab="woche";S.weekPage=3;S.calDay=null;b.dataset.act="ternew"}
+  if(b.dataset.calnew){S.calDay=b.dataset.calnew;S.terDraft={id:null,name:"",date:b.dataset.calnew,time:"",who:"both",rep:"",note:""};render();window.scrollTo(0,0);const el=document.getElementById("ter-name");if(el)el.focus();return}
   if(b.dataset.act==="ternew"){S.terDraft={id:null,name:"",date:S.calDay||ymd(new Date()),time:"",who:"both",rep:"",note:""};render();window.scrollTo(0,0);const el=document.getElementById("ter-name");if(el)el.focus();return}
   if(b.dataset.teredit){const x=termine().find(y=>y.id===b.dataset.teredit);if(x){S.terDraft=terDraftOf(x);render();window.scrollTo(0,0)}return}
   if(b.dataset.act==="teraltadd"&&S.terDraft){const d=S.terDraft;d.alt=d.alt||[];if(!d.alt.length&&!d.ask)d.ask=choiceOther(S.me)||"p1";d.alt.push({date:"",time:d.time||""});render();const l=document.querySelectorAll("[data-teralt][data-k=date]");if(l.length)l[l.length-1].focus();return}
