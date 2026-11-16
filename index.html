@@ -554,6 +554,15 @@ section[id^="sec-"]{scroll-margin-top:calc(var(--sp5)*3)}
 #mbox .mboxcard{max-height:calc(100vh - 112px);max-height:calc(100dvh - 112px);overflow-y:auto;overscroll-behavior:contain;box-sizing:border-box}
 #mbox .editbox{display:grid;gap:var(--sp3)}#mbox .editbox>.btnrow{margin-top:var(--sp1)}#mbox .editbox .fld>.freq{margin-top:var(--sp1)}
 .sclist li{display:flex;align-items:center;gap:var(--sp1)}.sclist .scic{width:40px;flex:0 0 40px;text-align:center;padding:6px 2px}.sclist .scnm{flex:1;min-width:0;padding:6px 8px}.sclist .iconbtn{flex:0 0 auto;width:32px;height:32px;font-size:var(--fs-m)}.sclist .scsp{width:32px;flex:0 0 32px}.sclist .iconbtn.sure{width:auto;padding:0 var(--sp2);font-size:var(--fs-xs)}
+/* Glossar (16a-glossar.js) */
+.glosq{display:flex;gap:var(--sp2);align-items:center;margin:var(--sp3) 0 var(--sp2)}.glosq input{flex:1;min-width:0}
+.glossec{border-top:1px solid var(--line);padding:var(--sp3) 0 var(--sp1)}.glossum h3{margin:0;font-size:var(--fs-m)}
+.glosgrp{font-size:var(--fs-xs);font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ochre);margin:var(--sp4) 0 var(--sp1)}.glosb.filt .glosgrp{display:none}
+.glosrow{display:grid;grid-template-columns:1fr auto;column-gap:var(--sp2);width:100%;box-sizing:border-box;text-align:left;background:none;border:none;border-top:1px solid var(--line);padding:var(--sp2) 0;font:inherit;color:inherit}
+.glosgrp+.glosrow,.glosb>.glosrow:first-child{border-top:none}button.glosrow{cursor:pointer}
+.glosrow b{grid-column:1;font-weight:600}.glosrow span{grid-column:1;font-size:var(--fs-s);opacity:.8;line-height:1.4}.glosrow i{grid-column:2;grid-row:1/3;align-self:center;font-style:normal;opacity:.5;font-size:var(--fs-l)}
+.glosrow.glossym{grid-template-columns:32px 1fr;align-items:center}.glossym b{font-size:var(--fs-l);font-weight:400;text-align:center}.glossym span{grid-column:2;grid-row:1}
+.glosrow[hidden],.glossec[hidden],.glosb[hidden],.glosnone[hidden]{display:none}
 </style>
 
 <div class="app" id="app">
@@ -1062,6 +1071,17 @@ function wxKind(code){if(code==null||code==="")return "";code=+code;if(isNaN(cod
 // Ausschnitt des Hausbilds (Florian 15.11.2026: weniger Himmel, Haus und Wiese größer). Spots rechnen damit.
 const HVB=[4,32,352,228];
 function spotPos(x,y,w,h){const V=HVB;return `left:${((x-V[0])/V[2]*100).toFixed(1)}%;top:${((y-V[1])/V[3]*100).toFixed(1)}%;width:${(w/V[2]*100).toFixed(1)}%;height:${(h/V[3]*100).toFixed(1)}%`}
+// Antippbare Dinge im Bild, eine Quelle für Bild und Glossar (Florian 16.11.2026; Reihenfolge = Lage übereinander)
+// [x, y, Breite, Höhe, Ziel (data-go oder "tab|art:wert" für data-nav), Beschriftung (aria-label), Ding fürs Glossar, Motiv ("" beide, "meer", "stadt"), Filter Am Haus]
+const PIC_SPOTS=[[166,196,50,48,"woche","Woche: offene Aufträge","🧹 Besen an der Tür",""],[119,148,42,96,"essen","Essen","💨 Schornstein",""],[112,212,26,22,"einkauf","Einkauf: Korb mit Baguette","🧺 Korb mit Baguette am Fahrrad",""],
+  [208,203,24,30,"kita","Kita","🎒 Rucksack an der Hauswand",""],[80,243,40,24,"ausflug","Ausflüge: Fahrrad","🚲 Fahrrad am Baum",""],[62,214,20,22,"woche|wp:3","Kalender: Aushang am Baum","📜 Aushang am Baumstamm",""],
+  [330,80,34,44,"projekte","Ideen: Kirchtürme","⛪ Zwei Kirchtürme","stadt"],[40,133,40,38,"privat","Partner: Bank im Garten","🌹 Bank unter dem Rosenbogen","stadt"],
+  [318,80,34,64,"projekte","Ideen","🗼 Leuchtturm","meer"],[38,122,70,42,"privat","Partner: Klippen","🪨 Klippen","meer"],
+  [24,244,18,26,"post","Briefkasten","📮 Briefkasten",""],[155,168,22,20,"amhaus","Am Haus: Lampe","🏮 Lampe über der Tür",""],[58,176,60,52,"amhaus","Garten: Baum","🌳 Baum","","garten"],
+  [40,203,22,28,"kind","Kind: Schaukel","🪢 Schaukel am Baum",""],[15,205,18,14,"ausgaben","Ausgaben: Sparschwein","🐷 Sparschwein",""],[240,238,26,26,"spiel","Sport und Spiel","⚽ Ball am Steinweg",""],
+  [270,52,44,26,"reisen","Urlaube: Flugzeug","✈️ Flugzeug","stadt"],[259,97,84,24,"ausflug","Ausflüge: Tram","🚋 Tram","stadt"],[322,196,56,66,"reisen","Urlaube: Segelboot","⛵ Segelboot","meer"],
+  [254,189,22,22,"musik","Musik: Ghettoblaster","📻 Ghettoblaster",""]];
+const picSpots=city=>PIC_SPOTS.filter(p=>!p[7]||p[7]===(city?"stadt":"meer"));
 function houseScene(has,light,night,extras,sea,guests,dots,amb){dots=dots||{};amb=amb||{};const st=amb.st!=null?amb.st:bildStil();const ph=amb.ph||(night?"night":"day"),wk=amb.wx||"";const grey=/regen|gewitter|schnee|bedeckt|nebel/.test(wk),city=!!amb.city;
   const C=night?{sky1:"#0e1d30",sky2:"#2a4560",sea1:"#1d3d5c",sea2:"#16314b",land:"#2d5040",land2:"#254436",sand:"#6f6a55",wall:"#7d7d7c",stone:"#666868",roof:"#283340",head:"#3a4a4a"}
                :{sky1:"#b8dcec",sky2:"#f3efe0",sea1:"#4f8fb8",sea2:"#2f6c97",land:"#8fbf7f",land2:"#7aae6c",sand:"#e8d8ac",wall:"#bdb8ad",stone:"#a39e93",roof:"#4b5866",head:"#8aa38b"};
@@ -1169,7 +1189,7 @@ function season(){const q=/[?&]saison=(spring|summer|autumn|winter)/.exec(locati
 function campCfg(){const c=(S.config&&S.config.camp)||{};const ex=c.extras?(Array.isArray(c.extras)?c.extras:Object.values(c.extras)):[];return {costs:c.costs||{},extras:ex.filter(Boolean)}}
 function campItems(cc){cc=cc||campCfg();return HOUSE.map(c=>({id:c[0],name:c[1],cost:c[2]===0||c[0]==="tent"||c[0]==="pit"?0:cc.costs[c[0]]!=null?(cc.costs[c[0]]|0):c[2]})).concat(cc.extras.map(e=>({id:e.id,name:e.name||e.emoji,cost:e.cost|0,emoji:e.emoji}))).sort((a,b)=>a.cost-b.cost)}
 // Start hat drei Seiten (Florian 15.11.2026): Haus, Tag und Woche, Wichtig
-function startPager(p){return `<div class="pager" role="group" aria-label="Seiten von Start"><div class="pdots">${[["camp","Haus"],["kalender","Kalender"],["wichtig","Wichtig"]].map((x,i)=>`<button class="pdot" ${x[0]==="kalender"?'data-nav="woche|wp:3"':`data-go="${x[0]}"`} aria-pressed="${i===p}"><b>${x[1]}</b></button>`).join("")}</div></div>`}
+function startPager(p){return `<div class="pager" role="group" aria-label="Seiten von Start"><div class="pdots">${["camp","kalender","wichtig"].map((k,i)=>[k,TAB_PAGES.camp[i]]).map((x,i)=>`<button class="pdot" ${x[0]==="kalender"?'data-nav="woche|wp:3"':`data-go="${x[0]}"`} aria-pressed="${i===p}"><b>${x[1]}</b></button>`).join("")}</div></div>`}
 // Heute zu tun als eine Quelle (Tag und Woche, Heute-Streifen im Kalender)
 function todoRows(tomorrowOff){const now=new Date(),today=ymd(now),tmw=ymd(addDays(startOfDay(now),1)),D=backDay(now);
   const row=(ic,txt,sub,attr,chk)=>`<div class="trow">${chk?`<button class="tchk" ${chk}><span class="box"></span></button>`:`<span class="tic">${ic}</span>`}<button class="ttx" ${attr||""}><span>${chk?ic+" ":""}${txt}${sub?`<i>${sub}</i>`:""}</span><em>›</em></button></div>`;
@@ -1215,9 +1235,9 @@ function renderCamp(){S.flip=false;loadWx();
     const chk=i=>{if(o==="both"){const leg=tk[t.id+"__"+i];if(S.me?!(tk[t.id+"__"+i+"_"+S.me]||(leg&&leg.by===S.me)):!leg)openW++}else if(!tk[t.id+"__"+i])openW++};
     if(t.freq==="day")chk(di);else for(let i=0;i<slotsOf(t);i++)chk(i)});{const hm=hoMine();if(hm&&!hm.done)openW++}
   const openS=shopItems().filter(i=>!i.done).length,meal=planDays(mon)["d"+di],mealTxt=meal?(meal.text||""):"";
-  const spot=(x,y,w,hh,go,label,ft)=>`<button class="spot" style="${spotPos(x,y,w,hh)}" data-go="${go}"${ft?` data-ft="${ft}"`:""} aria-label="${label}">${S.labels?`<span class="lab">${label.split(":")[0].replace(" mit dem Bus","").replace("Einkaufsliste","Einkauf")}</span>`:""}</button>`;
+  const spot=(x,y,w,hh,go,label,ft,pf)=>`<button class="spot" style="${spotPos(x,y,w,hh)}" ${go.includes("|")?`data-nav="${go}"`:`data-go="${go}"${pf?` data-pf="${pf}"`:""}`}${ft?` data-ft="${ft}"`:""} aria-label="${label}">${S.labels?`<span class="lab">${label.split(":")[0].replace(" mit dem Bus","").replace("Einkaufsliste","Einkauf")}</span>`:""}</button>`;
   const city=motiv()==="stadt";let h=`${startPager(0)}${startHead(sea)}${S.me?"":meChooser()}
-   <div class="flipbox"><div class="flipin${S.flip?" flipped":""}"><div class="camp">${(houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:false,shop:openS>0,post:briefe().length>0},{ph:skyPh,wx:S.wx&&S.wx.cur!=null&&Date.now()-S.wx.at<3*3600e3?wxKind(S.wx.cur):"",city})+spot(166,196,50,48,"woche","Woche: offene Aufträge")+spot(119,148,42,96,"essen","Essen",mealTxt?"plan":"")+spot(112,212,26,22,"einkauf","Einkauf: Korb mit Baguette")+spot(208,203,24,30,"kita","Kita")+spot(80,243,40,24,"ausflug","Ausflüge: Fahrrad")+spot(62,214,20,22,"woche","Kalender: Aushang am Baum").replace('data-go="woche"','data-nav="woche|wp:3"')+(city?spot(330,80,34,44,"projekte","Ideen: Kirchtürme")+spot(40,133,40,38,"privat","Partner: Bank im Garten"):spot(318,80,34,64,"projekte","Ideen")+spot(38,122,70,42,"privat","Partner: Klippen"))+spot(24,244,18,26,"post","Briefkasten")+spot(155,168,22,20,"amhaus","Am Haus: Lampe")+spot(58,176,60,52,"amhaus","Garten: Baum").replace('data-go="amhaus"','data-go="amhaus" data-pf="garten"')+spot(40,203,22,28,"kind","Kind: Schaukel")+spot(15,205,18,14,"ausgaben","Ausgaben: Sparschwein")+spot(240,238,26,26,"spiel","Sport und Spiel")+(city?spot(270,52,44,26,"reisen","Urlaube: Flugzeug")+spot(259,97,84,24,"ausflug","Ausflüge: Tram"):spot(322,196,56,66,"reisen","Urlaube: Segelboot"))+spot(254,189,22,22,"musik","Musik: Ghettoblaster"))+(()=>{const y=(night?40:(skyPh==="dusk"||skyPh==="dawn")?98:44)+13,x=night?52:56;return `<button class="spot" style="${spotPos(x,y,46,46)}" data-act="wxpop" aria-expanded="${!!S.wxPop}" aria-label="${night?"Mond":"Sonne"}: Wetter">${S.labels?`<span class="lab">Wetter</span>`:""}</button>`})()+"</div>"+renderBack(night)+"</div>"}</div>
+   <div class="flipbox"><div class="flipin${S.flip?" flipped":""}"><div class="camp">${(houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:false,shop:openS>0,post:briefe().length>0},{ph:skyPh,wx:S.wx&&S.wx.cur!=null&&Date.now()-S.wx.at<3*3600e3?wxKind(S.wx.cur):"",city})+picSpots(city).map(p=>spot(p[0],p[1],p[2],p[3],p[4],p[5],p[4]==="essen"&&mealTxt?"plan":"",p[8])).join(""))+(()=>{const y=(night?40:(skyPh==="dusk"||skyPh==="dawn")?98:44)+13,x=night?52:56;return `<button class="spot" style="${spotPos(x,y,46,46)}" data-act="wxpop" aria-expanded="${!!S.wxPop}" aria-label="${night?"Mond":"Sonne"}: Wetter">${S.labels?`<span class="lab">Wetter</span>`:""}</button>`})()+"</div>"+renderBack(night)+"</div>"}</div>
    ${S.wxPop?wxPanel(night):""}
    <section class="card today"><h2>Heute</h2>
      <button class="todayrow" data-act="gotasks"><span>🧹</span><span>${openW?"Offene Aufträge":"Alles erledigt, was gerade ansteht ✅"}</span><i>›</i></button>
@@ -1227,7 +1247,7 @@ function renderCamp(){S.flip=false;loadWx();
   return h}
 const FOODTABS=[["plan","Wochenplan"],["kita","🎒 Kita-Essen ›"]];
 // Essen hat zwei Seiten (Florian 16.11.2026): „Heute und Wochenplan“ (Chips Heute, Wochenplan, Kita-Essen) und „Rezepte“; Tipp auf den Reiter blättert weiter
-function foodPager(p){return `<div class="pager" role="group" aria-label="Seiten von Essen"><div class="pdots">${[["heute","Heute und Wochenplan"],["rezepte","Rezepte"]].map((x,i)=>`<button class="pdot" data-food="${x[0]}" aria-pressed="${i===p}"><b>${x[1]}</b></button>`).join("")}</div></div>`}
+function foodPager(p){return `<div class="pager" role="group" aria-label="Seiten von Essen"><div class="pdots">${["heute","rezepte"].map((k,i)=>[k,TAB_PAGES.essen[i]]).map((x,i)=>`<button class="pdot" data-food="${x[0]}" aria-pressed="${i===p}"><b>${x[1]}</b></button>`).join("")}</div></div>`}
 function shopItems(){const m=(S.food&&S.food.shop)||{};return Object.keys(m).filter(k=>m[k]).map(k=>Object.assign({id:k},m[k])).sort((a,b)=>(a.at||0)-(b.at||0))}
 function shopFavs(){const f=(S.food&&S.food.fav)||{};const open=new Set(shopItems().filter(i=>!i.done).map(i=>i.name.toLowerCase()));
   return Object.keys(f).filter(k=>f[k]&&f[k].n>0&&!open.has((f[k].name||"").toLowerCase())).sort((a,b)=>f[b].n-f[a].n).slice(0,14).map(k=>f[k].name)}
@@ -1802,7 +1822,9 @@ const QUICK={
   ausgaben:["🐷 Ausgaben",[["💶","Ausgabe eintragen",{nav:"ausgaben",fn:()=>{S.geldTab="uebersicht";geldNew()}}],["⚡","Schnell eintragen",{nav:"ausgaben",fn:()=>{S.geldDraft=null;S.geldTab="uebersicht"},focus:"#geldq"}],["🔁","Feste Zahlungen",{nav:"ausgaben",fn:()=>{S.geldDraft=null;S.geldGrp="";S.geldTab="fest"}}]]],
   amhaus:["🏠 Am Haus",[["➕","Neues Projekt",{nav:"amhaus|pf:wohnen",click:'[data-act="hprojnew"]'}],["🔧","Reparatur notieren",{nav:"amhaus|pf:haus",focus:"#projinput"}],["📍","Sammlung",{nav:"amhaus|pf:wohnen",click:'[data-act="hsamm"]'}]]]
 };
-function quickKey(el){if(!el||!el.classList.contains("spot"))return null;if(el.dataset.go==="post")return "post";if(el.dataset.nav==="woche|wp:3")return "kalender";if(el.dataset.pf)return null;const g=el.dataset.go;if(g==="amhaus"&&!/Lampe/.test(el.getAttribute("aria-label")||""))return null;return QUICK[g]?g:null}
+// Schnellmenü zu einem Ding im Bild (Ziel, Filter, Beschriftung wie in PIC_SPOTS); auch fürs Glossar
+function quickKeyOf(go,pf,label){if(go==="post")return "post";if(go==="woche|wp:3")return "kalender";if(pf)return null;if(go==="amhaus"&&!/Lampe/.test(label||""))return null;return QUICK[go]?go:null}
+function quickKey(el){if(!el||!el.classList.contains("spot"))return null;return quickKeyOf(el.dataset.nav||el.dataset.go,el.dataset.pf,el.getAttribute("aria-label"))}
 function quickRun(a){mboxClose();goNav(a.nav);if(a.fn){a.fn();render()}
   setTimeout(()=>{if(a.click){const el=document.querySelector(a.click);if(el)el.click()}setTimeout(()=>{const f=a.focus&&document.querySelector(a.focus);if(f){f.focus();f.scrollIntoView({block:"center"})}const sc=a.scroll&&document.querySelector(a.scroll);if(sc)sc.scrollIntoView({block:"center"})},60)},30)}
 function quickOpen(k){S.mboxAt=Date.now();if(k==="post"){mboxOpen();return}const q=QUICK[k];if(!q||document.getElementById("mbox"))return;if(q[1].length===1){quickRun(q[1][0][2]);return}
@@ -1816,18 +1838,18 @@ function wxPlaceRow(){const pl=S.food&&S.food.wxplace;return `<div class="freq" 
 // [Symbol, Name, Tab, Kurzname im Kreis (leer = nicht im Kreis), Sprung im Kreis, Unterbereiche()]
 // Gliederung (Florian 15.11.2026): Alltag, Essen, Zuhause, Freizeit, Wir, Quer. Die 4 Reiter unten bleiben Abkürzungen.
 const AREA_GROUPS=[["essen","🍲","Essen"],["alltag","🗓️","Alltag"],["wir","🫶","Wir"],["zuhause","🏡","Zuhause"],["freizeit","🌊","Freizeit"],["quer","🧩","Quer durch alles"]];
-// [Symbol, Name, Tab, Kurzname im Kreis (leer = nicht im Kreis), Sprung im Kreis, Unterbereiche(), Gruppe]
-const AREAS=[["🏠","Start","camp","","",()=>[["Kalender","sp:kalender"],["Wichtig","sp:wichtig"]],""],["🧹","Woche","woche","Woche","woche|",()=>[["Tag und Woche","wp:0"],["Wer macht was","wp:1"]],"alltag"],
-  ["🎒","Kita","kita","Kita","kita|",()=>KITA_SECS.map(k=>[k[2]==="Essen"?"Kita-Essen":k[2],"ks:"+k[0]]),"alltag"],
-  ["🍲","Essen","essen","Essen","essen|",()=>[["Heute","ft:heute"],["Wochenplan","ft:plan"],["Rezepte","ft:rezepte"]],"essen"],
-  ["🧺","Einkauf","einkauf","Einkauf","einkauf|",()=>[["Ausgaben","sp:ausgaben"],["Weitere Listen","bl:"]].concat(BUY_FIX.map(x=>[x[2],"bl:"+x[0]])),"essen"],
-  ["🏠","Am Haus","amhaus","Am Haus","amhaus|",()=>PROJ_CATS.filter(c=>["wohnen","ordnung","haus","garten"].includes(c[0])).map(c=>[c[2],"pf:"+c[0]]),"zuhause"],
-  ["🧭","Reisen und Ausflüge","ausflug","Reisen","ausflug|tt:urlaub",()=>[["Urlaube","tt:urlaub"],["Ausflüge","tt:ideen"],["Packlisten","tt:pack"],["Sammlung","tt:recherche"]],"freizeit"],
-  ["⚽","Sport und Spiel","spiel","Sport","spiel|",()=>playSecs().map(p=>[p[2],"ps:"+p[0]]),"freizeit"],["🎵","Musik","musik","Musik","musik|",()=>[],"freizeit"],
-  ["🫶","Partner","privat","Partner","privat|",()=>[["Mittagessen","pv:lunch"],["Briefe","pv:briefe"],["Kontakte","pv:kontakte"]],"wir"],
-  ["🧒","Kind","kind","Kind","kind|",()=>[["Bringen und Abholen","sp:kind"]],"wir"],
-  ["💡","Ideen","projekte","Ideen","projekte|",()=>projCats().filter(c=>PROJ_GROUPS.projekte&&PROJ_GROUPS.projekte.cats?PROJ_GROUPS.projekte.cats.includes(c[0]):["geschenk","sonst"].includes(c[0])).map(c=>[c[2],"pf:"+c[0]]).concat([["Adventskalender","pf:advent"],["Alle Projekte","pf:alle"]]),"wir"],
-  ["🔔","Wichtig","wichtig","Wichtig","wichtig|",()=>[],"quer"],["🤖","Recherchen","recherchen","","",()=>[],"quer"],["⚙️","Einstellungen","settings","","",()=>[],"quer"]];
+// [Symbol, Name, Tab, Kurzname im Kreis (leer = nicht im Kreis), Sprung im Kreis, Unterbereiche(), Gruppe, Kurz erklärt (Glossar)]
+const AREAS=[["🏠","Start","camp","","",()=>[["Kalender","sp:kalender"],["Wichtig","sp:wichtig"]],"","Das Haus-Bild mit der Kurzfassung des Tages, dazu die Seiten Kalender und Wichtig."],["🧹","Woche","woche","Woche","woche|",()=>[["Tag und Woche","wp:0"],["Wer macht was","wp:1"]],"alltag","Hausarbeit: was heute und diese Woche dran ist, Hausdienst und wer was macht."],
+  ["🎒","Kita","kita","Kita","kita|",()=>KITA_SECS.map(k=>[k[2]==="Essen"?"Kita-Essen":k[2],"ks:"+k[0]]),"alltag","Termine der Kita, Kita-Essen, was mitmuss, Infos."],
+  ["🍲","Essen","essen","Essen","essen|",()=>[["Heute","ft:heute"],["Wochenplan","ft:plan"],["Rezepte","ft:rezepte"]],"essen","Was es heute gibt, der Wochenplan fürs Abendessen, Rezepte und Kochbücher."],
+  ["🧺","Einkauf","einkauf","Einkauf","einkauf|",()=>[["Ausgaben","sp:ausgaben"],["Weitere Listen","bl:"]].concat(BUY_FIX.map(x=>[x[2],"bl:"+x[0]])),"essen","Die Einkaufsliste, Weitere Listen (Kleidung, Geschenke, Baumarkt) und Ausgaben."],
+  ["🏠","Am Haus","amhaus","Am Haus","amhaus|",()=>PROJ_CATS.filter(c=>["wohnen","ordnung","haus","garten"].includes(c[0])).map(c=>[c[2],"pf:"+c[0]]),"zuhause","Projekte und lose Ideen fürs Haus: Einrichtung, Aufräumen, Reparieren, Garten."],
+  ["🧭","Reisen und Ausflüge","ausflug","Reisen","ausflug|tt:urlaub",()=>[["Urlaube","tt:urlaub"],["Ausflüge","tt:ideen"],["Packlisten","tt:pack"],["Sammlung","tt:recherche"]],"freizeit","Urlaube, Ausflüge mit „Was ist los“, Packlisten und die Sammlung."],
+  ["⚽","Sport und Spiel","spiel","Sport","spiel|",()=>playSecs().map(p=>[p[2],"ps:"+p[0]]),"freizeit","Spielplätze, Spielideen für zu Hause, Sport und Kurse."],["🎵","Musik","musik","Musik","musik|",()=>[],"freizeit","Playlist-Links nach Anlass, z. B. Kochen, Autofahrt, Kinder."],
+  ["🫶","Partner","privat","Partner","privat|",()=>[["Mittagessen","pv:lunch"],["Briefe","pv:briefe"],["Kontakte","pv:kontakte"]],"wir","Nur für euch zwei: Mittagessen, Briefe, Kontakt."],
+  ["🧒","Kind","kind","Kind","kind|",()=>[["Bringen und Abholen","sp:kind"]],"wir","Wer bringt und wer holt, dazu Kita, Kleidung und Geschenke fürs Kind."],
+  ["💡","Ideen","projekte","Ideen","projekte|",()=>projCats().filter(c=>PROJ_GROUPS.projekte&&PROJ_GROUPS.projekte.cats?PROJ_GROUPS.projekte.cats.includes(c[0]):["geschenk","sonst"].includes(c[0])).map(c=>[c[2],"pf:"+c[0]]).concat([["Adventskalender","pf:advent"],["Alle Projekte","pf:alle"]]),"wir","Geschenk-Ideen, sonstige Ideen, Adventskalender und Alle Projekte."],
+  ["🔔","Wichtig","wichtig","Wichtig","wichtig|",()=>[],"quer","Alle Erinnerungen an einem Ort. Die Glocke oben links zählt sie."],["🤖","Recherchen","recherchen","","",()=>[],"quer","Was Claude regelmäßig sucht (Rezepte, Ausflüge) und eure Wünsche dafür."],["⚙️","Einstellungen","settings","","",()=>[],"quer","Aussehen, Bedienung, Ort und Wetter, Namen, Benachrichtigungen, Sicherung und dieses Glossar."]];
 // Reihenfolge folgt den Gruppen (Florian 15.11.2026: Essen, dann Woche und Kita, dann Wir)
 AREAS.sort((x,y)=>(x[6]?AREA_GROUPS.findIndex(g=>g[0]===x[6]):-1)-(y[6]?AREA_GROUPS.findIndex(g=>g[0]===y[6]):-1));
 // Zusätze, die keine eigenen Bereiche sind: Kalender (im Kreis direkt nach Woche), Wichtig, Einstellungen
@@ -1931,13 +1953,15 @@ function renderSettings(){const per=(S.config&&S.config.persons)||[];const G=S.g
   const sw=(k,lab,on,hint)=>`<button class="todayrow setsw" data-gest="${k}" aria-pressed="${on}"><span>${on?"✅":"⬜"}</span><span>${lab}${hint?`<span class="freq"> · ${hint}</span>`:""}</span></button>`;
   const go=(attr,ic,lab)=>`<button class="todayrow" ${attr}><span>${ic}</span><span>${lab}</span><i>›</i></button>`;
   let h=`<div><div class="eyebrow">Für euch beide</div><h1>Einstellungen</h1></div>`;const TH={"":"🌗 Wie das Handy",light:"☀️ Hell",dark:"🌙 Dunkel"};
-  h+=`<section class="card setquick"><div class="unl"><button class="chipbtn neutral" data-act="themecycle" aria-label="Hell oder dunkel wechseln">${TH[th]}</button><button class="chipbtn neutral" data-gest="labels" aria-pressed="${!!S.labels}">🏷️ Beschriftungen</button><button class="chipbtn neutral" data-act="backup">💾 Sicherung</button><button class="chipbtn neutral" data-go="recherchen">🤖 Recherchen</button></div></section>`;
+  h+=`<section class="card setquick"><div class="unl"><button class="chipbtn neutral" data-act="themecycle" aria-label="Hell oder dunkel wechseln">${TH[th]}</button><button class="chipbtn neutral" data-gest="labels" aria-pressed="${!!S.labels}">🏷️ Beschriftungen</button><button class="chipbtn neutral" data-act="backup">💾 Sicherung</button><button class="chipbtn neutral" data-go="recherchen">🤖 Recherchen</button><button class="chipbtn neutral" data-setgo="glossar">📖 Glossar</button></div></section>`;
+  // Glossar (Florian 16.11.2026, 16a-glossar.js): Begriffe, Dinge im Bild, Bereiche, Symbole, Gesten
+  h+=card("📖 Glossar: Was bedeutet was?",glosHtml(),"glossar");
   h+=card("🎨 Aussehen",`
     <div class="freq" style="margin-top:10px">Hell oder dunkel</div><div class="unl">${[["","Wie das Handy"],["light","☀️ Hell"],["dark","🌙 Dunkel"]].map(x=>`<button class="chipbtn neutral" data-theme-set="${x[0]}" aria-pressed="${th===x[0]}">${x[1]}</button>`).join("")}</div>
     <div style="margin-top:8px">${sw("labels","Beschriftungen im Bild zeigen",!!S.labels)}</div><div class="freq" style="margin-top:10px">Motiv im Startbild</div><div class="unl">${motivList().map(x=>`<button class="chipbtn neutral" data-motiv-set="${x[0]}" aria-pressed="${motiv()===x[0]}">${x[1]} ${x[2]}</button>`).join("")}</div>
     <div class="freq" style="margin-top:10px">Bildstil</div><div class="unl">${stilList().map(x=>`<button class="chipbtn neutral" data-stil-set="${x[0]}" aria-pressed="${bildStil()===x[0]}">${x[1]} ${x[2]}</button>`).join("")}</div>
-    <div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy. Standard ist das Haus am Meer mit Licht und Schatten. Das Stadthaus ist ein Entwurf.</div>`,"aussehen");
-  h+=card("👆 Bedienung",`${sw("tap","Reiter unten blättern weiter",G.tap,"Tipp auf den Reiter, in dem du bist = nächste Unterseite. Doppelt auf Start = Kalender, dreifach = Wichtig. Aus: jeder Tipp öffnet die erste Seite.")}${sw("swipe","Wischen wechselt den Bereich",G.swipe,"links und rechts: Start, Woche, Essen, Einkauf, dann die übrigen Bereiche")}${sw("ring","Alle Bereiche: lange auf Start drücken",G.ring,"alle Bereiche auf einem Bildschirm, lange auf eine Kachel heftet sie oben an. Die Kachel oben rechts geht immer.")}<div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy.</div>`,"bedienung");
+    <div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy. Standard ist das Haus am Meer mit Licht und Schatten.</div>${go('data-setgo="glossar" data-glosopen="bild"',"📖","Was im Bild wohin führt")}`,"aussehen");
+  h+=card("👆 Bedienung",`${sw("tap","Reiter unten blättern weiter",G.tap,"Tipp auf den Reiter, in dem du bist = nächste Unterseite. Doppelt auf Start = Kalender, dreifach = Wichtig. Aus: jeder Tipp öffnet die erste Seite.")}${sw("swipe","Wischen wechselt den Bereich",G.swipe,"links und rechts: Start, Woche, Essen, Einkauf, dann die übrigen Bereiche")}${sw("ring","Alle Bereiche: lange auf Start drücken",G.ring,"alle Bereiche auf einem Bildschirm, lange auf eine Kachel heftet sie oben an. Die Kachel oben rechts geht immer.")}<div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy.</div>${go('data-setgo="glossar" data-glosopen="gesten"',"📖","Alle Gesten im Glossar")}`,"bedienung");
   h+=card("🍲 Essen",`${sw("veg","Mehr Vegetarisches bei Vorschlägen",vegW()>0,"für beide")}<div class="freq" style="margin:6px 0">Mengen sind für 4 Personen. Die Recherche achtet aufs Kleinkind. Ändern: schreib es Claude.</div>${go('data-nav="essen|ft:rezepte"',"🏷️","Rezepte, Filter und eigene Tags")}`,"essen");
   h+=card("",go('data-go="recherchen"',"🤖","<b>Recherchen</b> · alle festen Aufträge, Neues und eure Wünsche"));
   h+=card("",go('data-go="wichtig"',"🔔","<b>Wichtig</b> · alle Erinnerungen"));
@@ -1954,6 +1978,119 @@ function renderSettings(){const per=(S.config&&S.config.persons)||[];const G=S.g
     <div class="btnrow" style="margin-top:8px"><button class="primary" data-act="backup">⬇️ Sicherung herunterladen</button><label class="ghost filebtn">⬆️ Wiederherstellen<input type="file" id="restorefile" accept=".json,application/json" hidden></label></div>
     ${S.restore?`<div class="notice" style="margin-top:8px">Sicherung vom ${esc(S.restore.date)} gefunden. Wiederherstellen ersetzt alle jetzigen Daten für euch beide.</div><div class="btnrow"><button class="primary" data-act="restoredo">Ja, wiederherstellen</button><button class="ghost" data-act="restorecancel">Abbrechen</button></div>`:""}`,"daten");
   return h}
+// ---------- Glossar (Florian 16.11.2026): Einstellungen › 📖 Glossar ----------
+// Gespeist aus den Listen der App, damit es nicht veraltet: Bereiche, Seiten und "Kurz erklärt" aus AREAS/AREA_GROUPS,
+// Dinge im Bild aus PIC_SPOTS (12-startbild.js), Schnellmenüs aus QUICK, Seiten der 4 Reiter aus TAB_PAGES, Schalter aus S.gest.
+// Fest stehen hier nur Begriffe, Symbole und Gesten. Neuer Begriff = eine Zeile in GLOS_TERMS ([Begriff, Erklärung, Sprung-Attribut]).
+// Die Suche (Lupe) findet Begriffe und Dinge im Bild und öffnet das Glossar mit dem Wort im Filter (data-glosq).
+const TAB_PAGES={camp:["Haus","Kalender","Wichtig"],woche:WEEK_ORDER.map(i=>WEEK_PAGES[i]),essen:["Heute und Wochenplan","Rezepte"],einkauf:["Listen","Ausgaben"]};
+const GLOS_TERMS=[
+  ["Hausdienst","Wer an einem Tag Hausdienst hat, ist für zu Hause da und bringt und holt das Kind nicht, das macht der andere. Geht auch geteilt: vormittags der eine, nachmittags der andere. Eintragen in Woche.",'data-nav="woche|wp:0"'],
+  ["Wichtig","Der eine Ort für alle Erinnerungen. Die 🔔 oben links zählt, was in den nächsten 24 Stunden fällig oder schon überfällig ist, dazu Termine mit 🔔.",'data-nav="wichtig|"'],
+  ["Erinnerung","Etwas, woran die App erinnert, mit Tag und Uhrzeit, auf Wunsch wiederholt. Steht unter Wichtig.",'data-nav="wichtig|"'],
+  ["Termin","Steht im Kalender, mit Zeit, Ort und Personen. Zählt an der Glocke nur, wenn an ihm 🔔 angetippt ist.",'data-nav="woche|wp:3"'],
+  ["Kalender","Die Drehscheibe für alles mit Datum: eigene Termine, Kita, Erinnerungen, Wochenplan, Urlaube, Ausflüge, Kurse, Familywall, Ferien und Feiertage. Als Liste ab heute oder als Monat.",'data-nav="woche|wp:3"'],
+  ["Farbstreifen","Im Kalender steht links an jedem Termin ein Streifen in der Farbe der Person, dazu ihr Kürzel. Termine für alle haben keinen.",'data-nav="woche|wp:3"'],
+  ["Termin-Art","Kita, Arzt, Familie, Feier, Sport, Arbeit oder eine eigene. Ihr Symbol steht im Kalender vor dem Termin. Eigene Arten lassen sich mit lange drücken löschen.",'data-nav="woche|wp:3"'],
+  ["Wer wählt aus","Ein Termin mit mehreren Möglichkeiten. Eine Person wählt aus oder beide stimmen ab. Bis dahin steht er gestrichelt im Kalender.",'data-nav="woche|wp:3"'],
+  ["Familywall","Termine aus Familywall erscheinen im Kalender (👪). Ändern geht nur dort. In der App könnt ihr Person, Art, Ort und 🔔 ergänzen oder sie ausblenden.",'data-nav="woche|wp:3"'],
+  ["Ferien und Feiertage","Bayern, im Kalender als Hintergrund. Brückentage stehen bei Urlaube.",'data-nav="woche|wp:3"'],
+  ["Gespeicherte Orte","Orte mit Adresse, z. B. Kita, einmal unter Einstellungen › Ort und Wetter angelegt. 🚆 findet dann die Verbindung dorthin. Die Adresse bleibt in eurer Datenbank.",'data-setgo="ort"'],
+  ["Tag und Woche","Erste Seite der Woche: oben das Dashboard für heute, darunter „Heute dran“ und die ganze Woche.",'data-nav="woche|wp:0"'],
+  ["Dashboard","Der Tag auf einen Blick: Wetter, Zeitstrahl mit Terminen, Kita und Abendessen, drei Zähler und der Doppelring.",'data-nav="woche|wp:0"'],
+  ["Doppelring","Oben rechts im Dashboard. Außen die Wechsel-Aufgaben der Woche, innen deine Aufgaben von heute. Die Zahl in der Mitte gilt für heute.",'data-nav="woche|wp:0"'],
+  ["Heute dran","Deine täglichen Aufgaben von heute plus die noch offenen der Woche, zum Abhaken.",'data-nav="woche|wp:0"'],
+  ["Wechsel-Aufgaben","Aufgaben, die jede Woche zwischen euch wechseln (Paket A und B). Nur sie zählen im Wochenstand.",'data-nav="woche|wp:1"'],
+  ["Wochenstand","Wie viel der Wechsel-Aufgaben dieser Woche erledigt ist. Leuchtturm oder Kirchtürme im Bild leuchten heller, je mehr geschafft ist.",'data-nav="woche|wp:0"'],
+  ["Wer macht was","Welche Aufgaben bei wem liegen, mit Aufwand. Zweite Seite der Woche.",'data-nav="woche|wp:1"'],
+  ["Bringen und Abholen","Wer das Kind in die Kita bringt und wer es holt, Montag bis Freitag. Hängt am Hausdienst und ist keine Aufgabe.",'data-nav="kind|"'],
+  ["Mitbringen","Was in die Kita mitmuss. Abgehakt heißt: liegt in der Kita. „Wird knapp“ holt es zurück.",'data-nav="kita|ks:tasche"'],
+  ["Wochenplan","Das Abendessen für jeden Tag der Woche, darüber klein das Kita-Mittagessen. Start, Dashboard und Essen › Heute lesen von hier.",'data-nav="essen|ft:plan"'],
+  ["Tagesrezepte","Jeden Tag neue Vorschläge aus der Recherche, eins je Kategorie. Oben auf der Seite Rezepte, erst eingeklappt.",'data-nav="essen|ft:rezepte"'],
+  ["Kochbuch","Eine Sammlung eurer eigenen Rezepte. Ein Rezept lässt sich in ein anderes Kochbuch schieben.",'data-nav="essen|ft:rezepte"'],
+  ["Wunsch-Suche","Sucht nach Lust, mit oder ohne Zutat oder ähnlich wie ein Gericht. Erst in euren Rezepten, dann im Netz.",'data-nav="essen|ft:rezepte"'],
+  ["Einkaufsliste","Was im Laden gekauft wird. Zutaten aus Rezepten kommen als Block dazu und gehen als Block wieder weg.",'data-nav="einkauf|"'],
+  ["Heute nötig","❗ an einem Eintrag der Einkaufsliste: muss heute noch gekauft werden. Zählt mit den Zutaten fürs heutige Abendessen unter „Heute einkaufen“.",'data-nav="einkauf|"'],
+  ["Immer im Haus","Euer Vorrat. Steht er in einem Rezept, kommt er beim Übertragen nicht auf die Einkaufsliste.",'data-nav="einkauf|"'],
+  ["Weitere Listen","Alles, was nicht in den Supermarkt gehört: Kleidung, Geschenke, Baumarkt und eigene Listen.",'data-nav="einkauf|bl:"'],
+  ["Ausgaben","Was ihr ausgebt und wer wem etwas schuldet. Zweite Seite von Einkauf.",'data-go="ausgaben"'],
+  ["Ausgleichen","Rechnet aus, wer wem wie viel schuldet, und trägt den Ausgleich ein.",'data-go="ausgaben"'],
+  ["Feste Zahlungen","Was jeden Monat, jedes Quartal oder Jahr gleich anfällt. Wird von selbst als Ausgabe eingetragen.",'data-go="ausgaben"'],
+  ["Gruppe","Ausgaben für einen Anlass, z. B. einen Urlaub, mit eigenem Stand und Budget. Standard ist „Haushalt“.",'data-go="ausgaben"'],
+  ["Gemeinsames Konto","Als Zahler wählbar. Zählt bei den Ausgaben, aber nicht im Stand zwischen euch.",'data-go="ausgaben"'],
+  ["Alle Projekte","Alle laufenden Projekte aus Am Haus, Urlaube und Adventskalender auf einer Seite. Die Projekte selbst bleiben in ihrem Bereich.",'data-nav="projekte|pf:alle"'],
+  ["Lose Ideen","Einfälle für Am Haus, die noch kein Projekt sind. 🧩 macht ein Projekt daraus.",'data-nav="amhaus|"'],
+  ["Fund","Etwas Gefundenes mit Link, Preis oder Stand, in einem Am-Haus-Projekt oder in der Sammlung.",'data-nav="amhaus|"'],
+  ["Sammlung","Gefundenes mit Link, eine für Reisen und Ausflüge und eine für Am Haus, mit Stand Idee, Favorit, Gekauft.",'data-nav="ausflug|tt:recherche"'],
+  ["Adventskalender","24 Türchen fürs Kind, von beiden gefüllt. Kleinigkeiten stehen bei Weitere Listen › Geschenke.",'data-nav="projekte|pf:advent"'],
+  ["Packliste","Was auf eine Reise mitmuss, gemeinsam oder je Urlaub.",'data-nav="ausflug|tt:pack"'],
+  ["Gemerkt","Ausflüge, die ihr euch vorgemerkt habt, oben in Ausflüge.",'data-nav="ausflug|tt:ideen"'],
+  ["Geht immer","Feste Ausflugsziele für jede Zeit, z. B. Tierpark. Darunter, was zur Jahreszeit passt.",'data-nav="ausflug|tt:ideen"'],
+  ["Was ist los","Aktuelle Tipps für die Stadt und das Umland, jede Woche neu aus der Recherche.",'data-nav="ausflug|tt:ideen"'],
+  ["Recherchen","Feste Suchaufträge, die Claude regelmäßig erledigt, und eure Wünsche dafür. Neues zeigt „🤖 neu“.",'data-nav="recherchen|"'],
+  ["Briefe","Unter Partner: kleine Briefe nur für euch zwei.",'data-nav="privat|pv:briefe"'],
+  ["Schnellmenü","Lange auf ein Ding im Bild drücken: die häufigsten Handgriffe dieses Bereichs.",""],
+  ["Alle Bereiche","Die Kachel oben rechts: alle Bereiche auf einem Bildschirm, oben Angeheftetes oder zuletzt Genutztes.","data-allar"],
+  ["Morgen-Briefing","Meldung aufs Handy um 7 Uhr mit Terminen, Kita, Erinnerungen und Abendessen. Einschalten unter Benachrichtigungen.",'data-setgo="push"']];
+const GLOS_SYM=[["🔔","Erinnern. Oben links: zählt, was in 24 Stunden fällig oder überfällig ist."],["❗","Heute nötig (Einkaufsliste)."],["✅","Erledigt. Am To-do auf Start: alles geschafft."],["⬜","Noch offen. Ein Tipp hakt ab."],
+  ["🏠","Hausdienst."],["🚆","Verbindung mit Bahn und MVV in Google Maps, von hier oder von zu Hause."],["📍","Ort wählen. Steht es allein am Termin, fehlt noch ein Ort."],["📞","Anrufen. Die Nummer bleibt versternt."],
+  ["✎","Bearbeiten."],["✕","Entfernen."],["↩","Rückgängig."],["↺","Zurückholen oder wie geplant."],["↪","Verschieben in einen anderen Bereich oder eine andere Liste."],
+  ["🍲","Kochen: für einen Tag in den Wochenplan."],["⚡","Geht schnell, gut für volle Tage. Im Wochenplan: Schnellwahl."],["📖","Rezept öffnen."],["🔗","Link öffnen."],["🛒","Auf die Einkaufsliste."],
+  ["📌","Fest: jede Woche so (Kind) oder oben angeheftet (Alle Bereiche)."],["⭐","Gemerkt, Favorit oder Spielplatz der Woche."],["💛","Passt zu dem, was das Kind gerade mag."],["🗳️","Termin mit mehreren Möglichkeiten: bitte wählen."],
+  ["🤖","Neu aus der Recherche. Bei „Saugen komplett“: der Saugroboter."],["✨","Vorschlag."],["📅","In den Kalender."],["💶","Ausgabe eintragen oder verknüpfte Ausgaben ansehen."],["🧩","Projekt, oder aus einer losen Idee ein Projekt machen."],
+  ["👪","Kommt aus Familywall."],["🙈","In der App ausblenden (Familywall)."],["⏳","Noch nicht dran, oder noch so viele Tage."],["🏷️","Kategorien bearbeiten, im Bild: Beschriftungen."],["👕","Packlisten-Eintrag auch auf Weitere Listen › Kleidung."]];
+const areaName=t=>{const a=AREAS.find(x=>x[2]===t);return a?a[1]:t};
+// Wohin ein Ding im Bild führt, als Bereich (Kalender steht unter Start, Urlaube unter Reisen, Ausgaben unter Einkauf)
+const picArea=go=>go==="woche|wp:3"?"camp":({reisen:"ausflug",ausgaben:"einkauf",post:""}[go.split("|")[0]]??go.split("|")[0]);
+function glosGest(){const G=S.gest||{},T=Object.keys(TAB_PAGES),pg=n=>T.filter(t=>TAB_PAGES[t][n]).map(t=>areaName(t)+" › "+TAB_PAGES[t][n]).join(", ");
+  return [["Tipp auf einen anderen Reiter","Öffnet dessen erste Seite.",""],["Tipp auf den Reiter, in dem du bist","Blättert eine Seite weiter, nach der letzten wieder zur ersten.","tap"],
+    ["Doppeltipp auf einen Reiter",pg(1)+".","tap"],["Dreifachtipp auf einen Reiter",pg(2)+".","tap"],["Lange auf den Reiter Start","Öffnet Alle Bereiche.","ring"],
+    ["Wischen nach links oder rechts","Wechselt den Bereich: erst die vier Reiter, dann die übrigen.","swipe"],["Lange auf ein Ding im Bild","Schnellmenü mit den häufigsten Handgriffen (siehe Im Bild).",""],
+    ["Tipp auf Sonne oder Mond","Klappt das Wetter auf: Sonnenzeiten, Mond, heute stündlich, 6 Tage.",""],["Tipp auf eine freie Stelle im Bild","Öffnet Tag und Woche.",""],
+    ["Tipp auf den Doppelring","Deine Aufgaben von heute. Lange drücken: die Aufgaben der Woche.",""],["Lange auf einen Tag im Kalender","Neuer Termin an diesem Tag.",""],
+    ["Lange auf eine eigene Termin-Art","Löscht die Art, mit Rückfrage.",""],["Lange auf eine Ausgabe","Andere Gruppe, nochmal eintragen oder löschen.",""],
+    ["Lange auf eine Kachel in Alle Bereiche","Heftet sie oben an, bis zu fünf.",""],["Lange auf den Briefkasten","Auswahl, was du dem anderen schickst.",""],
+    ["Zurück-Taste","Schließt ein offenes Fenster, sonst einen Schritt zurück.",""],["Tipp neben ein Fenster","Schließt es.",""]].map(g=>g[2]&&!G[g[2]]?[g[0],g[1]+" Bei dir ausgeschaltet (Bedienung).",'data-setgo="bedienung"']:[g[0],g[1],""])}
+// Abschnitte: [Schlüssel, Überschrift, Zeilen [Begriff, Erklärung, Sprung-Attribut, Gruppen-Zeile?, Symbol-Zeile?]]
+function glosSecs(){const city=motiv()==="stadt",R=[];
+  {const L=picSpots(city).map(p=>{const qk=quickKeyOf(p[4],p[8],p[5]),q=qk&&qk!=="post"&&QUICK[qk],to=p[5].split(":")[0];
+     let d=p[4]==="post"?"Tipp: Nachricht an den anderen per WhatsApp. Lange drücken: Auswahl.":"Öffnet "+to+(p[4]==="projekte"?". Leuchtet heller, je mehr Wechsel-Aufgaben der Woche erledigt sind":"")+".";
+     if(q)d+=" Lange drücken: "+q[1].map(x=>x[1]).join(", ")+".";
+     return [p[6],d,p[4]==="post"?"":p[4].includes("|")?`data-nav="${p[4]}"`:`data-go="${p[4]}"${p[8]?` data-pf="${p[8]}"`:""}`]});
+   L.push(["☀️ Sonne oder 🌙 Mond","Klappt das Wetter auf.",""],["Freie Stelle im Bild","Öffnet Tag und Woche.",'data-nav="woche|wp:0"']);
+   const other=PIC_SPOTS.filter(p=>p[7]&&p[7]!==(city?"stadt":"meer"));
+   if(other.length)L.push([city?"Im Haus am Meer":"Im Haus in der Stadt","Dort statt dessen: "+other.map(p=>p[6].replace(/^\S+ /,"")+" ("+p[5].split(":")[0]+")").join(", ")+". Motiv wechseln unter Aussehen.",'data-setgo="aussehen"']);
+   R.push(["bild","🖼️ Im Bild"+(city?" (Haus in der Stadt)":" (Haus am Meer)"),L])}
+  {const L=[],pics=picSpots(city),one=a=>{const sub=a[5]().map(x=>x[0]),pc=pics.filter(p=>picArea(p[4])===a[2]).map(p=>p[6].replace(/^\S+ /,""));
+     L.push([a[0]+" "+a[1],(a[7]||"")+(TAB_PAGES[a[2]]?" Reiter unten.":"")+(sub.length?" Seiten: "+sub.join(", ")+".":"")+(pc.length?" Im Bild: "+pc.join(", ")+".":""),`data-nav="${a[2]}|"`])};
+   AREAS.filter(a=>!a[6]).forEach(one);
+   AREA_GROUPS.forEach(g=>{const A=AREAS.filter(a=>a[6]===g[0]);if(!A.length)return;L.push([g[1]+" "+g[2],"","",1]);A.forEach(one)});
+   R.push(["bereiche","🗂️ Bereiche",L])}
+  R.push(["begriffe","📚 Begriffe",GLOS_TERMS.slice().sort((a,b)=>a[0].localeCompare(b[0],"de"))]);
+  R.push(["symbole","🔣 Symbole",GLOS_SYM.map(s=>[s[0],s[1],"",0,1])]);
+  R.push(["gesten","👆 Gesten",glosGest()]);
+  return R}
+const glosWords=()=>sNorm(S.glosQ||"").split(/\s+/).filter(Boolean);
+const glosHit=(k,W)=>W.every(w=>k.includes(w));
+function glosHtml(){const W=glosWords(),O=S.glosOpen||(S.glosOpen={});let n=0;
+  const secs=glosSecs().map(([k,t,L])=>{let hits=0;
+    const rows=L.map(r=>{if(r[3])return `<div class="glosgrp">${esc(r[0])}</div>`;const key=sNorm(r[0]+" "+r[1]),hide=W.length&&!glosHit(key,W);if(!hide)hits++;
+      const inner=`<b>${esc(r[0])}</b><span>${esc(r[1])}</span>${r[2]?"<i>›</i>":""}`,cls="glosrow"+(r[4]?" glossym":"");
+      return r[2]?`<button class="${cls}" ${r[2]} data-gk="${esc(key)}"${hide?" hidden":""}>${inner}</button>`:`<div class="${cls}" data-gk="${esc(key)}"${hide?" hidden":""}>${inner}</div>`}).join("");
+    n+=hits;const open=W.length?hits>0:!!O[k];
+    return `<div class="glossec" data-gs="${k}"${W.length&&!hits?" hidden":""}><button class="setsum glossum" data-glossec="${k}" aria-expanded="${open}"><h3>${t}</h3><i>${open?"▾":"›"}</i></button><div class="glosb${W.length?" filt":""}"${open?"":" hidden"}>${rows}</div></div>`}).join("");
+  return `<div class="freq">Was im Bild, in den Bereichen und an Symbolen wohin führt. Ein Tipp auf eine Zeile mit › springt hin.</div>
+   <div class="glosq"><input id="glosq" type="search" value="${esc(S.glosQ||"")}" placeholder="Wort suchen, z. B. Hausdienst" autocomplete="off" enterkeyhint="search" aria-label="Im Glossar suchen"></div>
+   <div class="freq glosnone"${W.length&&!n?"":" hidden"}>Nichts gefunden. Die Lupe oben sucht auch in euren Einträgen.</div>${secs}`}
+// Filtern beim Tippen ohne Neuzeichnen (Fokus bleibt im Feld); dieselbe Regel wie in glosHtml
+function glosApply(){const W=glosWords(),O=S.glosOpen||{};let n=0;
+  document.querySelectorAll(".glossec").forEach(sec=>{const k=sec.dataset.gs,b=sec.querySelector(".glosb"),bt=sec.querySelector(".glossum");let hits=0;
+    sec.querySelectorAll("[data-gk]").forEach(r=>{const ok=!W.length||glosHit(r.dataset.gk,W);r.hidden=!ok;if(ok)hits++});
+    n+=hits;const open=W.length?hits>0:!!O[k];sec.hidden=!!(W.length&&!hits);b.hidden=!open;b.classList.toggle("filt",!!W.length);bt.setAttribute("aria-expanded",open);bt.querySelector("i").textContent=open?"▾":"›"});
+  const nn=document.querySelector(".glosnone");if(nn)nn.hidden=!(W.length&&!n)}
+// Für die Suche (Lupe): Begriffe und Dinge im Bild
+function glosSearch(add){GLOS_TERMS.forEach(t=>add("Glossar","📖",t[0],"Glossar",`data-setgo="glossar" data-glosq="${esc(t[0])}"`));
+  picSpots(motiv()==="stadt").forEach(p=>add("Glossar",p[6].split(" ")[0],p[6].replace(/^\S+ /,""),"Im Bild › "+p[5].split(":")[0],`data-setgo="glossar" data-glosq="${esc(p[6].replace(/^\S+ /,""))}"`))}
 // Prio-Stempel (Florian 16.11.2026): ❗ = heute nötig (food/shop/<id>/urg). Setzen über ✎, über „!“ vor dem Namen oder den ❗-Schalter am Eingabefeld;
 // Abhaken nimmt ihn weg. „Heute nötig“ = ❗-Einträge plus Zutaten fürs heutige Abendessen (shopToday, Filter "__heute", Dashboard „Einkauf heute“)
 const SHOP_TODAY="__heute";
@@ -2353,7 +2490,7 @@ function renderBuy(){const O=S.buyOpen||(S.buyOpen={}),all=buys();
 // Einkauf hat zwei Seiten (Florian 16.11.2026): Listen (Einkaufsliste, umschaltbar auf Weitere Listen) und Ausgaben
 function shopSwitch(on){const nS=shopItems().filter(i=>!i.done).length,nB=buyLists().reduce((a,L)=>a+buys().filter(x=>x.list===L.id&&!x.done).length+buyLinked(L.id).length,0);
   return `<div class="unl shopsw" role="group" aria-label="Welche Liste">${[["einkauf","🧺 Einkaufsliste",nS],["listen","🛍️ Weitere Listen",nB]].map(o=>`<button class="chipbtn neutral" data-go="${o[0]}" aria-pressed="${on===o[0]}">${o[1]}${o[2]?` <span class="freq">${o[2]}</span>`:""}</button>`).join("")}</div>`}
-function shopPager(p){return `<div class="pager" role="group" aria-label="Seiten von Einkauf"><div class="pdots">${[["einkauf","Listen"],["ausgaben","Ausgaben"]].map((x,i)=>`<button class="pdot" data-go="${x[0]}" aria-pressed="${i===p}"><b>${x[1]}</b></button>`).join("")}</div></div>`}
+function shopPager(p){return `<div class="pager" role="group" aria-label="Seiten von Einkauf"><div class="pdots">${["einkauf","ausgaben"].map((k,i)=>[k,TAB_PAGES.einkauf[i]]).map((x,i)=>`<button class="pdot" data-go="${x[0]}" aria-pressed="${i===p}"><b>${x[1]}</b></button>`).join("")}</div></div>`}
 // Vernetztes Entfernen: offene Einträge, die an einem gelöschten Ding hängen, gehen mit; Splitwise-Gruppen verlieren nur die Zuordnung
 // Bearbeiten-Fenster (Florian 15.11.2026: Einträge nachträglich ändern): fields [{k,label,type:text|url|chips|multi|note,opts:[[wert,text]],val,hint?}]; onDel = Funktion oder Liste [[Text,fn(V),mitRückfrage]]
 function editBox(title,fields,onSave,onDel){S.mboxAt=Date.now();if(document.getElementById("mbox"))return;const V={};fields.forEach(f=>V[f.k]=f.type==="multi"?(f.val||[]).slice():f.val==null?"":f.val);
@@ -3174,7 +3311,7 @@ function renderResearch(){if(!S.auftrLoad){S.auftrLoad=1;try{fetch("auftraege.js
     return `<li><div class="ev"><b>${ar[1]} ${esc(w.what||"")}</b><div class="freq">${done?"✅ eingerichtet":"⏳ offen"}${r?" · "+r:""}${w.note?" · "+esc(w.note):""}</div><div class="btnrow" style="margin-top:4px">${done?"":`<button class="ghost" data-rwcopy="${esc(w.id)}">📋 Text für Claude kopieren</button>`}<button class="ghost" data-rwedit="${esc(w.id)}" aria-label="Ändern">✎</button><button class="ghost" data-rwdel="${esc(w.id)}" aria-label="Löschen">✕</button></div></div></li>`}).join("")}</ul>`:`<div class="freq">Noch keine Wünsche. Legt einen an, kopiert den Text und schickt ihn Claude. Sobald der Auftrag läuft, steht hier „eingerichtet“.</div>`;
   return h+`</section>`}
 // ---------- Suche (Lupe in der Kopfzeile, Entwurf 15.11.2026). Partner (Mittagessen, Briefe, Kontakte) bewusst nicht. ----------
-const SET_ITEMS=[["push","📲","Benachrichtigungen aufs Handy","benachrichtigung mitteilung push handy briefing glocke"],["aussehen","🎨","Hell oder dunkel","dunkel hell nacht modus farbe"],["aussehen","🏷️","Beschriftungen im Bild","beschriftung namen bild"],["aussehen","🖼️","Motiv und Bildstil","motiv bild stadt münchen tram meer aquarell stil realistisch"],
+const SET_ITEMS=[["glossar","📖","Glossar: Was bedeutet was?","glossar begriffe erklärung erklaerung hilfe symbole gesten bedeutung"],["push","📲","Benachrichtigungen aufs Handy","benachrichtigung mitteilung push handy briefing glocke"],["aussehen","🎨","Hell oder dunkel","dunkel hell nacht modus farbe"],["aussehen","🏷️","Beschriftungen im Bild","beschriftung namen bild"],["aussehen","🖼️","Motiv und Bildstil","motiv bild stadt münchen tram meer aquarell stil realistisch"],
   ["bedienung","👆","Reiter unten blättern weiter","doppeltipp tippen mehrfach"],["bedienung","👆","Wischen","wischen swipe"],["bedienung","👆","Alle Bereiche (lange auf Start)","alle bereiche kacheln kreis ring sternzeichen menü fächer lang drücken"],["essen","🥗","Mehr Vegetarisches","vegetarisch veggie fleisch"],
   ["ort","🌦️","Wetter-Ort","ort wetter stadt"],["wir","🫶","Ich bin","person ich"],["wir","🫶","Namen","name namen"],["wir","🧒","Name des Kindes","kind name tochter sohn"],["wir","📮","Nummer für WhatsApp","handy telefon nummer whatsapp"],["wir","🔗","Einladungs-Link","einladen einladung link teilen schlüssel"],
   ["daten","💾","Sicherung und Wiederherstellen","sicherung backup export daten wiederherstellen"]];
@@ -3183,7 +3320,7 @@ function searchHits(q){const W=sNorm(q).split(/\s+/).filter(Boolean);if(!W.lengt
   const add=(grp,ic,name,sub,attr,extra)=>{const t=sNorm(name+" "+(sub||"")+" "+(extra||""));if(W.every(w=>t.includes(w)))H.push({grp,ic,name,sub,attr})};
   AREAS.forEach(a=>{if(a[2]==="camp")return;add("Bereiche",a[0],a[1],"",`data-nav="${a[2]}|"`);a[5]().forEach(x=>add("Bereiche",a[0],x[0],a[1],`data-nav="${a[2]}|${x[1]}"`))});
   add("Bereiche","📅","Kalender","Woche",'data-nav="woche|wp:3"');add("Bereiche","⚙️","Einstellungen","",'data-go="settings"');
-  SET_ITEMS.forEach(x=>add("Einstellungen",x[1],x[2],"Einstellungen",`data-setgo="${x[0]}"`,x[3]));
+  SET_ITEMS.forEach(x=>add("Einstellungen",x[1],x[2],"Einstellungen",`data-setgo="${x[0]}"`,x[3]));glosSearch(add);
   recs().forEach(r=>add("Rezepte","📖",r.name,"Rezept",`data-openrec="${esc(r.id)}"`,(r.ing||"")+" "+(r.tags||[]).join(" ")));
   ((S.ideas&&S.ideas.items)||[]).concat((S.ideas&&S.ideas.emmi)||[]).forEach(x=>add("Rezepte","✨",x.name,"Tagesrezept",'data-nav="essen|ft:rezepte"',(x.ing||[]).join(" ")));
   Object.keys(F.plan||{}).forEach(wk=>{if(wk<wkKey(mondayOf(addDays(new Date(),-14))))return;Object.keys(F.plan[wk]||{}).forEach(d=>{const x=F.plan[wk][d];if(x&&x.text)add("Wochenplan","🍲",x.text,wk.replace(/^\d+-W/,"KW ")+" · "+(DAYN[+d.slice(1)]||""),'data-nav="essen|ft:plan"')})});
@@ -3208,7 +3345,7 @@ function searchHits(q){const W=sNorm(q).split(/\s+/).filter(Boolean);if(!W.lengt
   return H}
 function renderSearch(){const q=S.sq||"",H=searchHits(q);
   let h=`<div><div class="eyebrow">Quer durch alles</div><h1>🔍 Suche</h1></div><section class="card"><input id="sq" type="search" value="${esc(q)}" placeholder="Rezept, Termin, Idee, Einstellung …" autocomplete="off" enterkeyhint="search" aria-label="Suchen" style="width:100%"></section>`;
-  if(!q.trim())return h+`<div class="freq" style="margin:0 4px">Sucht in Bereichen, Einstellungen, Rezepten, Wochenplan, Einkaufsliste, Packlisten, Kita, Kalender, Wichtig, Ideen, Am Haus, Reisen und Ausflüge, Sport und Spiel und Musik. Partner bleibt privat.</div>`;
+  if(!q.trim())return h+`<div class="freq" style="margin:0 4px">Sucht in Bereichen, Einstellungen, Glossar, Rezepten, Wochenplan, Einkaufsliste, Packlisten, Kita, Kalender, Wichtig, Ideen, Am Haus, Reisen und Ausflüge, Sport und Spiel und Musik. Partner bleibt privat.</div>`;
   if(!H.length)return h+`<div class="empty"><h2>Nichts gefunden</h2><div>Probiert ein anderes Wort.</div></div>`;
   const G=[];H.forEach(x=>{let g=G.find(y=>y[0]===x.grp);if(!g)G.push(g=[x.grp,[]]);g[1].push(x)});
   return h+G.map(g=>`<section class="card"><div class="section-head"><h2>${esc(g[0])}</h2><span class="freq num">${g[1].length}</span></div>${g[1].slice(0,12).map(x=>`<button class="todayrow" ${x.attr}><span>${x.ic}</span><span>${esc(x.name)}${x.sub?`<span class="freq"> · ${esc(x.sub)}</span>`:""}</span><i>›</i></button>`).join("")}${g[1].length>12?`<div class="freq">und ${g[1].length-12} weitere, genauer suchen</div>`:""}</section>`).join("")}
@@ -3462,7 +3599,8 @@ app.addEventListener("click",async e=>{
   if(b.dataset.tagsum){const k=b.dataset.tagsum;(S.tagOpen||(S.tagOpen={}))[k]=!S.tagOpen[k];render();return}
   if(b.dataset.setsum){const k=b.dataset.setsum;(S.setOpen||(S.setOpen={}))[k]=!S.setOpen[k];render();return}
   if(b.dataset.act==="themecycle"){const o=["","light","dark"];S.theme=o[(o.indexOf(S.theme||"")+1)%3];try{localStorage.setItem("hq-theme",S.theme)}catch(_){}if(S.theme)document.documentElement.dataset.theme=S.theme;else delete document.documentElement.dataset.theme;render();return}
-  if(b.dataset.setgo){S.prev=S.tab;S.tab="settings";(S.setOpen||(S.setOpen={}))[b.dataset.setgo]=true;render();const el=document.getElementById("set-"+b.dataset.setgo);if(el)el.scrollIntoView({block:"start"});else window.scrollTo(0,0);return}
+  if(b.dataset.glossec){const k=b.dataset.glossec,O=S.glosOpen||(S.glosOpen={});if(glosWords().length){S.glosQ="";O[k]=true}else O[k]=!O[k];render();return}
+  if(b.dataset.setgo){S.prev=S.tab;S.tab="settings";(S.setOpen||(S.setOpen={}))[b.dataset.setgo]=true;if(b.dataset.setgo==="glossar"){S.glosQ=b.dataset.glosq||"";if(b.dataset.glosopen)(S.glosOpen||(S.glosOpen={}))[b.dataset.glosopen]=true}render();const el=document.getElementById("set-"+b.dataset.setgo);if(el)el.scrollIntoView({block:"start"});else window.scrollTo(0,0);return}
   if(b.dataset.gest){const k=b.dataset.gest;if(k==="labels"){S.labels=!S.labels;try{localStorage.setItem("hq-labels",S.labels?"1":"")}catch(_){}}
     else if(k==="veg"){try{await S.store.setPath("food/pref/veg",vegW()>0?false:null)}catch(_){toast("Konnte nicht speichern.")}}
     else{S.gest[k]=!S.gest[k];try{localStorage.setItem("hq-gest",JSON.stringify(S.gest))}catch(_){}}render();return}
@@ -3896,6 +4034,7 @@ app.addEventListener("input",e=>{if(e.target.id==="shopinput"){S.shopText=e.targ
   if(e.target.id==="mealinput"){S.planText=e.target.value;const mm=document.getElementById("mealmem");if(mm)mm.innerHTML=mealMemHtml();return}
   if(e.target.id==="lu-mapurl"){S.lunchMapText=e.target.value;return}
   if(S.lunchDraft&&e.target.dataset.lf){S.lunchDraft[e.target.dataset.lf]=e.target.value;return}
+  if(e.target.id==="glosq"){S.glosQ=e.target.value;glosApply();return}
   if(e.target.id==="sq"){S.sq=e.target.value;const pos=e.target.selectionStart;render();const el=document.getElementById("sq");if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}return}
   if(e.target.id==="rdbq"){S.rdbQ=e.target.value;const pos=e.target.selectionStart;render();const el=document.getElementById("rdbq");if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}return}
   if(S.recDraft&&e.target.dataset.rf){S.recDraft[e.target.dataset.rf]=e.target.value;return}

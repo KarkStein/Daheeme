@@ -9,7 +9,9 @@ const QUICK={
   ausgaben:["🐷 Ausgaben",[["💶","Ausgabe eintragen",{nav:"ausgaben",fn:()=>{S.geldTab="uebersicht";geldNew()}}],["⚡","Schnell eintragen",{nav:"ausgaben",fn:()=>{S.geldDraft=null;S.geldTab="uebersicht"},focus:"#geldq"}],["🔁","Feste Zahlungen",{nav:"ausgaben",fn:()=>{S.geldDraft=null;S.geldGrp="";S.geldTab="fest"}}]]],
   amhaus:["🏠 Am Haus",[["➕","Neues Projekt",{nav:"amhaus|pf:wohnen",click:'[data-act="hprojnew"]'}],["🔧","Reparatur notieren",{nav:"amhaus|pf:haus",focus:"#projinput"}],["📍","Sammlung",{nav:"amhaus|pf:wohnen",click:'[data-act="hsamm"]'}]]]
 };
-function quickKey(el){if(!el||!el.classList.contains("spot"))return null;if(el.dataset.go==="post")return "post";if(el.dataset.nav==="woche|wp:3")return "kalender";if(el.dataset.pf)return null;const g=el.dataset.go;if(g==="amhaus"&&!/Lampe/.test(el.getAttribute("aria-label")||""))return null;return QUICK[g]?g:null}
+// Schnellmenü zu einem Ding im Bild (Ziel, Filter, Beschriftung wie in PIC_SPOTS); auch fürs Glossar
+function quickKeyOf(go,pf,label){if(go==="post")return "post";if(go==="woche|wp:3")return "kalender";if(pf)return null;if(go==="amhaus"&&!/Lampe/.test(label||""))return null;return QUICK[go]?go:null}
+function quickKey(el){if(!el||!el.classList.contains("spot"))return null;return quickKeyOf(el.dataset.nav||el.dataset.go,el.dataset.pf,el.getAttribute("aria-label"))}
 function quickRun(a){mboxClose();goNav(a.nav);if(a.fn){a.fn();render()}
   setTimeout(()=>{if(a.click){const el=document.querySelector(a.click);if(el)el.click()}setTimeout(()=>{const f=a.focus&&document.querySelector(a.focus);if(f){f.focus();f.scrollIntoView({block:"center"})}const sc=a.scroll&&document.querySelector(a.scroll);if(sc)sc.scrollIntoView({block:"center"})},60)},30)}
 function quickOpen(k){S.mboxAt=Date.now();if(k==="post"){mboxOpen();return}const q=QUICK[k];if(!q||document.getElementById("mbox"))return;if(q[1].length===1){quickRun(q[1][0][2]);return}
@@ -23,18 +25,18 @@ function wxPlaceRow(){const pl=S.food&&S.food.wxplace;return `<div class="freq" 
 // [Symbol, Name, Tab, Kurzname im Kreis (leer = nicht im Kreis), Sprung im Kreis, Unterbereiche()]
 // Gliederung (Florian 15.11.2026): Alltag, Essen, Zuhause, Freizeit, Wir, Quer. Die 4 Reiter unten bleiben Abkürzungen.
 const AREA_GROUPS=[["essen","🍲","Essen"],["alltag","🗓️","Alltag"],["wir","🫶","Wir"],["zuhause","🏡","Zuhause"],["freizeit","🌊","Freizeit"],["quer","🧩","Quer durch alles"]];
-// [Symbol, Name, Tab, Kurzname im Kreis (leer = nicht im Kreis), Sprung im Kreis, Unterbereiche(), Gruppe]
-const AREAS=[["🏠","Start","camp","","",()=>[["Kalender","sp:kalender"],["Wichtig","sp:wichtig"]],""],["🧹","Woche","woche","Woche","woche|",()=>[["Tag und Woche","wp:0"],["Wer macht was","wp:1"]],"alltag"],
-  ["🎒","Kita","kita","Kita","kita|",()=>KITA_SECS.map(k=>[k[2]==="Essen"?"Kita-Essen":k[2],"ks:"+k[0]]),"alltag"],
-  ["🍲","Essen","essen","Essen","essen|",()=>[["Heute","ft:heute"],["Wochenplan","ft:plan"],["Rezepte","ft:rezepte"]],"essen"],
-  ["🧺","Einkauf","einkauf","Einkauf","einkauf|",()=>[["Ausgaben","sp:ausgaben"],["Weitere Listen","bl:"]].concat(BUY_FIX.map(x=>[x[2],"bl:"+x[0]])),"essen"],
-  ["🏠","Am Haus","amhaus","Am Haus","amhaus|",()=>PROJ_CATS.filter(c=>["wohnen","ordnung","haus","garten"].includes(c[0])).map(c=>[c[2],"pf:"+c[0]]),"zuhause"],
-  ["🧭","Reisen und Ausflüge","ausflug","Reisen","ausflug|tt:urlaub",()=>[["Urlaube","tt:urlaub"],["Ausflüge","tt:ideen"],["Packlisten","tt:pack"],["Sammlung","tt:recherche"]],"freizeit"],
-  ["⚽","Sport und Spiel","spiel","Sport","spiel|",()=>playSecs().map(p=>[p[2],"ps:"+p[0]]),"freizeit"],["🎵","Musik","musik","Musik","musik|",()=>[],"freizeit"],
-  ["🫶","Partner","privat","Partner","privat|",()=>[["Mittagessen","pv:lunch"],["Briefe","pv:briefe"],["Kontakte","pv:kontakte"]],"wir"],
-  ["🧒","Kind","kind","Kind","kind|",()=>[["Bringen und Abholen","sp:kind"]],"wir"],
-  ["💡","Ideen","projekte","Ideen","projekte|",()=>projCats().filter(c=>PROJ_GROUPS.projekte&&PROJ_GROUPS.projekte.cats?PROJ_GROUPS.projekte.cats.includes(c[0]):["geschenk","sonst"].includes(c[0])).map(c=>[c[2],"pf:"+c[0]]).concat([["Adventskalender","pf:advent"],["Alle Projekte","pf:alle"]]),"wir"],
-  ["🔔","Wichtig","wichtig","Wichtig","wichtig|",()=>[],"quer"],["🤖","Recherchen","recherchen","","",()=>[],"quer"],["⚙️","Einstellungen","settings","","",()=>[],"quer"]];
+// [Symbol, Name, Tab, Kurzname im Kreis (leer = nicht im Kreis), Sprung im Kreis, Unterbereiche(), Gruppe, Kurz erklärt (Glossar)]
+const AREAS=[["🏠","Start","camp","","",()=>[["Kalender","sp:kalender"],["Wichtig","sp:wichtig"]],"","Das Haus-Bild mit der Kurzfassung des Tages, dazu die Seiten Kalender und Wichtig."],["🧹","Woche","woche","Woche","woche|",()=>[["Tag und Woche","wp:0"],["Wer macht was","wp:1"]],"alltag","Hausarbeit: was heute und diese Woche dran ist, Hausdienst und wer was macht."],
+  ["🎒","Kita","kita","Kita","kita|",()=>KITA_SECS.map(k=>[k[2]==="Essen"?"Kita-Essen":k[2],"ks:"+k[0]]),"alltag","Termine der Kita, Kita-Essen, was mitmuss, Infos."],
+  ["🍲","Essen","essen","Essen","essen|",()=>[["Heute","ft:heute"],["Wochenplan","ft:plan"],["Rezepte","ft:rezepte"]],"essen","Was es heute gibt, der Wochenplan fürs Abendessen, Rezepte und Kochbücher."],
+  ["🧺","Einkauf","einkauf","Einkauf","einkauf|",()=>[["Ausgaben","sp:ausgaben"],["Weitere Listen","bl:"]].concat(BUY_FIX.map(x=>[x[2],"bl:"+x[0]])),"essen","Die Einkaufsliste, Weitere Listen (Kleidung, Geschenke, Baumarkt) und Ausgaben."],
+  ["🏠","Am Haus","amhaus","Am Haus","amhaus|",()=>PROJ_CATS.filter(c=>["wohnen","ordnung","haus","garten"].includes(c[0])).map(c=>[c[2],"pf:"+c[0]]),"zuhause","Projekte und lose Ideen fürs Haus: Einrichtung, Aufräumen, Reparieren, Garten."],
+  ["🧭","Reisen und Ausflüge","ausflug","Reisen","ausflug|tt:urlaub",()=>[["Urlaube","tt:urlaub"],["Ausflüge","tt:ideen"],["Packlisten","tt:pack"],["Sammlung","tt:recherche"]],"freizeit","Urlaube, Ausflüge mit „Was ist los“, Packlisten und die Sammlung."],
+  ["⚽","Sport und Spiel","spiel","Sport","spiel|",()=>playSecs().map(p=>[p[2],"ps:"+p[0]]),"freizeit","Spielplätze, Spielideen für zu Hause, Sport und Kurse."],["🎵","Musik","musik","Musik","musik|",()=>[],"freizeit","Playlist-Links nach Anlass, z. B. Kochen, Autofahrt, Kinder."],
+  ["🫶","Partner","privat","Partner","privat|",()=>[["Mittagessen","pv:lunch"],["Briefe","pv:briefe"],["Kontakte","pv:kontakte"]],"wir","Nur für euch zwei: Mittagessen, Briefe, Kontakt."],
+  ["🧒","Kind","kind","Kind","kind|",()=>[["Bringen und Abholen","sp:kind"]],"wir","Wer bringt und wer holt, dazu Kita, Kleidung und Geschenke fürs Kind."],
+  ["💡","Ideen","projekte","Ideen","projekte|",()=>projCats().filter(c=>PROJ_GROUPS.projekte&&PROJ_GROUPS.projekte.cats?PROJ_GROUPS.projekte.cats.includes(c[0]):["geschenk","sonst"].includes(c[0])).map(c=>[c[2],"pf:"+c[0]]).concat([["Adventskalender","pf:advent"],["Alle Projekte","pf:alle"]]),"wir","Geschenk-Ideen, sonstige Ideen, Adventskalender und Alle Projekte."],
+  ["🔔","Wichtig","wichtig","Wichtig","wichtig|",()=>[],"quer","Alle Erinnerungen an einem Ort. Die Glocke oben links zählt sie."],["🤖","Recherchen","recherchen","","",()=>[],"quer","Was Claude regelmäßig sucht (Rezepte, Ausflüge) und eure Wünsche dafür."],["⚙️","Einstellungen","settings","","",()=>[],"quer","Aussehen, Bedienung, Ort und Wetter, Namen, Benachrichtigungen, Sicherung und dieses Glossar."]];
 // Reihenfolge folgt den Gruppen (Florian 15.11.2026: Essen, dann Woche und Kita, dann Wir)
 AREAS.sort((x,y)=>(x[6]?AREA_GROUPS.findIndex(g=>g[0]===x[6]):-1)-(y[6]?AREA_GROUPS.findIndex(g=>g[0]===y[6]):-1));
 // Zusätze, die keine eigenen Bereiche sind: Kalender (im Kreis direkt nach Woche), Wichtig, Einstellungen

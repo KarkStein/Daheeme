@@ -95,7 +95,8 @@ app.addEventListener("click",async e=>{
   if(b.dataset.tagsum){const k=b.dataset.tagsum;(S.tagOpen||(S.tagOpen={}))[k]=!S.tagOpen[k];render();return}
   if(b.dataset.setsum){const k=b.dataset.setsum;(S.setOpen||(S.setOpen={}))[k]=!S.setOpen[k];render();return}
   if(b.dataset.act==="themecycle"){const o=["","light","dark"];S.theme=o[(o.indexOf(S.theme||"")+1)%3];try{localStorage.setItem("hq-theme",S.theme)}catch(_){}if(S.theme)document.documentElement.dataset.theme=S.theme;else delete document.documentElement.dataset.theme;render();return}
-  if(b.dataset.setgo){S.prev=S.tab;S.tab="settings";(S.setOpen||(S.setOpen={}))[b.dataset.setgo]=true;render();const el=document.getElementById("set-"+b.dataset.setgo);if(el)el.scrollIntoView({block:"start"});else window.scrollTo(0,0);return}
+  if(b.dataset.glossec){const k=b.dataset.glossec,O=S.glosOpen||(S.glosOpen={});if(glosWords().length){S.glosQ="";O[k]=true}else O[k]=!O[k];render();return}
+  if(b.dataset.setgo){S.prev=S.tab;S.tab="settings";(S.setOpen||(S.setOpen={}))[b.dataset.setgo]=true;if(b.dataset.setgo==="glossar"){S.glosQ=b.dataset.glosq||"";if(b.dataset.glosopen)(S.glosOpen||(S.glosOpen={}))[b.dataset.glosopen]=true}render();const el=document.getElementById("set-"+b.dataset.setgo);if(el)el.scrollIntoView({block:"start"});else window.scrollTo(0,0);return}
   if(b.dataset.gest){const k=b.dataset.gest;if(k==="labels"){S.labels=!S.labels;try{localStorage.setItem("hq-labels",S.labels?"1":"")}catch(_){}}
     else if(k==="veg"){try{await S.store.setPath("food/pref/veg",vegW()>0?false:null)}catch(_){toast("Konnte nicht speichern.")}}
     else{S.gest[k]=!S.gest[k];try{localStorage.setItem("hq-gest",JSON.stringify(S.gest))}catch(_){}}render();return}

@@ -1,6 +1,6 @@
 const FOODTABS=[["plan","Wochenplan"],["kita","🎒 Kita-Essen ›"]];
 // Essen hat zwei Seiten (Florian 16.11.2026): „Heute und Wochenplan“ (Chips Heute, Wochenplan, Kita-Essen) und „Rezepte“; Tipp auf den Reiter blättert weiter
-function foodPager(p){return `<div class="pager" role="group" aria-label="Seiten von Essen"><div class="pdots">${[["heute","Heute und Wochenplan"],["rezepte","Rezepte"]].map((x,i)=>`<button class="pdot" data-food="${x[0]}" aria-pressed="${i===p}"><b>${x[1]}</b></button>`).join("")}</div></div>`}
+function foodPager(p){return `<div class="pager" role="group" aria-label="Seiten von Essen"><div class="pdots">${["heute","rezepte"].map((k,i)=>[k,TAB_PAGES.essen[i]]).map((x,i)=>`<button class="pdot" data-food="${x[0]}" aria-pressed="${i===p}"><b>${x[1]}</b></button>`).join("")}</div></div>`}
 function shopItems(){const m=(S.food&&S.food.shop)||{};return Object.keys(m).filter(k=>m[k]).map(k=>Object.assign({id:k},m[k])).sort((a,b)=>(a.at||0)-(b.at||0))}
 function shopFavs(){const f=(S.food&&S.food.fav)||{};const open=new Set(shopItems().filter(i=>!i.done).map(i=>i.name.toLowerCase()));
   return Object.keys(f).filter(k=>f[k]&&f[k].n>0&&!open.has((f[k].name||"").toLowerCase())).sort((a,b)=>f[b].n-f[a].n).slice(0,14).map(k=>f[k].name)}
