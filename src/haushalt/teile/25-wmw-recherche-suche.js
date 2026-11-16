@@ -85,7 +85,7 @@ function renderResearch(){if(!S.auftrLoad){S.auftrLoad=1;try{fetch("auftraege.js
   return h+`</section>`}
 // ---------- Suche (Lupe in der Kopfzeile, Entwurf 15.11.2026). Partner (Mittagessen, Briefe, Kontakte) bewusst nicht. ----------
 const SET_ITEMS=[["aussehen","🎨","Hell oder dunkel","dunkel hell nacht modus farbe"],["aussehen","🏷️","Beschriftungen im Bild","beschriftung namen bild"],["aussehen","🖼️","Motiv und Bildstil","motiv bild stadt münchen tram meer aquarell stil realistisch"],
-  ["bedienung","👆","Mehrfach tippen","doppeltipp tippen"],["bedienung","👆","Wischen","wischen swipe"],["bedienung","👆","Menü auf Start","kreis ring sternzeichen menü fächer lang drücken"],["essen","🥗","Mehr Vegetarisches","vegetarisch veggie fleisch"],
+  ["bedienung","👆","Reiter unten blättern weiter","doppeltipp tippen mehrfach"],["bedienung","👆","Wischen","wischen swipe"],["bedienung","👆","Alle Bereiche (lange auf Start)","alle bereiche kacheln kreis ring sternzeichen menü fächer lang drücken"],["essen","🥗","Mehr Vegetarisches","vegetarisch veggie fleisch"],
   ["ort","🌦️","Wetter-Ort","ort wetter stadt"],["wir","🫶","Ich bin","person ich"],["wir","🫶","Namen","name namen"],["wir","🧒","Name des Kindes","kind name tochter sohn"],["wir","📮","Nummer für WhatsApp","handy telefon nummer whatsapp"],["wir","🔗","Einladungs-Link","einladen einladung link teilen schlüssel"],
   ["daten","💾","Sicherung und Wiederherstellen","sicherung backup export daten wiederherstellen"]];
 const sNorm=t=>String(t||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");

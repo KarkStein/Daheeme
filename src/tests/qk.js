@@ -2,7 +2,7 @@ srv.listen(8765,async()=>{
   const b=await chromium.launch();const errs=[];const out=process.argv[2];
   const c=await b.newContext({viewport:{width:400,height:860},deviceScaleFactor:2,timezoneId:'Europe/Berlin'});const A=await c.newPage();A.setDefaultTimeout(8000);A.on('pageerror',e=>errs.push(e.message));
   await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');await A.waitForTimeout(300);
-  const home=async()=>{await A.click('[data-tab=camp]');await A.waitForTimeout(400);if(!(await A.$('.spot[data-go=einkauf]'))){await A.click('[data-tab=camp]');await A.waitForTimeout(400)}};
+  const home=async()=>{for(let i=0;i<4&&!(await A.$('.spot[data-go=einkauf]'));i++){await A.click('[data-tab=camp]');await A.waitForTimeout(500)}};
   const lp=async sel=>{await A.dispatchEvent(sel,'contextmenu');await A.waitForTimeout(250)};
   const r={};
   await home();

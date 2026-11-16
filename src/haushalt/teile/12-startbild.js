@@ -12,6 +12,24 @@ function moonSvg(cx,cy,r,p,col,dark){const lit=(1-Math.cos(2*Math.PI*p))/2;let g
   if(lit>0.97)return g+`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${col}"/>`;const wax=p<0.5,rx=(r*Math.abs(Math.cos(2*Math.PI*p))).toFixed(2),gib=lit>0.5;
   const s1=wax?1:0,s2=wax?(gib?1:0):(gib?0:1);return g+`<path d="M${cx} ${cy-r} A${r} ${r} 0 0 ${s1} ${cx} ${cy+r} A${rx} ${r} 0 0 ${s2} ${cx} ${cy-r}Z" fill="${col}"/>`}
 // Open-Meteo Wettercode zu Bild-Wetter
+// Grußzeile mit Wetter (Florian 16.11.2026, statt „Hallo“): Gruß nach Tageszeit, dazu Wetter für den Rest des Tages (ab 19 Uhr: morgen)
+// mit Symbol, Spanne und höchstens einem Hinweis (Gewitter, Schnee, Regen ab, Frost, Wind, heiß). Tipp öffnet das Wetter wie Sonne und Mond.
+function greetTxt(h){return h<5?"Gute Nacht":h<11?"Guten Morgen":h<14?"Schönen Mittag":h<18?"Schönen Nachmittag":h<22?"Guten Abend":"Gute Nacht"}
+function wxToday(){const W=S.wx,hr=W&&W.hours;if(!W||!hr||!hr.time||Date.now()-W.at>6*3600e3)return null;const now=new Date(),H=now.getHours(),eve=H>=19,day=eve?ymd(addDays(now,1)):ymd(now),from=eve?7:H,to=eve?21:23;
+  const I=[];hr.time.forEach((t,i)=>{if(t.slice(0,10)!==day)return;const hh=+t.slice(11,13);if(hh>=from&&hh<=to)I.push(i)});if(!I.length)return null;
+  const T=I.map(i=>hr.temperature_2m[i]).filter(x=>x!=null),lo=Math.round(Math.min(...T)),hi=Math.round(Math.max(...T)),K=I.map(i=>wxKind(hr.weather_code[i])),P=I.map(i=>(hr.precipitation_probability||[])[i]||0),hh=i=>+hr.time[i].slice(11,13),d=(W.days||{})[day]||{};
+  const main=eve?wxKind(d.c):wxKind(W.cur!=null?W.cur:hr.weather_code[I[0]]);
+  const WI={"":!eve&&(H>=18||H<7)?"🌙":"☀️",wolkig:"⛅",bedeckt:"☁️",nebel:"🌫️",regen:"🌧️",schnee:"🌨️",gewitter:"⛈️"};
+  const at=j=>{const x=hh(I[j]);return !eve&&j===0?"jetzt":"ab "+x+" Uhr"},first=f=>{for(let j=0;j<I.length;j++)if(f(j))return j;return -1};
+  let hint="",j;
+  if((j=first(k=>K[k]==="gewitter"))>=0)hint="Gewitter "+at(j);
+  else if((j=first(k=>K[k]==="schnee"))>=0)hint="Schnee "+at(j);
+  else if((j=first(k=>K[k]==="regen"||P[k]>=60))>=0)hint=(at(j)==="jetzt"?"Regen":"Regen "+at(j));
+  else if(lo<=0)hint="Frost";else if((d.w||0)>=40)hint="Sturmböen";else if((d.w||0)>=28)hint="windig";else if(hi>=28)hint="heiß";
+  return {pre:eve?"Morgen":"",emo:WI[main]||"☀️",rng:lo===hi?lo+"°":lo+" bis "+hi+"°",hint}}
+function startHead(sea){const g=greetTxt(new Date().getHours()),w=wxToday();
+  if(!w)return `<div class="starthead"><h1>${g}</h1><span class="eyebrow">${SEASON_NAME[sea]} ${motivPlace()}</span></div>`;
+  return `<button class="starthead wxhead" data-act="wxpop" aria-label="${esc(g)}. Wetter${w.pre?" morgen":""}: ${esc(w.rng)}${w.hint?", "+esc(w.hint):""}. Tippen zeigt die Vorhersage."><h1>${g}</h1><span class="wxline">${w.pre?`<span class="wxpre">${w.pre}:</span> `:""}${w.emo} ${esc(w.rng)}${w.hint?`<span class="wxhint"> · ${esc(w.hint)}</span>`:""}</span></button>`}
 function wxKind(code){if(code==null||code==="")return "";code=+code;if(isNaN(code))return "";if(code>=95)return "gewitter";if(code>=71&&code<=77||code===85||code===86)return "schnee";if(code>=51&&code<=67||code>=80&&code<=82)return "regen";if(code===45||code===48)return "nebel";if(code===3)return "bedeckt";if(code===2)return "wolkig";return ""}
 // Ausschnitt des Hausbilds (Florian 15.11.2026: weniger Himmel, Haus und Wiese größer). Spots rechnen damit.
 const HVB=[4,32,352,228];
@@ -155,7 +173,7 @@ function renderCamp(){S.flip=false;loadWx();
     if(t.freq==="day")chk(di);else for(let i=0;i<slotsOf(t);i++)chk(i)});
   const openS=shopItems().filter(i=>!i.done).length,meal=planDays(mon)["d"+di],mealTxt=meal?(meal.text||""):"";
   const spot=(x,y,w,hh,go,label,ft)=>`<button class="spot" style="${spotPos(x,y,w,hh)}" data-go="${go}"${ft?` data-ft="${ft}"`:""} aria-label="${label}">${S.labels?`<span class="lab">${label.split(":")[0].replace(" mit dem Bus","").replace("Einkaufsliste","Einkauf")}</span>`:""}</button>`;
-  let h=`${startPager(0)}<div class="starthead"><h1>Hallo${S.me?" "+esc(pname(S.me)):""}</h1><span class="eyebrow">${SEASON_NAME[sea]} ${motivPlace()}</span></div>${S.me?"":meChooser()}
+  let h=`${startPager(0)}${startHead(sea)}${S.me?"":meChooser()}
    <div class="flipbox"><div class="flipin${S.flip?" flipped":""}"><div class="camp">${(motiv()==="stadt"?cityScene(Math.max(fire,0.12),night,sea,{post:briefe().length>0},{ph:skyPh,wx:S.wx&&S.wx.cur!=null&&Date.now()-S.wx.at<3*3600e3?wxKind(S.wx.cur):""})+citySpots(spot):houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:false,shop:openS>0,post:briefe().length>0},{ph:skyPh,wx:S.wx&&S.wx.cur!=null&&Date.now()-S.wx.at<3*3600e3?wxKind(S.wx.cur):""})+spot(166,196,50,48,"woche","Woche: offene Aufträge")+spot(119,148,42,96,"essen","Essen",mealTxt?"plan":"")+spot(112,212,26,22,"einkauf","Einkauf: Korb mit Baguette")+spot(208,203,24,30,"kita","Kita")+spot(80,243,40,24,"ausflug","Ausflüge: Fahrrad")+spot(62,214,20,22,"woche","Kalender: Aushang am Baum").replace('data-go="woche"','data-nav="woche|wp:3"')+spot(318,80,34,64,"projekte","Ideen")+spot(38,122,70,42,"privat","Partner: Klippen")+spot(24,244,18,26,"post","Briefkasten")+spot(155,168,22,20,"amhaus","Am Haus: Lampe")+spot(58,176,60,52,"amhaus","Garten: Baum").replace('data-go="amhaus"','data-go="amhaus" data-pf="garten"')+spot(40,203,22,28,"kind","Kind: Schaukel")+spot(240,238,26,26,"spiel","Sport und Spiel")+spot(322,196,56,66,"reisen","Urlaube: Segelboot")+spot(254,189,22,22,"musik","Musik: Ghettoblaster"))+(()=>{const y=(night?40:(skyPh==="dusk"||skyPh==="dawn")?98:44)+13,x=night?52:56;return `<button class="spot" style="${spotPos(x,y,46,46)}" data-act="wxpop" aria-expanded="${!!S.wxPop}" aria-label="${night?"Mond":"Sonne"}: Wetter">${S.labels?`<span class="lab">Wetter</span>`:""}</button>`})()+"</div>"+renderBack(night)+"</div>"}</div>
    ${S.wxPop?wxPanel(night):""}
    <section class="card today"><h2>Heute</h2>

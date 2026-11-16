@@ -504,6 +504,9 @@ h2{font-weight:700}
 section[id^="sec-"]{scroll-margin-top:calc(var(--sp5)*3)}
 .hlflash{animation:hlflash 1.6s ease-out}@keyframes hlflash{0%,40%{box-shadow:0 0 0 3px var(--ochre)}100%{box-shadow:0 0 0 0 transparent}}
 .slot .hohalf{font-size:var(--fs-xs);letter-spacing:-.5px}
+.wxhead{width:100%;background:none;border:none;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer;white-space:nowrap;overflow:hidden}
+.wxhead h1{flex:0 0 auto}.wxhead .wxline{font-size:var(--fs-s);color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wxhead .wxpre{color:var(--ochre);font-weight:600}
+@media (max-width:370px){.wxhead .wxhint{display:none}}
 </style>
 
 <div class="app" id="app">
@@ -940,6 +943,24 @@ function moonSvg(cx,cy,r,p,col,dark){const lit=(1-Math.cos(2*Math.PI*p))/2;let g
   if(lit>0.97)return g+`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${col}"/>`;const wax=p<0.5,rx=(r*Math.abs(Math.cos(2*Math.PI*p))).toFixed(2),gib=lit>0.5;
   const s1=wax?1:0,s2=wax?(gib?1:0):(gib?0:1);return g+`<path d="M${cx} ${cy-r} A${r} ${r} 0 0 ${s1} ${cx} ${cy+r} A${rx} ${r} 0 0 ${s2} ${cx} ${cy-r}Z" fill="${col}"/>`}
 // Open-Meteo Wettercode zu Bild-Wetter
+// Grußzeile mit Wetter (Florian 16.11.2026, statt „Hallo“): Gruß nach Tageszeit, dazu Wetter für den Rest des Tages (ab 19 Uhr: morgen)
+// mit Symbol, Spanne und höchstens einem Hinweis (Gewitter, Schnee, Regen ab, Frost, Wind, heiß). Tipp öffnet das Wetter wie Sonne und Mond.
+function greetTxt(h){return h<5?"Gute Nacht":h<11?"Guten Morgen":h<14?"Schönen Mittag":h<18?"Schönen Nachmittag":h<22?"Guten Abend":"Gute Nacht"}
+function wxToday(){const W=S.wx,hr=W&&W.hours;if(!W||!hr||!hr.time||Date.now()-W.at>6*3600e3)return null;const now=new Date(),H=now.getHours(),eve=H>=19,day=eve?ymd(addDays(now,1)):ymd(now),from=eve?7:H,to=eve?21:23;
+  const I=[];hr.time.forEach((t,i)=>{if(t.slice(0,10)!==day)return;const hh=+t.slice(11,13);if(hh>=from&&hh<=to)I.push(i)});if(!I.length)return null;
+  const T=I.map(i=>hr.temperature_2m[i]).filter(x=>x!=null),lo=Math.round(Math.min(...T)),hi=Math.round(Math.max(...T)),K=I.map(i=>wxKind(hr.weather_code[i])),P=I.map(i=>(hr.precipitation_probability||[])[i]||0),hh=i=>+hr.time[i].slice(11,13),d=(W.days||{})[day]||{};
+  const main=eve?wxKind(d.c):wxKind(W.cur!=null?W.cur:hr.weather_code[I[0]]);
+  const WI={"":!eve&&(H>=18||H<7)?"🌙":"☀️",wolkig:"⛅",bedeckt:"☁️",nebel:"🌫️",regen:"🌧️",schnee:"🌨️",gewitter:"⛈️"};
+  const at=j=>{const x=hh(I[j]);return !eve&&j===0?"jetzt":"ab "+x+" Uhr"},first=f=>{for(let j=0;j<I.length;j++)if(f(j))return j;return -1};
+  let hint="",j;
+  if((j=first(k=>K[k]==="gewitter"))>=0)hint="Gewitter "+at(j);
+  else if((j=first(k=>K[k]==="schnee"))>=0)hint="Schnee "+at(j);
+  else if((j=first(k=>K[k]==="regen"||P[k]>=60))>=0)hint=(at(j)==="jetzt"?"Regen":"Regen "+at(j));
+  else if(lo<=0)hint="Frost";else if((d.w||0)>=40)hint="Sturmböen";else if((d.w||0)>=28)hint="windig";else if(hi>=28)hint="heiß";
+  return {pre:eve?"Morgen":"",emo:WI[main]||"☀️",rng:lo===hi?lo+"°":lo+" bis "+hi+"°",hint}}
+function startHead(sea){const g=greetTxt(new Date().getHours()),w=wxToday();
+  if(!w)return `<div class="starthead"><h1>${g}</h1><span class="eyebrow">${SEASON_NAME[sea]} ${motivPlace()}</span></div>`;
+  return `<button class="starthead wxhead" data-act="wxpop" aria-label="${esc(g)}. Wetter${w.pre?" morgen":""}: ${esc(w.rng)}${w.hint?", "+esc(w.hint):""}. Tippen zeigt die Vorhersage."><h1>${g}</h1><span class="wxline">${w.pre?`<span class="wxpre">${w.pre}:</span> `:""}${w.emo} ${esc(w.rng)}${w.hint?`<span class="wxhint"> · ${esc(w.hint)}</span>`:""}</span></button>`}
 function wxKind(code){if(code==null||code==="")return "";code=+code;if(isNaN(code))return "";if(code>=95)return "gewitter";if(code>=71&&code<=77||code===85||code===86)return "schnee";if(code>=51&&code<=67||code>=80&&code<=82)return "regen";if(code===45||code===48)return "nebel";if(code===3)return "bedeckt";if(code===2)return "wolkig";return ""}
 // Ausschnitt des Hausbilds (Florian 15.11.2026: weniger Himmel, Haus und Wiese größer). Spots rechnen damit.
 const HVB=[4,32,352,228];
@@ -1083,7 +1104,7 @@ function renderCamp(){S.flip=false;loadWx();
     if(t.freq==="day")chk(di);else for(let i=0;i<slotsOf(t);i++)chk(i)});
   const openS=shopItems().filter(i=>!i.done).length,meal=planDays(mon)["d"+di],mealTxt=meal?(meal.text||""):"";
   const spot=(x,y,w,hh,go,label,ft)=>`<button class="spot" style="${spotPos(x,y,w,hh)}" data-go="${go}"${ft?` data-ft="${ft}"`:""} aria-label="${label}">${S.labels?`<span class="lab">${label.split(":")[0].replace(" mit dem Bus","").replace("Einkaufsliste","Einkauf")}</span>`:""}</button>`;
-  let h=`${startPager(0)}<div class="starthead"><h1>Hallo${S.me?" "+esc(pname(S.me)):""}</h1><span class="eyebrow">${SEASON_NAME[sea]} ${motivPlace()}</span></div>${S.me?"":meChooser()}
+  let h=`${startPager(0)}${startHead(sea)}${S.me?"":meChooser()}
    <div class="flipbox"><div class="flipin${S.flip?" flipped":""}"><div class="camp">${(motiv()==="stadt"?cityScene(Math.max(fire,0.12),night,sea,{post:briefe().length>0},{ph:skyPh,wx:S.wx&&S.wx.cur!=null&&Date.now()-S.wx.at<3*3600e3?wxKind(S.wx.cur):""})+citySpots(spot):houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:false,shop:openS>0,post:briefe().length>0},{ph:skyPh,wx:S.wx&&S.wx.cur!=null&&Date.now()-S.wx.at<3*3600e3?wxKind(S.wx.cur):""})+spot(166,196,50,48,"woche","Woche: offene Aufträge")+spot(119,148,42,96,"essen","Essen",mealTxt?"plan":"")+spot(112,212,26,22,"einkauf","Einkauf: Korb mit Baguette")+spot(208,203,24,30,"kita","Kita")+spot(80,243,40,24,"ausflug","Ausflüge: Fahrrad")+spot(62,214,20,22,"woche","Kalender: Aushang am Baum").replace('data-go="woche"','data-nav="woche|wp:3"')+spot(318,80,34,64,"projekte","Ideen")+spot(38,122,70,42,"privat","Partner: Klippen")+spot(24,244,18,26,"post","Briefkasten")+spot(155,168,22,20,"amhaus","Am Haus: Lampe")+spot(58,176,60,52,"amhaus","Garten: Baum").replace('data-go="amhaus"','data-go="amhaus" data-pf="garten"')+spot(40,203,22,28,"kind","Kind: Schaukel")+spot(240,238,26,26,"spiel","Sport und Spiel")+spot(322,196,56,66,"reisen","Urlaube: Segelboot")+spot(254,189,22,22,"musik","Musik: Ghettoblaster"))+(()=>{const y=(night?40:(skyPh==="dusk"||skyPh==="dawn")?98:44)+13,x=night?52:56;return `<button class="spot" style="${spotPos(x,y,46,46)}" data-act="wxpop" aria-expanded="${!!S.wxPop}" aria-label="${night?"Mond":"Sonne"}: Wetter">${S.labels?`<span class="lab">Wetter</span>`:""}</button>`})()+"</div>"+renderBack(night)+"</div>"}</div>
    ${S.wxPop?wxPanel(night):""}
    <section class="card today"><h2>Heute</h2>
@@ -1697,7 +1718,7 @@ function renderSettings(){const per=(S.config&&S.config.persons)||[];const G=S.g
     <div style="margin-top:8px">${sw("labels","Beschriftungen im Bild zeigen",!!S.labels)}</div><div class="freq" style="margin-top:10px">Motiv im Startbild</div><div class="unl">${motivList().map(x=>`<button class="chipbtn neutral" data-motiv-set="${x[0]}" aria-pressed="${motiv()===x[0]}">${x[1]} ${x[2]}</button>`).join("")}</div>
     <div class="freq" style="margin-top:10px">Bildstil</div><div class="unl">${stilList().map(x=>`<button class="chipbtn neutral" data-stil-set="${x[0]}" aria-pressed="${bildStil()===x[0]}">${x[1]} ${x[2]}</button>`).join("")}</div>
     <div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy. Standard ist das Haus am Meer mit Licht und Schatten. Das Stadthaus ist ein Entwurf.</div>`,"aussehen");
-  h+=card("👆 Bedienung",`${sw("tap","Mehrfach tippen blättert weiter",G.tap,"zweimal auf Woche = Kalender")}${sw("swipe","Wischen wechselt den Bereich",G.swipe)}${sw("ring","Menü: lange auf Start drücken",G.ring,"erst Gruppen, dann Bereiche")}<div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy.</div>`,"bedienung");
+  h+=card("👆 Bedienung",`${sw("tap","Reiter unten blättern weiter",G.tap,"Tipp auf den Reiter, in dem du bist = nächste Unterseite. Doppelt auf Start = Kalender, dreifach = Wichtig. Aus: jeder Tipp öffnet die erste Seite.")}${sw("swipe","Wischen wechselt den Bereich",G.swipe,"links und rechts: Start, Woche, Essen, Einkauf, dann die übrigen Bereiche")}${sw("ring","Alle Bereiche: lange auf Start drücken",G.ring,"alle Bereiche auf einem Bildschirm, lange auf eine Kachel heftet sie oben an. Die Kachel oben rechts geht immer.")}<div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy.</div>`,"bedienung");
   h+=card("🍲 Essen",`${sw("veg","Mehr Vegetarisches bei Vorschlägen",vegW()>0,"für beide")}<div class="freq" style="margin:6px 0">Mengen sind für 4 Personen. Die Recherche achtet aufs Kleinkind. Ändern: schreib es Claude.</div>${go('data-nav="essen|ft:rezepte"',"🏷️","Rezepte, Filter und eigene Tags")}`,"essen");
   h+=card("",go('data-go="recherchen"',"🤖","<b>Recherchen</b> · alle festen Aufträge, Neues und eure Wünsche"));
   h+=card("",go('data-go="wichtig"',"🔔","<b>Wichtig</b> · alle Erinnerungen. Mitteilungen aufs Handy kommen später."));
@@ -2607,7 +2628,7 @@ function renderResearch(){if(!S.auftrLoad){S.auftrLoad=1;try{fetch("auftraege.js
   return h+`</section>`}
 // ---------- Suche (Lupe in der Kopfzeile, Entwurf 15.11.2026). Partner (Mittagessen, Briefe, Kontakte) bewusst nicht. ----------
 const SET_ITEMS=[["aussehen","🎨","Hell oder dunkel","dunkel hell nacht modus farbe"],["aussehen","🏷️","Beschriftungen im Bild","beschriftung namen bild"],["aussehen","🖼️","Motiv und Bildstil","motiv bild stadt münchen tram meer aquarell stil realistisch"],
-  ["bedienung","👆","Mehrfach tippen","doppeltipp tippen"],["bedienung","👆","Wischen","wischen swipe"],["bedienung","👆","Menü auf Start","kreis ring sternzeichen menü fächer lang drücken"],["essen","🥗","Mehr Vegetarisches","vegetarisch veggie fleisch"],
+  ["bedienung","👆","Reiter unten blättern weiter","doppeltipp tippen mehrfach"],["bedienung","👆","Wischen","wischen swipe"],["bedienung","👆","Alle Bereiche (lange auf Start)","alle bereiche kacheln kreis ring sternzeichen menü fächer lang drücken"],["essen","🥗","Mehr Vegetarisches","vegetarisch veggie fleisch"],
   ["ort","🌦️","Wetter-Ort","ort wetter stadt"],["wir","🫶","Ich bin","person ich"],["wir","🫶","Namen","name namen"],["wir","🧒","Name des Kindes","kind name tochter sohn"],["wir","📮","Nummer für WhatsApp","handy telefon nummer whatsapp"],["wir","🔗","Einladungs-Link","einladen einladung link teilen schlüssel"],
   ["daten","💾","Sicherung und Wiederherstellen","sicherung backup export daten wiederherstellen"]];
 const sNorm=t=>String(t||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
@@ -2713,8 +2734,11 @@ function swipeTo(dir){const i=SWIPE_TABS.indexOf(S.tab);if(i<0)return;const j=i+
 try{S.labels=localStorage.getItem("hq-labels")==="1"}catch(_){}
 S.gest={tap:true,swipe:true,ring:true};try{const g=JSON.parse(localStorage.getItem("hq-gest")||"{}");Object.assign(S.gest,g)}catch(_){}
 try{S.theme=localStorage.getItem("hq-theme")||"";if(S.theme)document.documentElement.dataset.theme=S.theme}catch(_){}
-// Reiter unten (Entwurf, Wunsch 14.11.2026): ein Tipp = erste Seite; schnell mehrfach tippen blättert je Tipp eine Seite weiter (TAP_SEQ)
+// Reiter unten (Florian 16.11.2026): Tipp auf einen anderen Reiter = erste Seite; Tipp auf den Reiter, in dem man ist = eine Unterseite weiter (nach der letzten wieder die erste).
+// Schnell mehrfach (unter 450 ms): Doppeltipp = Seite 2, Dreifachtipp = Seite 3, gezählt ab der ersten Seite (TAP_SEQ, aktuelle Seite erkennt TAP_AT)
 const TAP_SEQ={camp:[()=>{S.tab="camp"},()=>{S.tab="woche";S.weekPage=3},()=>{S.tab="wichtig"}],woche:[0,1].map(p=>()=>{S.tab="woche";S.weekPage=p}),essen:["heute","plan","rezepte","kita"].map(f=>()=>{if(f==="kita"){S.tab="kita";S.kitaSec="essen";return}S.tab="essen";S.foodTab=f}),einkauf:[()=>{S.tab="einkauf"},()=>{S.tab="ausgaben"},()=>{S.tab="listen"}]};
+const TAP_AT={camp:[()=>S.tab==="camp",()=>S.tab==="woche"&&S.weekPage===3,()=>S.tab==="wichtig"],woche:[0,1].map(p=>()=>S.tab==="woche"&&(S.weekPage|0)===p),essen:["heute","plan","rezepte","kita"].map(f=>()=>f==="kita"?S.tab==="kita"&&S.kitaSec==="essen":S.tab==="essen"&&(S.foodTab||"heute")===f),einkauf:["einkauf","ausgaben","listen"].map(t=>()=>S.tab===t)};
+const tapCur=t=>(TAP_AT[t]||[]).findIndex(f=>f());
 // ---------- Alle Bereiche (Florian 16.11.2026): Tipp oben rechts oder lange auf Start öffnet alle Bereiche als Kacheln auf einem Bildschirm ----------
 // Oben Favoriten (lange auf eine Kachel drücken heftet an, je Gerät hq-arfav), ohne Favoriten das zuletzt Benutzte (hq-arrec). Tipp daneben, ✕ und Zurück schließen.
 const AR_TILES=[["essen",[["🍲","Essen heute","essen|ft:heute"],["📅","Wochenplan","essen|ft:plan"],["📖","Rezepte","essen|ft:rezepte"],["🧺","Einkaufsliste","einkauf|"],["📝","Weitere Listen","einkauf|bl:"]]],
@@ -2771,7 +2795,7 @@ new MutationObserver(()=>{const open=ovlOpen();
  tabs.addEventListener("contextmenu",e=>{const b=startBtn(e.target);if(!b)return;e.preventDefault();if(S.gest.ring&&!S.ar){S.fanEat=Date.now();arOpen(true)}});
  tabs.addEventListener("click",e=>{if(S.fanEat&&Date.now()-S.fanEat<1500&&startBtn(e.target)){S.fanEat=0;e.stopImmediatePropagation();e.preventDefault()}},true)}
 document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("button[data-tab]");if(!b)return;const t=b.dataset.tab,now=Date.now();
-  if(TAP_SEQ[t]){const lt=S.lastTap,n=S.gest.tap&&lt&&lt.t===t&&lt.on===S.tab&&now-lt.at<450?lt.n+1:0;const q=TAP_SEQ[t];if(S.tab!==t||n)S.prev=S.tab;q[n%q.length]();S.lastTap={t,at:now,n,on:S.tab};S.draft=null;render();window.scrollTo(0,0);return}
+  if(TAP_SEQ[t]){const lt=S.lastTap,n=S.gest.tap&&lt&&lt.t===t&&lt.on===S.tab&&now-lt.at<450?lt.n+1:0;const q=TAP_SEQ[t],cur=tapCur(t),idx=n?n:S.gest.tap&&cur>=0?cur+1:0;if(S.tab!==t||n||idx)S.prev=S.tab;q[idx%q.length]();S.lastTap={t,at:now,n,on:S.tab};S.draft=null;render();window.scrollTo(0,0);return}
   if(t==="essen"&&S.tab!=="essen")S.foodTab="heute";S.tab=t;S.draft=null;render();window.scrollTo(0,0)});
 
 // Kalender: lange auf einen Tag drücken = neuer Termin an diesem Tag (Florian 15.11.2026); kurzer Tipp öffnet den Tag

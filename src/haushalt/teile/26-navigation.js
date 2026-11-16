@@ -49,5 +49,8 @@ function swipeTo(dir){const i=SWIPE_TABS.indexOf(S.tab);if(i<0)return;const j=i+
 try{S.labels=localStorage.getItem("hq-labels")==="1"}catch(_){}
 S.gest={tap:true,swipe:true,ring:true};try{const g=JSON.parse(localStorage.getItem("hq-gest")||"{}");Object.assign(S.gest,g)}catch(_){}
 try{S.theme=localStorage.getItem("hq-theme")||"";if(S.theme)document.documentElement.dataset.theme=S.theme}catch(_){}
-// Reiter unten (Entwurf, Wunsch 14.11.2026): ein Tipp = erste Seite; schnell mehrfach tippen blättert je Tipp eine Seite weiter (TAP_SEQ)
+// Reiter unten (Florian 16.11.2026): Tipp auf einen anderen Reiter = erste Seite; Tipp auf den Reiter, in dem man ist = eine Unterseite weiter (nach der letzten wieder die erste).
+// Schnell mehrfach (unter 450 ms): Doppeltipp = Seite 2, Dreifachtipp = Seite 3, gezählt ab der ersten Seite (TAP_SEQ, aktuelle Seite erkennt TAP_AT)
 const TAP_SEQ={camp:[()=>{S.tab="camp"},()=>{S.tab="woche";S.weekPage=3},()=>{S.tab="wichtig"}],woche:[0,1].map(p=>()=>{S.tab="woche";S.weekPage=p}),essen:["heute","plan","rezepte","kita"].map(f=>()=>{if(f==="kita"){S.tab="kita";S.kitaSec="essen";return}S.tab="essen";S.foodTab=f}),einkauf:[()=>{S.tab="einkauf"},()=>{S.tab="ausgaben"},()=>{S.tab="listen"}]};
+const TAP_AT={camp:[()=>S.tab==="camp",()=>S.tab==="woche"&&S.weekPage===3,()=>S.tab==="wichtig"],woche:[0,1].map(p=>()=>S.tab==="woche"&&(S.weekPage|0)===p),essen:["heute","plan","rezepte","kita"].map(f=>()=>f==="kita"?S.tab==="kita"&&S.kitaSec==="essen":S.tab==="essen"&&(S.foodTab||"heute")===f),einkauf:["einkauf","ausgaben","listen"].map(t=>()=>S.tab===t)};
+const tapCur=t=>(TAP_AT[t]||[]).findIndex(f=>f());
