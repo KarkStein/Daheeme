@@ -63,7 +63,8 @@ function renderSettings(){const per=(S.config&&S.config.persons)||[];const G=S.g
   h+=card("👆 Bedienung",`${sw("tap","Reiter unten blättern weiter",G.tap,"Tipp auf den Reiter, in dem du bist = nächste Unterseite. Doppelt auf Start = Kalender, dreifach = Wichtig. Aus: jeder Tipp öffnet die erste Seite.")}${sw("swipe","Wischen wechselt den Bereich",G.swipe,"links und rechts: Start, Woche, Essen, Einkauf, dann die übrigen Bereiche")}${sw("ring","Alle Bereiche: lange auf Start drücken",G.ring,"alle Bereiche auf einem Bildschirm, lange auf eine Kachel heftet sie oben an. Die Kachel oben rechts geht immer.")}<div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy.</div>`,"bedienung");
   h+=card("🍲 Essen",`${sw("veg","Mehr Vegetarisches bei Vorschlägen",vegW()>0,"für beide")}<div class="freq" style="margin:6px 0">Mengen sind für 4 Personen. Die Recherche achtet aufs Kleinkind. Ändern: schreib es Claude.</div>${go('data-nav="essen|ft:rezepte"',"🏷️","Rezepte, Filter und eigene Tags")}`,"essen");
   h+=card("",go('data-go="recherchen"',"🤖","<b>Recherchen</b> · alle festen Aufträge, Neues und eure Wünsche"));
-  h+=card("",go('data-go="wichtig"',"🔔","<b>Wichtig</b> · alle Erinnerungen. Mitteilungen aufs Handy kommen später."));
+  h+=card("",go('data-go="wichtig"',"🔔","<b>Wichtig</b> · alle Erinnerungen"));
+  h+=card("📲 Benachrichtigungen",pushRow(),"push");
   h+=card("🌦️ Ort und Wetter",`<div class="freq">Für Himmel, Wetter und den Wochenvorschlag.</div>${wxPlaceRow()}`,"ort");
   {const o=otherP(),oi=o==="p1"?1:0,ct=(S.food&&S.food.contact)||{},nm=i=>esc((per[i]&&(per[i].name||per[i]))||(i?"Person 2":"Person 1"));
    h+=card("🫶 Wir",`<div class="freq">Ich bin (nur dieses Handy)</div><div class="unl">${["p0","p1"].map((p,i)=>`<button class="chipbtn neutral" data-me="${p}" aria-pressed="${S.me===p}">${nm(i)}</button>`).join("")}</div>

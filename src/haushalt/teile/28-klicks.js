@@ -142,6 +142,8 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="teraltadd"&&S.terDraft){const d=S.terDraft;d.alt=d.alt||[];if(!d.alt.length&&!d.ask)d.ask=choiceOther(S.me)||"p1";d.alt.push({date:"",time:d.time||""});render();const l=document.querySelectorAll("[data-teralt][data-k=date]");if(l.length)l[l.length-1].focus();return}
   if(b.dataset.teraltrm!=null&&S.terDraft){S.terDraft.alt.splice(+b.dataset.teraltrm,1);render();return}
   if(b.dataset.terask!=null&&S.terDraft){S.terDraft.ask=b.dataset.terask;render();return}
+  if(b.dataset.act==="pushtoggle"){try{await pushToggle()}catch(_){toast("Hat nicht geklappt.")}return}
+  if(b.dataset.act==="pushtest"){pushTest();return}
   if(b.dataset.chopen){const [k,id]=b.dataset.chopen.split("|");choiceOpen(k,id);return}
   if(b.dataset.chseen){const [k,id]=b.dataset.chseen.split("|");try{await choiceSet(k,id,{["told/seen/"+(S.me||"x")]:true})}catch(_){toast("Konnte nicht speichern.")}render();return}
   if(b.dataset.terwho){S.terDraft.who=b.dataset.terwho;render();return}

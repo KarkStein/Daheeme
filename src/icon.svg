@@ -1,15 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1f4a40"/><stop offset="1" stop-color="#2f6b5c"/></linearGradient></defs>
-  <rect width="512" height="512" fill="url(#g)"/>
-  <!-- tent -->
-  <path d="M96 372 L226 150 L356 372 Z" fill="#f4b860"/>
-  <path d="M226 150 L226 372 L170 372 Z" fill="#d9792b"/>
-  <path d="M226 236 L262 372 L190 372 Z" fill="#1f4a40"/>
-  <path d="M214 132 L226 150 L238 132" fill="none" stroke="#f4b860" stroke-width="12" stroke-linecap="round"/>
-  <!-- broom -->
-  <path d="M404 120 L352 300" stroke="#fdf3e1" stroke-width="16" stroke-linecap="round"/>
-  <path d="M322 296 L384 314 L392 388 L296 360 Z" fill="#fdf3e1"/>
-  <path d="M330 322 L324 366 M352 328 L350 374 M372 334 L376 380" stroke="#2f6b5c" stroke-width="7" stroke-linecap="round"/>
-  <!-- ground -->
-  <path d="M72 372 H440" stroke="#fdf3e1" stroke-opacity=".55" stroke-width="10" stroke-linecap="round"/>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3e6c8"/><stop offset="1" stop-color="#f7eedb"/></linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#sky)"/>
+  <circle cx="392" cy="118" r="40" fill="#e0a030"/>
+  <!-- Meer -->
+  <path d="M0 318 H512 V512 H0 Z" fill="#1f3d5a"/>
+  <path d="M30 352 q20 -12 40 0 t40 0 M300 382 q20 -12 40 0 t40 0 M170 430 q20 -12 40 0 t40 0" fill="none" stroke="#f3e6c8" stroke-opacity=".55" stroke-width="8" stroke-linecap="round"/>
+  <!-- Wiese -->
+  <path d="M0 350 Q140 300 300 330 T512 340 V512 H0 Z" fill="#6f8f5a"/>
+  <!-- Haus -->
+  <rect x="120" y="222" width="230" height="140" fill="#fbf7ef" stroke="#1f3d5a" stroke-width="8"/>
+  <path d="M100 230 L170 150 H300 L370 230 Z" fill="#1f3d5a"/>
+  <rect x="268" y="120" width="26" height="50" fill="#8a7c6a"/>
+  <rect x="150" y="256" width="44" height="44" fill="#4f8fb0" stroke="#1f3d5a" stroke-width="6"/>
+  <rect x="276" y="256" width="44" height="44" fill="#4f8fb0" stroke="#1f3d5a" stroke-width="6"/>
+  <rect x="214" y="274" width="44" height="88" rx="20" fill="#2f6b8f" stroke="#1f3d5a" stroke-width="6"/>
+  <!-- Besen -->
+  <path d="M410 214 L382 352" stroke="#8a5a2b" stroke-width="12" stroke-linecap="round"/>
+  <path d="M362 346 L404 356 L410 410 L346 396 Z" fill="#e0a030" stroke="#1f3d5a" stroke-width="5"/>
 </svg>

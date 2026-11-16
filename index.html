@@ -1739,7 +1739,8 @@ function renderSettings(){const per=(S.config&&S.config.persons)||[];const G=S.g
   h+=card("👆 Bedienung",`${sw("tap","Reiter unten blättern weiter",G.tap,"Tipp auf den Reiter, in dem du bist = nächste Unterseite. Doppelt auf Start = Kalender, dreifach = Wichtig. Aus: jeder Tipp öffnet die erste Seite.")}${sw("swipe","Wischen wechselt den Bereich",G.swipe,"links und rechts: Start, Woche, Essen, Einkauf, dann die übrigen Bereiche")}${sw("ring","Alle Bereiche: lange auf Start drücken",G.ring,"alle Bereiche auf einem Bildschirm, lange auf eine Kachel heftet sie oben an. Die Kachel oben rechts geht immer.")}<div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy.</div>`,"bedienung");
   h+=card("🍲 Essen",`${sw("veg","Mehr Vegetarisches bei Vorschlägen",vegW()>0,"für beide")}<div class="freq" style="margin:6px 0">Mengen sind für 4 Personen. Die Recherche achtet aufs Kleinkind. Ändern: schreib es Claude.</div>${go('data-nav="essen|ft:rezepte"',"🏷️","Rezepte, Filter und eigene Tags")}`,"essen");
   h+=card("",go('data-go="recherchen"',"🤖","<b>Recherchen</b> · alle festen Aufträge, Neues und eure Wünsche"));
-  h+=card("",go('data-go="wichtig"',"🔔","<b>Wichtig</b> · alle Erinnerungen. Mitteilungen aufs Handy kommen später."));
+  h+=card("",go('data-go="wichtig"',"🔔","<b>Wichtig</b> · alle Erinnerungen"));
+  h+=card("📲 Benachrichtigungen",pushRow(),"push");
   h+=card("🌦️ Ort und Wetter",`<div class="freq">Für Himmel, Wetter und den Wochenvorschlag.</div>${wxPlaceRow()}`,"ort");
   {const o=otherP(),oi=o==="p1"?1:0,ct=(S.food&&S.food.contact)||{},nm=i=>esc((per[i]&&(per[i].name||per[i]))||(i?"Person 2":"Person 1"));
    h+=card("🫶 Wir",`<div class="freq">Ich bin (nur dieses Handy)</div><div class="unl">${["p0","p1"].map((p,i)=>`<button class="chipbtn neutral" data-me="${p}" aria-pressed="${S.me===p}">${nm(i)}</button>`).join("")}</div>
@@ -2645,7 +2646,7 @@ function renderResearch(){if(!S.auftrLoad){S.auftrLoad=1;try{fetch("auftraege.js
     return `<li><div class="ev"><b>${ar[1]} ${esc(w.what||"")}</b><div class="freq">${done?"✅ eingerichtet":"⏳ offen"}${r?" · "+r:""}${w.note?" · "+esc(w.note):""}</div><div class="btnrow" style="margin-top:4px">${done?"":`<button class="ghost" data-rwcopy="${esc(w.id)}">📋 Text für Claude kopieren</button>`}<button class="ghost" data-rwedit="${esc(w.id)}" aria-label="Ändern">✎</button><button class="ghost" data-rwdel="${esc(w.id)}" aria-label="Löschen">✕</button></div></div></li>`}).join("")}</ul>`:`<div class="freq">Noch keine Wünsche. Legt einen an, kopiert den Text und schickt ihn Claude. Sobald der Auftrag läuft, steht hier „eingerichtet“.</div>`;
   return h+`</section>`}
 // ---------- Suche (Lupe in der Kopfzeile, Entwurf 15.11.2026). Partner (Mittagessen, Briefe, Kontakte) bewusst nicht. ----------
-const SET_ITEMS=[["aussehen","🎨","Hell oder dunkel","dunkel hell nacht modus farbe"],["aussehen","🏷️","Beschriftungen im Bild","beschriftung namen bild"],["aussehen","🖼️","Motiv und Bildstil","motiv bild stadt münchen tram meer aquarell stil realistisch"],
+const SET_ITEMS=[["push","📲","Benachrichtigungen aufs Handy","benachrichtigung mitteilung push handy briefing glocke"],["aussehen","🎨","Hell oder dunkel","dunkel hell nacht modus farbe"],["aussehen","🏷️","Beschriftungen im Bild","beschriftung namen bild"],["aussehen","🖼️","Motiv und Bildstil","motiv bild stadt münchen tram meer aquarell stil realistisch"],
   ["bedienung","👆","Reiter unten blättern weiter","doppeltipp tippen mehrfach"],["bedienung","👆","Wischen","wischen swipe"],["bedienung","👆","Alle Bereiche (lange auf Start)","alle bereiche kacheln kreis ring sternzeichen menü fächer lang drücken"],["essen","🥗","Mehr Vegetarisches","vegetarisch veggie fleisch"],
   ["ort","🌦️","Wetter-Ort","ort wetter stadt"],["wir","🫶","Ich bin","person ich"],["wir","🫶","Namen","name namen"],["wir","🧒","Name des Kindes","kind name tochter sohn"],["wir","📮","Nummer für WhatsApp","handy telefon nummer whatsapp"],["wir","🔗","Einladungs-Link","einladen einladung link teilen schlüssel"],
   ["daten","💾","Sicherung und Wiederherstellen","sicherung backup export daten wiederherstellen"]];
@@ -2968,6 +2969,8 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="teraltadd"&&S.terDraft){const d=S.terDraft;d.alt=d.alt||[];if(!d.alt.length&&!d.ask)d.ask=choiceOther(S.me)||"p1";d.alt.push({date:"",time:d.time||""});render();const l=document.querySelectorAll("[data-teralt][data-k=date]");if(l.length)l[l.length-1].focus();return}
   if(b.dataset.teraltrm!=null&&S.terDraft){S.terDraft.alt.splice(+b.dataset.teraltrm,1);render();return}
   if(b.dataset.terask!=null&&S.terDraft){S.terDraft.ask=b.dataset.terask;render();return}
+  if(b.dataset.act==="pushtoggle"){try{await pushToggle()}catch(_){toast("Hat nicht geklappt.")}return}
+  if(b.dataset.act==="pushtest"){pushTest();return}
   if(b.dataset.chopen){const [k,id]=b.dataset.chopen.split("|");choiceOpen(k,id);return}
   if(b.dataset.chseen){const [k,id]=b.dataset.chseen.split("|");try{await choiceSet(k,id,{["told/seen/"+(S.me||"x")]:true})}catch(_){toast("Konnte nicht speichern.")}render();return}
   if(b.dataset.terwho){S.terDraft.who=b.dataset.terwho;render();return}
@@ -3483,6 +3486,30 @@ function choiceCard(){const {A,N,W}=choiceBell(),today=ymd(new Date());if(!A.len
   h+=N.map(c=>`<div class="prow"><span class="pchk" aria-hidden="true">✓</span><button class="pnm" data-chopen="${c.k}|${esc(c.x.id)}">${esc(c.x.name)}<br><i>${esc(pname(c.x.told.by))} hat ${esc(c.x.told.txt||"")} gewählt</i></button><button class="ghost small" data-chseen="${c.k}|${esc(c.x.id)}">Gesehen</button></div>`).join("");
   h+=W.map(c=>row(c,"⏳ Wartet auf "+esc(c.x.ask.who==="both"?pname(choiceOther(S.me)):pname(c.x.ask.who)),"later")).join("");
   return h+`</section>`}
+
+// ---------- Handy-Benachrichtigungen (Florian 16.11.2026, im Aufbau) ----------
+// Je Gerät an/aus: food/push/<Gerät> {who,on,sub,at,ua}. Den Versand macht ein Lauf im privaten Sicherungs-Repo (Web Push, VAPID; der geheime Schlüssel steht nur dort als Secret).
+// Inhalte (Vorschlag): Morgen-Briefing 7:00, akut nur Fälliges mit 🔔, Neues mit 🔔 vom anderen, „Bitte Termin wählen“/„hat gewählt“, Frist heute.
+const PUSH_PUB="BAQ4iz0ADZ-sTdXq3ug3t2zyA5myV8EDRluxepXnefRHxgHYu719jnlnjYCkrnDteKM7JxffVAe4k2_nxJnrLZw";
+const pushOk=()=>"serviceWorker" in navigator&&"PushManager" in window&&"Notification" in window;
+function pushDev(){let d="";try{d=localStorage.getItem("hq-dev")||""}catch(_){}if(!d){d=newId("d");try{localStorage.setItem("hq-dev",d)}catch(_){}}return d}
+function pushReg(){if(!("serviceWorker" in navigator))return Promise.resolve(null);return navigator.serviceWorker.register("sw.js").catch(()=>null)}
+const pushMine=()=>((S.food&&S.food.push)||{})[pushDev()]||null;
+function pushRow(){if(!pushOk())return `<div class="freq">Dieses Handy oder dieser Browser kann keine Benachrichtigungen. Auf Android geht es in Chrome mit installierter App.</div>`;
+  const m=pushMine(),on=!!(m&&m.on&&Notification.permission==="granted");
+  return `<div class="freq">Je Handy einzeln. Kommt: Morgen-Briefing um 7:00 und nur Akutes (Fälliges mit 🔔, Neues mit 🔔 vom anderen, „Bitte Termin wählen“). Der Versand wird gerade eingerichtet.</div>
+    <div class="btnrow"><button class="${on?"ghost":"primary"}" data-act="pushtoggle">${on?"🔕 Auf diesem Handy aus":"🔔 Auf diesem Handy einschalten"}</button>${on?`<button class="ghost" data-act="pushtest">Testmeldung</button>`:""}</div>${Notification.permission==="denied"?`<div class="notice">Benachrichtigungen sind für die App gesperrt. Ändern: lange auf das App-Symbol › App-Info › Benachrichtigungen.</div>`:""}`}
+const b64u=s=>{s=s.replace(/-/g,"+").replace(/_/g,"/");const r=atob(s+"===".slice((s.length+3)%4));return Uint8Array.from(r,c=>c.charCodeAt(0))};
+async function pushToggle(){const dev=pushDev(),m=pushMine();
+  if(m&&m.on){try{const r=await pushReg(),s=r&&await r.pushManager.getSubscription();if(s)await s.unsubscribe()}catch(_){}await S.store.setPath("food/push/"+dev+"/on",false);toast("Benachrichtigungen auf diesem Handy aus");render();return}
+  if(!S.me){toast("Bitte erst unter Wir wählen, wer du bist.");return}
+  const p=await Notification.requestPermission();if(p!=="granted"){toast("Nicht erlaubt. Ohne Erlaubnis keine Meldungen.");render();return}
+  const r=await pushReg();if(!r){toast("Konnte den Hintergrund-Teil nicht starten.");return}await navigator.serviceWorker.ready;
+  let s=await r.pushManager.getSubscription();if(!s)s=await r.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(PUSH_PUB)});
+  await S.store.setPath("food/push/"+dev,{who:S.me,on:true,sub:JSON.parse(JSON.stringify(s)),at:Date.now(),ua:(navigator.userAgent.match(/Android[^;)]*|iPhone|Windows|Mac OS X/)||[""])[0]});
+  toast("Benachrichtigungen auf diesem Handy an");render()}
+async function pushTest(){const r=await pushReg();if(!r)return;await navigator.serviceWorker.ready;r.showNotification("🏕️🧹 Test",{body:"So sieht eine Meldung aus. Das Morgen-Briefing kommt, sobald der Versand läuft.",icon:"icon-192.png"})}
+if("serviceWorker" in navigator)navigator.serviceWorker.addEventListener("message",e=>{const v=e.data&&e.data.nav;if(v)goNav(v)});
 // ---------- Motive und Bildstil (Nachtauftrag 15.11.2026) ----------
 // Motiv: "meer" (Haus am Meer, Standard) oder "stadt" (Stadthaus in München, Entwurf).
 // Bildstil fürs Haus am Meer: "" (wie bisher), "licht" (Licht und Schatten), "aquarell", "fein" (Texturen und Licht).
