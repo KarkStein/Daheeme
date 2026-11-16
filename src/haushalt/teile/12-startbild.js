@@ -178,13 +178,25 @@ function todoRows(tomorrowOff){const now=new Date(),today=ymd(now),tmw=ymd(addDa
   // Morgen nur darunter und kleiner (Florian 16.11.2026: „das wirklich von heute“)
   const pm=pt.filter(x=>x.due>today);if(pm.length&&!tomorrowOff)L+=`<div class="freq" style="margin-top:var(--sp2)">Morgen</div>`+pm.map(prow).join("");
   return L}
+// „🧹 Heute dran“ (Florian 16.11.2026): tägliche Aufgaben von heute plus noch offene Wochen-Aufgaben, für mich (ohne Ich bin: alle), ohne Hausdienst; dieselben wie der innere Ring
+function heuteDran(){const now=new Date(),mon=mondayOf(now),tk=ticksOf(wkKey(mon)),split=rotSplit(),di=(now.getDay()+6)%7,DN=["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
+  const done=(t,o,i)=>{const k=t.id+"__"+i;if(o!=="both")return !!tk[k];const leg=tk[k];return S.me?!!(tk[k+"_"+S.me]||(leg&&leg.by===S.me)):!!leg};
+  const row=(t,o,i,sub)=>{const d=done(t,o,i);return `<div class="trow${d?" tdone":""}"><button class="tchk" data-task="${esc(t.id)}" data-slot="${i}" ${o==="both"?'data-split="1"':""} aria-pressed="${d}" aria-label="${esc(t.name)} ${d?"erledigt":"abhaken"}"><span class="box">${d?"✓":""}</span></button><button class="ttx" data-act="gotasks"><span>${esc(t.name)}${sub?`<i>${sub}</i>`:""}</span><em>›</em></button></div>`};
+  const day=[],wk=[];
+  tasks().forEach(t=>{if(group(t.freq)!=="week")return;const o=t.owner==="rot"?ownerFor(t,mon,split):t.owner;if(o==="ho"||(S.me&&o!==S.me&&o!=="both"))return;
+    if(t.freq==="day"){day.push([t,o,di]);return}
+    const n=slotsOf(t);let c=0,first=-1;for(let i=0;i<n;i++){if(done(t,o,i))c++;else if(first<0)first=i}if(first>=0)wk.push([t,o,first,n>1?`diese Woche noch ${n-c} von ${n}`:"diese Woche"])});
+  const open=day.filter(x=>!done(...x)).length;let L=day.map(x=>row(...x)).join("");
+  if(wk.length)L+=`<div class="freq" style="margin-top:var(--sp2)">Diese Woche noch offen</div>`+wk.slice(0,4).map(x=>row(...x)).join("")+(wk.length>4?`<div class="trow"><span class="tic">…</span><button class="ttx" data-act="gotasks"><span>Noch ${wk.length-4} weitere</span><em>›</em></button></div>`:"");
+  const sub=day.length?(open?`noch ${open} von ${day.length}`:"alles erledigt ✅"):"";
+  return `<section class="card tagcard heutedran"><div class="section-head"><h2>🧹 Heute dran</h2><span class="freq">${DN[now.getDay()]}${sub?" · "+sub:""}</span></div>${L||`<div class="freq" style="padding:8px 0">Heute ist für ${S.me?"dich":"euch"} nichts dran.</div>`}${S.me?"":`<div class="freq">Tipp: Oben „Ich bin“ wählen, dann stehen hier nur deine Aufgaben.</div>`}</section>`}
 function renderTag(){loadWx();const now=new Date(),today=ymd(now),tmw=ymd(addDays(startOfDay(now),1)),D=backDay(now),mon=mondayOf(now),sun=ymd(addDays(mon,6));
   const DN=["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"],O=S.tagOpen||(S.tagOpen={}),night=skyPhase()==="night";
   const row=(ic,txt,sub,attr,chk)=>`<div class="trow">${chk?`<button class="tchk" ${chk}><span class="box"></span></button>`:`<span class="tic">${ic}</span>`}<button class="ttx" ${attr||""}><span>${chk?ic+" ":""}${txt}${sub?`<i>${sub}</i>`:""}</span><em>›</em></button></div>`;
   // Dashboard oben (Florian 15.11.2026: wieder da): Wetter, Zeitstrahl, Zähler, Blick auf 3 Tage
-  // Heute zu tun ganz oben, ohne Scrollen (Florian 16.11.2026); Termine, Kita-Mittag und Abendessen stehen im Zeitstrahl darunter, Monatsaufgaben bei der Woche
+  // Woche ist Hausarbeit (Florian 16.11.2026): Dashboard oben, darunter „🧹 Heute dran“ nur mit meinen Aufgaben von heute (abhakbar); Erinnerungen, Kita und Essen stehen auf Start und unter Wichtig
   const L=todoRows(),bsplit=rotSplit(),kb=kitaBring(),pr=prios().filter(x=>x.from!=="mittag"),pt=pr.filter(x=>x.due&&x.due<=tmw);
-  let h=`<section class="card tagcard"><div class="section-head"><h2>Heute zu tun</h2><span class="freq">${DN[now.getDay()]}, ${now.getDate()}.${now.getMonth()+1}.</span></div>${L||`<div class="freq" style="padding:8px 0">Heute ist nichts fällig. Neue Erinnerungen über die Glocke.</div>`}</section>`+renderBack(night,true);
+  let h=renderBack(night,true)+heuteDran();
   // Die Woche darunter kommt aus renderWeek (Umbau 16.11.2026: Tag und Woche und Diese Woche sind eine Seite)
   return h}
 function renderCamp(){S.flip=false;loadWx();

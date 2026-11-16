@@ -543,6 +543,7 @@ section[id^="sec-"]{scroll-margin-top:calc(var(--sp5)*3)}
 .geldmon{display:flex;align-items:center;justify-content:space-between;gap:var(--sp2);margin:var(--sp2) 0}.geldmon b{font-size:var(--fs-m)}
 .fixwhen{display:flex;flex-wrap:wrap;gap:var(--sp2)}.fixwhen .fld{flex:1 1 11em;min-width:0}.fixwhen .fday{flex:0 0 5em}.fixwhen input{width:100%;min-width:0}
 .geldgrps{margin-top:var(--sp2)}.geldbud{display:flex;flex-direction:column;gap:var(--sp1)}.geldbud .gbar{height:10px}
+.tagcard .tchk .box{font-size:var(--fs-s);line-height:16px;text-align:center;color:#fff}.tagcard .tdone .tchk .box{background:var(--navy-a);border-color:var(--navy-a)}.tagcard .tdone .ttx span{color:var(--muted);text-decoration:line-through}
 </style>
 
 <div class="app" id="app">
@@ -1169,13 +1170,25 @@ function todoRows(tomorrowOff){const now=new Date(),today=ymd(now),tmw=ymd(addDa
   // Morgen nur darunter und kleiner (Florian 16.11.2026: „das wirklich von heute“)
   const pm=pt.filter(x=>x.due>today);if(pm.length&&!tomorrowOff)L+=`<div class="freq" style="margin-top:var(--sp2)">Morgen</div>`+pm.map(prow).join("");
   return L}
+// „🧹 Heute dran“ (Florian 16.11.2026): tägliche Aufgaben von heute plus noch offene Wochen-Aufgaben, für mich (ohne Ich bin: alle), ohne Hausdienst; dieselben wie der innere Ring
+function heuteDran(){const now=new Date(),mon=mondayOf(now),tk=ticksOf(wkKey(mon)),split=rotSplit(),di=(now.getDay()+6)%7,DN=["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
+  const done=(t,o,i)=>{const k=t.id+"__"+i;if(o!=="both")return !!tk[k];const leg=tk[k];return S.me?!!(tk[k+"_"+S.me]||(leg&&leg.by===S.me)):!!leg};
+  const row=(t,o,i,sub)=>{const d=done(t,o,i);return `<div class="trow${d?" tdone":""}"><button class="tchk" data-task="${esc(t.id)}" data-slot="${i}" ${o==="both"?'data-split="1"':""} aria-pressed="${d}" aria-label="${esc(t.name)} ${d?"erledigt":"abhaken"}"><span class="box">${d?"✓":""}</span></button><button class="ttx" data-act="gotasks"><span>${esc(t.name)}${sub?`<i>${sub}</i>`:""}</span><em>›</em></button></div>`};
+  const day=[],wk=[];
+  tasks().forEach(t=>{if(group(t.freq)!=="week")return;const o=t.owner==="rot"?ownerFor(t,mon,split):t.owner;if(o==="ho"||(S.me&&o!==S.me&&o!=="both"))return;
+    if(t.freq==="day"){day.push([t,o,di]);return}
+    const n=slotsOf(t);let c=0,first=-1;for(let i=0;i<n;i++){if(done(t,o,i))c++;else if(first<0)first=i}if(first>=0)wk.push([t,o,first,n>1?`diese Woche noch ${n-c} von ${n}`:"diese Woche"])});
+  const open=day.filter(x=>!done(...x)).length;let L=day.map(x=>row(...x)).join("");
+  if(wk.length)L+=`<div class="freq" style="margin-top:var(--sp2)">Diese Woche noch offen</div>`+wk.slice(0,4).map(x=>row(...x)).join("")+(wk.length>4?`<div class="trow"><span class="tic">…</span><button class="ttx" data-act="gotasks"><span>Noch ${wk.length-4} weitere</span><em>›</em></button></div>`:"");
+  const sub=day.length?(open?`noch ${open} von ${day.length}`:"alles erledigt ✅"):"";
+  return `<section class="card tagcard heutedran"><div class="section-head"><h2>🧹 Heute dran</h2><span class="freq">${DN[now.getDay()]}${sub?" · "+sub:""}</span></div>${L||`<div class="freq" style="padding:8px 0">Heute ist für ${S.me?"dich":"euch"} nichts dran.</div>`}${S.me?"":`<div class="freq">Tipp: Oben „Ich bin“ wählen, dann stehen hier nur deine Aufgaben.</div>`}</section>`}
 function renderTag(){loadWx();const now=new Date(),today=ymd(now),tmw=ymd(addDays(startOfDay(now),1)),D=backDay(now),mon=mondayOf(now),sun=ymd(addDays(mon,6));
   const DN=["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"],O=S.tagOpen||(S.tagOpen={}),night=skyPhase()==="night";
   const row=(ic,txt,sub,attr,chk)=>`<div class="trow">${chk?`<button class="tchk" ${chk}><span class="box"></span></button>`:`<span class="tic">${ic}</span>`}<button class="ttx" ${attr||""}><span>${chk?ic+" ":""}${txt}${sub?`<i>${sub}</i>`:""}</span><em>›</em></button></div>`;
   // Dashboard oben (Florian 15.11.2026: wieder da): Wetter, Zeitstrahl, Zähler, Blick auf 3 Tage
-  // Heute zu tun ganz oben, ohne Scrollen (Florian 16.11.2026); Termine, Kita-Mittag und Abendessen stehen im Zeitstrahl darunter, Monatsaufgaben bei der Woche
+  // Woche ist Hausarbeit (Florian 16.11.2026): Dashboard oben, darunter „🧹 Heute dran“ nur mit meinen Aufgaben von heute (abhakbar); Erinnerungen, Kita und Essen stehen auf Start und unter Wichtig
   const L=todoRows(),bsplit=rotSplit(),kb=kitaBring(),pr=prios().filter(x=>x.from!=="mittag"),pt=pr.filter(x=>x.due&&x.due<=tmw);
-  let h=`<section class="card tagcard"><div class="section-head"><h2>Heute zu tun</h2><span class="freq">${DN[now.getDay()]}, ${now.getDate()}.${now.getMonth()+1}.</span></div>${L||`<div class="freq" style="padding:8px 0">Heute ist nichts fällig. Neue Erinnerungen über die Glocke.</div>`}</section>`+renderBack(night,true);
+  let h=renderBack(night,true)+heuteDran();
   // Die Woche darunter kommt aus renderWeek (Umbau 16.11.2026: Tag und Woche und Diese Woche sind eine Seite)
   return h}
 function renderCamp(){S.flip=false;loadWx();
@@ -2282,11 +2295,13 @@ function geldRow(x){const c=geldCat(x.cat),st=x.kind==="settle";
   const sub=st?`🤝 ${esc(pname(x.by))} an ${esc(pname(geldOther(x.by)))}`:`${x.fix?"🔁 ":""}${x.by==="joint"?"🏦 Konto":esc(pname(x.by))+" zahlte"} · ${esc(geldSplitTxt(x))}${x.ref?" · "+esc(geldRefName(x.ref)):""}`;
   return `<li class="geldrow"><button class="ev" data-geldedit="${esc(x.id)}"><span class="gic" aria-hidden="true">${st?"🤝":c[1]}</span><span class="gnm"><b>${esc(x.name)}</b><span class="freq">${sub}</span></span><span class="gamt">${eur(x.amt)}</span></button></li>`}
 function geldRefName(ref){const [k,v]=String(ref||"").split(":"),f=(L,e)=>{const x=L.find(y=>y.id===v);return x?(x.emo||e)+" "+x.name:""};try{return k==="urlaub"?f(urlaube(),"⛵"):k==="trip"?f(trips(),"🚲"):k==="hproj"?f(hprojs(),"🛋️"):""}catch(_){return ""}}
-function geldNew(o){S.geldDraft=Object.assign({id:null,amt:"",name:"",by:geldMe(),split:"half",pct:"50",date:ymd(new Date()),cat:"",ref:"",note:"",grp:geldGrp()},o||{});render();window.scrollTo(0,0)}
+function geldNew(o){S.geldDraft=Object.assign({id:null,amt:"",name:"",by:geldMe(),split:"half",pct:"50",date:ymd(new Date()),cat:"",ref:"",note:"",grp:S.tab==="ausgaben"?geldGrp():grpActive()},o||{});if(S.tab!=="ausgaben"){S.geldDraft.back=S.tab;S.geldDraft.backWp=S.weekPage;S.tab="ausgaben"}render();window.scrollTo(0,0)}
+// Läuft gerade ein Urlaub mit eigener Gruppe, ist sie vorgewählt (Florian 16.11.2026, Punkt 9)
+function grpActive(){const t=ymd(new Date());try{for(const u of urlaube()){if(!u.from||u.from>t||(u.to||u.from)<t)continue;const g=grpByRef("urlaub:"+u.id);if(g&&!g.closed)return g.id}}catch(_){}return ""}
 function geldDraftOf(x){const sp=x.split||"half",num=sp!=="half"&&sp!=="p0"&&sp!=="p1";return {id:x.id,amt:eurPlain(x.amt),name:x.name||"",by:x.by||geldMe(),split:num?"pct":sp,pct:num?String(+sp):"50",date:x.date||ymd(new Date()),cat:x.cat||"",ref:x.ref||"",note:x.note||"",kind:x.kind||"",grp:x.grp||""}}
 function renderGeldForm(){const d=S.geldDraft,pn=k=>esc(pname(k)),today=ymd(new Date()),yest=ymd(addDays(new Date(),-1)),st=d.kind==="settle",fx=d.mode==="fix";
   return `<section class="card geldform"><div class="section-head"><h2>${st?"Ausgleich ändern":fx?(d.id?"Feste Zahlung ändern":"Neue feste Zahlung"):d.id?"Ausgabe ändern":"Neue Ausgabe"}</h2></div><form id="geldform" novalidate>
-    <div class="geldtop"><label class="fld gbetr"><span>Betrag in €</span><input data-gf="amt" inputmode="decimal" value="${esc(d.amt)}" placeholder="0,00" autocomplete="off" maxlength="12"></label>${st?"":`<label class="fld" style="flex:1"><span>Was</span><input data-gf="name" value="${esc(d.name)}" placeholder="${fx?"z. B. Kita-Beitrag":"z. B. Rewe"}" maxlength="80" autocomplete="off"></label>`}</div>
+    <div class="geldtop"><label class="fld gbetr"><span>Betrag in €</span><input data-gf="amt" inputmode="decimal" value="${esc(d.amt)}" placeholder="0,00" autocomplete="off" maxlength="12"></label>${st?"":`<label class="fld" style="flex:1"><span>Was</span><input data-gf="name" value="${esc(d.name)}" placeholder="${fx?"z. B. Kita-Beitrag":"z. B. Rewe"}" maxlength="80" autocomplete="off"></label>`}</div>${st||fx?"":`<div class="unl shopsugg" id="geldsugg">${geldSuggHtml(d.name)}</div>`}${d.ref&&!/^(urlaub|shop)/.test(d.ref)?`<div class="unl">${geldRefChip(d.ref)}</div>`:""}
     <div class="fld"><span>${st?"Wer zahlt an den anderen":fx?"Wer zahlt":"Wer hat gezahlt"}</span><div class="unl">${["p0","p1"].map(p=>`<button type="button" class="chipbtn neutral" data-gby="${p}" aria-pressed="${d.by===p}">${pDot(p)}${pn(p)}</button>`).join("")}${st?"":`<button type="button" class="chipbtn neutral" data-gby="joint" aria-pressed="${d.by==="joint"}">🏦 Gemeinsames Konto</button>`}</div>${d.by==="joint"?`<div class="freq">Vom gemeinsamen Konto: zählt bei den Ausgaben, ändert aber nichts am Stand zwischen euch.</div>`:""}</div>
     ${st?"":`<div class="fld"><span>Für wen</span><div class="unl">${[["half","Für beide (halb/halb)"],["p0","Nur für "+pn("p0")],["p1","Nur für "+pn("p1")],["pct","Anders aufteilen"]].map(o=>`<button type="button" class="chipbtn neutral" data-gsplit="${o[0]}" aria-pressed="${d.split===o[0]}">${o[1]}</button>`).join("")}</div>${d.split==="pct"?`<label class="fld"><span>Anteil ${pn("p0")} in Prozent (Rest ${pn("p1")})</span><input data-gf="pct" type="number" inputmode="numeric" min="0" max="100" value="${esc(d.pct)}"></label>`:""}</div>`}
     ${fx?`<div class="fld"><span>Wie oft</span><div class="unl">${FIX_RH.map(o=>`<button type="button" class="chipbtn neutral" data-grh="${o[0]}" aria-pressed="${d.rh===o[0]}">${o[1]}</button>`).join("")}</div></div>
@@ -2312,9 +2327,9 @@ function renderGeld(){let h=`<div><div class="eyebrow">Einkauf</div><h1>Ausgaben
   h+=splitCard();return h}
 function geldList(L,g){const mon=S.geldMon||ymd(new Date()).slice(0,7),f=S.geldF||{},me=geldMe();
   let M=g?L:L.filter(x=>(x.date||"").slice(0,7)===mon);const cats=[...new Set(geldExp(M).map(x=>geldCat(x.cat)[0]))];
-  if(f.by)M=M.filter(x=>x.by===f.by);if(f.cat)M=M.filter(x=>x.kind!=="settle"&&geldCat(x.cat)[0]===f.cat);
+  if(f.ref)M=L.filter(x=>x.ref===f.ref);if(f.by)M=M.filter(x=>x.by===f.by);if(f.cat)M=M.filter(x=>x.kind!=="settle"&&geldCat(x.cat)[0]===f.cat);
   const sum=geldExp(M).reduce((s,x)=>s+x.amt,0);
-  let h=g?"":`<div class="geldmon"><button class="iconbtn" data-gmon="-1" aria-label="Monat zurück">‹</button><b>${esc(geldMonTxt(mon))}</b><button class="iconbtn" data-gmon="1" aria-label="Monat vor">›</button></div>`;h+=`
+  let h=g||f.ref?(f.ref?`<div class="unl"><button class="chipbtn neutral" data-gfref="1" aria-pressed="true">${esc(geldRefName(f.ref)||"Verknüpft")} ✕</button></div>`:""):`<div class="geldmon"><button class="iconbtn" data-gmon="-1" aria-label="Monat zurück">‹</button><b>${esc(geldMonTxt(mon))}</b><button class="iconbtn" data-gmon="1" aria-label="Monat vor">›</button></div>`;h+=`
     <div class="unl scrollrow">${[["","Alle"],[me,"Ich"],[geldOther(me),pname(geldOther(me))]].map(o=>`<button class="chipbtn neutral" data-gfby="${o[0]}" aria-pressed="${(f.by||"")===o[0]}">${o[0]?"Gezahlt: ":""}${esc(o[1])}</button>`).join("")}</div>
     ${cats.length>1||f.cat?`<div class="unl scrollrow">${[["","Alle Arten"]].concat(cats.map(k=>{const c=geldCat(k);return [k,c[1]+" "+c[2]]})).map(o=>`<button class="chipbtn neutral" data-gfcat="${esc(o[0])}" aria-pressed="${(f.cat||"")===o[0]}">${esc(o[1])}${o[0]&&f.cat===o[0]?" ✕":""}</button>`).join("")}</div>`:""}
     <div class="btnrow" style="margin-top:0"><button class="primary" data-gact="new">＋ Ausgabe</button><span class="freq" style="margin-left:auto">Summe: <b>${eur(sum)}</b></span></div>`;
@@ -2332,7 +2347,7 @@ async function geldSave(){const d=S.geldDraft;if(!d)return;const amt=parseEur(d.
   const split=st?null:d.split==="pct"?(isNaN(pct)||pct===50?"half":pct===100?"p0":pct===0?"p1":String(pct)):d.split||"half";
   const id=d.id||newId("g"),old=(S.food&&S.food.money&&S.food.money[id])||{};
   const v={name,amt,date:d.date,by:d.by==="p1"||d.by==="joint"&&!st?d.by:"p0",split,cat,ref:st?null:d.ref||null,note:(d.note||"").trim().slice(0,200)||null,kind:st?"settle":null,grp:d.grp||null,fix:old.fix||null,at:old.at||Date.now(),who:old.who||S.me||""};
-  try{await S.store.setPath("food/money/"+id,v);S.geldDraft=null;toast(st?"Ausgleich eingetragen":"Gespeichert: "+eur(amt));render()}catch(_){toast("Konnte nicht speichern.")}}
+  try{await S.store.setPath("food/money/"+id,v);if(d.ref==="shop"&&!d.id)await S.store.setPath("food/pref/shoppaid",Date.now());S.geldDraft=null;if(d.back){S.tab=d.back;if(d.backWp!=null)S.weekPage=d.backWp}toast(st?"Ausgleich eingetragen":"Gespeichert: "+eur(amt));render()}catch(_){toast("Konnte nicht speichern.")}}
 async function geldQuick(txt){const m=/(\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|\d+(?:[.,]\d{1,2})?)\s*(?:€|eur(?:o)?\b)?/i.exec(txt||"");const amt=m&&parseEur(m[1]);if(!amt){toast("Bitte mit Betrag, z. B. „23,50 Rewe“.");return false}
   const name=(txt.slice(0,m.index)+" "+txt.slice(m.index+m[0].length)).replace(/\s+/g," ").replace(/^[\s,–-]+|[\s,–-]+$/g,"").slice(0,80),cat=geldGuess(name),id=newId("g");
   const v={name:name||geldCat(cat)[2],amt,date:ymd(new Date()),by:geldMe(),split:"half",cat,grp:geldGrp()||null,at:Date.now(),who:S.me||""};
@@ -2345,15 +2360,19 @@ app.addEventListener("click",async e=>{const b=e.target.closest("button");if(!b)
   if(D.gact==="grpclosed"){S.geldShowClosed=!S.geldShowClosed;render();return}
   if(D.gact==="grpclose"||D.gact==="grpopen"){const g=geldGrp();if(g){await S.store.setPath("food/mgroup/"+g+"/closed",D.gact==="grpclose"||null);if(D.gact==="grpclose"){S.geldGrp="";toast("Abgeschlossen. Unter „📦 Abgeschlossen“ zu finden.")}render()}return}
   if(D.gact==="settle"){geldSettle();return}
-  if(D.gact==="cancel"){S.geldDraft=null;render();return}
+  if(D.gact==="cancel"){const bk=d&&d.back,wp=d&&d.backWp;S.geldDraft=null;if(bk){S.tab=bk;if(wp!=null)S.weekPage=wp}render();return}
+  if(D.geldsugg!=null&&d){const m=geldMemo()[D.geldsugg];if(m){d.name=m.name;d.cat=m.cat||"";const sp=m.split||"half",num=sp!=="half"&&sp!=="p0"&&sp!=="p1";d.split=num?"pct":sp;d.pct=num?String(+sp):"50";render();const a=document.querySelector("[data-gf=amt]");if(a&&!d.amt)a.focus()}return}
+  if(D.gref){geldGoRef(D.gref);return}
+  if(D.geldoffer){try{geldNew(JSON.parse(D.geldoffer))}catch(_){}return}
   if(D.gact==="del"&&d&&d.id){if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Wirklich löschen?";return}
     try{if(d.mode==="fix"){await S.store.setPath("food/fixpay/"+d.id,null);S.geldDraft=null;toast("Gelöscht. Bisher Eingetragenes bleibt.");render();return}
-      const x=(S.food.money||{})[d.id];if(x&&x.fix&&x.date)await S.store.setPath("food/fixpay/"+x.fix+"/skip/"+x.date.slice(0,7),true);await S.store.setPath("food/money/"+d.id,null);S.geldDraft=null;toast("Gelöscht");render()}catch(_){toast("Konnte nicht löschen.")}return}
+      await geldDel(d.id);S.geldDraft=null;render()}catch(_){toast("Konnte nicht löschen.")}return}
   if(D.gact==="fixnew"){geldNew({mode:"fix",rh:"m",day:"1",start:ymd(new Date()).slice(0,7),end:""});return}
   if(D.fixedit){const f=fixes().find(y=>y.id===D.fixedit);if(f){S.geldDraft=Object.assign(geldDraftOf(f),{mode:"fix",rh:f.rh||"m",day:String(f.day||1),start:f.start||"",end:f.end||""});render();window.scrollTo(0,0)}return}
-  if(D.geldedit){const x=monies().find(y=>y.id===D.geldedit);if(x){S.geldDraft=geldDraftOf(x);render();window.scrollTo(0,0)}return}
+  if(D.geldedit){if(Date.now()-(S.geldLP||0)<800)return;const x=monies().find(y=>y.id===D.geldedit);if(x){S.geldDraft=geldDraftOf(x);render();window.scrollTo(0,0)}return}
   if(D.gtab){S.geldTab=D.gtab;render();window.scrollTo(0,0);return}
   if(D.gmon){S.geldMon=geldMonAdd(S.geldMon||ymd(new Date()).slice(0,7),+D.gmon);render();return}
+  if(D.gfref){S.geldF={};render();return}
   if(D.gfby!=null){S.geldF=Object.assign({},S.geldF,{by:D.gfby});render();return}
   if(D.gfcat!=null){const f=S.geldF||{};S.geldF=Object.assign({},f,{cat:f.cat===D.gfcat?"":D.gfcat});render();return}
   if(D.gcatgo){S.geldTab="liste";S.geldMon=ymd(new Date()).slice(0,7);S.geldF={cat:D.gcatgo};render();window.scrollTo(0,0);return}
@@ -2364,7 +2383,7 @@ app.addEventListener("click",async e=>{const b=e.target.closest("button");if(!b)
   if(D.gsplit){d.split=D.gsplit;render();return}
   if(D.gdate){d.date=D.gdate;render();return}
   if(D.gcat!=null){d.cat=d.cat===D.gcat?"":D.gcat;render();return}});
-app.addEventListener("input",e=>{const k=e.target.dataset&&e.target.dataset.gf;if(k&&S.geldDraft)S.geldDraft[k]=e.target.value});
+app.addEventListener("input",e=>{const k=e.target.dataset&&e.target.dataset.gf;if(k&&S.geldDraft){S.geldDraft[k]=e.target.value;if(k==="name"){const g=document.getElementById("geldsugg");if(g)g.innerHTML=geldSuggHtml(e.target.value)}}});
 app.addEventListener("submit",async e=>{if(e.target.id==="geldform"){e.preventDefault();e.stopImmediatePropagation();await geldSave();return}
   if(e.target.id==="geldquick"){e.preventDefault();e.stopImmediatePropagation();const i=document.getElementById("geldq");if(await geldQuick(i&&i.value)){const j=document.getElementById("geldq");if(j)j.value=""}}});
 // ---------- Gruppen wie bei Splitwise (Florian 16.11.2026): Haushalt (Id "", Standard für Einkauf und Alltag) plus eigene Gruppen, z. B. je Urlaub ----------
@@ -2429,6 +2448,64 @@ window.Geld={parseEur,geldShare,geldBal,eur,fixDue,fixMonthly,dropRef:r=>splitDr
 function grpLinkHtml(ref,name,emo,budget){const g=grpByRef(ref);if(!g)return `<button class="chipbtn" data-gact="grpnew" data-ref="${esc(ref)}" data-name="${esc(name||"")}" data-emo="${esc(emo||"")}" data-budget="${budget?esc(String(budget)):""}">＋ Ausgaben-Gruppe anlegen</button>`;
   const L=monies().filter(x=>x.grp===g.id),sum=geldExp(L).reduce((s,x)=>s+x.amt,0),b=geldBal(L);
   return `<button class="chipbtn neutral" data-go="ausgaben" data-geldgrp="${esc(g.id)}">💶 ${esc(grpName(g.id))}: ${eur(sum)}${g.budget?" von "+eur(g.budget):""}${g.closed?" · 📦":b?" · offen":""} ›</button>`}
+// ---------- Verknüpfungen und Bedienung (Florian 16.11.2026, Punkte 1–12) ----------
+// Grundregel: nur feste Zahlungen buchen selbst. Sonst bietet die App an (vorausgefüllt, vor dem Speichern änderbar); danach bleibt alles änderbar.
+// Löscht man die Quelle, bleibt die Ausgabe stehen. ref = urlaub:|trip:|hproj:|ter:|buy:|idea:|fund:|adoor:<cal>_<tag>|advent:<id>|shop
+// Gedächtnis für Vorschläge: je Name (klein) die letzte Ausgabe mit Art, Aufteilung und Betrag, nach Häufigkeit
+function geldMemo(){const M={};geldExp(monies()).filter(x=>!x.fix).forEach(x=>{const k=String(x.name||"").trim().toLowerCase();if(!k)return;const m=M[k]||(M[k]={name:x.name,n:0,last:null});m.n++;if(!m.last||((x.date||"")+(x.at||0))>((m.last.date||"")+(m.last.at||0)))m.last=x});
+  const out={};Object.keys(M).forEach(k=>{const m=M[k],l=m.last;out[k]={name:l.name,n:m.n,cat:l.cat,split:l.split,amt:l.amt}});return out}
+function geldSuggHtml(q){q=String(q||"").trim().toLowerCase();const M=geldMemo(),K=Object.keys(M).filter(k=>!q||k!==q&&(k.startsWith(q)||k.includes(" "+q)||q.length>2&&k.includes(q)));
+  K.sort((a,b)=>(b.startsWith(q)?1:0)-(a.startsWith(q)?1:0)||M[b].n-M[a].n);return K.slice(0,5).map(k=>{const m=M[k],c=geldCat(m.cat);return `<button type="button" class="chipbtn neutral" data-geldsugg="${esc(k)}">${c[1]} ${esc(m.name)} <span class="qty">zuletzt ${eur(m.amt)}</span></button>`}).join("")}
+// Verknüpfte Ausgaben einer Quelle (auch über eine Gruppe mit derselben ref)
+const geldFor=refs=>{refs=[].concat(refs);const G=mgroups().filter(g=>refs.includes(g.ref)).map(g=>g.id);return geldExp(monies()).filter(x=>refs.includes(x.ref)||G.includes(x.grp))};
+const geldSum=L=>L.reduce((a,x)=>a+x.amt,0);
+function geldRefInfo(ref){const [k,v]=String(ref||"").split(/:(.*)/);try{
+  if(k==="ter"){const x=termine().find(y=>y.id===v);return x&&{ic:"📅",name:x.name}}
+  if(k==="trip"){const x=trips().find(y=>y.id===v);return x&&{ic:emoOf(x,"🚲"),name:x.name}}
+  if(k==="hproj"){const x=hprojs().find(y=>y.id===v);return x&&{ic:x.emo||"🛋️",name:x.name}}
+  if(k==="urlaub"){const x=urlaube().find(y=>y.id===v);return x&&{ic:x.emo||"⛵",name:x.name}}
+  if(k==="buy"){const x=buys().find(y=>y.id===v);return x&&{ic:"🛍️",name:x.name}}
+  if(k==="idea"){const x=projs().find(y=>y.id===v);return x&&{ic:"🎁",name:x.name}}
+  if(k==="fund"){const x=listOf(S.food&&S.food.fund).find(y=>y.id===v);return x&&{ic:"🔎",name:x.name}}
+  if(k==="adoor"){const x=(S.food&&S.food.adoor||{})[v];return x&&{ic:"🎄",name:"Türchen "+x.day+(x.name?": "+x.name:"")}}
+  if(k==="advent"){const x=listOf(S.food&&S.food.advent).find(y=>y.id===v);return x&&{ic:"🎄",name:x.name}}}catch(_){}return null}
+function geldRefName(ref){const i=geldRefInfo(ref);return i?i.ic+" "+i.name:""}
+const geldRefChip=ref=>{const i=geldRefInfo(ref);return i?`<button type="button" class="chipbtn neutral" data-gref="${esc(ref)}">${esc(i.ic)} ${esc(i.name)} ›</button>`:""};
+// Sprung zur Quelle
+function geldGoRef(ref){const [k,v]=String(ref).split(/:(.*)/);S.geldDraft=null;
+  if(k==="ter"){const x=termine().find(y=>y.id===v);S.tab="woche";S.weekPage=3;if(x)S.terDraft=terDraftOf(x);render();window.scrollTo(0,0);return}
+  if(k==="trip"){const x=trips().find(y=>y.id===v);S.tab="ausflug";S.tripTab="ideen";if(x)S.tripDraft=Object.assign({},x);render();window.scrollTo(0,0);return}
+  if(k==="hproj"){S.tab="amhaus";S.hprojOpen=v;render();window.scrollTo(0,0);return}
+  if(k==="fund"){const x=listOf(S.food&&S.food.fund).find(y=>y.id===v);if(x&&x.proj){S.tab="amhaus";S.hprojOpen=x.proj;render();window.scrollTo(0,0);return}goNav("ausflug|tt:sammlung");return}
+  if(k==="urlaub"){S.tab="ausflug";S.tripTab="urlaub";S.reiseOpen=v;render();window.scrollTo(0,0);return}
+  if(k==="buy"){goNav("listen|");return}
+  if(k==="idea"){goNav("projekte|pf:geschenk");return}
+  if(k==="adoor"||k==="advent"){goNav("projekte|pf:advent");return}}
+// Kleiner Baustein an der Quelle: Summe verknüpfter Ausgaben plus „💶 Ausgabe“
+function geldSrcRow(ref,o){const L=geldFor(ref),sum=geldSum(L);o=Object.assign({ref},o||{});
+  return `<div class="unl geldsrc"><button type="button" class="chipbtn" data-geldoffer="${esc(JSON.stringify(o))}">💶 Ausgabe eintragen</button>${L.length?`<button type="button" class="chipbtn neutral" data-go="ausgaben" data-geldlist="${esc(ref)}">💶 ${eur(sum)} eingetragen ›</button>`:""}</div>`}
+// Gekauft-Haken: Angebot per Hinweis (Florian Punkt 2)
+function geldBought(o){if(geldFor(o.ref).length)return;toastAct("Gekauft. Preis eintragen?","💶 Eintragen",()=>geldNew(o))}
+const priceCent=p=>{const c=parseEur(String(p||"").replace(/[^0-9,.]/g,""));return c?eurPlain(c):""};
+// Einkaufsliste (Punkt 1): kein „letzter Haken“; Knopf, sobald seit der letzten Eintragung etwas abgehakt wurde
+function shopPayBtn(done){const since=+((S.food&&S.food.pref&&S.food.pref.shoppaid)||0),L=done.filter(i=>(i.doneAt||0)>since);if(!L.length)return "";
+  const drog=L.every(i=>{try{return itemCat(i)==="drogerie"}catch(_){return false}}),note=L.map(i=>i.name).join(", ").slice(0,190);
+  return `<button class="ghost" data-geldoffer="${esc(JSON.stringify({ref:"shop",name:drog?"Drogerie":"Einkauf",cat:drog?"drog":"essen",note}))}">💶 Einkauf eintragen</button>`}
+// Löschen mit Rückgängig (Punkt 11)
+async function geldDel(id){const x=(S.food.money||{})[id];if(!x)return;const old=JSON.parse(JSON.stringify(x));const mon=x.fix&&x.date?x.date.slice(0,7):"";
+  if(mon)await S.store.setPath("food/fixpay/"+x.fix+"/skip/"+mon,true);await S.store.setPath("food/money/"+id,null);
+  toastAct("Gelöscht: "+x.name,"↩ Rückgängig",async()=>{await S.store.setPath("food/money/"+id,old);if(mon)await S.store.setPath("food/fixpay/"+x.fix+"/skip/"+mon,null);toast("Wieder da");render()})}
+// Lang drücken auf eine Ausgabe (Punkt 10): andere Gruppe, nochmal eintragen (heute), löschen
+function geldMenu(id){const x=monies().find(y=>y.id===id);if(!x)return;const G=[{id:""}].concat(mgroups().filter(g=>!g.closed||g.id===x.grp));
+  editBox(x.name+" · "+eur(x.amt),[{k:"grp",label:"Gruppe",type:"chips",opts:G.map(g=>[g.id,grpName(g.id)]),val:x.grp||""}],
+    async V=>{if((V.grp||"")!==(x.grp||"")){await S.store.setPath("food/money/"+id+"/grp",V.grp||null);toast("Verschoben nach "+grpName(V.grp||""))}},
+    [["🔁 Nochmal eintragen (heute)",async()=>{const v=JSON.parse(JSON.stringify(x));delete v.id;delete v.fix;v.date=ymd(new Date());v.at=Date.now();v.who=S.me||"";const nid=newId("g");await S.store.setPath("food/money/"+nid,v);toastAct("Eingetragen: "+eur(v.amt)+" "+v.name,"✎ Anpassen",()=>{const y=monies().find(z=>z.id===nid);if(y){S.geldDraft=geldDraftOf(y);S.tab="ausgaben";render()}})}],
+     ["🗑 Löschen",async()=>{await geldDel(id);render()}]])}
+(()=>{let t=null,el=null;const clr=()=>{clearTimeout(t);t=null};
+  app.addEventListener("pointerdown",e=>{const b=e.target.closest&&e.target.closest("[data-geldedit]");if(!b)return;el=b;clr();t=setTimeout(()=>{S.geldLP=Date.now();t=null;geldMenu(b.dataset.geldedit)},500)});
+  ["pointerup","pointercancel","pointerleave","scroll"].forEach(n=>app.addEventListener(n,clr,true));
+  app.addEventListener("contextmenu",e=>{if(e.target.closest&&e.target.closest("[data-geldedit]"))e.preventDefault()})})();
+app.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-geldlist]");if(!b)return;const r=b.dataset.geldlist,g=mgroups().find(x=>x.ref===r);S.geldGrp=g?g.id:"";S.geldTab="liste";S.geldF={ref:g?"":r}},true);
 // ---------- Ideen und Projekte (Leuchtturm) ----------
 const PROJ_CATS=[["geschenk","🎁","Geschenke"],["sonst","💡","Sonstiges"],["wohnen","🛋️","Einrichtung"],["ordnung","📦","Aufräumen"],["haus","🔨","Reparieren"],["garten","🌱","Garten"]];
 const projCats=()=>catsOf("idea",PROJ_CATS);

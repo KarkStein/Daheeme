@@ -524,3 +524,4 @@ section[id^="sec-"]{scroll-margin-top:calc(var(--sp5)*3)}
 .geldmon{display:flex;align-items:center;justify-content:space-between;gap:var(--sp2);margin:var(--sp2) 0}.geldmon b{font-size:var(--fs-m)}
 .fixwhen{display:flex;flex-wrap:wrap;gap:var(--sp2)}.fixwhen .fld{flex:1 1 11em;min-width:0}.fixwhen .fday{flex:0 0 5em}.fixwhen input{width:100%;min-width:0}
 .geldgrps{margin-top:var(--sp2)}.geldbud{display:flex;flex-direction:column;gap:var(--sp1)}.geldbud .gbar{height:10px}
+.tagcard .tchk .box{font-size:var(--fs-s);line-height:16px;text-align:center;color:#fff}.tagcard .tdone .tchk .box{background:var(--navy-a);border-color:var(--navy-a)}.tagcard .tdone .ttx span{color:var(--muted);text-decoration:line-through}
