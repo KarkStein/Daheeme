@@ -18,7 +18,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="suggest"){S.suggSkip={};S.sugg=suggestWeek(planWeek());if(!Object.keys(S.sugg).length)toast("Keine freien Tage oder keine passenden Rezepte");render();return}
   if(b.dataset.act==="sugclose"){S.sugg=null;S.suggSkip={};render();return}
   if(b.dataset.sugre){const k=b.dataset.sugre,x=S.sugg&&S.sugg[k];if(!x)return;S.suggSkip=S.suggSkip||{};(S.suggSkip[k]=S.suggSkip[k]||[]).push(x.name);S.sugg=suggestWeek(planWeek(),S.sugg);if(!S.sugg[k])toast("Kein weiteres passendes Rezept");render();return}
-  if(b.dataset.sugok||b.dataset.act==="sugall"){const ks=b.dataset.sugok?[b.dataset.sugok]:Object.keys(S.sugg||{});const wk=wkKey(planWeek());let n=0;for(const k of ks){const x=S.sugg[k];if(!x)continue;try{await S.store.setPath("food/plan/"+wk+"/"+k,x.rec?{text:x.name.slice(0,80),rec:x.rec,at:Date.now(),by:S.me||""}:Object.assign({text:x.name.slice(0,80),at:Date.now(),by:S.me||"",src:"vorschlag"},x.link?{link:x.link}:{},x.ing&&x.ing.length?{ing:x.ing.join("\n")}:{}));delete S.sugg[k];n++}catch(_){toast("Konnte nicht speichern.");break}}if(n)toast(n===1?"Übernommen":n+" Tage übernommen");if(!Object.keys(S.sugg||{}).length)S.sugg=null;render();return}
+  if(b.dataset.sugok||b.dataset.act==="sugall"){sugAsk(b.dataset.sugok?[b.dataset.sugok]:Object.keys(S.sugg||{}));return}
   if(b.dataset.act==="wxedit"){S.wxEdit=!S.wxEdit;render();setTimeout(()=>{const el=document.getElementById("wxinput");if(el)el.focus()},50);return}
   if(b.dataset.prionew!=null){prioNew(b.dataset.prionew||"frei");return}
   if(b.dataset.buyedit){buyEdit(b.dataset.buyedit);return}

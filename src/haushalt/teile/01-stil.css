@@ -502,3 +502,6 @@ section[id^="sec-"]{scroll-margin-top:calc(var(--sp5)*3)}
 .shopsugg:empty{display:none}.shopsugg{margin-top:calc(-1 * var(--sp1))}.unl .suggpair{display:inline-flex;gap:0;padding:0;background:none;border:none}.suggpair .chipbtn:first-child{border-radius:999px 0 0 999px}.suggpair .suggurg{border-radius:0 999px 999px 0;border-left:none;padding-left:var(--sp2);padding-right:var(--sp2)}
 .shop .nm .qty,.chipbtn .qty{color:var(--muted);font-weight:500;font-size:var(--fs-s);margin-left:var(--sp1)}
 .unl .chipbtn span.qty{background:none;padding:0;border:none;border-radius:0;color:var(--muted);font-weight:500}
+.meals li:not(.edit){align-items:flex-start;gap:var(--sp3)}.meals .mday{flex:none;width:4.6em;font-weight:700;background:none;border:none;text-align:left;padding:var(--sp3) 0;font-size:var(--fs-m);color:inherit}.meals li.today .mday{color:var(--accent-ink,var(--done))}
+.meals .mcol{flex:1;min-width:0;display:flex;flex-direction:column;padding:var(--sp1) 0}.meals .kitaline{padding:var(--sp2) 0 var(--sp1)}.meals .dinrow{display:flex;align-items:center;gap:var(--sp1)}.meals .dinrow .mealrow{flex:1;min-width:0;padding:var(--sp2) 0}.meals .kitaline+.dinrow{border-top:1px dashed var(--line)}
+.meals .dinlbl{font-size:var(--fs-s)}

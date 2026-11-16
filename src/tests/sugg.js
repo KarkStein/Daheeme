@@ -27,7 +27,7 @@ srv.listen(8765,async()=>{
   const checks={n:rows.length,moFast:mo&&mo.min<=30,diNoPasta:di&&di.haupt!=='Nudeln',miNoSoup:mi&&mi.art!=='suppe',doNoChicken:dO&&dO.haupt!=='Geflügel',frNoKart:fr&&fr.haupt!=='Kartoffeln',wxShown:/°/.test(rows.join())};
   // ein Tag neu würfeln
   const before=byDay('Sa');await A.click('[data-sugre=d5]');await A.waitForTimeout(100);const rows2=await A.$$eval('.prow .pnm',l=>l.map(x=>x.innerText));const after=rows2.find(r=>r.startsWith('Sa'))||'';
-  await A.click('[data-act=sugall]');await A.waitForTimeout(800);
+  await A.click('[data-act=sugall]');await A.click('#mbox [data-sugto=plan]');await A.waitForTimeout(800);
   await B.click('[data-tab=essen]');await B.click('[data-food=plan]');await B.click('[data-fnav="1"]');await B.waitForTimeout(400);
   const bplan=await B.$$eval('ul.meals .dish',l=>l.map(x=>x.innerText.split('\n')[0]));const stressB=await B.$eval('[data-stress=d0]',e=>e.getAttribute('aria-pressed'));
   await B.click('[data-act=mealshop]');await B.click('[data-pickmode=alle]');await B.waitForTimeout(800);await B.click('[data-food=plan]').catch(()=>{});
