@@ -8,7 +8,7 @@ const placeAddr=n=>{const p=placeFind(n);return p&&p.addr?p.addr:n};
 function placeEdit(id,pre,done){const x=id?places().find(p=>p.id===id):null;
   editBox(x?"Ort ändern":"Ort speichern",[{k:"name",label:"Name (z. B. Kita, Kinderarzt)",type:"text",val:x?x.name:pre||""},{k:"addr",label:"Adresse (bleibt nur in eurer Datenbank)",type:"text",val:x?x.addr||"":""}],
     async V=>{const name=String(V.name||"").trim().slice(0,40),addr=String(V.addr||"").trim().slice(0,160);if(!name){toast("Bitte einen Namen eintragen.");return}
-      await S.store.setPath("food/place/"+(x?x.id:newId("o")),{name,addr:addr||null,at:(x&&x.at)||Date.now(),by:S.me||""});if(done)await done(name);else if(S.terDraft&&(!x||S.terDraft.place===x.name))S.terDraft.place=name;toast("Ort gespeichert");render()},
+      await S.store.setPath("food/place/"+(x?x.id:newId("o")),{name,addr:addr||null,at:(x&&x.at)||Date.now(),by:S.me||""});{const D=S.tripDraft||S.terDraft;if(done)await done(name);else if(D&&(!x||D.place===x.name))D.place=name}toast("Ort gespeichert");render()},
     x?async()=>{await S.store.setPath("food/place/"+x.id,null);toast("Ort gelöscht");render()}:null)}
 // Chips unter einem Ort-Feld: gespeicherte Orte, „＋ als Ort speichern“
 function placeChips(cur){const L=places(),f=placeFind(cur);
