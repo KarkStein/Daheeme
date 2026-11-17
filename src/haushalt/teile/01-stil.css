@@ -267,6 +267,7 @@ details.reisemap summary{cursor:pointer;font-weight:600}
 .shop li.tiprow{flex-wrap:wrap;padding:10px 0;gap:8px}.tiprow .tiptxt{flex:1 1 100%;min-width:0}.tiprow>button{flex:0 0 auto;padding:6px 10px;font-size:var(--fs-s);min-height:0}
 .shop li:last-child{border-bottom:none}
 .shop .item{flex:1;min-width:0;display:flex;align-items:center;gap:12px;background:none;border:none;text-align:left;padding:11px 0;font-size:var(--fs-m)}
+.shop .tick{background:none;border:0;padding:var(--sp3) 0;margin:calc(-1 * var(--sp3)) 0;display:grid;place-items:center;flex:none;min-height:0}
 .shop .box{width:24px;height:24px;border-radius:var(--r-s);border:2px solid var(--line);display:grid;place-items:center;flex:none;font-size:var(--fs-s);color:var(--surface)}
 .shop li.done .box{background:var(--done);border-color:var(--done)}
 .shop li.done .nm{color:var(--muted);text-decoration:line-through}
