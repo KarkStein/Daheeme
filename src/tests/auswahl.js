@@ -37,6 +37,11 @@ srv.listen(8765,async()=>{
   // 7) Passt keiner: zurück an den, der gefragt hat
   await put('food/termin/n1',{name:'Zahnarzt',date:day(12),alt:[{date:day(13)}],ask:{who:'p1',from:'p0',at:1},at:1});await B.waitForTimeout(400);
   await nav(B,'wichtig|');await B.click('[data-chopen="termin|n1"]');await B.waitForSelector('#mbox [data-chback]');await B.click('#mbox [data-chback]');await B.waitForTimeout(400);T=db().termin.n1;r.back=[T.ask.who,T.ask.back&&T.ask.back.by].join();
+  // 8) Wahl aufheben: mit gemerktem Stand (v1, beide stimmten ab) und bei einer älteren Wahl ohne Stand (Termin aus 5)
+  await nav(A,'woche|wp:3');await A.click('[data-calview=liste]',{timeout:1500}).catch(()=>{});await A.waitForTimeout(200);await A.click('[data-teredit="v1"]');await A.waitForTimeout(300);await A.click('#terform [data-chopen="termin|v1"]');await A.waitForSelector('#mbox [data-chundo]');await A.click('#mbox [data-chundo]');await A.waitForTimeout(500);
+  T=db().termin.v1;r.undo1=[T.date===day(10),(T.alt||[]).length,T.ask&&T.ask.who,!T.told,!T.was].join();
+  await nav(A,'woche|wp:3');await A.click('[data-calview=liste]',{timeout:1500}).catch(()=>{});await A.waitForTimeout(200);await A.click(`[data-teredit="${id}"]`);await A.waitForTimeout(300);await A.click(`#terform [data-chopen="termin|${id}"]`);await A.waitForSelector('#mbox [data-chundo]');await A.click('#mbox [data-chundo]');await A.waitForTimeout(500);
+  T=db().termin[id];r.undo2=[(T.alt||[]).length,T.ask&&T.ask.who,!T.told].join();r.tent2=await A.$$eval(`li.tent [data-chopen="termin|${id}"]`,l=>l.length);
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&r.askDef==='p1'&&r.saved==='2,p1,p0,true'&&r.tent===3&&/\? Kita-Gespräch \(1 von 3\)/.test(r.tentTxt)&&r.bellA===0&&r.bellB>=1&&r.card&&r.pick==='true,14:00,true,p1,true'&&r.bellA2>=1&&r.told&&r.seen&&r.bellA3===0&&r.change&&r.vote1==='{"p0":1}'&&r.vote2==='true,true'&&r.back==='p0,p1';
+  const ok=!errs.length&&r.askDef==='p1'&&r.saved==='2,p1,p0,true'&&r.tent===3&&/\? Kita-Gespräch \(1 von 3\)/.test(r.tentTxt)&&r.bellA===0&&r.bellB>=1&&r.card&&r.pick==='true,14:00,true,p1,true'&&r.bellA2>=1&&r.told&&r.seen&&r.bellA3===0&&r.change&&r.vote1==='{"p0":1}'&&r.vote2==='true,true'&&r.back==='p0,p1'&&r.undo1==='true,1,both,true,true'&&r.undo2==='2,p0,true';
   console.error(ok?'AUSWAHL OK':'AUSWAHL FAIL');await b.close();srv.close();process.exit(0)});

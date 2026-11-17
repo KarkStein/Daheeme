@@ -22,8 +22,16 @@ function choiceBell(){const me=S.me||"",A=[],N=[],W=[];choiceAll().forEach(c=>{c
 async function choiceSet(k,id,patch){const base="food/"+CHOICE_KINDS[k].path+"/"+id+"/";for(const f of Object.keys(patch))await S.store.setPath(base+f,patch[f])}
 const choiceGet=(k,id)=>CHOICE_KINDS[k].list().find(y=>y.id===id);
 async function choicePick(k,id,i){const K=CHOICE_KINDS[k],x=choiceGet(k,id);if(!x)return;const O=K.opts(x),txt=K.label(O[i]),me=S.me||"";
-  await choiceSet(k,id,Object.assign(K.pick(x,i),{ask:null,told:{by:me,at:Date.now(),txt,seen:me?{[me]:true}:{}}}));
-  toast(i?"Gewählt: "+txt:"Bleibt: "+txt)}
+  // was = Stand vor der Wahl (Frage und Reihenfolge), damit „↩ Wahl aufheben“ alles zurückholt (Florian 17.11.2026)
+  const was=x.ask?{ask:Object.assign({},x.ask,{votes:null}),opts:O.map(o=>({date:o.date,time:o.time||null,tend:o.tend||null}))}:null;
+  await choiceSet(k,id,Object.assign(K.pick(x,i),{ask:null,was,told:{by:me,at:Date.now(),txt,seen:me?{[me]:true}:{}}}));
+  toastAct(i?"Gewählt: "+txt:"Bleibt: "+txt,"↩ Rückgängig",async()=>{try{await choiceUndo(k,id)}catch(_){toast("Konnte nicht speichern.")}render()})}
+// Wahl aufheben: die Frage ist wieder offen, alle Möglichkeiten wie vorher. Ohne gemerkten Stand (ältere Wahl) wählt danach, wer aufhebt.
+async function choiceUndo(k,id){const K=CHOICE_KINDS[k],x=choiceGet(k,id);if(!x)return;const me=S.me||"",w=x.was||null;
+  const O=w&&w.opts&&w.opts.length>1?w.opts:K.opts(x).map(o=>({date:o.date,time:o.time||null,tend:o.tend||null}));if(O.length<2)return;
+  const ask=w&&w.ask?Object.assign({},w.ask,{votes:null,back:null}):{who:me||"p0",from:me||"p0",at:Date.now()};
+  await choiceSet(k,id,{date:O[0].date,time:O[0].time||null,tend:O[0].tend||null,alt:O.slice(1),ask,told:null,was:null});
+  toast("Wahl aufgehoben. Die Möglichkeiten sind wieder offen.")}
 async function choiceVote(k,id,i){const x=choiceGet(k,id);if(!x||!x.ask)return;const me=S.me||"p0",v=Object.assign({},x.ask.votes||{});v[me]=i;
   const o=choiceOther(me);if(v[o]!=null&&v[o]===i){await choicePick(k,id,i);return}
   await choiceSet(k,id,{"ask/votes":v});toast(v[o]!=null?"Ihr habt verschieden gewählt. Eine Möglichkeit antippen legt sie fest.":"Deine Stimme ist gespeichert. "+pname(o)+" stimmt noch ab.")}
@@ -36,11 +44,12 @@ function choiceOpen(k,id){const K=CHOICE_KINDS[k],x=choiceGet(k,id);if(!K||!x||d
   const el=document.createElement("div");el.id="mbox";S.mboxAt=Date.now();
   el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="Möglichkeiten"><div class="section-head"><h2>${a?"🗳️":"✓"} ${esc(x.name)}</h2></div>${hint}
     <div class="chlist">${O.map((c,i)=>{const vs=["p0","p1"].filter(p=>v[p]===i);return `<button type="button" class="chipbtn neutral${!a&&!i?" chosen":""}" data-chpick="${i}" aria-pressed="${!a&&!i}"><span>${a?i+1+". ":""}${esc(K.label(c))}</span><span class="freq">${vs.map(p=>"✓ "+esc(pname(p))).join(" ")}${!a&&!i?"gewählt":""}</span></button>`}).join("")}</div>
-    <div class="btnrow">${a&&a.who===me&&a.from&&a.from!==me||vote&&me?`<button class="ghost" type="button" data-chback>↩ Passt keiner</button>`:""}<button class="ghost" type="button" data-chedit>✎ ${a?"Bearbeiten":"Nochmal fragen oder ändern"}</button><button class="ghost" type="button" data-chx>Schließen</button></div></div>`;
+    <div class="btnrow">${a&&a.who===me&&a.from&&a.from!==me||vote&&me?`<button class="ghost" type="button" data-chback>↩ Passt keiner</button>`:""}${!a&&O.length>1?`<button class="ghost" type="button" data-chundo>↩ Wahl aufheben</button>`:""}<button class="ghost" type="button" data-chedit>✎ ${a?"Bearbeiten":"Nochmal fragen oder ändern"}</button><button class="ghost" type="button" data-chx>Schließen</button></div></div>`;
   document.body.appendChild(el);
   el.addEventListener("click",async e=>{const p=e.target.closest("[data-chpick]");
     if(p){const i=+p.dataset.chpick;mboxClose();S.terDraft=null;try{if(!a){if(i)await choicePick(k,id,i)}else if(vote&&!both)await choiceVote(k,id,i);else await choicePick(k,id,i)}catch(_){toast("Konnte nicht speichern.")}render();return}
     if(e.target.closest("[data-chback]")){mboxClose();try{await choiceBack(k,id)}catch(_){toast("Konnte nicht speichern.")}render();return}
+    if(e.target.closest("[data-chundo]")){mboxClose();S.terDraft=null;try{await choiceUndo(k,id)}catch(_){toast("Konnte nicht speichern.")}render();return}
     if(e.target.closest("[data-chedit]")){mboxClose();K.edit(x);return}
     if(e.target.closest("[data-chx]")){mboxClose();return}
     if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose()})}
