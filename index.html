@@ -3499,7 +3499,8 @@ const WMW_FL=t=>t.freq==="day"?"täglich":t.freq==="week"?(t.times||1)+"× pro W
 const WMW_PER={month:"diesen Monat",half:"dieses Halbjahr",year:"dieses Jahr"};
 // Stand einer Aufgabe diese Woche für Person p (bei "Beide" zählt nur die Hälfte von p)
 function wmwState(t,p,mon,tk){if(group(t.freq)!=="week"){const pt=periodTick(t,mon);return {c:pt?1:0,n:1}}
-  const n=slotsOf(t);let c=0;for(let i=0;i<n;i++){const b=t.id+"__"+i;if(t.owner==="both"?(tk[b+"_"+p]||(tk[b]&&tk[b].by===p)):tk[b])c++}return {c,n}}
+  // Täglich zählt nur heute (Florian 17.11.2026: muss sich jeden Tag erneuern)
+  const di=(new Date().getDay()+6)%7,i0=t.freq==="day"?di:0,n=t.freq==="day"?1:slotsOf(t);let c=0;for(let i=i0;i<i0+n;i++){const b=t.id+"__"+i;if(t.owner==="both"?(tk[b+"_"+p]||(tk[b]&&tk[b].by===p)):tk[b])c++}return {c,n}}
 function wmwList(who){const mon=mondayOf(new Date()),split=rotSplit(),tk=ticksOf(wkKey(mon)),P=who==="alle"?["p0","p1"]:[who],L=[];
   tasks().forEach(t=>{const o=ownerFor(t,mon,split);const ps=o==="both"?P:P.includes(o)?[o]:who==="alle"&&o==="ho"?["ho"]:[];
     ps.forEach(p=>{const st=p==="ho"?wmwState(t,"p0",mon,tk):wmwState(t,p,mon,tk),done=st.c>=st.n;if(!done&&!periodDue(t,mon))return;L.push({t,p,o,...st,done})})});return L}
@@ -3539,8 +3540,12 @@ function renderWmw(){const d=S.draft||(S.draft=JSON.parse(JSON.stringify(S.confi
   return h}
 async function wmwTick(id,p){if(!S.me){toast("Wähle zuerst in den Einstellungen, wer du bist.");return}const t=tasks().find(x=>x.id===id);if(!t)return;const mon=mondayOf(new Date()),wk=wkKey(mon),tk=ticksOf(wk);let key=null;
   if(group(t.freq)!=="week"){if(!periodTick(t,mon))key=t.id+"__p"}
-  else{const n=slotsOf(t),q=p==="p0"||p==="p1"?p:S.me;for(let i=0;i<n&&!key;i++){const b=t.id+"__"+i;if(t.owner==="both"){if(!tk[b+"_"+q]&&!(tk[b]&&tk[b].by===q))key=b+"_"+q}else if(!tk[b])key=b}}
+  else{const di=(new Date().getDay()+6)%7,i0=t.freq==="day"?di:0,n=t.freq==="day"?di+1:slotsOf(t),q=p==="p0"||p==="p1"?p:S.me;for(let i=i0;i<n&&!key;i++){const b=t.id+"__"+i;if(t.owner==="both"){if(!tk[b+"_"+q]&&!(tk[b]&&tk[b].by===q))key=b+"_"+q}else if(!tk[b])key=b}}
   if(!key)return;try{await S.store.tick(wk,key,{by:t.owner==="both"&&(p==="p0"||p==="p1")?p:S.me,at:Date.now()});render()}catch(_){toast("Konnte nicht speichern. Bitte nochmal tippen.")}}
+// Aufräumen (17.11.2026): „Wer macht was“ hakte tägliche Aufgaben bis dahin am nächsten freien Tag ab, also auch an künftigen Tagen.
+// Haken einer täglichen Aufgabe an einem Tag nach dem Tag, an dem sie gesetzt wurden, nimmt das einmal je Sitzung wieder weg (nur laufende Woche).
+function migDayFuture(){if(S.migDayF||!S.me||!S.config)return;S.migDayF=true;const mon=mondayOf(new Date()),wk=wkKey(mon),tk=ticksOf(wk),ids=tasks().filter(t=>t.freq==="day").map(t=>t.id);
+  Object.keys(tk).forEach(k=>{const m=/^(.+)__(\d)(?:_p[01])?$/.exec(k),v=tk[k];if(!m||!ids.includes(m[1])||!v||!v.at||v.at<+mon)return;const set=Math.floor((v.at-+mon)/864e5);if(+m[2]>set&&set<7)S.store.tick(wk,k,null).catch(()=>{})})}
 // ---------- Recherchen (zentral, Quer durch alles; Entwurf 15.11.2026) ----------
 // Ergebnisdateien der festen Aufträge; ihr Feld "updated" ist der letzte Lauf. auftraege.json listet die Aufträge.
 const RSRC=[{key:"ideen",file:"ideen.json",get:()=>S.ideas,lab:"📖 Tagesrezepte",nav:"essen|ft:rezepte",n:j=>(j.items||[]).length+(j.emmi||[]).length},
@@ -4772,7 +4777,7 @@ function shareIn(){let q;try{q=new URLSearchParams(location.search)}catch(_){ret
 function start(store,mode){S.store=store;S.mode=mode;let gotCfg=false,gotWeeks=false;
   const timer=setTimeout(()=>{S.timedOut=true;if(!gotCfg)S.config=S.config||null;render()},10000);
   store.listen((cfg,fromCache)=>{S.config=cfg;if(cfg&&!fromCache&&Array.isArray(cfg.tasks)&&!(cfg.mig&&cfg.mig.saug1))migSaugen(cfg);else if(cfg&&!fromCache&&Array.isArray(cfg.tasks)&&!(cfg.mig&&cfg.mig.bring1))migBring(cfg);if(!fromCache){gotCfg=true;S.cfgConfirmed=true}if(gotCfg&&gotWeeks){clearTimeout(timer);S.timedOut=false}render()},
-    (w,fromCache)=>{S.weeks=w;if(!fromCache)gotWeeks=true;if(gotCfg&&gotWeeks){clearTimeout(timer);S.timedOut=false}render()},
+    (w,fromCache)=>{S.weeks=w;if(!fromCache){gotWeeks=true;setTimeout(migDayFuture,1500)}if(gotCfg&&gotWeeks){clearTimeout(timer);S.timedOut=false}render()},
     err=>{clearTimeout(timer);toast("Verbindung zu den gemeinsamen Daten verloren. Seite neu öffnen.")},
     food=>{S.food=food||{};migSpiel();migShopBell();migPlayTrip();geldFixBook();render()});// Florian 16.11.2026: früher nur bestimmte Bereiche, dadurch fehlten nach dem Neuladen auf Woche/Kalender/Suche Essen, Kita und Termine
   try{fetch("wochenideen.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.wideas=j;if(S.tab==="essen")render()}}).catch(()=>{})}catch(_){}
