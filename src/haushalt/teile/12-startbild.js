@@ -26,7 +26,7 @@ function wxToday(){const W=S.wx,hr=W&&W.hours;if(!W||!hr||!hr.time||Date.now()-W
   else if((j=first(k=>K[k]==="schnee"))>=0)hint="Schnee "+at(j);
   else if((j=first(k=>K[k]==="regen"||P[k]>=60))>=0)hint=(at(j)==="jetzt"?"Regen":"Regen "+at(j));
   else if(lo<=0)hint="Frost";else if((d.w||0)>=40||(d.g||0)>=65)hint="Sturmböen";else if(windy(d))hint="windig";else if(hi>=28)hint="heiß";
-  return {pre:eve?"Morgen":"",emo:WI[main]||"☀️",rng:lo===hi?lo+"°":lo+" bis "+hi+"°",hint}}
+  return {lo,hi,pre:eve?"Morgen":"",emo:WI[main]||"☀️",rng:lo===hi?lo+"°":lo+" bis "+hi+"°",hint}}
 // Was das Wetter heute möglich macht (Florian 16.11.2026): höchstens ein Symbol, nur wenn es wirklich passt, sonst nichts.
 // Reihenfolge = Vorrang. wx/cat führen zu den passenden Ausflügen (Filter „Passt zum Wetter“ bzw. Rubrik, feste Orte aufgeklappt).
 // Wind (Florian 16.11.2026 „mega Wind, warum kein 🪁“): Mittelwind ab 20 km/h oder Böen ab 40 km/h zählen als windig

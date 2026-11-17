@@ -33,7 +33,7 @@ srv.listen(8765,async()=>{
   await nav('listen|bl:geschenke');r.buy=await A.$$eval('#buy-geschenke .nm',l=>l.map(x=>x.innerText.split('\n')[0]));
   await A.click(`[data-musbought="${tn}"]`);await A.waitForTimeout(400);r.st2=db().music[tn].st;r.geldToast=await A.$eval("#toast",x=>x.innerText);await A.addStyleTag({content:"#toast{display:none!important}"});
   // Kind-Seite zeigt 💛, Sprung mit Art-Filter
-  await nav('kind|');r.kind=await A.$$eval('.musrow',l=>l.map(x=>x.innerText));
+  await nav('kind|');r.kind=await A.$$eval('.kidcard .trow',l=>l.map(x=>x.innerText));
   await nav('musik|ma:lied');r.af=await A.$eval('[data-musartf][aria-pressed=true]',x=>x.dataset.musartf);
   await nav('projekte|');r.samm=await A.$$eval('.sammcard .mk',l=>l.map(x=>x.innerText.replace(/\n/g,' ')).filter(x=>/Sternlein/.test(x)));await A.click('[data-sammf="s|erledigt"]');await A.waitForTimeout(200);r.sammDone=await A.$$eval('.sammcard .mk',l=>l.map(x=>x.innerText.replace(/\n/g,' ')).filter(x=>/Raupe/.test(x)));
   console.error(JSON.stringify(r),errs);

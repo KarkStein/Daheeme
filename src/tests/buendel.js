@@ -30,5 +30,5 @@ srv.listen(8765,async()=>{
   console.error(JSON.stringify(r),errs);
   const ok=!errs.length&&r.moved==='trip:tpl_pa,trip:tpl_pb,,'&&r.trip==='spiel,true,true'&&r.trips.includes('tpl_pb')&&r.h1==='Spielen'&&r.pSpiel==='Kind|Kita|*Spielen'&&r.spielRows.split('|').sort().join('|')==='Höhle aus Decken|Kinderturnen'&&!r.spielArts.includes('spielplatz')
     &&r.pKita==='Kind|*Kita|Spielen'&&r.pGesch==='Partner|*Geschenke'&&r.pRech==='Alles Gemerkte|*Recherchen'&&r.kitaH1==='Kita'&&r.rg==='Spielplatz am Bach|Wasserspielplatz am Park'&&r.rgChip==='true'&&r.newTrip==='spiel'
-    &&r.fan_camp==='🧒 Kind|Kita|Spielen|🫶 Wir|Geschenke|🛠️ Am Haus'&&/Reisen und Ausflüge\|Packlisten\|🎵 Musik\|🗃️ Sammlung\|Recherchen/.test(r.fan_einkauf)&&/Kind/.test(r.arMain)&&!/Kita|Spielen|Geschenke/.test(r.arMain)&&/^Kita\|Spielen/.test(r.arKind);
+    &&r.fan_camp==='🧒 Kind|Kita|Spielen|🫶 Wir|Partner|Geschenke|🛠️ Am Haus'&&/Reisen und Ausflüge\|Packlisten\|🎵 Musik\|🗃️ Sammlung\|Alles Gemerkte\|Recherchen/.test(r.fan_einkauf)&&/Kind/.test(r.arMain)&&!/Kita|Spielen|Geschenke/.test(r.arMain)&&/^Kita\|Spielen/.test(r.arKind);
   console.error(ok?'BUENDEL OK':'BUENDEL FAIL');await b.close();srv.close();process.exit(0)});

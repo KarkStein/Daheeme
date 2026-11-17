@@ -8,7 +8,7 @@ srv.listen(8765,async()=>{
   await A.waitForTimeout(400);await nav('woche|');await A.click('[data-wknav="1"]');await A.waitForTimeout(200);r.woche=/KW 48/.test(await txt());
   await nav('essen|ft:plan');r.plan=/Mo 23\.11\./.test(await txt());
   await A.click('[data-food=kita]');await A.waitForTimeout(200);r.kita=/KW 48/.test(await txt());
-  await nav('kind|');r.kind=/KW 48/.test(await A.$eval('.kidbh',e=>e.innerText));
+  await nav('kita|');r.kind=/KW 48/.test(await A.$eval('.kidbh',e=>e.innerText));
   await nav('woche|wp:3');r.cal=await A.$eval('#calfocus',e=>e.innerText).catch(()=>'');
   await nav('woche|wp:0');r.back=/KW 48/.test(await txt());
   await A.click('[data-wknav="0"]');await A.waitForTimeout(200);await nav('essen|ft:plan');r.now=/Mo 16\.11\./.test(await txt());

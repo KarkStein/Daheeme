@@ -49,35 +49,7 @@ async function hoKidSync(wk,key){const hoT=tasks().find(t=>t.owner==="ho");if(!h
   if(((((S.food&&S.food.kid&&S.food.kid.bh)||{})[wk])||{})["d"+i])try{await S.store.setPath("food/kid/bh/"+wk+"/d"+i,null)}catch(_){}}
 const bringTasks=()=>tasks().filter(t=>/^bringen/i.test(t.name)&&t.freq==="week");
 function bringDone(wk,i){const tk=ticksOf(wk);for(const t of bringTasks())for(let j=0;j<slotsOf(t);j++){const v=tk[t.id+"__"+j];if(v&&v.day===i)return {key:t.id+"__"+j,v}}return null}
-function kidBhRows(mon,cur){const today=ymd(new Date()),wk=wkKey(mon);return [0,1,2,3,4].map(i=>{const x=bhDay(mon,i),isT=x.k===today,DN=["Mo","Di","Mi","Do","Fr"];
-  const who=f=>{const y=x[f];return `<button class="chipbtn neutral kidwho" data-kidset="${wk}|${i}|${f}" aria-label="${f==="br"?"Bringt":"Holt"} am ${DN[i]}: ${esc(pname(y.p))}, tippen zum Auswählen">${esc(pname(y.p))}</button>`};
-  const dn=cur&&x.k<=today&&!x.off?bringDone(wk,i):null;
-  return `<li class="kidrow${isT?" today":""}${x.off?" off":""}"><span class="kidday"><b>${DN[i]}</b><small>${x.d.getDate()}.${x.d.getMonth()+1}.</small></span>${x.off?`<span class="freq">${x.off==="zu"?"🚪 Kita zu":x.off==="frei"?"🎉 "+esc(feiertag(x.k)):"⛵ Urlaub"}</span>`:`<span class="kidcol"><small>bringt</small>${who("br")}</span><span class="kidcol"><small>holt</small>${who("ab")}</span>`}</li>`}).join("")}
-function renderKind(){const now=new Date(),cm=mondayOf(now),off=S.kidWk|0,mon=addDays(cm,7*off),{w}=isoWeek(mon),today=ymd(now),di=(now.getDay()+6)%7,nm=kidName();
-  let h=`<div><div class="eyebrow">Familie</div><h1>${esc(nm)}</h1></div>`;
-  if(nm==="Kind")h+=`<div class="freq">Den Namen tragt ihr unter <button class="linkbtn" data-go="settings">Einstellungen › Wir</button> ein. Er bleibt nur bei euch.</div>`;
-  h+=`<section class="card kidbh"><div class="section-head"><h2>🚸 Bringen und Abholen</h2><span class="weeknav"><button class="iconbtn" data-kidwk="${off-1}" aria-label="Vorige Woche"${off<=-1?" disabled":""}>‹</button><span class="wkdate" style="margin:0">KW ${w}</span><button class="iconbtn" data-kidwk="${off+1}" aria-label="Nächste Woche"${off>=2?" disabled":""}>›</button></span></div>
-    <ul class="kidlist">${kidBhRows(mon,off===0)}</ul>
-    <div class="freq">Tippen auf eine Person öffnet die Auswahl: nur diese Woche, 📌 jede Woche, wie geplant oder Hausdienst. Wer in der Woche 🔑 Hausdienst hat, bringt und holt nicht, das macht der andere. Änderst du hier, zieht die Woche mit.</div>
-    <div class="btnrow"><button class="ghost" data-kidrule="${off}">📌 Als feste Woche speichern</button>${Object.keys((((S.food&&S.food.kid&&S.food.kid.bh)||{})[wkKey(mon)])||{}).length?`<button class="ghost" data-kidreset="${off}">↺ Änderungen dieser Woche zurücknehmen</button>`:""}<button class="ghost" data-nav="woche|wp:0">🔑 Hausdienst ›</button></div></section>`;
-  // Kita kurz
-  const km=di<5?(kitaMeals(cm)["d"+di]||{}):{},kb=kitaBring(),nx=kitas().filter(x=>x.sec==="termine"&&x.date&&x.date>=today).sort((a,b)=>a.date<b.date?-1:1)[0];
-  const row=(ic,t,sub,attr)=>`<div class="trow"><span class="tic">${ic}</span><button class="ttx" ${attr}><span>${t}${sub?`<i>${sub}</i>`:""}</span><em>›</em></button></div>`;
-  h+=`<section class="card tagcard"><div class="section-head"><h2>🎒 Kita</h2></div>`
-    +row("🍽️",km.text?esc(km.text):"Kein Kita-Essen eingetragen","Mittag heute",'data-nav="kita|ks:essen"')
-    +row("📦",kb.length?kb.length+" Sachen mitbringen":"Nichts mitzubringen",kb.slice(0,3).map(x=>esc(x.name)).join(", "),'data-nav="kita|ks:tasche"')
-    +row("📅",nx?esc(nx.name):"Kein Kita-Termin",nx?esc(dLabel(nx.date)):"",'data-nav="kita|ks:termine"')+`</section>`;
-  // Verknüpft
-  const kids=buys().filter(x=>!x.done&&x.for==="kid"),cnt=l=>kids.filter(x=>x.list===l).length+(l==="geschenke"?buyLinked("geschenke").filter(x=>x.kid).length:0);
-  h+=`<section class="card tagcard"><div class="section-head"><h2>🧒 Für ${esc(nm)}</h2></div>`
-    +row("👕","Kleidung",cnt("kleidung")?cnt("kleidung")+" offen":"",'data-nav="listen|bl:kleidung"')
-    +row("🎁","Geschenke und Spielsachen",cnt("geschenke")?cnt("geschenke")+" offen":"",'data-nav="listen|bl:geschenke"')
-    +row("🎄","Adventskalender","",'data-nav="geschenke|pf:advent"')
-    +row("🚲","Ausflüge mit Kleinkind","",'data-nav="ausflug|tt:ideen"')
-    +row("⚽","Spielen","",'data-go="spiel"')
-    +row("🛝","Spielplätze","",'data-nav="ausflug|rk:spielplatz"')
-    +row("🎵","Kinderlieder und Hörspiele","",'data-nav="musik|ma:lied"')+musLikedRow()+`</section>`;
-  return h}
+// Seite Kind, Wochen-Tafel Bringen und Abholen, Größen und Gesundheit: 14a-kind.js (Umbau Florian 17.11.2026)
 function renderPrivat(){const sec=S.privSec==="briefe"?"briefe":"lunch";
   let h=`<div><div class="eyebrow">Nur ihr zwei</div><h1>Partner</h1></div><div class="unl privtabs" style="margin:4px 0 12px">${[["lunch","🍽️ Mittagessen"],["briefe","✉️ Briefe"+(briefe().length?" ("+briefe().length+")":"")]].map(x=>`<button class="chipbtn${sec===x[0]?"":" neutral"}" data-priv="${x[0]}" aria-pressed="${sec===x[0]}">${x[1]}</button>`).join("")}</div>`;
   h+=sec==="briefe"?briefCard():`<div class="section-head"><h2>🍽️ Mittagessen</h2></div>`+renderLunch();
