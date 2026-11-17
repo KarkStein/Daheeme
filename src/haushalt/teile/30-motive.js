@@ -11,8 +11,8 @@ function bildStil(){const u=urlPick("stil");if(u!=null&&stilList().some(m=>m[0]=
 function motivPlace(){return motiv()==="stadt"?"in der Stadt":"am Meer"}
 
 // Zusätzliche Definitionen je Stil
-function styDefs(st,C,night,ph){if(!st)return "";
-  const sx=night?52:56,sy=night?53:(ph==="dusk"||ph==="dawn"?111:57),lc=night?"#cfdcff":"#ffd98a",vc=night?"#05101c":"#1c2a3a";
+function styDefs(st,C,night,ph,city){if(!st)return "";
+  const sx=night?52:56,sy=night?53:(ph==="dusk"||ph==="dawn"?(city?98:LOW_SUN)+13:57),lc=night?"#cfdcff":"#ffd98a",vc=night?"#05101c":"#1c2a3a";
   let d=`<radialGradient id="sLite" gradientUnits="userSpaceOnUse" cx="${sx}" cy="${sy}" r="${night?200:120}"><stop offset="0" stop-color="${lc}" stop-opacity="${night?.1:.85}"/><stop offset=".5" stop-color="${lc}" stop-opacity="${night?.08:.3}"/><stop offset="1" stop-color="${lc}" stop-opacity="0"/></radialGradient>`
    +`<radialGradient id="sVig" gradientUnits="userSpaceOnUse" cx="180" cy="160" r="240"><stop offset=".55" stop-color="${vc}" stop-opacity="0"/><stop offset="1" stop-color="${vc}" stop-opacity="${night?.45:.2}"/></radialGradient>`
    +`<linearGradient id="sWall" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="${night?.05:.2}"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient>`
@@ -45,8 +45,8 @@ function styDefs(st,C,night,ph){if(!st)return "";
   return d}
 // Ferne: Dunst über Horizont, Klippen und Landzunge; Glitzern im Meer
 function styFar(st,C,night){if(!st||st==="aquarell")return "";
-  let s=`<rect x="72" y="117" width="190" height="4" fill="#fff" opacity="${night?.08:.28}" filter="url(#sSoft1)"/>`;
-  if(st==="fein")s+=`<rect x="0" y="120" width="360" height="140" fill="url(#pWave)"/>`;
+  let s=`<rect x="0" y="${SEA_Y-1}" width="360" height="4" fill="#fff" opacity="${night?.08:.28}" filter="url(#sSoft1)"/>`;
+  if(st==="fein")s+=`<rect x="0" y="${SEA_Y+2}" width="360" height="${258-SEA_Y}" fill="url(#pWave)"/>`;
   if(!night)s+=`<path d="M86 124h7M98 127h4M108 123h6M120 129h5M92 132h3M132 125h4" stroke="#fff" stroke-opacity=".75" stroke-width="1.1" stroke-linecap="round"/>`;
   return s}
 // Boden: Schatten von Haus und Baum, Rasen- und Sandtextur
