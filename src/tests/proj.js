@@ -18,10 +18,10 @@ srv.listen(8765,async()=>{
   await B.click('.spot[data-go=amhaus]');await B.waitForSelector('.tiles');const cnt=await B.$$eval('.tile .tc',l=>l.map(x=>x.textContent));
   await B.goBack();await B.waitForTimeout(200);
   // Spielplatz-Karte
-  await B.click('.spot[data-go=spiel]');await B.click('[data-act=plmapedit]');await B.fill('#pl-mapurl','https://www.google.com/maps/d/viewer?mid=1AbCdEfGhIjKlMnOpQ');await B.click('[data-act=plmapsave]');await B.waitForTimeout(300);
+  await B.click('.spot[data-go=spiel]');await B.click('[data-act=plmapshow]');await B.click('[data-act=plmapedit]');await B.fill('#pl-mapurl','https://www.google.com/maps/d/viewer?mid=1AbCdEfGhIjKlMnOpQ');await B.click('[data-act=plmapsave]');await B.waitForTimeout(300);
   const ifr=!!(await B.$('iframe.mapframe'));
   await B.click('[data-act=playnew]');await B.fill('#pl-name','Spielplatz am Hafen');await B.click('[data-act=playsave]');await B.waitForTimeout(300);
-  const mapHref=await B.$eval('ul.shop a.catbtn',e=>e.href);
+  const mapHref=await B.$eval('.playcard .mk a.catbtn',e=>e.href);
   await B.screenshot({path:out+'/spielplatz-karte.png',fullPage:true});
   console.log({lt,ht,quick,h2,cnt,ifr,mapHref,errs});
   const ok=!errs.length&&lt.join()==='sonst,alle'&&ht.join()==='wohnen,garten'&&!quick&&/Einrichtung/.test(h2)&&cnt[0]==='1 offen'&&cnt[1]==='1 offen'&&ifr&&/maps\/search/.test(mapHref);

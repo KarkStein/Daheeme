@@ -6,7 +6,7 @@ srv.listen(8765,async()=>{
   await A.click('.spot[data-go=spiel]');await A.waitForSelector('[data-act=playnew]');
   await A.click('[data-act=playnew]');await A.fill('#pl-name','Wasserspielplatz im Stadtpark');await A.click('[data-plset=age][data-v="1"]');await A.fill('#pl-link','https://maps.app.goo.gl/x');await A.fill('#pl-note','Sandkasten mit Pumpe, Schatten am Nachmittag');await A.click('[data-act=playsave]');await A.waitForTimeout(300);
   await A.click('[data-act=playnew]');await A.fill('#pl-name','Spielplatz am Hafen');await A.click('[data-act=playsave]');await A.waitForTimeout(300);
-  await A.click('[data-playfav]:nth-of-type(1)');await A.waitForTimeout(300);
+  await A.click('[data-playst]');await A.waitForTimeout(300);
   await A.click('[data-playsec=zuhause]');await A.click('[data-act=playnew]');await A.fill('#pl-name','Höhle aus Decken bauen');await A.click('[data-plset=wx][data-v=drinnen]');await A.click('[data-plset=age][data-v="2"]');await A.fill('#pl-mat','Decken, Wäscheklammern, Taschenlampe');
   await A.screenshot({path:out+'/maske.png',fullPage:true});
   await A.click('[data-act=playsave]');await A.waitForTimeout(300);
@@ -15,4 +15,4 @@ srv.listen(8765,async()=>{
   await B.click('[data-playsec=zuhause]');await B.waitForSelector('text=Höhle aus Decken bauen');
   await B.goBack();await B.waitForTimeout(300);const s1=await B.$eval('[data-playsec][aria-pressed=true]',e=>e.dataset.playsec);
   await B.goBack();await B.waitForTimeout(300);const tab=await B.$eval('#tabs [aria-selected=true]',e=>e.dataset.tab);
-  console.log('back',s1,tab,'errs',errs);console.log(!errs.length&&s1==='spielplatz'&&tab==='camp'?'PLAY OK':'PLAY FAIL');await b.close();srv.close();process.exit(0)});
+  console.log('back',s1,tab,'errs',errs);console.log(!errs.length&&s1===''&&tab==='camp'?'PLAY OK':'PLAY FAIL');await b.close();srv.close();process.exit(0)});

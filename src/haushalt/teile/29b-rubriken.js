@@ -41,7 +41,7 @@ function catDelAsk(o){try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}
   ["pointerup","pointercancel"].forEach(k=>document.addEventListener(k,clear));
   document.addEventListener("click",e=>{if(fired&&catOwnBtn(e.target)){fired=false;e.stopPropagation();e.preventDefault()}},true);
   document.addEventListener("contextmenu",e=>{if(catOwnBtn(e.target))e.preventDefault()})})();
-function catGone(key,id){if(key==="play"&&S.playSec===id)S.playSec="sonst";if(key==="idea"&&S.projFilter===id)S.projFilter="";if(key==="trip"&&S.tripFilter===id)S.tripFilter="";if(S.tripDraft&&S.tripDraft.kind===id)S.tripDraft.kind="";if(S.playDraft&&S.playDraft.sec===id)S.playDraft.sec="sonst";if(S.projDraft&&S.projDraft.cat===id)S.projDraft.cat="sonst"}
+function catGone(key,id){if(key==="play"&&S.playSec===id)S.playSec="";if(key==="idea"&&S.projFilter===id)S.projFilter="";if(key==="trip"&&S.tripFilter===id)S.tripFilter="";if(S.tripDraft&&S.tripDraft.kind===id)S.tripDraft.kind="";if(S.playDraft&&S.playDraft.sec===id)S.playDraft.sec="sonst";if(S.projDraft&&S.projDraft.cat===id)S.projDraft.cat="sonst"}
 // Eigenes Symbol (emo) an Ausflügen, Spielideen, Geschenk-Ideen, Adventskalendern und Packlisten: ein kurzes Feld in der Maske
 const emoFld=(attr,val,ph)=>`<label class="fld emofld"><span>Symbol (optional)</span><input type="text" ${attr}="emo" value="${esc(val||"")}" maxlength="8" placeholder="${esc(ph||"😀")}" autocomplete="off" aria-label="Eigenes Symbol"></label>`;
 const emoOf=(x,def)=>String(x&&x.emo||"").trim()||def||"";

@@ -11,7 +11,7 @@ srv.listen(8765,async()=>{
   await nav('spiel|');await A.click('[data-catman=play]');await addCat('🎨','Basteln');await A.screenshot({path:out+'/rubrik-anlegen.png'});await close();
   const pid=Object.keys((db().cats||{}).play||{})[0];r.playChip=await A.$$eval('[data-playsec]',l=>l.map(x=>x.innerText).join('|'));
   await A.click(`[data-playsec="${pid}"]`);await A.waitForTimeout(200);await A.click('[data-act=playnew]');await A.fill('#pl-name','Fingerfarben');await A.fill('[data-plf=emo]','🖐️');await A.click('[data-act=playsave]');await A.waitForTimeout(400);
-  const P=Object.values(db().play||{}).find(x=>x.name==='Fingerfarben');r.play=P&&[P.sec===pid,P.emo].join();r.playList=await A.$eval('#app',e=>/🖐️ Fingerfarben/.test(e.innerText));
+  const P=Object.values(db().play||{}).find(x=>x.name==='Fingerfarben');r.play=P&&[P.sec===pid,P.emo].join();r.playList=await A.$$eval('.playcard .mk',l=>l.some(x=>/🖐️/.test(x.querySelector('.mki').innerText)&&/Fingerfarben/.test(x.innerText)));
   // 2) Ausflug: eigene Art + Symbol
   await nav('ausflug|tt:ideen');await A.click('[data-act=tripnew]');await A.waitForTimeout(200);await A.click('[data-catman=trip]');await addCat('🏰','Burgen');await close();
   const tid=Object.keys((db().cats||{}).trip||{})[0];await A.fill('#tr-name','Burg Test');await A.fill('[data-tf=emo]','🏰');await A.click(`[data-tset][data-v="${tid}"], [data-v="${tid}"]`);await A.click('[data-act=tripsave]');await A.waitForTimeout(400);

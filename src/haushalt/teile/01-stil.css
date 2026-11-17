@@ -576,4 +576,4 @@ section[id^="sec-"]{scroll-margin-top:calc(var(--sp5)*3)}
 .glosrow[hidden],.glossec[hidden],.glosb[hidden],.glosnone[hidden]{display:none}
 a.mkb{text-decoration:none;color:var(--fg)}.muslk[aria-pressed=false]{filter:grayscale(1);opacity:.5}
 .mustxt{list-style:none;white-space:pre-wrap;font-size:var(--fs-s);line-height:1.5;padding:var(--sp2) var(--sp3);margin:0 0 var(--sp2);background:var(--bg);border-radius:var(--r-s)}
-.muscard .scrollrow+.scrollrow{margin-top:6px}.mkt b{overflow-wrap:break-word;hyphens:auto}.muscard .mk{gap:0}.muscard .mk .routebtn{padding:8px 5px}.muscard .mk .stbadge{padding:3px 8px;margin:0 var(--sp1)}
+:is(.muscard,.playcard) .scrollrow+.scrollrow{margin-top:6px}.mkt b{overflow-wrap:break-word;hyphens:auto}:is(.muscard,.playcard) .mk{gap:0}:is(.muscard,.playcard) .mk .routebtn{padding:8px 5px}:is(.muscard,.playcard) .mk .stbadge{padding:3px 8px;margin:0 var(--sp1)}

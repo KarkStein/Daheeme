@@ -1,7 +1,7 @@
 // ---------- Zurück-Taste ----------
 const NAV=[];let navBusy=false;
 function navKey(){return S.tab+"|"+(S.tab==="essen"?S.foodTab:S.tab==="ausflug"?S.tripTab:S.tab==="spiel"?S.playSec:S.tab==="kita"?S.kitaSec:S.tab==="privat"?(S.privSec||""):PROJ_TABS.includes(S.tab)?S.projFilter:S.tab==="woche"&&S.weekPage?String(S.weekPage):"")+"|"+((S.recDraft||S.planEdit||S.lunchDraft||S.lunchMapEdit||S.tripDraft||S.projDraft||S.playDraft||S.kitaDraft)?"d":"")}
-function applyNav(k){const p=k.split("|");S.tab=p[0];if(PROJ_TABS.includes(S.tab))S.projFilter=p[1]||"";else if(p[1]){if(S.tab==="ausflug")S.tripTab=p[1];else if(S.tab==="spiel")S.playSec=p[1];else if(S.tab==="kita")S.kitaSec=p[1];else if(S.tab==="privat")S.privSec=p[1];else if(S.tab==="woche")S.weekPage=+p[1]||0;else S.foodTab=p[1]}if(S.tab==="woche"&&!p[1])S.weekPage=0}
+function applyNav(k){const p=k.split("|");S.tab=p[0];if(PROJ_TABS.includes(S.tab))S.projFilter=p[1]||"";else if(p[1]){if(S.tab==="ausflug")S.tripTab=p[1];else if(S.tab==="spiel")S.playSec=p[1];else if(S.tab==="kita")S.kitaSec=p[1];else if(S.tab==="privat")S.privSec=p[1];else if(S.tab==="woche")S.weekPage=+p[1]||0;else S.foodTab=p[1]}if(S.tab==="woche"&&!p[1])S.weekPage=0;if(S.tab==="spiel")S.playSec=p[1]||""}
 // Neu laden (am Handy herunterziehen): im selben Bereich bleiben. history.state überlebt das Neuladen, sessionStorage als Rückfall.
 function restoreNav(){try{S.flip=sessionStorage.getItem("hq-flip")==="1"}catch(_){}let st=null;try{st=history.state}catch(_){}let k=st&&typeof st.k==="string"?st.k:"";if(!k){try{k=sessionStorage.getItem("hq-nav")||""}catch(_){}}
   const t=k.split("|")[0];if(!t||t==="plan"||t==="alle")return false;applyNav(k);

@@ -60,7 +60,7 @@ function sammAll(){const L=[],add=(ar,o)=>L.push(Object.assign({ar,at:0},o)),fst
   funde("haus").forEach(f=>{const k=fundKind(f.kind,"haus"),p=f.proj&&hprojs().find(y=>y.id===f.proj);add("haus",{ic:k[1],name:f.name,sub:k[2]+(p?" · "+(p.emo||"🛋️")+" "+p.name:"")+(f.st==="gebucht"?" · gekauft":""),st:fst(f.st),attr:p?`data-hproj="${esc(p.id)}"`:`data-nav="amhaus|hs:wohnen"`,at:f.at})});
   projs().forEach(x=>{const c=projCat(x),pc=projCats().find(p=>p[0]===c)||PROJ_CATS[1],ar=c==="geschenk"?"geschenke":HCAT[c]?"haus":"sonst";
     add(ar,{ic:x.emo||pc[1],name:x.name,sub:ar==="geschenke"?(giftFor(x)||"Geschenk"):ar==="haus"?pc[2]+" · ohne Projekt":pc[2],st:x.done?"erledigt":pjSt(x.state),attr:ar==="geschenke"?`data-nav="geschenke|"`:`data-nav="${ar==="haus"?"amhaus":"projekte"}|pf:${esc(c)}"`,at:x.at})});
-  plays().forEach(x=>{const s=playSecs().find(p=>p[0]===(x.sec||"spielplatz"))||playSecs()[0];add("spiel",{ic:x.emo||s[1],name:x.name,sub:s[2],st:x.fav?"favorit":"idee",attr:`data-nav="spiel|ps:${esc(s[0])}"`,at:x.at})});
+  plays().forEach(x=>{const s=playSecs().find(p=>p[0]===(x.sec||"spielplatz"))||playSecs()[0];add("spiel",{ic:x.emo||s[1],name:x.name,sub:s[2],st:playSt(x),attr:`data-nav="spiel|ps:${esc(s[0])}"`,at:x.at})});
   musics().forEach(x=>{const a=musArt(x);add("musik",{ic:x.emo||a[1],name:x.name,sub:a[2]+(x.like?" · 💛 gerade beliebt":""),st:a[0]==="hoer"?(x.st||"idee"):x.fav?"favorit":"idee",attr:`data-nav="musik|ma:${a[0]}"`,at:x.at})});
   return L.sort((a,b)=>(b.at||0)-(a.at||0))}
 function sammHtml(){const F=S.sammF||(S.sammF={a:"",s:""}),L=sammAll();

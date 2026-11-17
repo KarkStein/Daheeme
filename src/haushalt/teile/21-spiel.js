@@ -3,7 +3,7 @@ const playSecs=()=>catsOf("play",PLAY_SECS);
 const PLAY_SECS=[["spielplatz","🛝","Spielplätze"],["zuhause","🎲","Spielideen zu Hause"],["sport","⚽","Sport und Kurse"],["sonst","📎","Sonstiges"]];
 const PLAY_HINT={spielplatz:["Zum Beispiel Wasserspielplatz am Park","Was gibt es dort? Schatten, Sandkasten, Toilette …"],zuhause:["Zum Beispiel Höhle aus Decken bauen","Wie geht es?"],sport:["Zum Beispiel Kinderturnen","Wo, Kosten, Anmeldung"],sonst:["Zum Beispiel Schwimmflügel kaufen","Worum geht es?"]};
 const PLAY_AGE=[["1","ab 1"],["2","ab 2"],["3","ab 3"],["4","ab 4"],["6","ab 6"]];
-const PLAY_WX=[["drinnen","☔ Drinnen"],["draussen","🌳 Draußen"],["egal","Beides"]];
+const PLAY_WX=[["drinnen","☔ Drinnen"],["draussen","☀️ Draußen"],["egal","Beides"]];
 // Musik (Entwurf 15.11.2026, Ausbau Florian 17.11.2026): nur Links, kein Abspielen.
 // food/music/<id> {name,link,svc,art?:playlist|lied|hoer|song,occ (Komma-Liste aus musOcc),fav?,like?,st?,txt?,note?,emo?,at,by}
 // Art: Playlist, Kinderlied, Hörspiel/Tonie, Song. Hörspiele haben die Stand-Leiter (📅 Geplant = Geschenk bei Einkauf › Weitere Listen › Geschenke, ✅ = haben wir),
@@ -59,11 +59,18 @@ function renderMusic(){const d=S.musDraft,F=S.musFilter||"",AF=S.musArtF||"";
   return h+`</section>`}
 const plays=()=>listOf(S.food&&S.food.play);
 function nameFromLink(u){try{const p=new URL(u).pathname.split("/").filter(Boolean);let s=p.reverse().find(x=>/[a-zäöüß]{3}/i.test(x)&&!/^\d+$/.test(x))||"";s=decodeURIComponent(s).replace(/\.(html?|php|aspx?)$/i,"").replace(/[-_+]+/g," ").replace(/\b\d{3,}\b/g,"").replace(/\s+/g," ").trim();return s?s.charAt(0).toUpperCase()+s.slice(1):""}catch(_){return ""}}
-function renderPlay(){const d=S.playDraft,PS=playSecs(),sec=PS.find(s=>s[0]===S.playSec)||PS[0];
-  let h=`<div><div class="eyebrow">Mit dem Ball</div><h1>Sport und Spiel</h1></div>${bellRow("spiel")}
-   <div class="unl">${PS.map(s=>`<button class="chipbtn" data-playsec="${s[0]}" aria-pressed="${s[0]===sec[0]}">${s[1]} ${s[2]}</button>`).join("")}${catBtn("play","chipbtn")}</div>`;
-  if(d){const one=(f,L)=>`<div class="unl">${L.map(c=>`<button class="chipbtn" data-plset="${f}" data-v="${c[0]}" aria-pressed="${d[f]===c[0]}">${c[1]}</button>`).join("")}</div>`,hint=PLAY_HINT[d.sec]||["",""];
-    return h+`<section class="card tripform"><h2>${d.id?"Bearbeiten":"Neu bei "+esc(sec[2])}</h2>
+// Sport und Spiel im Gemerkt-Bauplan (Florian 17.11.2026, wie Reisen und Musik): eine Karte „🔖 Gemerkt“ mit „＋ Merken“ und 🗺️ (Spielplatz-Karte),
+// zwei wischbare Filterzeilen Art (S.playSec, "" = Alle, Sprung spiel|ps:<art>) und Wo/Stand (S.playF), Zeilen li.mk, Stand-Leiter am Schild (food/play/<id>/st, fav bleibt = Favorit)
+const PLAY_ST=[["idee","💡","Idee"],["favorit","⭐","Favorit"],["geplant","📅","Geplant"],["erledigt","✅","Erledigt"]];
+const playSt=x=>x.st||(x.fav?"favorit":"idee");
+const playSecOf=x=>{const s=x.sec||"spielplatz";return s==="links"||!playSecs().some(p=>p[0]===s)?"sonst":s};
+const playOut=x=>playSecOf(x)==="spielplatz"||x.wx==="draussen"||x.wx==="egal",playIn=x=>x.wx==="drinnen"||x.wx==="egal";
+const telPlain=s=>{let t=String(s||"");telNums(t).forEach(m=>{t=t.split(m).join("📞 "+telMask(m))});return t};
+function renderPlay(){const d=S.playDraft,PS=playSecs(),F=S.playF||"",cur=PS.find(s=>s[0]===S.playSec);
+  let h=`<div><div class="eyebrow">Mit dem Ball</div><h1>Sport und Spiel</h1></div>${bellRow("spiel")}`;
+  if(d){const sec=PS.find(s=>s[0]===d.sec)||PS[0],x=d.id&&plays().find(y=>y.id===d.id),one=(f,L)=>`<div class="unl">${L.map(c=>`<button class="chipbtn" data-plset="${f}" data-v="${c[0]}" aria-pressed="${d[f]===c[0]}">${c[1]}</button>`).join("")}</div>`,hint=PLAY_HINT[d.sec]||["",""];
+    return h+`<section class="card tripform"><h2>${d.id?"✎ Bearbeiten":"🔖 Merken bei Sport und Spiel"}</h2>
+    <div class="fld"><span>Art</span><div class="unl">${PS.map(s=>`<button type="button" class="chipbtn" data-plset="sec" data-v="${esc(s[0])}" aria-pressed="${d.sec===s[0]}">${esc(s[1])} ${esc(s[2])}</button>`).join("")}</div></div>
     ${d.sec==="zuhause"&&!d.id?`<label class="fld"><span>Link zur Spielidee (füllt den Namen vor)</span><input type="url" id="pl-link0" data-plf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off"></label>`:""}
     <label class="fld"><span>Name</span><input type="text" id="pl-name" data-plf="name" value="${esc(d.name)}" maxlength="80" placeholder="${esc(hint[0])}" autocomplete="off"></label>${emoFld("data-plf",d.emo,sec[1])}
     ${d.sec==="links"?"":d.sec==="spielplatz"?"":`<div class="fld"><span>Wo?</span>${one("wx",PLAY_WX)}</div>`}
@@ -71,20 +78,31 @@ function renderPlay(){const d=S.playDraft,PS=playSecs(),sec=PS.find(s=>s[0]===S.
     ${d.sec==="zuhause"?`<label class="fld"><span>Was braucht man?</span><input type="text" id="pl-mat" data-plf="mat" value="${esc(d.mat)}" maxlength="120" placeholder="Decken, Wäscheklammern" autocomplete="off"></label>`:""}
     ${d.sec==="sport"?`<label class="fld"><span>Wann?</span><input type="text" id="pl-when" data-plf="when" value="${esc(d.when)}" maxlength="60" placeholder="Zum Beispiel samstags 10 Uhr" autocomplete="off"></label>`:""}
     ${d.sec==="zuhause"&&!d.id?"":`<label class="fld"><span>${d.sec==="spielplatz"?"Link aus Google Maps (sonst sucht die App nach dem Namen)":"Link"}</span><input type="url" id="pl-link" data-plf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off"></label>`}
+    <div class="fld"><span>Stand</span><div class="unl">${PLAY_ST.map(s=>`<button type="button" class="chipbtn" data-plset="st" data-v="${s[0]}" aria-pressed="${(d.st||"idee")===s[0]}">${s[1]} ${s[2]}</button>`).join("")}</div></div>
     <label class="fld"><span>Notiz</span><textarea id="pl-note" data-plf="note" rows="3" placeholder="${esc(hint[1])}">${esc(d.note)}</textarea></label>
-    <div class="btnrow"><button class="primary" data-act="playsave">Speichern</button><button class="ghost" data-act="playcancel">Abbrechen</button>${d.id?`<button class="ghost" data-move="play|${esc(d.id)}">↪ Verschieben</button><button class="ghost danger" data-act="playdel">Löschen</button>`:""}</div></section>`}
-  const psec=x=>{const s=x.sec||"spielplatz";return s==="links"||!PS.some(p=>p[0]===s)?"sonst":s};const l=plays().filter(x=>psec(x)===sec[0]).sort((a,b)=>(b.fav?1:0)-(a.fav?1:0)||(a.name||"").localeCompare(b.name||"","de"));
-  const card=x=>{const lk=safeLink(x.link),meta=[x.age?"ab "+x.age+(x.age==="1"?" Jahr":" Jahren"):"",x.wx==="drinnen"?"☔ drinnen":x.wx==="draussen"?"🌳 draußen":"",x.when?"🕒 "+x.when:"",x.mat?"🧺 "+x.mat:""].filter(Boolean);
-    return `<li><button class="item" data-playfav="${esc(x.id)}" aria-pressed="${!!x.fav}" aria-label="${esc(x.name)}: ${x.fav?"kein Favorit mehr":"als Favorit markieren"}"><span class="box" style="border:none;font-size:1.2rem">${x.fav?"⭐":"☆"}</span><span class="nm">${x.emo?esc(x.emo)+" ":""}${esc(x.name)}${meta.length?`<br><span class="freq">${meta.map(m=>`<span style="white-space:nowrap">${esc(m)}</span>`).join(" · ")}</span>`:""}${x.note?`<br><span class="freq">${telNote(x.note)}</span>`:""}</span></button>${telA(x.note)}${lk||sec[0]==="spielplatz"?`<a class="catbtn" href="${esc(lk||"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(x.name))}" target="_blank" rel="noopener" aria-label="${sec[0]==="spielplatz"?"In Google Maps öffnen":"Link öffnen"}">${sec[0]==="spielplatz"?"🗺️":"🔗"}</a>`:""}${sec[0]==="spielplatz"?transitA(x.name):""}${bell("spiel",x)}<button class="rm" data-playedit="${esc(x.id)}" aria-label="${esc(x.name)} bearbeiten">✎</button></li>`};
-  h+=`<div class="btnrow"><button class="primary" data-act="playnew">+ Neu bei ${esc(sec[2])}</button></div>`;if(sec[0]==="zuhause")h+=musLinks("kinder",3);
-  if(sec[0]==="spielplatz"){const mu=(S.food&&S.food.playmap)||"",emb=mapsEmbed(mu);
+    <div class="btnrow"><button class="primary" data-act="playsave">Speichern</button><button class="ghost" data-act="playcancel">Abbrechen</button>${x?bell("spiel",x):""}${d.id?`<button class="ghost" data-move="play|${esc(d.id)}">↪ Verschieben</button><button class="ghost danger" data-act="playdel">Löschen</button>`:""}</div></section>`}
+  const all=plays(),open=all.filter(x=>playSt(x)!=="erledigt"),cS={},STO={favorit:0,geplant:1,idee:2,erledigt:3};open.forEach(x=>{const k=playSecOf(x);cS[k]=(cS[k]||0)+1});
+  const R=all.filter(x=>(!cur||playSecOf(x)===cur[0])&&(F==="draussen"?playOut(x):F==="drinnen"?playIn(x):true)&&(F==="erledigt"?playSt(x)==="erledigt":F==="favorit"?playSt(x)==="favorit":playSt(x)!=="erledigt"))
+    .sort((a,b)=>STO[playSt(a)]-STO[playSt(b)]||(a.name||"").localeCompare(b.name||"","de"));
+  const n=S.playMore?R.length:Math.min(R.length,10),mapOn=!!(S.playMapShow||S.playMapEdit);
+  const chS=(v,t)=>`<button class="chipbtn neutral" data-playsec="${esc(v)}" aria-pressed="${(cur?cur[0]:"")===v}">${t}</button>`,chF=(v,t)=>`<button class="chipbtn neutral" data-playf="${v}" aria-pressed="${F===v}">${t}</button>`;
+  const badge=x=>{const s=PLAY_ST.find(y=>y[0]===playSt(x))||PLAY_ST[0];return `<button class="stbadge st-${s[0]}" data-playst="${esc(x.id)}" aria-label="Stand von ${esc(x.name)}: ${s[2]}, antippen schaltet weiter">${s[1]} ${s[2]}</button>`};
+  const row=x=>{const k=playSecOf(x),s=PS.find(p=>p[0]===k)||PS[PS.length-1],lk=safeLink(x.link),sp=k==="spielplatz",done=playSt(x)==="erledigt",nt=telPlain(x.note);
+    const sub=[cur?"":s[2],x.age?"ab "+x.age:"",x.wx==="drinnen"?"☔ drinnen":x.wx==="draussen"?"☀️ draußen":x.wx==="egal"?"drinnen und draußen":"",x.when?"🕒 "+x.when:"",x.mat?"🧺 "+x.mat:""].filter(Boolean).join(" · ");
+    return `<li class="mk"><button class="mkb" data-playedit="${esc(x.id)}" aria-label="${esc(x.name)} ansehen und ändern"><span class="mki">${esc(x.emo||s[1])}</span><span class="mkt"><b>${esc(x.name)}</b>${sub?`<span class="freq">${esc(sub)}</span>`:""}${nt?`<span class="freq">${esc(nt.length>90?nt.slice(0,88)+" …":nt)}</span>`:""}</span></button>${telA(x.note)}${lk||sp?`<a class="catbtn routebtn" href="${esc(lk||"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(x.name))}" target="_blank" rel="noopener" aria-label="${sp?"In Google Maps öffnen":"Link öffnen"}">${sp?"🗺️":"🔗"}</a>`:""}${sp&&!done?transitA(x.name):""}${badge(x)}</li>`};
+  h+=`<section class="card playcard"><div class="section-head" style="align-items:center"><h2>🔖 Gemerkt <span class="freq">(${open.length})</span></h2><span style="display:flex;gap:var(--sp2);align-items:center"><button class="iconbtn" data-act="plmapshow" aria-pressed="${mapOn}" aria-label="Spielplatz-Karte ${mapOn?"ausblenden":"zeigen"}">🗺️</button><button class="primary" data-act="playnew">＋ Merken</button></span></div>
+    <div class="unl scrollrow">${chS("","Alle")}${PS.map(s=>chS(s[0],`${esc(s[1])} ${esc(s[2])}${cS[s[0]]?" "+cS[s[0]]:""}`)).join("")}${catBtn("play")}</div>
+    <div class="unl scrollrow">${chF("","Alle")}${chF("draussen","☀️ Draußen")}${chF("drinnen","☔ Drinnen")}${chF("favorit","⭐ Favoriten")}${chF("erledigt","✅ Erledigt")}</div>`;
+  h+=R.length?`<ul class="mklist">${R.slice(0,n).map(row).join("")}</ul>${R.length>n?`<button class="ghost small" data-act="playmore">Alle ${R.length} zeigen</button>`:""}`
+    :`<div class="freq">${all.length?"Für diesen Filter ist nichts gemerkt.":"Noch nichts gemerkt. Spielplätze, Spielideen für zu Hause, Sport und Kurse legt ihr mit ＋ Merken an. Ihr seht beide dieselbe Liste."}</div>`;
+  if(cur&&cur[0]==="zuhause")h+=musLinks("kinder",3);
+  h+=`<div class="freq">Ein Tipp auf den Namen ändert den Eintrag, das Schild rechts schaltet den Stand weiter: 💡 Idee, ⭐ Favorit, 📅 Geplant, ✅ Erledigt.</div></section>`;
+  if(mapOn){const mu=(S.food&&S.food.playmap)||"",emb=mapsEmbed(mu);
     if(S.playMapEdit)h+=`<section class="card"><h2>Eure Spielplatz-Karte</h2><div class="freq">So geht es: In Google Maps eine eigene Karte anlegen (am Handy unter „Gespeichert“ eine Liste, am Computer unter „Meine Karten“), Spielplätze hinzufügen, dann „Teilen“ und den Link hier einfügen. Ein Link aus „Meine Karten“ wird direkt hier angezeigt, eine Liste öffnet sich in Google Maps.</div>
       <input type="url" id="pl-mapurl" value="${esc(S.playMapText)}" placeholder="https://maps.app.goo.gl/…" autocomplete="off" aria-label="Link zur Karte">
       <div class="btnrow"><button class="primary" data-act="plmapsave">Speichern</button><button class="ghost" data-act="plmapcancel">Abbrechen</button></div></section>`;
     else h+=`<section class="card"><div class="section-head"><h2>🗺️ Karte</h2><button class="ghost" data-act="plmapedit">${mu?"Link ändern":"Karte verknüpfen"}</button></div>
-      ${emb?(S.playMapOpen?`<iframe class="mapframe" src="${esc(emb)}" title="Eure Spielplatz-Karte" loading="lazy" referrerpolicy="no-referrer"></iframe><div class="btnrow"><button class="ghost" data-act="plmaptoggle">Karte ausblenden</button><a class="ghost linkbtn" href="${esc(mu)}" target="_blank" rel="noopener noreferrer">In Google Maps öffnen</a></div>`:`<div class="btnrow"><button class="primary" data-act="plmaptoggle">Karte anzeigen</button></div>`)
+      ${emb?`<iframe class="mapframe" src="${esc(emb)}" title="Eure Spielplatz-Karte" loading="lazy" referrerpolicy="no-referrer"></iframe><div class="btnrow"><a class="ghost linkbtn" href="${esc(mu)}" target="_blank" rel="noopener noreferrer">In Google Maps öffnen</a></div>`
         :mu&&mapOk(mu)?`<div class="btnrow"><a class="primary linkbtn" href="${esc(mu)}" target="_blank" rel="noopener noreferrer">Eure Karte in Google Maps öffnen</a></div>`
         :`<div class="freq">Noch keine Karte verknüpft. Jeder Spielplatz hat trotzdem ein 🗺️, das ihn in Google Maps sucht.</div>`}</section>`}
-  h+=l.length?`<section class="card"><div class="section-head"><h2>${sec[1]} ${esc(sec[2])}</h2><span class="freq num">${l.length}</span></div><ul class="shop">${l.map(card).join("")}</ul><div class="freq">Mit dem Stern markiert ihr ⭐ Favoriten, sie stehen dann oben.</div></section>`
-    :`<div class="empty"><h2>Noch nichts bei ${esc(sec[2])}</h2><div>Legt mit dem Knopf oben den ersten Eintrag an. Ihr seht beide dieselbe Liste.</div></div>`;
   return h}
