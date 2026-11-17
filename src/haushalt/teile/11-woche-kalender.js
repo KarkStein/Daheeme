@@ -155,62 +155,81 @@ function renderCal(){if(S.terDraft)return renderTerForm();const today=ymd(new Da
   if(up.length)h+=`<section class="card"><div class="section-head"><h2>Demnächst</h2></div><ul class="evlist">${up.map(e=>evRow(e,true)).join("")}</ul></section>`;
   h+=`<div class="freq" style="text-align:center">Ein Handy-Kalender kann später hier andocken.</div>`;
   return h}
+// Woche kompakt (Florian 17.11.2026, „Alle drei nacheinander“, Bild /mnt/project-files/design/woche-kompakt-live.png): Wochenstand als schlichte Karte,
+// Abschnitte als Klapp-Karten (Stand je Gerät in hq-tfold, Schlüssel wk_<id>), Aufgaben als Zeilen mit Kreisen. Täglich zeigt nur den Kreis von heute,
+// Tipp auf den Namen klappt die ganze Aufgabe mit allen Tagen auf (S.wtOpen). „Diese Woche“ zeigt erst 6 Zeilen (S.wkMore).
+function wkFold(id,title,n,body,def){const k="wk_"+id,on=tFoldOn(k,def);return `<section class="card tfold wkfold section" id="sec-${id}"><button class="setsum" data-tfold="${k}" data-tdef="${def?1:0}" aria-expanded="${on}"><h2>${title}${n?` <span class="freq">(${n})</span>`:""}</h2><i>${on?"▾":"›"}</i></button>${on?`<div class="tfoldb">${body}</div>`:""}</section>`}
+const wkWho=(o,isRot)=>`<span class="owner wtw ${o==="p0"||o==="p1"?o:""}">${isRot?"↻ ":""}${esc(o==="p0"||o==="p1"?pname(o):OWNER_LABEL[o]||"")}</span>`;
 function renderWeek(){
   const mon=S.view,wk=wkKey(mon),cur=mondayOf(new Date()),isCur=+mon===+cur;
   const today=isCur?(new Date().getDay()+6)%7:(mon<cur?7:-1);
-  const sc=weekScore(wk),split=rotSplit(),tk=ticksOf(wk);
+  const split=rotSplit(),tk=ticksOf(wk);
   const {w}=isoWeek(mon);
   let h=`<div class="top"><div><h1>${isCur?"Diese Woche":(mon<cur?"Rückblick":"Vorschau")}</h1><div class="wkdate">KW ${w} · ${fmt(mon,{day:"numeric",month:"short"})} – ${fmt(addDays(mon,6),{day:"numeric",month:"short"})}</div></div>
    <div class="weeknav"><button class="iconbtn" data-prionew="woche" aria-label="Erinnerung anlegen">🔔</button><button class="iconbtn" data-wknav="-1" aria-label="Vorige Woche">‹</button>${isCur?"":`<button class="ghost" data-wknav="0">Heute</button>`}<button class="iconbtn" data-wknav="1" aria-label="Nächste Woche" ${+mon>=+addDays(cur,28)?"disabled":""}>›</button></div></div>`;
   if(!isCur)h+=`<div class="wkro">${mon<cur?(S.wkEdit===wk?`✏️ Nachtragen ist an. <button class="ghost" data-act="wkedit">Fertig</button>`:`🗄️ Archiv: diese Woche ist nur zum Ansehen. <button class="ghost" data-act="wkedit">✏️ Nachtragen</button>`):`🔭 Vorschau: Hausdienst kannst du schon eintragen, abhaken geht erst in der Woche selbst.`}</div>`;
-  const hoTop=true;
-  h+=meChooser();
+  if(!S.me)h+=meChooser();
   const cnt={all:[0,0],p0:[0,0],p1:[0,0]};
   tasks().forEach(t=>{if(group(t.freq)!=="week"||t.owner!=="rot")return;const o=ownerFor(t,mon,split);const n=slotsOf(t);
     for(let i=0;i<n;i++){const d=tk[t.id+"__"+i]?1:0;cnt.all[0]+=d;cnt.all[1]++;if(o==="p0"||o==="p1"){cnt[o][0]+=d;cnt[o][1]++}}});
-  const pct=cnt.all[1]?cnt.all[0]/cnt.all[1]:0;
   const mine=S.filter==="meine"&&S.me;
+  // Wochenstand (nur Wechsel-Aufgaben; bei „Mein Bereich“ meine Wechsel- und festen Aufgaben)
+  let sd,sn,sub;
   if(mine){const m={rot:[0,0],fix:[0,0]};
     tasks().forEach(t=>{if(group(t.freq)!=="week")return;const k=t.owner==="rot"?(ownerFor(t,mon,split)===S.me?"rot":null):(t.owner===S.me?"fix":null);if(!k)return;
       const n=slotsOf(t);for(let i=0;i<n;i++){m[k][0]+=tk[t.id+"__"+i]?1:0;m[k][1]++}});
-    const d=m.rot[0]+m.fix[0],n=m.rot[1]+m.fix[1];
-    h+=`<section class="campback dash wkpanel" aria-label="Mein Wochenstand">${panelHead("Mein Stand · KW "+w,n-d>0?`Noch ${n-d} offen`:"Alles erledigt",esc(pname(S.me))+", Wechsel und feste Aufgaben",panelRing(d,n,"gesamt",'data-jump="rot" aria-label="Gebündelt anzeigen"'))}
-    <div class="bcnts" style="grid-template-columns:repeat(2,1fr)">${panelTile(m.rot[0]+"/"+m.rot[1],"im Wechsel ›",'data-jump="rot"')}${panelTile(m.fix[0]+"/"+m.fix[1],"feste Aufgaben ›",'data-jump="fix"')}</div></section>`;
-    if(n&&d>=n)h+=`<div class="celebrate">Du hast alle deine Aufgaben für diese Woche erledigt.</div>`;
-  }else{
-  const fx=[0,0];tasks().forEach(t=>{if(group(t.freq)!=="week"||t.owner==="rot")return;const n=slotsOf(t);for(let i=0;i<n;i++){fx[0]+=tk[t.id+"__"+i]?1:0;fx[1]++}});const op=cnt.all[1]-cnt.all[0];
-  h+=`<section class="campback dash wkpanel" aria-label="Wochenstand">${panelHead("Wochenstand · KW "+w,op>0?`Noch ${op} offen`:"Alles erledigt","Wechsel-Aufgaben "+(isCur?"dieser Woche":mon<cur?"dieser Woche (Rückblick)":"(Vorschau)"),panelRing(cnt.all[0],cnt.all[1],"im Wechsel",'data-jump="rot" aria-label="Wechsel-Aufgaben gebündelt anzeigen"'))}
-    <div class="bcnts">${panelTile(cnt.p0[0]+"/"+cnt.p0[1],esc(pname("p0"))+" ›",'data-jump="rot"')}${panelTile(cnt.p1[0]+"/"+cnt.p1[1],esc(pname("p1"))+" ›",'data-jump="rot"')}${panelTile(fx[0]+"/"+fx[1],"feste Aufgaben ›",'data-jump="fix"')}</div></section>`;
-  if(cnt.all[1]&&cnt.all[0]>=cnt.all[1])h+=`<div class="celebrate">Alle Wechsel-Aufgaben dieser Woche sind erledigt.</div>`;}
-  h+=scopeSwitch(`<button class="chipbtn neutral" data-act="hidedone" aria-pressed="${S.hideDone}">Erledigte ausblenden</button><button class="chipbtn neutral" data-act="groupby" aria-pressed="${S.groupBy==="art"}">Fest und Wechsel bündeln</button>`);
+    sd=m.rot[0]+m.fix[0];sn=m.rot[1]+m.fix[1];sub=`Mein Stand · im Wechsel ${m.rot[0]}/${m.rot[1]} · fest ${m.fix[0]}/${m.fix[1]}`}
+  else{sd=cnt.all[0];sn=cnt.all[1];sub=`Wochenstand${isCur?"":mon<cur?" (Rückblick)":" (Vorschau)"} · ${esc(pname("p0"))} ${cnt.p0[0]}/${cnt.p0[1]} · ${esc(pname("p1"))} ${cnt.p1[0]}/${cnt.p1[1]}`}
+  h+=`<section class="card wkstand" aria-label="Wochenstand"><div class="wkhead"><div><b>${sn-sd>0?`Noch ${sn-sd} offen`:"Alles erledigt"}</b><div class="freq">${sub}</div></div><span class="num wkn">${sd}/${sn}</span></div>
+    <div class="unl scrollrow wkf" role="group" aria-label="Ansicht"><button class="chipbtn neutral" data-filter="alle" aria-pressed="${S.filter==="alle"}">Alle</button><button class="chipbtn neutral" data-filter="meine" aria-pressed="${S.filter==="meine"}">Mein Bereich</button><button class="chipbtn neutral" data-act="hidedone" aria-pressed="${S.hideDone}">Erledigte ausblenden</button><button class="chipbtn neutral" data-act="groupby" aria-pressed="${S.groupBy==="art"}">Fest und Wechsel bündeln</button></div>
+    ${S.filter==="meine"&&!S.me?`<div class="notice">Wähle oben aus, wer du bist, damit „Mein Bereich“ funktioniert.</div>`:""}</section>`;
+  if(sn&&sd>=sn)h+=`<div class="celebrate">${mine?"Du hast alle deine Aufgaben für diese Woche erledigt.":"Alle Wechsel-Aufgaben dieser Woche sind erledigt."}</div>`;
 
   const FO={day:0,week:1,month:2,half:3,year:4};
-  const card=t=>{const f=t.freq,o=ownerFor(t,mon,split),isRot=t.owner==="rot";let html,doneAll,pct;
-    if(f==="day"||f==="week"){const n=slotsOf(t),isHO=t.owner==="ho",isBoth=t.owner==="both";let c=0,slots="";
+  const card=t=>{const f=t.freq,o=ownerFor(t,mon,split),isRot=t.owner==="rot";let html,doneAll,pct;const sl=[];let c=0,n=1,pb="",pinfo="";
+    if(f==="day"||f==="week"){n=slotsOf(t);const isHO=t.owner==="ho",isBoth=t.owner==="both";let slots="";
       for(let i=0;i<n;i++){const k=t.id+"__"+i;const cls=["slot"];let lbl=f==="day"?DAYS[i]:"",aria="",on=false;
         if(isBoth){const leg=tk[k],a=tk[k+"_p0"]||(leg&&leg.by==="p0"?leg:null),b=tk[k+"_p1"]||(leg&&leg.by==="p1"?leg:null);
           c+=(a?0.5:0)+(b?0.5:0);cls.push("split");if(a)cls.push("h0");if(b)cls.push("h1");if(a&&b)lbl="✓";on=!!(a&&b);
           aria=(a?" "+esc(pname("p0"))+" erledigt":"")+(b?" "+esc(pname("p1"))+" erledigt":"")}
         else{const v=tk[k];if(v){c++;on=true;cls.push("on",isHO?(v.by==="x"?"x":v.by):"chk");lbl=isHO?(v.half==="vm"?`<span class="hohalf">${esc(pname(v.by).charAt(0))}/${esc(pname(v.by==="p0"?"p1":"p0").charAt(0))}</span>`:`<span>${esc(v.by==="x"?(v.lbl||"X").slice(0,2):pname(v.by).charAt(0))}${v.part?`<sup>${v.part==="ab"?1:2}</sup>`:""}</span>`):"✓";aria=" erledigt von "+esc(v.by==="x"?(v.lbl||"X"):pname(v.by))+(v.half==="vm"?" vormittags, "+esc(pname(v.by==="p0"?"p1":"p0"))+" nachmittags":v.part==="ab"?", holt nachmittags ab":v.part==="br"?", bringt morgens":"")}}
         if(f==="day"){if(i===today)cls.push("today");if(i>today)cls.push("future");if(isHO)cls.push("hoslot")}
-        if(hasSubs(t)&&!isBoth&&!isHO){slots+=`<div class="subgrp${on?" all":""}" role="group" aria-label="${esc(t.name)} ${f==="day"?DAYS[i]:(i+1)+". Mal"}">${n>1?`<span class="subn">${f==="day"?DAYS[i]:(i+1)+"."}</span>`:""}${t.subs.map((sn,j)=>{const sv=tk[k+"_s"+j];return `<button class="subbtn${sv?" on":""}" data-task="${esc(t.id)}" data-slot="${i}" data-sub="${j}" aria-pressed="${!!sv}" aria-label="${esc(sn)}${sv?" erledigt von "+esc(pname(sv.by)):""}">${sv?"✓ ":""}${esc(sn)}</button>`}).join("")}</div>`;continue}
-        slots+=`<button class="${cls.join(" ")}" data-task="${esc(t.id)}" data-slot="${i}" ${isBoth?'data-split="1"':""} ${f==="day"&&i>today&&!isHO?"disabled":""} aria-pressed="${on}" aria-label="${esc(t.name)} ${f==="day"?DAYS[i]:(i+1)+". Mal"}${aria}">${lbl}</button>`}
+        if(hasSubs(t)&&!isBoth&&!isHO){const g=`<div class="subgrp${on?" all":""}" role="group" aria-label="${esc(t.name)} ${f==="day"?DAYS[i]:(i+1)+". Mal"}">${n>1?`<span class="subn">${f==="day"?DAYS[i]:(i+1)+"."}</span>`:""}${t.subs.map((sn,j)=>{const sv=tk[k+"_s"+j];return `<button class="subbtn${sv?" on":""}" data-task="${esc(t.id)}" data-slot="${i}" data-sub="${j}" aria-pressed="${!!sv}" aria-label="${esc(sn)}${sv?" erledigt von "+esc(pname(sv.by)):""}">${sv?"✓ ":""}${esc(sn)}</button>`}).join("")}</div>`;slots+=g;sl.push(g);continue}
+        const btn=(extra,l)=>`<button class="${cls.join(" ")}${extra}" data-task="${esc(t.id)}" data-slot="${i}" ${isBoth?'data-split="1"':""} ${f==="day"&&i>today&&!isHO?"disabled":""} aria-pressed="${on}" aria-label="${esc(t.name)} ${f==="day"?DAYS[i]:(i+1)+". Mal"}${aria}">${l}</button>`;
+        slots+=btn("",lbl);sl.push(btn(" wsl",on?(isHO?lbl:"✓"):""))}
       doneAll=c>=n;pct=n?c/n:0;const cs=(c%1?String(c).replace(".",","):c);
       html=`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${f==="day"?"täglich":n+"× pro Woche"} · ${cs}/${n}</span></div></div></div><div class="slots">${slots}</div>${taskLink(t)}${isBoth?`<div class="freq">Jeder hakt seine Hälfte ab: links ${esc(pname("p0"))}, rechts ${esc(pname("p1"))}.</div>`:""}</article>`;
-    }else{const pt=periodTick(t,mon);doneAll=!!pt;pct=doneAll?1:0;if(!pt&&!periodDue(t,mon))return {t,o,html:"",done:false,later:periodMid(f,mon),pct:0,times:1};
+    }else{const pt=periodTick(t,mon);doneAll=!!pt;pct=doneAll?1:0;if(!pt&&!periodDue(t,mon))return {t,o,html:"",done:false,later:periodMid(f,mon),pct:0,times:1,sl,c:0,n:1};
       const lbl=pt?`✓ Erledigt von ${esc(pname(pt.v.by))} am ${fmt(new Date(pt.v.at),{day:"numeric",month:"short"})}`:"○ Als erledigt markieren";
+      pb=`<button class="slot wsl${pt?" on chk":""}" data-task="${esc(t.id)}" data-slot="p" aria-pressed="${doneAll}" aria-label="${esc(t.name)}${pt?" erledigt":" als erledigt markieren"}">${pt?"✓":""}</button>`;
+      pinfo=pt?`${esc(pname(pt.v.by))}, ${fmt(new Date(pt.v.at),{day:"numeric",month:"short"})}`:"";
       html=`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${FREQ_LABEL[f]}</span></div></div></div><div><button class="bigcheck${pt?" on chk":""}" data-task="${esc(t.id)}" data-slot="p" aria-pressed="${doneAll}">${lbl}</button></div>${taskLink(t)}</article>`}
-    return {t,o,html,done:doneAll,pct,times:slotsOf(t)}};
+    return {t,o,isRot,html,done:doneAll,pct,times:slotsOf(t),sl,c,n,pb,pinfo,subs:hasSubs(t)&&t.owner!=="both"&&t.owner!=="ho"}};
+  // Eine Zeile: Name (Tipp klappt die ganze Aufgabe auf), wer, Kreise
+  const row=x=>{const t=x.t,op=S.wtOpen===t.id,f=t.freq;let circ="",info="";
+    if(f==="day"){if(today>=0&&today<7)circ=x.sl[today]||"";else circ=`<span class="freq num">${x.c%1?String(x.c).replace(".",","):x.c}/7</span>`}
+    else if(f==="week"){if(!x.subs)circ=x.sl.join("")}
+    else{circ=x.pb;info=x.pinfo}
+    const subs=x.subs&&!op?`<div class="wtsubs">${x.sl.join("")}</div>`:"";
+    return `<div class="wt${x.done?" done":""}${op?" open":""}"><div class="wtl"><button class="wtn" data-wtopen="${esc(t.id)}" aria-expanded="${op}"><b>${esc(t.name)}</b></button><div class="wtm">${wkWho(x.o,x.isRot)}${info?`<span class="freq">${info}</span>`:""}${taskLink(t,true)}</div>${subs}</div>${op?"":`<span class="wtc">${circ}</span>`}</div>${op?`<div class="wtx">${x.html}<button class="linkish" data-wtopen="${esc(t.id)}">Zuklappen</button></div>`:""}`};
   const vis=x=>!(S.filter==="meine"&&S.me&&!(x.o===S.me||x.o==="both"||x.o==="ho"))&&!(S.hideDone&&x.done);
   const order=(a,b)=>FO[a.t.freq]-FO[b.t.freq]||b.times-a.times||a.pct-b.pct;
   const secs=S.groupBy==="art"
-    ?[["rot","Wechsel-Aufgaben",t=>t.owner==="rot"],["fix","Feste Aufgaben",t=>t.owner==="p0"||t.owner==="p1"],["gem","Gemeinsam und Hausdienst",t=>t.owner==="both"||t.owner==="ho"]]
-    :[["day","Täglich",t=>t.freq==="day"],["week","Diese Woche",t=>t.freq==="week"],["month","Diesen Monat",t=>t.freq==="month"],["half","Dieses Halbjahr",t=>t.freq==="half"],["year","Dieses Jahr",t=>t.freq==="year"]];
-  if(hoTop){const ho=tasks().filter(t=>t.owner==="ho").map(card);
-    h+=(ho.length?`<section class="section hotop" id="sec-ho" aria-label="Hausdienst"><div class="section-head"><h2>🔑 Hausdienst</h2><span class="freq">wer den Dienst zu Hause hat; der andere bringt und holt</span></div>${ho.map(x=>x.html).join("")}</section>`:"")}
-  secs.forEach(([id,title,fn0])=>{const fn=hoTop?t=>t.owner!=="ho"&&fn0(t):fn0;const xs=tasks().filter(fn).map(card).filter(vis).sort(order);if(!xs.length)return;
+    ?[["rot","↻ Wechsel-Aufgaben",t=>t.owner==="rot",1],["fix","📌 Feste Aufgaben",t=>t.owner==="p0"||t.owner==="p1",1],["gem","🤝 Gemeinsam",t=>t.owner==="both",1]]
+    :[["day","☀️ Täglich",t=>t.freq==="day",1],["week","📅 Diese Woche",t=>t.freq==="week",1],["month","🗓️ Diesen Monat",t=>t.freq==="month",0],["half","🌗 Dieses Halbjahr",t=>t.freq==="half",0],["year","🎉 Dieses Jahr",t=>t.freq==="year",0]];
+  // Hausdienst immer als erster Abschnitt (Florian 15.11.2026), Filter blenden ihn nicht aus
+  const ho=tasks().filter(t=>t.owner==="ho").map(card);
+  if(ho.length){const hv=today>=0&&today<7?tk[ho[0].t.id+"__"+today]:null,hn=n=>esc(pname(n).charAt(0));
+    const lab=!(today>=0&&today<7)?ho[0].c+" Tage eingetragen":!hv?"heute niemand":hv.by==="x"?"heute "+esc(hv.lbl||"jemand"):hv.half==="vm"?`heute ${hn(hv.by)} vorm. · ${hn(hv.by==="p0"?"p1":"p0")} nachm.`:"heute "+esc(pname(hv.by));
+    h+=wkFold("ho","🔑 Hausdienst",lab,`<div class="freq">Wer den Dienst zu Hause hat, bringt und holt nicht, das macht der andere. Kurz tippen trägt dich ein, lange drücken für mehr.</div>${ho.map(x=>x.html.replace('<article class="task','<article class="task hotask')).join("")}`,1)}
+  secs.forEach(([id,title,fn0,def])=>{const fn=t=>t.owner!=="ho"&&fn0(t);const xs=tasks().filter(fn).map(card).filter(vis).sort(order);if(!xs.length)return;
     const lt=xs.filter(x=>x.later),op=xs.filter(x=>!x.done&&!x.later),dn=xs.filter(x=>x.done);if(!op.length&&!dn.length&&!lt.length)return;
-    h+=`<section class="section" id="sec-${id}"><div class="section-head"><h2>${title}</h2>${!hoTop&&(id==="day"||id==="gem")?`<span class="freq">„Hausdienst“ = Dienst zu Hause, der andere bringt und holt</span>`:""}</div>${op.map(x=>x.html).join("")}${dn.length?`<div class="donesep">Erledigt</div>`+dn.map(x=>x.html).join(""):""}${lt.length?`<div class="laterline freq">⏳ Erst ab Mitte des Zeitraums: ${lt.map(x=>esc(x.t.name)+" (ab "+fmt(x.later,{day:"numeric",month:"numeric"})+")").join(", ")}</div>`:""}</section>`});
+    const lim=id==="week"&&!S.wkMore?6:99,all=op.concat(dn),shown=all.slice(0,lim),rest=all.length-shown.length;
+    const so=shown.filter(x=>!x.done),sdn=shown.filter(x=>x.done);
+    const nlab=op.length+dn.length?(id==="day"&&isCur?`${op.length+dn.length}, heute ${op.some(x=>x.sl[today]&&!/aria-pressed="true"/.test(x.sl[today]))?"offen":"erledigt"}`:`${op.length+dn.length}, ${dn.length} erledigt`)+(lt.length?`, ${lt.length} erst ab Mitte`:""):`${lt.length}, erst ab Mitte`;
+    const body=`${so.map(row).join("")}${sdn.length?`<div class="donesep">Erledigt</div>`+sdn.map(row).join(""):""}${rest>0?`<button class="linkish" data-act="wkmore">Noch ${rest} weitere zeigen</button>`:""}${lt.length?`<div class="laterline freq">⏳ Erst ab Mitte des Zeitraums: ${lt.map(x=>esc(x.t.name)+" (ab "+fmt(x.later,{day:"numeric",month:"numeric"})+")").join(", ")}</div>`:""}`;
+    h+=wkFold(id,title,nlab,body,def)});
+  h+=`<div class="freq wkhint">Kreise antippen hakt ab. Tipp auf den Namen zeigt alle Tage. Abschnitte bleiben auf diesem Handy auf oder zu.</div>`;
   return h}
 
 function renderScore(){

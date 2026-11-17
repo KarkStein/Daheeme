@@ -6,7 +6,9 @@ srv.listen(8765,async()=>{
     await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');await A.waitForTimeout(300);
     const o={};
     await A.click('#tabs [data-tab=woche]');await A.waitForTimeout(400);
-    o.titles=await A.$$eval('.task-title',l=>l.map(x=>x.innerText).filter(x=>/Flächen|Zimmer drüben/.test(x)));
+    // Woche kompakt (17.11.2026): Monat ist eine Klapp-Karte, erst aufklappen
+    const mf=await A.$('[data-tfold=wk_month][aria-expanded=false]');if(mf){await mf.click();await A.waitForTimeout(300)}
+    o.titles=await A.$$eval('.wt .wtn b',l=>l.map(x=>x.innerText).filter(x=>/Flächen|Zimmer drüben/.test(x)));
     o.later=await A.$$eval('.laterline',l=>l.map(x=>x.innerText).join(' | '));
     await A.click('[data-tab=camp]');await A.waitForTimeout(400);
     await A.click('.camp',{position:{x:120,y:60}});await A.waitForTimeout(400);

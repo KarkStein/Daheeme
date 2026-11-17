@@ -587,3 +587,19 @@ a.mkb{text-decoration:none;color:var(--fg)}.muslk[aria-pressed=false]{filter:gra
 #fan .fanall{background:none;border:1px solid rgba(243,227,184,.6);color:#f3e3b8;border-radius:999px;padding:var(--sp1) var(--sp3);font:inherit;font-size:var(--fs-s)}#fan .fanall.fanhot{background:rgba(243,227,184,.2)}
 #fan .fanttl{color:#f3e3b8;font-weight:700;font-size:var(--fs-xs);letter-spacing:.08em;text-transform:uppercase}
 .ureise .ueck{margin-top:var(--sp3);border-top:1px solid var(--line);padding-top:var(--sp2)}.ureise .ueck h3{margin:0 0 var(--sp2);font-size:var(--fs-m)}.ureise .section-head b{font-size:var(--fs-m)}
+/* Woche kompakt (Florian 17.11.2026): Wochenstand schlicht, Abschnitte als Klapp-Karten, Aufgaben als Zeilen mit Kreisen */
+.wkstand .wkhead{display:flex;justify-content:space-between;align-items:center;gap:var(--sp2)}.wkstand .wkhead b{font-size:var(--fs-m)}.wkstand .wkn{font-weight:700;color:var(--muted)}.wkstand .wkf{margin-top:var(--sp2)}
+.wkfold.section{display:block}.wkfold .tfoldb{display:flex;flex-direction:column}
+.wt{display:flex;align-items:center;gap:6px;padding:6px 0;border-top:1px solid var(--line);min-height:44px}.wkfold .tfoldb>.wt:first-child{border-top:none}
+.wt .wtn{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;text-align:left;background:none;border:none;padding:4px 0;font:inherit;color:var(--fg)}.wt .wtn b{font-weight:600;overflow-wrap:break-word;hyphens:auto}.wt .wtn .freq{font-size:var(--fs-xs)}
+.wt.done .wtn b{color:var(--muted);text-decoration:line-through}
+.wt .wtw{font-weight:600;background:none;border:1px solid var(--line);border-radius:999px;padding:1px 8px}
+.wt .wtc{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;max-width:132px}
+.slot.wsl{width:28px;height:28px;border-width:2px;font-size:var(--fs-xs)}.slot.wsl.on.chk,.slot.wsl.split.h0.h1{font-size:var(--fs-s)}
+.wtsubs{padding:var(--sp1) 0 0;display:flex;flex-direction:column;gap:4px}.wtsubs .subbtn{padding:4px 10px}
+.wtx{padding:0 0 var(--sp2)}.wtx .task{box-shadow:none;border:none;background:none;padding:var(--sp1) 0}.wtx .linkish{align-self:flex-start}
+.wkfold .hotask{box-shadow:none;border:none;background:none;padding:var(--sp2) 0 0}.wkfold .hotask .task-title{font-size:var(--fs-s);font-weight:500;color:var(--muted)}
+.wkfold .donesep{margin:var(--sp2) 0 var(--sp1)}.wkfold .linkish{margin-top:var(--sp2);align-self:flex-start}.wkhint{text-align:center;margin-top:var(--sp2)}
+.wt .wtl{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.wt .wtm{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.wt .wtm .tlink{padding:0 2px;font-size:var(--fs-xs)}.wt .wtn{padding:2px 0}
+.wkfold .hotask .meta{display:none}
+.wtx .task-title{display:none}.wtx .tlink,.wkfold .hotask .tlink{align-self:flex-start}

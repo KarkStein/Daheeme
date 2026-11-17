@@ -11,12 +11,14 @@ srv.listen(8765,async()=>{
   const r={};const db=()=>JSON.parse(JSON.stringify(get(['haushalt',key])));
   const c2=db().config;r.names=c2.tasks.filter(t=>t.id==='saugen'||t.id==='treppe').map(t=>t.name+(t.subs?'['+t.subs.join('|')+']':''));
   await A.click('#tabs [data-tab=woche]');await A.waitForTimeout(400);
+  // Woche kompakt (17.11.2026): erst 6 Zeilen, „Noch … weitere zeigen“
+  const more=await A.$('#sec-week [data-act=wkmore]');if(more){await more.click();await A.waitForTimeout(300)}
   r.subs=await A.$$eval('.subbtn',l=>l.map(x=>x.innerText));
   for(const j of [0,1]){await A.click(`.subbtn[data-task=treppe][data-sub="${j}"]`);await A.waitForTimeout(350)}
   const w1=Object.values(db().weeks||{})[0]||{};r.mid=Object.keys(w1.ticks||{});
   await A.click('.subbtn[data-task=treppe][data-sub="2"]');await A.waitForTimeout(400);
   const w2=Object.values(db().weeks||{})[0]||{};r.full=Object.keys(w2.ticks||{});
-  await A.addStyleTag({content:'#tabs{display:none!important}'});const el=await A.$('.subbtn[data-task=treppe]');await el.scrollIntoViewIfNeeded();await A.waitForTimeout(300);const box=await (await el.evaluateHandle(e=>e.closest('.task'))).asElement().boundingBox();
+  await A.addStyleTag({content:'#tabs{display:none!important}'});const el=await A.$('.subbtn[data-task=treppe]');await el.scrollIntoViewIfNeeded();await A.waitForTimeout(300);const box=await (await el.evaluateHandle(e=>e.closest('.wt,.task'))).asElement().boundingBox();
 
   await A.waitForTimeout(1500);await A.screenshot({timeout:20000,path:out+'/saugen-komplett.png',clip:{x:0,y:box.y-10,width:400,height:box.height+20}});
   await A.click('.subbtn[data-task=treppe][data-sub="1"]');await A.waitForTimeout(400);

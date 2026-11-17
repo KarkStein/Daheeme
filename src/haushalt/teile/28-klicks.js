@@ -320,6 +320,8 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="gotasks"){goTasks(b.classList.contains("bring2")?"day":"");return}
   if(b.dataset.catman){catManage(b.dataset.catman);return}
   if(b.dataset.advren){const c=advCals().find(x=>x.id===b.dataset.advren);if(!c)return;editBox("Adventskalender",[{k:"name",label:"Name",type:"text",val:c.name},{k:"emo",label:"Symbol (optional)",type:"text",val:c.emo||""}],async V=>{const n=String(V.name||"").trim().slice(0,40);if(!n){toast("Bitte einen Namen eintragen.");return}await S.store.setPath("food/advent/"+c.id+"/name",n);await S.store.setPath("food/advent/"+c.id+"/emo",emoClean(V.emo));toast("Gespeichert")});return}
+  if(b.dataset.wtopen){S.wtOpen=S.wtOpen===b.dataset.wtopen?"":b.dataset.wtopen;render();return}
+  if(b.dataset.act==="wkmore"){S.wkMore=true;render();return}
   if(b.dataset.tfold){const k=b.dataset.tfold;S.tFold=S.tFold||{};S.tFold[k]=!tFoldOn(k,b.dataset.tdef==="1");try{localStorage.setItem("hq-tfold",JSON.stringify(S.tFold))}catch(_){}render();return}
   if(b.dataset.atipopen!=null){const O=S.atipOpen||(S.atipOpen={}),k=b.dataset.atipopen;O[k]=!O[k];render();return}
   if(b.dataset.atipwo!=null){S.atipWO=atipTog(atipWO(),b.dataset.atipwo,ATIP_WO);render();return}
