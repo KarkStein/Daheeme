@@ -25,7 +25,7 @@ window.addEventListener("popstate",e=>{const st=e.state;
 // ---------- Events ----------
 // Wischen links/rechts (Florian 17.11.2026, „Seiten im Reiter“): blättert nur die Seiten der Leiste oben (.pager: Start, Woche, Essen, Einkauf, Wir;
 // sonst die Reiter-Zeile .tabrow, z. B. Reisen Übersicht | Packlisten). Kein Sprung in andere Bereiche, kein Umlauf. Der Wechsel läuft über den Knopf selbst (gleicher Weg wie ein Tipp).
-function swipeTo(dir){if(document.getElementById("mbox")||document.getElementById("allar"))return;
+function swipeTo(dir){if(document.getElementById("mbox")||document.getElementById("allar")||document.getElementById("fan"))return;
   const bar=app.querySelector(".pager .pdots")||app.querySelector(".tabrow");if(!bar)return;
   const L=[...bar.querySelectorAll("button[aria-pressed]")],i=L.findIndex(x=>x.getAttribute("aria-pressed")==="true");if(i<0)return;const nx=L[i+dir];if(!nx)return;
   nx.click();window.scrollTo(0,0);app.classList.remove("swl","swr");void app.offsetWidth;app.classList.add(dir>0?"swl":"swr")}

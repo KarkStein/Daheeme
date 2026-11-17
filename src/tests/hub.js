@@ -24,7 +24,7 @@ srv.listen(8765,async()=>{
   await A.click('[data-calwho=""]');await A.click('[data-caloff=food]');await A.click('[data-caloff=reise]');await A.waitForTimeout(200);r.listNoFood=await A.$$eval('.evlist li',l=>l.length);
   await A.screenshot({path:out+'/kal-liste.png',fullPage:true});
   // vacation: reminders
-  await A.click('#tabs [data-tab=essen]');await A.waitForTimeout(100);await A.click('#tabs [data-tab=camp]');await A.waitForTimeout(300);await A.click('.spot[data-go=reisen]');await A.waitForTimeout(300);await A.click('[data-reise=u1]');await A.waitForTimeout(300);
+  await A.click('#tabs [data-tab=essen]');await A.waitForTimeout(100);await A.click('#tabs [data-tab=camp]');await A.waitForTimeout(300);await A.click('.spot[data-go=reisen]');await A.waitForTimeout(300);await A.click('[data-reise=u1]');await A.waitForTimeout(300);await A.click('[data-tfold=uprio]');await A.waitForTimeout(200);
   r.vor=await A.$$eval('[data-reiseprio]',l=>l.length);
   await A.screenshot({path:out+'/urlaub-vorher.png',fullPage:true});
   r.stress=['Wildpark'];r.sugg=[];

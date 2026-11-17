@@ -577,3 +577,13 @@ section[id^="sec-"]{scroll-margin-top:calc(var(--sp5)*3)}
 a.mkb{text-decoration:none;color:var(--fg)}.muslk[aria-pressed=false]{filter:grayscale(1);opacity:.5}
 .mustxt{list-style:none;white-space:pre-wrap;font-size:var(--fs-s);line-height:1.5;padding:var(--sp2) var(--sp3);margin:0 0 var(--sp2);background:var(--bg);border-radius:var(--r-s)}
 :is(.muscard,.playcard) .scrollrow+.scrollrow{margin-top:6px}.mkt b{overflow-wrap:break-word;hyphens:auto}:is(.muscard,.playcard) .mk{gap:0}:is(.muscard,.playcard) .mk .routebtn{padding:8px 5px}:is(.muscard,.playcard) .mk .stbadge{padding:3px 8px;margin:0 var(--sp1)}
+#fan{position:fixed;inset:0;z-index:60;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}#fan .fanbg{position:absolute;inset:0;background:rgba(15,25,45,.72)}
+#fan .fanring{position:absolute;width:60px;height:56px;border-radius:var(--r);border:2px solid #fff;box-shadow:0 0 0 4px rgba(255,255,255,.25);pointer-events:none}
+#fan .fanlist{position:absolute;left:var(--sp4);right:var(--sp4);display:flex;flex-direction:column-reverse;gap:var(--sp3);align-items:flex-start}#fan.r .fanlist{align-items:flex-end}
+#fan .fanit{display:flex;align-items:center;gap:var(--sp3);max-width:100%;background:var(--surface);border:1.5px solid var(--ink);border-radius:999px;padding:var(--sp1) var(--sp4) var(--sp1) var(--sp1);box-shadow:0 4px 14px rgba(0,0,0,.35);color:var(--ink);font:inherit;text-align:left;transition:transform .12s}
+#fan.r .fanit{flex-direction:row-reverse;padding:var(--sp1) var(--sp1) var(--sp1) var(--sp4);text-align:right}
+#fan .fanit span{width:40px;height:40px;flex:none;border-radius:50%;background:var(--bg);display:grid;place-items:center;font-size:var(--fs-xl)}#fan .fanit b{font-weight:600;font-size:var(--fs-m)}
+#fan .fanit.on b{text-decoration:underline;text-decoration-color:var(--ochre);text-decoration-thickness:2px;text-underline-offset:3px}#fan .fanit.fanhot{transform:scale(1.06);outline:3px solid #f3e3b8}
+#fan .fanall{background:none;border:1px solid rgba(243,227,184,.6);color:#f3e3b8;border-radius:999px;padding:var(--sp1) var(--sp3);font:inherit;font-size:var(--fs-s)}#fan .fanall.fanhot{background:rgba(243,227,184,.2)}
+#fan .fanttl{color:#f3e3b8;font-weight:700;font-size:var(--fs-xs);letter-spacing:.08em;text-transform:uppercase}
+.ureise .ueck{margin-top:var(--sp3);border-top:1px solid var(--line);padding-top:var(--sp2)}.ureise .ueck h3{margin:0 0 var(--sp2);font-size:var(--fs-m)}.ureise .section-head b{font-size:var(--fs-m)}

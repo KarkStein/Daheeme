@@ -9,7 +9,7 @@ srv.listen(8765,async()=>{
   r.names=Object.values(db().split||{}).map(x=>x.name);
   await A.selectOption('[data-splitref]','urlaub:u1');await A.waitForTimeout(400);r.ref=Object.values(db().split)[0].ref;
   await A.addStyleTag({content:'#tabs{display:none!important}'});await A.screenshot({path:out+'/ausgaben.png',fullPage:true});await A.addStyleTag({content:'#tabs{display:flex!important}'});
-  await A.click('.splitref [data-reise=u1]');await A.waitForTimeout(400);r.inUrlaub=await A.$$eval('a.chipbtn',l=>l.filter(x=>/Bretagne 2027|bretagne/i.test(x.innerText)).length);
+  await A.click('.splitref [data-reise=u1]');await A.waitForTimeout(400);await A.click('[data-tfold=ugeld]');await A.waitForTimeout(200);r.inUrlaub=await A.$$eval('a.chipbtn',l=>l.filter(x=>/Bretagne 2027|bretagne/i.test(x.innerText)).length);
   await A.click('#tabs [data-tab=einkauf]');await A.waitForTimeout(300);await A.click('.shopsw [data-go=listen]');await A.waitForTimeout(400);r.h3=await A.$eval('#app h1',e=>e.innerText);
   await A.evaluate(()=>{const b=document.createElement('button');b.dataset.go='bereiche';document.getElementById('app').appendChild(b);b.click()});await A.waitForTimeout(300);r.areas=await A.$eval('#app',e=>/Ausgaben/.test(e.innerText)&&/Weitere Listen/.test(e.innerText)&&/Tag und Woche/.test(e.innerText));
   console.error(JSON.stringify(r),errs);

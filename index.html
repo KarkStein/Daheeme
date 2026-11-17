@@ -596,6 +596,16 @@ section[id^="sec-"]{scroll-margin-top:calc(var(--sp5)*3)}
 a.mkb{text-decoration:none;color:var(--fg)}.muslk[aria-pressed=false]{filter:grayscale(1);opacity:.5}
 .mustxt{list-style:none;white-space:pre-wrap;font-size:var(--fs-s);line-height:1.5;padding:var(--sp2) var(--sp3);margin:0 0 var(--sp2);background:var(--bg);border-radius:var(--r-s)}
 :is(.muscard,.playcard) .scrollrow+.scrollrow{margin-top:6px}.mkt b{overflow-wrap:break-word;hyphens:auto}:is(.muscard,.playcard) .mk{gap:0}:is(.muscard,.playcard) .mk .routebtn{padding:8px 5px}:is(.muscard,.playcard) .mk .stbadge{padding:3px 8px;margin:0 var(--sp1)}
+#fan{position:fixed;inset:0;z-index:60;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}#fan .fanbg{position:absolute;inset:0;background:rgba(15,25,45,.72)}
+#fan .fanring{position:absolute;width:60px;height:56px;border-radius:var(--r);border:2px solid #fff;box-shadow:0 0 0 4px rgba(255,255,255,.25);pointer-events:none}
+#fan .fanlist{position:absolute;left:var(--sp4);right:var(--sp4);display:flex;flex-direction:column-reverse;gap:var(--sp3);align-items:flex-start}#fan.r .fanlist{align-items:flex-end}
+#fan .fanit{display:flex;align-items:center;gap:var(--sp3);max-width:100%;background:var(--surface);border:1.5px solid var(--ink);border-radius:999px;padding:var(--sp1) var(--sp4) var(--sp1) var(--sp1);box-shadow:0 4px 14px rgba(0,0,0,.35);color:var(--ink);font:inherit;text-align:left;transition:transform .12s}
+#fan.r .fanit{flex-direction:row-reverse;padding:var(--sp1) var(--sp1) var(--sp1) var(--sp4);text-align:right}
+#fan .fanit span{width:40px;height:40px;flex:none;border-radius:50%;background:var(--bg);display:grid;place-items:center;font-size:var(--fs-xl)}#fan .fanit b{font-weight:600;font-size:var(--fs-m)}
+#fan .fanit.on b{text-decoration:underline;text-decoration-color:var(--ochre);text-decoration-thickness:2px;text-underline-offset:3px}#fan .fanit.fanhot{transform:scale(1.06);outline:3px solid #f3e3b8}
+#fan .fanall{background:none;border:1px solid rgba(243,227,184,.6);color:#f3e3b8;border-radius:999px;padding:var(--sp1) var(--sp3);font:inherit;font-size:var(--fs-s)}#fan .fanall.fanhot{background:rgba(243,227,184,.2)}
+#fan .fanttl{color:#f3e3b8;font-weight:700;font-size:var(--fs-xs);letter-spacing:.08em;text-transform:uppercase}
+.ureise .ueck{margin-top:var(--sp3);border-top:1px solid var(--line);padding-top:var(--sp2)}.ureise .ueck h3{margin:0 0 var(--sp2);font-size:var(--fs-m)}.ureise .section-head b{font-size:var(--fs-m)}
 </style>
 
 <div class="app" id="app">
@@ -2032,7 +2042,7 @@ function renderSettings(){const per=(S.config&&S.config.persons)||[];const G=S.g
     <div style="margin-top:8px">${sw("labels","Beschriftungen im Bild zeigen",!!S.labels)}</div><div class="freq" style="margin-top:10px">Motiv im Startbild</div><div class="unl">${motivList().map(x=>`<button class="chipbtn neutral" data-motiv-set="${x[0]}" aria-pressed="${motiv()===x[0]}">${x[1]} ${x[2]}</button>`).join("")}</div>
     <div class="freq" style="margin-top:10px">Bildstil</div><div class="unl">${stilList().map(x=>`<button class="chipbtn neutral" data-stil-set="${x[0]}" aria-pressed="${bildStil()===x[0]}">${x[1]} ${x[2]}</button>`).join("")}</div>
     <div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy. Standard ist das Haus am Meer mit Licht und Schatten.</div>${go('data-setgo="glossar" data-glosopen="bild"',"📖","Was im Bild wohin führt")}`,"aussehen");
-  h+=card("👆 Bedienung",`${sw("tap","Reiter unten blättern weiter",G.tap,"Tipp auf den Reiter, in dem du bist = nächste Unterseite. Doppelt auf Start = Kalender, dreifach = Wichtig. Aus: jeder Tipp öffnet die erste Seite.")}${sw("swipe","Wischen blättert die Seiten",G.swipe,"links und rechts: die Seiten der Leiste oben, z. B. Haus, Kalender, Wichtig. Nie in einen anderen Bereich.")}${sw("ring","Alle Bereiche: lange auf Start drücken",G.ring,"alle Bereiche auf einem Bildschirm, lange auf einen Eintrag heftet ihn oben an. Das Kachel-Symbol oben rechts geht immer.")}<div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy.</div>${go('data-setgo="glossar" data-glosopen="gesten"',"📖","Alle Gesten im Glossar")}`,"bedienung");
+  h+=card("👆 Bedienung",`${sw("tap","Reiter unten blättern weiter",G.tap,"Tipp auf den Reiter, in dem du bist = nächste Unterseite. Doppelt auf Start = Kalender, dreifach = Wichtig. Aus: jeder Tipp öffnet die erste Seite.")}${sw("swipe","Wischen blättert die Seiten",G.swipe,"links und rechts: die Seiten der Leiste oben, z. B. Haus, Kalender, Wichtig. Nie in einen anderen Bereich.")}${sw("ring","Lange auf Start oder Einkauf: weitere Bereiche",G.ring,"Start: Familie und Zuhause (Kita, Kind, Partner, Geschenke, Am Haus). Einkauf: Freizeit und Gemerktes (Reisen, Spiel, Musik, Sammlung, Recherchen). Alle Bereiche gibt es immer über das Kachel-Symbol oben rechts.")}<div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy.</div>${go('data-setgo="glossar" data-glosopen="gesten"',"📖","Alle Gesten im Glossar")}`,"bedienung");
   h+=card("🍲 Essen",`${sw("veg","Mehr Vegetarisches bei Vorschlägen",vegW()>0,"für beide")}<div class="freq" style="margin:6px 0">Mengen sind für 4 Personen. Die Recherche achtet aufs Kleinkind. Ändern: schreib es Claude.</div>${go('data-nav="essen|ft:rezepte"',"🏷️","Rezepte, Filter und eigene Tags")}`,"essen");
   h+=card("",go('data-go="recherchen"',"🤖","<b>Recherchen</b> · alle festen Aufträge, Neues und eure Wünsche"));
   h+=card("",go('data-go="wichtig"',"🔔","<b>Wichtig</b> · alle Erinnerungen"));
@@ -2122,7 +2132,7 @@ const areaName=t=>{const a=AREAS.find(x=>x[2]===t);return a?a[1]:t};
 const picArea=go=>go==="woche|wp:3"?"camp":({reisen:"ausflug",ausgaben:"einkauf",post:""}[go.split("|")[0]]??go.split("|")[0]);
 function glosGest(){const G=S.gest||{},T=Object.keys(TAB_PAGES),pg=n=>T.filter(t=>TAB_PAGES[t][n]).map(t=>areaName(t)+" › "+TAB_PAGES[t][n]).join(", ");
   return [["Tipp auf einen anderen Reiter","Öffnet dessen erste Seite.",""],["Tipp auf den Reiter, in dem du bist","Blättert eine Seite weiter, nach der letzten wieder zur ersten.","tap"],
-    ["Doppeltipp auf einen Reiter",pg(1)+".","tap"],["Dreifachtipp auf einen Reiter",pg(2)+".","tap"],["Lange auf den Reiter Start","Öffnet Alle Bereiche.","ring"],
+    ["Doppeltipp auf einen Reiter",pg(1)+".","tap"],["Dreifachtipp auf einen Reiter",pg(2)+".","tap"],["Lange auf den Reiter Start","Familie und Zuhause: "+fanItems("camp").map(t=>t[1]).join(", ")+". Finger auf einen Eintrag gleiten lassen und loslassen öffnet ihn.","ring"],["Lange auf den Reiter Einkauf","Freizeit und Gemerktes: "+fanItems("einkauf").map(t=>t[1]).join(", ")+".","ring"],["Kachel oben rechts","Öffnet Alle Bereiche.",""],
     ["Wischen nach links oder rechts","Blättert die Seiten der Leiste oben (z. B. Haus, Kalender, Wichtig). Wechselt nie den Bereich. Auf Zeilen, die seitlich scrollen, bewegt es nur die Zeile.","swipe"],["Lange auf ein Ding im Bild","Schnellmenü mit den häufigsten Handgriffen (siehe Im Bild).",""],
     ["Tipp auf Sonne oder Mond","Klappt das Wetter auf: Sonnenzeiten, Mond, heute stündlich, 6 Tage.",""],["Tipp auf eine freie Stelle im Bild","Öffnet Tag und Woche.",""],
     ["Tipp auf den Doppelring","Deine Aufgaben von heute. Lange drücken: die Aufgaben der Woche.",""],["Lange auf einen Tag im Kalender","Neuer Termin an diesem Tag.",""],
@@ -2360,34 +2370,30 @@ function renderReisen(){const l=urlaube();if(S.reiseOpen&&l.find(x=>x.id===S.rei
   h+=`<details class="card reisemap"${S.reiseMapOpen?" open":""}><summary>🗺️ Alle Ziele auf einer Karte</summary>${emb?`<div class="mapwrap"><iframe src="${esc(emb)}" loading="lazy" title="Karte mit allen Zielen"></iframe></div>`:mu?`<a href="${esc(mu)}" target="_blank" rel="noopener">Karte öffnen</a>`:""}
     <div class="freq">Legt in Google Maps unter „Meine Karten“ eine Karte an und fügt den Link hier ein, dann erscheint sie hier.</div><form class="addrow" id="reisemapform" novalidate><input type="url" id="reisemapinput" value="${esc(mu)}" placeholder="Link zur Karte" autocomplete="off"><button class="primary" type="submit">OK</button></form></details>`;
   return h}
-function renderReise(x){const st=reiseSt(x),cd=reiseDays(x),hc=x.hearts||{},pins=reiseSub(x,"pins"),bk=reiseSub(x,"book"),pl="u_"+x.id,items=packs().filter(i=>i.list===pl),pr=prios().filter(p=>p.ref===x.id);
+// Urlaub-Seite kompakt (Florian 17.11.2026, „Alle drei nacheinander“, Bild /mnt/project-files/design/kompakt-urlaub.png): Kopf mit Datum, Countdown, Ort und ✎,
+// darunter „🔖 Gemerkt“ nach dem Bauplan (rgCard(uid), Buchungen = Gemerktes auf ✅ mit versternter Nummer), dann Klapp-Karten (Packliste, Erinnerungen, Ausgaben, Musik, Rückblick).
+function renderReise(x){const st=reiseSt(x),cd=reiseDays(x),hc=x.hearts||{},pins=reiseSub(x,"pins"),bk=reiseSub(x,"book"),pl="u_"+x.id,items=packs().filter(i=>i.list===pl),pr=prios().filter(p=>p.ref===x.id),SL=REISE_ST.find(s=>s[0]===st)||REISE_ST[0];
   const fld=(k,lab,type,ph)=>`<label class="fld"><span>${lab}</span><input ${type?`type="${type}"`:""} data-rsf="${k}" value="${esc(x[k]||"")}" placeholder="${ph||""}" autocomplete="off"></label>`;
-  let h=`<div><button class="ghost" data-act="reiseback">‹ Alle Urlaube</button></div><div><div class="eyebrow">${esc(x.emo||"⛵")} Urlaub</div><h1>${esc(x.name)}</h1></div>
-    ${st==="erledigt"?`<div class="freq">✅ Erledigt</div>`:st==="traum"?`<div class="freq">💡 Noch eine Idee</div>`:""}`;
-  h+=`<section class="card">${st==="aktuell"&&cd&&cd.past?`<div class="btnrow" style="margin-bottom:8px"><button class="primary" data-reisest="erledigt">✅ Vorbei: auf Erledigt</button></div>`:""}<div class="freq" style="font-size:1rem">${cd&&cd.n?`⏳ Noch <b>${cd.n}</b> ${cd.n===1?"Tag":"Tage"}`:cd&&cd.now?"▶️ Läuft gerade":cd&&cd.past?"Schon vorbei":"Noch kein Datum"}${x.place?` · <a href="${esc(mapsQ(x.place))}" target="_blank" rel="noopener">📍 ${esc(x.place)}</a>`:""}</div>
-    <div style="margin-top:8px">${["p0","p1"].map(p=>`<button class="chipbtn neutral" data-reiseheart="${p}" aria-pressed="${!!hc[p]}">${hc[p]?"❤️":"🤍"} ${esc(pname(p))}</button>`).join(" ")}</div></section>`;
-  h+=`<section class="card"><div class="section-head"><h2>✏️ Eckdaten</h2></div>${fld("name","Name")}${fld("place","Ort oder Region","","z. B. Bretagne")}
-    <div style="display:flex;gap:8px"><div style="flex:1;min-width:0">${fld("from","Von","date")}</div><div style="flex:1;min-width:0">${fld("to","Bis","date")}</div></div>
+  const ek="ueck_"+x.id,eDef=!x.from&&!x.place,eOn=tFoldOn(ek,eDef),when=reiseWhen(x),cdT=cd&&cd.n?`⏳ noch ${cd.n} ${cd.n===1?"Tag":"Tage"}`:cd&&cd.now?"▶️ Läuft gerade":cd&&cd.past?"Schon vorbei":"";
+  let h=`<div class="btnrow"><button class="ghost" data-act="reiseback">‹ Übersicht</button></div><div><div class="eyebrow">${esc(x.emo||"⛵")} Urlaub · ${SL[1]} ${SL[2]}</div><h1>${esc(x.name)}</h1></div>`;
+  h+=`<section class="card ureise"><div class="section-head" style="align-items:flex-start"><div style="min-width:0"><b>📅 ${when?esc(when):"Noch kein Datum"}</b><div class="freq">${[cdT,x.place?`<a href="${esc(mapsQ(x.place))}" target="_blank" rel="noopener">📍 ${esc(x.place)}</a>${transitA(x.place)}`:""].filter(Boolean).join(" · ")}</div></div><button class="iconbtn" data-tfold="${esc(ek)}" data-tdef="${eDef?1:0}" aria-expanded="${eOn}" aria-label="Eckdaten ${eOn?"zuklappen":"ändern"}">${eOn?"✕":"✎"}</button></div>
+    ${st==="aktuell"&&cd&&cd.past?`<div class="btnrow"><button class="primary" data-reisest="erledigt">✅ Vorbei: auf Erledigt</button></div>`:""}
+    <div class="unl" style="margin-top:var(--sp2)">${["p0","p1"].map(p=>`<button class="chipbtn neutral" data-reiseheart="${p}" aria-pressed="${!!hc[p]}">${hc[p]?"❤️":"🤍"} ${esc(pname(p))}</button>`).join("")}</div>
+    ${eOn?`<div class="ueck"><h3>✏️ Eckdaten</h3>${fld("name","Name")}${fld("place","Ort oder Region","","z. B. Bretagne")}
+    <div style="display:flex;gap:var(--sp2)"><div style="flex:1;min-width:0">${fld("from","Von","date")}</div><div style="flex:1;min-width:0">${fld("to","Bis","date")}</div></div>
     <div class="fld"><span>Symbol</span><div class="unl">${REISE_EMO.map(e=>`<button class="chipbtn neutral" data-reiseemo="${e}" aria-pressed="${(x.emo||"⛵")===e}">${e}</button>`).join("")}</div></div>
-    ${fld("budget","💶 Budget grob (€)","number","z. B. 1500")}<label class="fld"><span>Notiz</span><textarea data-rsf="note" rows="2">${esc(x.note||"")}</textarea></label><div class="freq">Wird beim Verlassen eines Feldes gespeichert.</div></section>`;
-  {const mz=musLinks("auto",3);if(mz)h+=`<section class="card"><div class="section-head"><h2>🚗 Musik für die Fahrt</h2></div>${mz}</section>`}
+    ${fld("budget","💶 Budget grob (€)","number","z. B. 1500")}<label class="fld"><span>Notiz</span><textarea data-rsf="note" rows="2">${esc(x.note||"")}</textarea></label><div class="freq">Wird beim Verlassen eines Feldes gespeichert.</div></div>`:x.note?`<div class="freq" style="margin-top:var(--sp2)">${esc(x.note)}</div>`:""}</section>`;
   if(pins.length||bk.length)fundMigrate(x);
-  const F=funde().filter(f=>f.reise===x.id),fo=F.filter(f=>(f.st||"idee")!=="gebucht"),fb=F.filter(f=>f.st==="gebucht");
-  h+=`<section class="card"><div class="section-head"><h2>🔖 Gemerkt für diesen Urlaub</h2><span>${x.place?`<a class="ghost btnlink" href="${esc(mapsQ(x.place))}" target="_blank" rel="noopener">🗺️ Karte</a>${transitA(x.place,"ghost btnlink")}`:""}<button class="ghost" data-fundopen="${esc(x.id)}" data-ar="reise">🔖 Alles Gemerkte</button></span></div>
-    ${fo.length?`<ul class="evlist fundlist">${fo.map(f=>fundLi(f,"proj","reise")).join("")}</ul>`:`<div class="freq">Unterkunft, Anreise, Strände, Spielplätze, Restaurants. Schild rechts: 💡 Idee, ⭐ Favorit, 📅 Geplant, ✅ Erledigt (gebucht). Alles steht auch in der 🗃️ Sammlung.</div>`}
-    ${fundForm("rfundform",x.id,"reise")}</section>`;
-  h+=`<section class="card"><div class="section-head"><h2>📄 Buchungen und Dokumente</h2></div>
-    ${fb.length?`<ul class="evlist fundlist">${fb.map(f=>fundLi(f,"proj","reise")).join("")}</ul>`:`<div class="freq">Tippt bei einem Eintrag auf das Schild, bis ✅ Erledigt erscheint, dann steht er hier. Oder tragt eine Buchung direkt ein. Bleibt nur in euren gemeinsamen Daten.</div>`}
-    <form id="bkform" class="bkform" novalidate><input id="bk-name" placeholder="Was (z. B. Ferienhaus, Fähre)" maxlength="80" autocomplete="off"><input id="bk-ref" placeholder="Buchungsnummer" maxlength="60" autocomplete="off"><input id="bk-link" type="url" placeholder="Link" autocomplete="off"><input id="bk-addr" placeholder="Adresse oder Anfahrt" maxlength="160" autocomplete="off"><button class="primary" type="submit">Hinzufügen</button></form></section>`;
+  h+=rgCard(x.id);
   const done=items.filter(i=>i.done).length;
-  h+=`<section class="card"><div class="section-head"><h2>🧳 Packliste</h2><span>${items.length?`<span class="freq num">${done} von ${items.length}</span> `:""}<button class="ghost" data-gopack="${esc(pl)}">Alle Packlisten ›</button></span></div>
-    <div class="unl">${[["basis","🎒 Basis"],["strand","🏖️ Strand"],["winter","❄️ Winter"],["kind","🧒 Kleinkind"]].map(t=>`<button class="chipbtn neutral" data-packtpl="${t[0]}">+ ${t[1]}</button>`).join("")}</div>
+  h+=foldCard("upack",`🧳 Packliste`,items.length?`${items.length}, ${items.length-done} offen`:"",`<div class="unl">${[["basis","🎒 Basis"],["strand","🏖️ Strand"],["winter","❄️ Winter"],["kind","🧒 Kleinkind"]].map(t=>`<button class="chipbtn neutral" data-packtpl="${t[0]}">+ ${t[1]}</button>`).join("")}</div>
     ${items.length?`<ul class="shop">${items.map(i=>`<li class="${i.done?"done":""}"><button class="tick" data-pack="${esc(i.id)}" aria-pressed="${!!i.done}" aria-label="${esc(i.name)} eingepackt"></button><span class="nm" style="flex:1">${esc(i.name)}</span><button class="catbtn" data-packshop="${esc(i.id)}" aria-label="${esc(i.name)} auf die Einkaufsliste" style="background:none;border:none">🧺</button><button class="rm" data-packedit="${esc(i.id)}" aria-label="${esc(i.name)} ändern">✎</button><button class="rm" data-packrm="${esc(i.id)}" aria-label="${esc(i.name)} entfernen">✕</button></li>`).join("")}</ul>`:`<div class="freq">Wählt oben Vorlagen. 🧺 setzt Fehlendes auf die Einkaufsliste.</div>`}
-    <form class="addrow" id="rpackform" novalidate><input id="rpackinput" placeholder="Noch etwas einpacken" maxlength="60" autocomplete="off"><button class="primary" type="submit">+</button></form></section>`;
-  h+=`<section class="card"><div class="section-head"><h2>🔔 Erinnerungen</h2></div>${pr.length?`<ul class="evlist">${pr.map(p=>`<li><span class="t">${p.due?esc(dLabel(p.due)):""}</span><span class="ev">${esc(p.name)}</span></li>`).join("")}</ul>`:""}
-    <div class="unl">${REISE_PRIO.map((n,i)=>`<button class="chipbtn neutral" data-reiseprio="${i}">＋ ${esc(n)}</button>`).join("")}</div><div class="freq">Mit Tag und Uhrzeit in der Maske, sie erscheinen unter Wichtig.</div></section>`;
-  h+=`<section class="card"><div class="section-head"><h2>📝 Rückblick</h2></div><label class="fld"><span>${st==="erledigt"?"Wie war es? Was nehmen wir mit?":"Füllt ihr nach dem Urlaub aus."}</span><textarea data-rsf="review" rows="3">${esc(x.review||"")}</textarea></label></section>`;
-  {const sc=splitChips("urlaub:"+x.id);h+=`<section class="card"><div class="section-head"><h2>💶 Ausgaben</h2></div><div class="unl">${grpLinkHtml("urlaub:"+x.id,x.name,x.emo||"⛵",x.budget||"")}</div>${sc}${splitAddForm("urlaub:"+x.id)}</section>`}
+    <form class="addrow" id="rpackform" novalidate><input id="rpackinput" placeholder="Noch etwas einpacken" maxlength="60" autocomplete="off"><button class="primary" type="submit">+</button></form><div class="btnrow"><button class="ghost" data-gopack="${esc(pl)}">Alle Packlisten ›</button></div>`);
+  h+=foldCard("uprio","🔔 Erinnerungen",pr.length||"",`${pr.length?`<ul class="evlist">${pr.map(p=>`<li><span class="t">${p.due?esc(dLabel(p.due)):""}</span><span class="ev">${esc(p.name)}</span></li>`).join("")}</ul>`:""}
+    <div class="unl">${REISE_PRIO.map((n,i)=>`<button class="chipbtn neutral" data-reiseprio="${i}">＋ ${esc(n)}</button>`).join("")}</div><div class="freq">Mit Tag und Uhrzeit in der Maske, sie erscheinen unter Wichtig.</div>`);
+  {const sc=splitChips("urlaub:"+x.id);h+=foldCard("ugeld","💶 Ausgaben","",`<div class="unl">${grpLinkHtml("urlaub:"+x.id,x.name,x.emo||"⛵",x.budget||"")}</div>${sc}${splitAddForm("urlaub:"+x.id)}`)}
+  {const mz=musLinks("auto",3);if(mz)h+=foldCard("umus","🚗 Musik für die Fahrt","",mz)}
+  h+=foldCard("urev","📝 Rückblick","",`<label class="fld"><span>${st==="erledigt"?"Wie war es? Was nehmen wir mit?":"Füllt ihr nach dem Urlaub aus."}</span><textarea data-rsf="review" rows="3">${esc(x.review||"")}</textarea></label>`,st==="erledigt"||!!x.review);
   h+=`<div class="btnrow">${st==="erledigt"?`<button class="ghost" data-reisest="aktuell">↩ Zurückholen</button>`:`<button class="ghost" data-reisest="erledigt">✅ Auf Erledigt</button>`}${st==="traum"?`<button class="ghost" data-reisest="aktuell">📅 Jetzt planen</button>`:""}<button class="ghost danger" data-act="reisedel">Urlaub löschen</button></div>`;
   return h}
 function renderUrlaub(){return `<section class="card"><div class="section-head"><h2>⛵ Urlaub</h2></div><div class="freq">Urlaube haben jetzt einen eigenen Bereich: Reisen, im Bild das Meer.</div><div class="btnrow" style="margin-top:8px"><button class="primary" data-go="reisen">Zu Reisen ›</button></div></section>`}
@@ -2409,31 +2415,34 @@ function reiseRow(){const l=urlaube(),hearts=x=>Object.values(x.hearts||{}).filt
 const tripSt=x=>x.done?"erledigt":x.date?"geplant":x.fav?"favorit":"idee";
 function rgItems(){const U=urlaube(),L=[];
   trips().forEach(x=>{const k=tripKinds().find(c=>c[0]===x.kind);L.push({t:"t",id:x.id,ic:emoOf(x,k?k[1]:"🚲"),name:x.name,art:"ausflug",artL:"Ausflugsziel"+(k&&k[0]!=="sonst"?" · "+k[2]:""),u:"hier",st:tripSt(x),date:x.date,place:x.place||x.name,rain:x.wx==="egal",pack:x.pack&&packLists().find(p=>p.id===x.pack),at:x.at||0})});
-  funde("reise").forEach(f=>{const k=fundKind(f.kind,"reise"),u=f.reise&&U.find(y=>y.id===f.reise);L.push({t:"f",id:f.id,ic:k[1],name:f.name,art:k[0],artL:k[2]+(f.st==="gebucht"?" · gebucht":""),u:u?u.id:"hier",uL:u?(u.emo||"⛵")+" "+u.name:"",st:f.st==="gebucht"?"erledigt":f.st||"idee",place:f.addr||f.place||(u?f.name+" "+(u.place||""):""),at:f.at||0})});
+  funde("reise").forEach(f=>{const k=fundKind(f.kind,"reise"),u=f.reise&&U.find(y=>y.id===f.reise);L.push({t:"f",id:f.id,ic:k[1],name:f.name,art:k[0],artL:k[2]+(f.st==="gebucht"?" · gebucht":""),u:u?u.id:"hier",uL:u?(u.emo||"⛵")+" "+u.name:"",st:f.st==="gebucht"?"erledigt":f.st||"idee",place:f.addr||f.place||(u?f.name+" "+(u.place||""):""),ref:f.ref||"",at:f.at||0})});
   return L.sort((a,b)=>(b.at||0)-(a.at||0))}
-function rgCard(){const F=S.rgF||(S.rgF={k:"",u:"",s:""}),all=rgItems(),open=all.filter(x=>x.st!=="erledigt");
-  const R=all.filter(x=>(!F.k||x.art===F.k)&&(!F.u||x.u===F.u)&&(!F.w||x.rain)&&(F.s==="erledigt"?x.st==="erledigt":F.s?x.st===F.s:x.st!=="erledigt"));
-  const n=F.more?R.length:Math.min(R.length,8),chip=(k,v,lab)=>`<button class="chipbtn neutral" data-rgf="${k}|${v}" aria-pressed="${F[k]===v}">${lab}</button>`;
-  const arts=[["ausflug","🚲","Ausflugsziel"]].concat(FAREA.reise.kinds).filter(a=>open.some(x=>x.art===a[0])||F.k===a[0]);
+const refMask=r=>"****"+String(r||"").slice(-2);
+// Gemerkt nach dem Bauplan; mit uid nur für diesen Urlaub (eigene Filter S.rgUF über data-rguf, Erledigtes = gebucht bleibt sichtbar, unten)
+function rgCard(uid){const inU=!!uid,F=inU?(S.rgUF&&S.rgUF.uid===uid?S.rgUF:(S.rgUF={uid,k:"",s:""})):(S.rgF||(S.rgF={k:"",u:"",s:""})),all=rgItems().filter(x=>!inU||x.u===uid),open=all.filter(x=>x.st!=="erledigt");
+  const R=all.filter(x=>(!F.k||x.art===F.k)&&(inU||!F.u||x.u===F.u)&&(!F.w||x.rain)&&(F.s==="erledigt"?x.st==="erledigt":F.s?x.st===F.s:inU||x.st!=="erledigt"));if(inU)R.sort((a,b)=>(a.st==="erledigt")-(b.st==="erledigt"));
+  const n=F.more?R.length:Math.min(R.length,8),chip=(k,v,lab)=>`<button class="chipbtn neutral" ${inU?"data-rguf":"data-rgf"}="${k}|${v}" aria-pressed="${F[k]===v}">${lab}</button>`;
+  const arts=(inU?[]:[["ausflug","🚲","Ausflugsziel"]]).concat(FAREA.reise.kinds).filter(a=>(inU?all:open).some(x=>x.art===a[0])||F.k===a[0]);
   const us=urlaube().filter(u=>open.some(x=>x.u===u.id)||F.u===u.id);
   const badge=x=>{const s=SAMM_ST.find(y=>y[0]===x.st)||SAMM_ST[0],lb=x.st==="geplant"&&x.date?"📅 "+dLabel(x.date):s[1]+" "+s[2];return `<button class="stbadge st-${x.st}" ${x.t==="t"?`data-tripst="${esc(x.id)}"`:`data-fundst="${esc(x.id)}" data-ar="reise"`} aria-label="Stand von ${esc(x.name)}: ${s[2]}, antippen schaltet weiter">${esc(lb)}</button>`};
-  return `<section class="card rgcard"><div class="section-head" style="align-items:center"><h2>🔖 Gemerkt <span class="freq">(${open.length})</span></h2><button class="primary" data-act="merken">＋ Merken</button></div>
-    ${all.length?`<div class="unl scrollrow">${chip("k","","Alle")}${arts.map(a=>chip("k",a[0],a[1]+" "+a[2])).join("")}</div>
+  return `<section class="card rgcard"><div class="section-head" style="align-items:center"><h2>🔖 Gemerkt <span class="freq">(${inU?all.length:open.length})</span></h2><button class="primary" data-act="merken"${inU?` data-u="${esc(uid)}"`:""}>＋ Merken</button></div>
+    ${inU?(all.length?`<div class="unl scrollrow">${chip("k","","Alle")}${arts.map(a=>chip("k",a[0],a[1]+" "+a[2])).join("")}${all.some(x=>x.st==="erledigt")||F.s==="erledigt"?chip("s","erledigt","✅ Gebucht"):""}</div>`:""):all.length?`<div class="unl scrollrow">${chip("k","","Alle")}${arts.map(a=>chip("k",a[0],a[1]+" "+a[2])).join("")}</div>
     <div class="unl scrollrow">${chip("u","","Alle")}${chip("u","hier","🏙️ Für hier")}${us.map(u=>chip("u",u.id,(u.emo||"⛵")+" "+u.name)).join("")}${open.some(x=>x.rain)||F.w?chip("w","regen","☔ Bei Regen"):""}${chip("s","favorit","⭐ Nur Favoriten")}${chip("s","erledigt","✅ Erledigt")}</div>`:""}
-    ${R.length?`<ul class="mklist">${R.slice(0,n).map(x=>`<li class="mk"><button class="mkb" ${x.t==="t"?`data-tripedit="${esc(x.id)}"`:`data-fundedit="${esc(x.id)}"`} aria-label="${esc(x.name)} ansehen und ändern"><span class="mki">${esc(x.ic)}</span><span class="mkt"><b>${esc(x.name)}</b><span class="freq">${esc(x.artL)}${x.uL?" · "+esc(x.uL):x.u==="hier"?" · für hier":""}</span></span></button>${x.pack&&x.st!=="erledigt"?`<button class="catbtn routebtn" data-gopack="${esc(x.pack.id)}" aria-label="Packliste ${esc(x.pack.name)} öffnen">🎒</button>`:""}${x.st!=="erledigt"&&x.place?transitA(x.place):""}${badge(x)}</li>`).join("")}</ul>${R.length>n?`<button class="ghost small" data-rgf="more|1">Alle ${R.length} zeigen</button>`:""}`
-      :`<div class="freq">${all.length?"Für diesen Filter ist nichts gemerkt.":"Merkt euch hier Ausflugsziele, Unterkünfte, Spielplätze oder Restaurants, für hier oder für einen Urlaub."}</div>`}
-    <div class="freq">Ein Tipp auf den Namen ändert den Eintrag, das Schild rechts schaltet den Stand weiter: 💡 Idee, ⭐ Favorit, 📅 Geplant, ✅ Erledigt. <button class="linkish" data-act="tripnew">Ausflugsziel mit allen Angaben</button></div></section>`}
+    ${R.length?`<ul class="mklist">${R.slice(0,n).map(x=>`<li class="mk"><button class="mkb" ${x.t==="t"?`data-tripedit="${esc(x.id)}"`:`data-fundedit="${esc(x.id)}"`} aria-label="${esc(x.name)} ansehen und ändern"><span class="mki">${esc(x.ic)}</span><span class="mkt"><b>${esc(x.name)}</b><span class="freq">${esc(x.artL)}${inU?"":x.uL?" · "+esc(x.uL):x.u==="hier"?" · für hier":""}${x.ref?" · Buchung "+esc(refMask(x.ref)):""}</span></span></button>${x.pack&&x.st!=="erledigt"?`<button class="catbtn routebtn" data-gopack="${esc(x.pack.id)}" aria-label="Packliste ${esc(x.pack.name)} öffnen">🎒</button>`:""}${x.st!=="erledigt"&&x.place?transitA(x.place):""}${badge(x)}</li>`).join("")}</ul>${R.length>n?`<button class="ghost small" ${inU?"data-rguf":"data-rgf"}="more|1">Alle ${R.length} zeigen</button>`:""}`
+      :`<div class="freq">${all.length?"Für diesen Filter ist nichts gemerkt.":inU?"Unterkunft, Anreise, Strände, Spielplätze, Restaurants: mit ＋ Merken anlegen. Alles steht auch in der 🗃️ Sammlung.":"Merkt euch hier Ausflugsziele, Unterkünfte, Spielplätze oder Restaurants, für hier oder für einen Urlaub."}</div>`}
+    ${inU?`<div class="freq">Ein Tipp auf den Namen ändert den Eintrag, auch Buchungsnummer und Adresse. Das Schild schaltet den Stand weiter, gebucht ist ✅ Erledigt. <button class="linkish" data-act="bkopen">＋ Buchung mit Nummer eintragen</button> · <button class="linkish" data-fundopen="${esc(uid)}" data-ar="reise">✨ Vorschläge und alle Filter</button></div>${S.bkOpen===uid?`<form id="bkform" class="bkform" novalidate><input id="bk-name" placeholder="Was (z. B. Ferienhaus, Fähre)" maxlength="80" autocomplete="off"><input id="bk-ref" placeholder="Buchungsnummer" maxlength="60" autocomplete="off"><input id="bk-link" type="url" placeholder="Link" autocomplete="off"><input id="bk-addr" placeholder="Adresse oder Anfahrt" maxlength="160" autocomplete="off"><button class="primary" type="submit">Hinzufügen</button></form>`:""}`
+      :`<div class="freq">Ein Tipp auf den Namen ändert den Eintrag, das Schild rechts schaltet den Stand weiter: 💡 Idee, ⭐ Favorit, 📅 Geplant, ✅ Erledigt. <button class="linkish" data-act="tripnew">Ausflugsziel mit allen Angaben</button></div>`}</section>`}
 // Fenster „🔖 Merken“ (Florian 17.11.2026): Was, Art, Gehört zu, Stand. Ausflugsziel für hier → food/trip, alles andere → food/fund (Daten bleiben, wo sie waren)
 function merkenOpen(pre){pre=pre||{};const U=urlaube().filter(u=>reiseSt(u)!=="erledigt");
   editBox("🔖 Merken",[{k:"name",label:"Was (Name oder Link)",type:"text",val:pre.name||""},
-    {k:"kind",label:"Art",type:"chips",opts:[["ausflug","🚲 Ausflugsziel"]].concat(FAREA.reise.kinds.map(c=>[c[0],c[1]+" "+c[2]])),val:pre.kind||"ausflug"},
+    {k:"kind",label:"Art",type:"chips",opts:[["ausflug","🚲 Ausflugsziel"]].concat(FAREA.reise.kinds.map(c=>[c[0],c[1]+" "+c[2]])),val:pre.kind!=null?pre.kind:"ausflug"},
     {k:"u",label:"Gehört zu",type:"chips",opts:[["","🏙️ Für hier"]].concat(U.map(u=>[u.id,(u.emo||"⛵")+" "+u.name])),val:pre.u||""},
     {k:"st",label:"Stand",type:"chips",opts:SAMM_ST.map(s=>[s[0],s[1]+" "+s[2]]),val:"idee"},
     {k:"n",type:"note",label:"Steht danach unter 🔖 Gemerkt, im Urlaub und in der 🗃️ Sammlung. Mit Datum (📅 Geplant) auch im Kalender."}],
   async V=>{const raw=String(V.name||"").trim();if(!raw){toast("Bitte eintragen, was ihr euch merken wollt.");return}const link=safeLink(raw),name=(link?nameFromLink(link):raw).slice(0,80),now=Date.now();
     if(V.kind==="ausflug"&&!V.u){const id=newId("t"),o={name,at:now,by:S.me||""};if(link)o.link=link;if(V.st==="favorit")o.fav=true;if(V.st==="erledigt"){o.done=true;o.doneAt=now}
       await S.store.setPath("food/trip/"+id,o);if(V.st==="geplant")calDayPick(name,nextSat(),async k=>{try{await S.store.setPath("food/trip/"+id+"/date",k);toast("Steht am "+rDate(k)+" im Kalender")}catch(_){toast("Konnte nicht speichern.")}});else toast("🔖 "+name+" gemerkt");return}
-    const kind=V.kind==="ausflug"?"erleben":V.kind,o={name,kind,st:V.st==="erledigt"?"gebucht":V.st||"idee",at:now,by:S.me||""};if(V.u)o.reise=V.u;if(link)o.link=link;
+    const kind=V.kind==="ausflug"?"erleben":V.kind||kindGuess(raw,link)||"sonst",o={name,kind,st:V.st==="erledigt"?"gebucht":V.st||"idee",at:now,by:S.me||""};if(V.u)o.reise=V.u;if(link)o.link=link;
     await S.store.setPath("food/fund/"+newId("f"),o);toast(fundKind(kind,"reise")[1]+" "+name+" gemerkt")})}
 function tripHome(){const mu=(S.food&&S.food.reisemap)||"",emb=mapsEmbed(mu),E=urlaube().filter(x=>reiseSt(x)==="erledigt").sort((a,b)=>String(b.from||"").localeCompare(String(a.from||"")));
   let h=reiseRow()+rgCard()+atipFixCards()+atipCard();
@@ -3142,12 +3151,12 @@ function fundEdit(id){const f=listOf(S.food&&S.food.fund).find(y=>y.id===id);if(
   editBox(f.name,[{k:"name",label:"Name",type:"text",val:f.name},{k:"link",label:"Link",type:"url",val:f.link||""},
     {k:"kind",label:"Art",type:"chips",opts:A.kinds.map(c=>[c[0],c[1]+" "+c[2]]),val:f.kind||"sonst"},
     {k:"st",label:"Stand",type:"chips",opts:A.st.map(s=>[s[0],s[1]+" "+s[2]]),val:f.st||"idee"},
-    {k:"price",label:"Preis in €",type:"text",val:f.price||""},
+    {k:"price",label:"Preis in €",type:"text",val:f.price||""}].concat(ar==="reise"?[{k:"ref",label:"Buchungsnummer (nur in euren Daten, in Listen versternt)",type:"text",val:f.ref||""},{k:"addr",label:"Adresse oder Anfahrt",type:"text",val:f.addr||""}]:[]).concat([
     {k:"proj",label:"Gehört zu",type:"chips",opts:[["",A.none]].concat(A.projs().filter(p=>ar==="reise"||p.state!=="erledigt"||p.id===f[A.key]).map(p=>[p.id,(p.emo||A.emo)+" "+p.name])),val:f[A.key]||""},
     {k:"links",label:"Auch zeigen bei",type:"multi",opts:Object.keys(FUND_LINKS).map(k=>[k,(sg.includes(k)?"✨ ":"")+FUND_LINKS[k].lbl]),val:lk,hint:sg.length?"✨ = passt vermutlich. Antippen wählt aus, nichts passiert von allein. Abwählen nimmt den Eintrag dort wieder weg.":"Antippen wählt aus. Abwählen nimmt den Eintrag dort wieder weg."},
-    {k:"who",label:"Geschenk für wen",type:"chips",opts:[["","Offen"]].concat(whoOpts().filter(o=>o[0]!=="both")),val:(gift&&gift.who)||""}],
+    {k:"who",label:"Geschenk für wen",type:"chips",opts:[["","Offen"]].concat(whoOpts().filter(o=>o[0]!=="both")),val:(gift&&gift.who)||""}]),
     async V=>{const name=String(V.name||"").trim().slice(0,120)||f.name,link=safeLink(V.link)||null,n=Object.assign({},f,{name,link});
-      const up={name,link,kind:V.kind||"sonst",st:V.st||"idee",price:String(V.price||"").replace(/[^0-9,.]/g,"").slice(0,10)||null};up[A.key]=V.proj||null;
+      const up={name,link,kind:V.kind||"sonst",st:V.st||"idee",price:String(V.price||"").replace(/[^0-9,.]/g,"").slice(0,10)||null};up[A.key]=V.proj||null;if(ar==="reise"){up.ref=String(V.ref||"").trim().slice(0,60)||null;up.addr=String(V.addr||"").trim().slice(0,160)||null}
       for(const k of Object.keys(up))await S.store.setPath("food/fund/"+f.id+"/"+k,up[k]);
       await fundSetLinks(n,V.links||[],{who:V.who});if(V.links&&V.links.includes("geschenk")&&f.links&&f.links.geschenk)await S.store.setPath("food/idea/"+f.links.geschenk+"/who",V.who||null);toast("Gespeichert")},
     (f.area==="haus"?[["↪ Verschieben",()=>moveOpen("fund",f.id)]]:[]).concat(fundDelOpts(f)))}
@@ -3519,7 +3528,7 @@ function renderResearch(){if(!S.auftrLoad){S.auftrLoad=1;try{fetch("auftraege.js
   return h+`</section>`}
 // ---------- Suche (Lupe in der Kopfzeile, Entwurf 15.11.2026). Partner (Mittagessen, Briefe, Kontakte) bewusst nicht. ----------
 const SET_ITEMS=[["glossar","❓","Glossar: Was bedeutet was?","glossar begriffe erklärung erklaerung hilfe symbole gesten bedeutung"],["push","📲","Benachrichtigungen aufs Handy","benachrichtigung mitteilung push handy briefing glocke"],["aussehen","🎨","Hell oder dunkel","dunkel hell nacht modus farbe"],["aussehen","🏷️","Beschriftungen im Bild","beschriftung namen bild"],["aussehen","🖼️","Motiv und Bildstil","motiv bild stadt münchen tram meer aquarell stil realistisch"],
-  ["bedienung","👆","Reiter unten blättern weiter","doppeltipp tippen mehrfach"],["bedienung","👆","Wischen","wischen swipe"],["bedienung","👆","Alle Bereiche (lange auf Start)","alle bereiche kacheln kreis ring sternzeichen menü fächer lang drücken"],["essen","🥗","Mehr Vegetarisches","vegetarisch veggie fleisch"],
+  ["bedienung","👆","Reiter unten blättern weiter","doppeltipp tippen mehrfach"],["bedienung","👆","Wischen","wischen swipe"],["bedienung","👆","Lange auf Start oder Einkauf (Fächer)","fächer lang drücken familie zuhause freizeit gemerktes menü weitere bereiche"],["bedienung","👆","Alle Bereiche (Kachel oben rechts)","alle bereiche kacheln kreis ring sternzeichen übersicht"],["essen","🥗","Mehr Vegetarisches","vegetarisch veggie fleisch"],
   ["ort","🌦️","Wetter-Ort","ort wetter stadt"],["wir","🫶","Ich bin","person ich"],["wir","🫶","Namen","name namen"],["wir","🧒","Name des Kindes","kind name tochter sohn"],["wir","📮","Nummer für WhatsApp","handy telefon nummer whatsapp"],["wir","🔗","Einladungs-Link","einladen einladung link teilen schlüssel"],
   ["daten","💾","Sicherung und Wiederherstellen","sicherung backup export daten wiederherstellen"]];
 const sNorm=t=>String(t||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
@@ -3606,7 +3615,7 @@ window.addEventListener("popstate",e=>{const st=e.state;
 // ---------- Events ----------
 // Wischen links/rechts (Florian 17.11.2026, „Seiten im Reiter“): blättert nur die Seiten der Leiste oben (.pager: Start, Woche, Essen, Einkauf, Wir;
 // sonst die Reiter-Zeile .tabrow, z. B. Reisen Übersicht | Packlisten). Kein Sprung in andere Bereiche, kein Umlauf. Der Wechsel läuft über den Knopf selbst (gleicher Weg wie ein Tipp).
-function swipeTo(dir){if(document.getElementById("mbox")||document.getElementById("allar"))return;
+function swipeTo(dir){if(document.getElementById("mbox")||document.getElementById("allar")||document.getElementById("fan"))return;
   const bar=app.querySelector(".pager .pdots")||app.querySelector(".tabrow");if(!bar)return;
   const L=[...bar.querySelectorAll("button[aria-pressed]")],i=L.findIndex(x=>x.getAttribute("aria-pressed")==="true");if(i<0)return;const nx=L[i+dir];if(!nx)return;
   nx.click();window.scrollTo(0,0);app.classList.remove("swl","swr");void app.offsetWidth;app.classList.add(dir>0?"swl":"swr")}
@@ -3639,7 +3648,7 @@ try{S.theme=localStorage.getItem("hq-theme")||"";if(S.theme)document.documentEle
 const TAP_SEQ={camp:[()=>{S.tab="camp"},()=>{S.tab="woche";S.weekPage=3},()=>{S.tab="wichtig"}],woche:[0,1].map(p=>()=>{S.tab="woche";S.weekPage=p}),essen:["heute","rezepte"].map(f=>()=>{S.tab="essen";S.foodTab=f}),einkauf:[()=>{S.tab="einkauf"},()=>{S.tab="ausgaben"}]};
 const TAP_AT={camp:[()=>S.tab==="camp",()=>S.tab==="woche"&&S.weekPage===3,()=>S.tab==="wichtig"],woche:[0,1].map(p=>()=>S.tab==="woche"&&(S.weekPage|0)===p),essen:[()=>S.tab==="essen"&&S.foodTab!=="rezepte",()=>S.tab==="essen"&&S.foodTab==="rezepte"],einkauf:[()=>S.tab==="einkauf"||S.tab==="listen",()=>S.tab==="ausgaben"]};
 const tapCur=t=>(TAP_AT[t]||[]).findIndex(f=>f());
-// ---------- Alle Bereiche (Florian 16.11.2026): Tipp oben rechts oder lange auf Start öffnet alle Bereiche auf einem Bildschirm ----------
+// ---------- Alle Bereiche (Florian 16.11.2026): Tipp oben rechts öffnet alle Bereiche auf einem Bildschirm (lange auf Start öffnet seit 17.11.2026 den Fächer, siehe unten) ----------
 // Karte nach Gruppen (Florian 16.11.2026 abends, Vorschlag A gewählt: „zu unübersichtlich, zu viele, vielleicht Farben“, aber alles zeigen): je Gruppe eine Karte in ihrer Farbe (AREA_GROUPS[i][3]),
 // Bereiche groß mit Symbol, Unterseiten klein als Text, Quer als Knopf-Reihe unten über beide Spalten. Gespeist aus AREAS (neuer Bereich = eine Zeile dort), Zusätze in AR_EXTRA.
 // Oben Angeheftet (lange auf einen Eintrag drücken, je Gerät hq-arfav) oder zuletzt Benutztes (hq-arrec). Tipp daneben, ✕ und Zurück schließen.
@@ -3681,19 +3690,40 @@ function arClose(){S.ar=null;const el=document.getElementById("allar");if(el)el.
 document.addEventListener("touchend",()=>{if(S.ar&&!S.ar.armed){S.ar.armed=true;S.ar.at=Date.now()}},{passive:true});
 document.addEventListener("pointerup",e=>{if(e.pointerType!=="touch"&&S.ar&&!S.ar.armed){S.ar.armed=true;S.ar.at=Date.now()}});
 // ---------- Fenster schließen mit Zurück (Florian 16.11.2026): jedes Fenster (#mbox, #allar) legt einen eigenen Verlaufsschritt an ----------
-const OVL=["mbox","allar"];const ovlOpen=()=>OVL.some(id=>document.getElementById(id));
-function ovlCloseAll(){mboxClose();arClose()}
+const OVL=["mbox","allar","fan"];const ovlOpen=()=>OVL.some(id=>document.getElementById(id));
+function ovlCloseAll(){mboxClose();arClose();fanClose()}
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&ovlOpen())ovlCloseAll()});
 new MutationObserver(()=>{const open=ovlOpen();
   if(open&&!S.ovl){S.ovl=true;try{if(!(history.state&&history.state.ov))history.pushState({ov:1},"")}catch(_){}}
   else if(!open&&S.ovl){S.ovl=false;setTimeout(()=>{try{if(!ovlOpen()&&history.state&&history.state.ov){navBusy=true;history.back()}}catch(_){}},0)}}).observe(document.body,{childList:true});
+// ---------- Fächer (Florian 17.11.2026, „So bauen, Kachel bleibt“): lange auf Start = Familie und Zuhause, lange auf Einkauf = Freizeit und Gemerktes ----------
+// Statt Alle Bereiche (die bleibt über die Kachel oben rechts und als Eintrag im Fächer). Einträge aus AREAS (Symbol, Name, Sprung). Nach dem langen Drücken
+// kann der Finger auf einen Eintrag gleiten und dort loslassen; sonst bleibt der Fächer offen, Tipp auf einen Eintrag öffnet ihn, Tipp daneben oder Zurück schließt.
+const FAN={camp:["Familie und Zuhause",["kita","kind","privat","geschenke","amhaus"]],einkauf:["Freizeit und Gemerktes",["ausflug","spiel","musik","projekte","recherchen"]]};
+const fanItems=k=>FAN[k][1].map(t=>AREAS.find(a=>a[2]===t)).filter(Boolean).map(a=>[a[0],a[1],a[4]||a[2]+"|"]);
+function fanHtml(k){const tb=document.getElementById("tabs").getBoundingClientRect(),bt=document.querySelector(`#tabs [data-tab="${k}"]:not([hidden])`),r=bt?bt.getBoundingClientRect():null,cur=arCur();
+  return `<div class="fanbg"></div>${r?`<div class="fanring" style="left:${Math.round(r.left+r.width/2-30)}px;top:${Math.round(r.top+4)}px"></div>`:""}<div class="fanlist" role="menu" aria-label="${esc(FAN[k][0])}" style="bottom:${Math.max(16,Math.round(innerHeight-tb.top+14))}px">${fanItems(k).map(t=>`<button class="fanit${t[2]===cur?" on":""}" role="menuitem" data-fannav="${esc(t[2])}"><span>${t[0]}</span><b>${esc(t[1])}</b></button>`).join("")}<button class="fanall" data-fanall>Alle Bereiche ›</button><div class="fanttl">${esc(FAN[k][0])}</div></div>`}
+function fanOpen(k,byPress){if(document.getElementById("fan")||!FAN[k])return;if(byPress)try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}
+  S.fan={k,armed:!byPress,at:byPress?Date.now():0};const el=document.createElement("div");el.id="fan";el.className=k==="einkauf"?"r":"l";el.innerHTML=fanHtml(k);document.body.appendChild(el);
+  el.addEventListener("click",e=>{const f=S.fan;if(!f)return;if(!f.armed||Date.now()-f.at<300){e.preventDefault();return}
+    const t=e.target.closest("[data-fannav]");if(t){fanGo(t.dataset.fannav);return}
+    if(e.target.closest("[data-fanall]")){fanClose();arOpen();return}
+    fanClose()})}
+function fanGo(v){fanClose();goNav(v)}
+function fanClose(){S.fan=null;const el=document.getElementById("fan");if(el)el.remove()}
+const fanHit=(x,y)=>{const el=document.elementFromPoint(x,y);return el&&el.closest?el.closest("#fan [data-fannav],#fan [data-fanall]"):null};
+document.addEventListener("touchmove",e=>{const f=S.fan;if(!f||f.armed)return;const p=e.touches[0],h=p&&fanHit(p.clientX,p.clientY);document.querySelectorAll("#fan .fanhot").forEach(x=>{if(x!==h)x.classList.remove("fanhot")});if(h)h.classList.add("fanhot")},{passive:true});
+document.addEventListener("touchend",e=>{const f=S.fan;if(!f||f.armed)return;const p=e.changedTouches[0],h=p&&fanHit(p.clientX,p.clientY);
+  if(h){if(h.dataset.fannav)fanGo(h.dataset.fannav);else{fanClose();arOpen()}return}f.armed=true;f.at=Date.now()},{passive:true});
+document.addEventListener("pointerup",e=>{if(e.pointerType!=="touch"&&S.fan&&!S.fan.armed){S.fan.armed=true;S.fan.at=Date.now()}});
 {let lp=null;const tabs=document.getElementById("tabs");
- const startBtn=t=>t&&t.closest&&t.closest('#tabs [data-tab="camp"]');
- tabs.addEventListener("touchstart",e=>{const b=startBtn(e.target);if(!b||!S.gest.ring||e.touches.length!==1)return;const p=e.touches[0];lp={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{lp=null;S.fanEat=Date.now();arOpen(true)},450)}},{passive:true});
+ const startBtn=t=>t&&t.closest&&t.closest('#tabs [data-tab="camp"],#tabs [data-tab="einkauf"]');
+ const press=b=>{S.fanEat=Date.now();fanOpen(b.dataset.tab,true)};
+ tabs.addEventListener("touchstart",e=>{const b=startBtn(e.target);if(!b||!S.gest.ring||e.touches.length!==1)return;const p=e.touches[0];lp={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{lp=null;press(b)},450)}},{passive:true});
  document.addEventListener("touchmove",e=>{if(lp){const p=e.touches[0];if(Math.hypot(p.clientX-lp.x,p.clientY-lp.y)>12){clearTimeout(lp.timer);lp=null}}},{passive:true});
  const end=()=>{if(lp){clearTimeout(lp.timer);lp=null}};document.addEventListener("touchend",end,{passive:true});document.addEventListener("touchcancel",end,{passive:true});
- tabs.addEventListener("contextmenu",e=>{const b=startBtn(e.target);if(!b)return;e.preventDefault();if(S.gest.ring&&!S.ar){S.fanEat=Date.now();arOpen(true)}});
- tabs.addEventListener("click",e=>{if(S.fanEat&&Date.now()-S.fanEat<1500&&startBtn(e.target)){S.fanEat=0;e.stopImmediatePropagation();e.preventDefault()}},true)}
+ tabs.addEventListener("contextmenu",e=>{const b=startBtn(e.target);if(!b)return;e.preventDefault();if(S.gest.ring&&!S.ar&&!S.fan)press(b)});
+ tabs.addEventListener("click",e=>{const b=startBtn(e.target);if(b&&S.fan&&S.fan.k===b.dataset.tab&&S.fanEat&&Date.now()-S.fanEat<1500){S.fanEat=0;e.stopImmediatePropagation();e.preventDefault()}},true)}
 document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("button[data-tab]");if(!b)return;const t=b.dataset.tab,now=Date.now();if(t==="einkauf"&&S.tab!=="einkauf")S.shopFilter="";
   if(TAP_SEQ[t]){const lt=S.lastTap,n=S.gest.tap&&lt&&lt.t===t&&lt.on===S.tab&&now-lt.at<450?lt.n+1:0;const q=TAP_SEQ[t],cur=tapCur(t),idx=n?n:S.gest.tap&&cur>=0?cur+1:0;if(S.tab!==t||n||idx)S.prev=S.tab;q[idx%q.length]();S.lastTap={t,at:now,n,on:S.tab};S.draft=null;render();window.scrollTo(0,0);return}
   if(t==="essen"&&S.tab!=="essen")S.foodTab="heute";S.tab=t;S.draft=null;render();window.scrollTo(0,0)});
@@ -4012,7 +4042,9 @@ app.addEventListener("click",async e=>{
   if(b.dataset.tset){const d=S.tripDraft;if(d){const f=b.dataset.tset;d[f]=d[f]===b.dataset.v?"":b.dataset.v;render()}return}
   if(b.dataset.ttog){const d=S.tripDraft;if(d){const f=b.dataset.ttog,a=csv(d[f]),v=b.dataset.v;d[f]=(a.includes(v)?a.filter(x=>x!==v):a.concat(v)).join(",");render()}return}
   if(b.dataset.rgf){const [k,v]=b.dataset.rgf.split("|"),F=S.rgF||(S.rgF={k:"",u:"",s:""});if(k==="more")F.more=true;else{F[k]=F[k]===v?"":v;F.more=false}render();return}
-  if(b.dataset.act==="merken"){merkenOpen({u:b.dataset.u||""});return}
+  if(b.dataset.act==="merken"){merkenOpen(b.dataset.u?{u:b.dataset.u,kind:""}:{u:""});return}
+  if(b.dataset.rguf){const [k,v]=b.dataset.rguf.split("|"),F=S.rgUF||(S.rgUF={k:"",s:""});if(k==="more")F.more=true;else{F[k]=F[k]===v?"":v;F.more=false}render();return}
+  if(b.dataset.act==="bkopen"){S.bkOpen=S.bkOpen===S.reiseOpen?null:S.reiseOpen;render();setTimeout(()=>{const el=document.getElementById("bk-name");if(el)el.focus()},30);return}
   // Stand eines Ausflugsziels: 💡 Idee → ⭐ Favorit → 📅 Geplant (Tag wählen) → ✅ Erledigt → 💡 Idee
   if(b.dataset.tripst){const x=trips().find(y=>y.id===b.dataset.tripst);if(!x)return;const p="food/trip/"+x.id+"/",st=tripSt(x);
     try{if(st==="idee")await S.store.setPath(p+"fav",true);else if(st==="favorit")calDayPick(x.name,nextSat(),async k=>{try{await S.store.setPath(p+"date",k);toast("Steht am "+rDate(k)+" im Kalender")}catch(_){toast("Konnte nicht speichern.")}});

@@ -1,5 +1,5 @@
 srv.listen(8765,async()=>{
-  // Alle Bereiche (Florian 16.11.2026): lange auf Start oder Tipp oben rechts; Tipp daneben, ✕ und Zurück schließen; Anheften; Zurück schließt auch Schnellmenüs
+  // Alle Bereiche (Florian 16.11.2026): Tipp oben rechts; Tipp daneben, ✕ und Zurück schließen; Anheften; Zurück schließt auch Schnellmenüs
   const b=await chromium.launch();const errs=[];const r={};const out=process.argv[2];
   const c=await b.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,timezoneId:'Europe/Berlin'});const A=await c.newPage();A.setDefaultTimeout(8000);A.on('pageerror',e=>errs.push(e.message));
   await A.goto('http://localhost:8765/');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');await A.waitForTimeout(300);
@@ -7,8 +7,8 @@ srv.listen(8765,async()=>{
   const has=()=>A.$('#allar').then(x=>!!x);
   await A.tap('#tabs [data-tab=essen]');await A.waitForTimeout(300);
   const sb=await (await A.$('#tabs [data-tab=camp]:not([hidden])')).boundingBox();const ox=sb.x+sb.width/2,oy=sb.y+sb.height/2;
-  // 1) lange auf Start: Seite geht auf, bleibt nach dem Loslassen offen, Tipp daneben schließt
-  await touch('touchstart',ox,oy);await A.waitForTimeout(600);r.open=await has();await touch('touchend',ox,oy);await A.waitForTimeout(400);r.stays=await has();
+  // 1) Kachel oben rechts (lange auf Start ist seit 17.11.2026 der Fächer, Prüfskript facher): Seite geht auf, Tipp daneben schließt
+  await A.tap('[data-allar]');await A.waitForTimeout(400);r.open=await has();r.stays=r.open;
   r.groups=await A.$$eval('#allar .armg h3',l=>l.map(x=>x.innerText));r.tiles=await A.$$eval('#allar .armain',l=>l.length);r.subs=await A.$$eval('#allar .armsubs [data-arnav]',l=>l.length);r.col=await A.$eval('#allar .armg',e=>getComputedStyle(e).getPropertyValue('--gc').trim());r.noFoot=!(await A.$('#allar .arfoot'));
   const sh=await (await A.$('#allar .arsheet')).boundingBox();r.fits=sh.y>=0;r.scroll=await A.$eval('#allar .arsheet',e=>e.scrollHeight-e.clientHeight);
   await A.screenshot({path:out+'/alle-bereiche.png'});

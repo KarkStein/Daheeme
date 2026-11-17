@@ -7,7 +7,7 @@ srv.listen(8765,async()=>{
   await put('food/urlaub/u1',{name:'Bretagne',state:'aktuell',emo:'⛵',budget:800,at:1});
   await put('food/money/h1',{name:'Rewe',amt:4000,date:'2026-11-10',by:'p0',split:'half',cat:'essen',at:1});await A.waitForTimeout(300);
   const nav=async v=>{await A.evaluate(v=>{const b=document.createElement("button");b.dataset.nav=v;b.id="zz";document.getElementById("app").appendChild(b)},v);await A.click("#zz");await A.waitForTimeout(300)};
-  await nav('ausflug|tt:urlaub');await A.click('[data-reise=u1]');await A.waitForTimeout(300);
+  await nav('ausflug|tt:urlaub');await A.click('[data-reise=u1]');await A.waitForTimeout(300);await A.click('[data-tfold=ugeld]');await A.waitForTimeout(200);
   await A.click('[data-gact=grpnew][data-ref="urlaub:u1"]');await A.waitForTimeout(200);r.pre=await A.$eval('#mbox [data-ebf=budget]',e=>e.value);await A.click('#mbox button[type=submit]');await A.waitForTimeout(500);
   const G=Object.entries(db('mgroup'))[0]||[];const gid=G[0];r.grp=[G[1]&&G[1].name,G[1]&&G[1].budget,G[1]&&G[1].ref].join();r.h1=await A.$eval('#app h1',e=>e.innerText);
   r.sel=await A.$eval('[data-geldgrp][aria-pressed=true]',e=>e.innerText);

@@ -1,4 +1,4 @@
-// ---------- Alle Bereiche (Florian 16.11.2026): Tipp oben rechts oder lange auf Start öffnet alle Bereiche auf einem Bildschirm ----------
+// ---------- Alle Bereiche (Florian 16.11.2026): Tipp oben rechts öffnet alle Bereiche auf einem Bildschirm (lange auf Start öffnet seit 17.11.2026 den Fächer, siehe unten) ----------
 // Karte nach Gruppen (Florian 16.11.2026 abends, Vorschlag A gewählt: „zu unübersichtlich, zu viele, vielleicht Farben“, aber alles zeigen): je Gruppe eine Karte in ihrer Farbe (AREA_GROUPS[i][3]),
 // Bereiche groß mit Symbol, Unterseiten klein als Text, Quer als Knopf-Reihe unten über beide Spalten. Gespeist aus AREAS (neuer Bereich = eine Zeile dort), Zusätze in AR_EXTRA.
 // Oben Angeheftet (lange auf einen Eintrag drücken, je Gerät hq-arfav) oder zuletzt Benutztes (hq-arrec). Tipp daneben, ✕ und Zurück schließen.
@@ -40,19 +40,40 @@ function arClose(){S.ar=null;const el=document.getElementById("allar");if(el)el.
 document.addEventListener("touchend",()=>{if(S.ar&&!S.ar.armed){S.ar.armed=true;S.ar.at=Date.now()}},{passive:true});
 document.addEventListener("pointerup",e=>{if(e.pointerType!=="touch"&&S.ar&&!S.ar.armed){S.ar.armed=true;S.ar.at=Date.now()}});
 // ---------- Fenster schließen mit Zurück (Florian 16.11.2026): jedes Fenster (#mbox, #allar) legt einen eigenen Verlaufsschritt an ----------
-const OVL=["mbox","allar"];const ovlOpen=()=>OVL.some(id=>document.getElementById(id));
-function ovlCloseAll(){mboxClose();arClose()}
+const OVL=["mbox","allar","fan"];const ovlOpen=()=>OVL.some(id=>document.getElementById(id));
+function ovlCloseAll(){mboxClose();arClose();fanClose()}
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&ovlOpen())ovlCloseAll()});
 new MutationObserver(()=>{const open=ovlOpen();
   if(open&&!S.ovl){S.ovl=true;try{if(!(history.state&&history.state.ov))history.pushState({ov:1},"")}catch(_){}}
   else if(!open&&S.ovl){S.ovl=false;setTimeout(()=>{try{if(!ovlOpen()&&history.state&&history.state.ov){navBusy=true;history.back()}}catch(_){}},0)}}).observe(document.body,{childList:true});
+// ---------- Fächer (Florian 17.11.2026, „So bauen, Kachel bleibt“): lange auf Start = Familie und Zuhause, lange auf Einkauf = Freizeit und Gemerktes ----------
+// Statt Alle Bereiche (die bleibt über die Kachel oben rechts und als Eintrag im Fächer). Einträge aus AREAS (Symbol, Name, Sprung). Nach dem langen Drücken
+// kann der Finger auf einen Eintrag gleiten und dort loslassen; sonst bleibt der Fächer offen, Tipp auf einen Eintrag öffnet ihn, Tipp daneben oder Zurück schließt.
+const FAN={camp:["Familie und Zuhause",["kita","kind","privat","geschenke","amhaus"]],einkauf:["Freizeit und Gemerktes",["ausflug","spiel","musik","projekte","recherchen"]]};
+const fanItems=k=>FAN[k][1].map(t=>AREAS.find(a=>a[2]===t)).filter(Boolean).map(a=>[a[0],a[1],a[4]||a[2]+"|"]);
+function fanHtml(k){const tb=document.getElementById("tabs").getBoundingClientRect(),bt=document.querySelector(`#tabs [data-tab="${k}"]:not([hidden])`),r=bt?bt.getBoundingClientRect():null,cur=arCur();
+  return `<div class="fanbg"></div>${r?`<div class="fanring" style="left:${Math.round(r.left+r.width/2-30)}px;top:${Math.round(r.top+4)}px"></div>`:""}<div class="fanlist" role="menu" aria-label="${esc(FAN[k][0])}" style="bottom:${Math.max(16,Math.round(innerHeight-tb.top+14))}px">${fanItems(k).map(t=>`<button class="fanit${t[2]===cur?" on":""}" role="menuitem" data-fannav="${esc(t[2])}"><span>${t[0]}</span><b>${esc(t[1])}</b></button>`).join("")}<button class="fanall" data-fanall>Alle Bereiche ›</button><div class="fanttl">${esc(FAN[k][0])}</div></div>`}
+function fanOpen(k,byPress){if(document.getElementById("fan")||!FAN[k])return;if(byPress)try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}
+  S.fan={k,armed:!byPress,at:byPress?Date.now():0};const el=document.createElement("div");el.id="fan";el.className=k==="einkauf"?"r":"l";el.innerHTML=fanHtml(k);document.body.appendChild(el);
+  el.addEventListener("click",e=>{const f=S.fan;if(!f)return;if(!f.armed||Date.now()-f.at<300){e.preventDefault();return}
+    const t=e.target.closest("[data-fannav]");if(t){fanGo(t.dataset.fannav);return}
+    if(e.target.closest("[data-fanall]")){fanClose();arOpen();return}
+    fanClose()})}
+function fanGo(v){fanClose();goNav(v)}
+function fanClose(){S.fan=null;const el=document.getElementById("fan");if(el)el.remove()}
+const fanHit=(x,y)=>{const el=document.elementFromPoint(x,y);return el&&el.closest?el.closest("#fan [data-fannav],#fan [data-fanall]"):null};
+document.addEventListener("touchmove",e=>{const f=S.fan;if(!f||f.armed)return;const p=e.touches[0],h=p&&fanHit(p.clientX,p.clientY);document.querySelectorAll("#fan .fanhot").forEach(x=>{if(x!==h)x.classList.remove("fanhot")});if(h)h.classList.add("fanhot")},{passive:true});
+document.addEventListener("touchend",e=>{const f=S.fan;if(!f||f.armed)return;const p=e.changedTouches[0],h=p&&fanHit(p.clientX,p.clientY);
+  if(h){if(h.dataset.fannav)fanGo(h.dataset.fannav);else{fanClose();arOpen()}return}f.armed=true;f.at=Date.now()},{passive:true});
+document.addEventListener("pointerup",e=>{if(e.pointerType!=="touch"&&S.fan&&!S.fan.armed){S.fan.armed=true;S.fan.at=Date.now()}});
 {let lp=null;const tabs=document.getElementById("tabs");
- const startBtn=t=>t&&t.closest&&t.closest('#tabs [data-tab="camp"]');
- tabs.addEventListener("touchstart",e=>{const b=startBtn(e.target);if(!b||!S.gest.ring||e.touches.length!==1)return;const p=e.touches[0];lp={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{lp=null;S.fanEat=Date.now();arOpen(true)},450)}},{passive:true});
+ const startBtn=t=>t&&t.closest&&t.closest('#tabs [data-tab="camp"],#tabs [data-tab="einkauf"]');
+ const press=b=>{S.fanEat=Date.now();fanOpen(b.dataset.tab,true)};
+ tabs.addEventListener("touchstart",e=>{const b=startBtn(e.target);if(!b||!S.gest.ring||e.touches.length!==1)return;const p=e.touches[0];lp={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{lp=null;press(b)},450)}},{passive:true});
  document.addEventListener("touchmove",e=>{if(lp){const p=e.touches[0];if(Math.hypot(p.clientX-lp.x,p.clientY-lp.y)>12){clearTimeout(lp.timer);lp=null}}},{passive:true});
  const end=()=>{if(lp){clearTimeout(lp.timer);lp=null}};document.addEventListener("touchend",end,{passive:true});document.addEventListener("touchcancel",end,{passive:true});
- tabs.addEventListener("contextmenu",e=>{const b=startBtn(e.target);if(!b)return;e.preventDefault();if(S.gest.ring&&!S.ar){S.fanEat=Date.now();arOpen(true)}});
- tabs.addEventListener("click",e=>{if(S.fanEat&&Date.now()-S.fanEat<1500&&startBtn(e.target)){S.fanEat=0;e.stopImmediatePropagation();e.preventDefault()}},true)}
+ tabs.addEventListener("contextmenu",e=>{const b=startBtn(e.target);if(!b)return;e.preventDefault();if(S.gest.ring&&!S.ar&&!S.fan)press(b)});
+ tabs.addEventListener("click",e=>{const b=startBtn(e.target);if(b&&S.fan&&S.fan.k===b.dataset.tab&&S.fanEat&&Date.now()-S.fanEat<1500){S.fanEat=0;e.stopImmediatePropagation();e.preventDefault()}},true)}
 document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("button[data-tab]");if(!b)return;const t=b.dataset.tab,now=Date.now();if(t==="einkauf"&&S.tab!=="einkauf")S.shopFilter="";
   if(TAP_SEQ[t]){const lt=S.lastTap,n=S.gest.tap&&lt&&lt.t===t&&lt.on===S.tab&&now-lt.at<450?lt.n+1:0;const q=TAP_SEQ[t],cur=tapCur(t),idx=n?n:S.gest.tap&&cur>=0?cur+1:0;if(S.tab!==t||n||idx)S.prev=S.tab;q[idx%q.length]();S.lastTap={t,at:now,n,on:S.tab};S.draft=null;render();window.scrollTo(0,0);return}
   if(t==="essen"&&S.tab!=="essen")S.foodTab="heute";S.tab=t;S.draft=null;render();window.scrollTo(0,0)});

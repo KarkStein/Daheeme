@@ -298,7 +298,9 @@ app.addEventListener("click",async e=>{
   if(b.dataset.tset){const d=S.tripDraft;if(d){const f=b.dataset.tset;d[f]=d[f]===b.dataset.v?"":b.dataset.v;render()}return}
   if(b.dataset.ttog){const d=S.tripDraft;if(d){const f=b.dataset.ttog,a=csv(d[f]),v=b.dataset.v;d[f]=(a.includes(v)?a.filter(x=>x!==v):a.concat(v)).join(",");render()}return}
   if(b.dataset.rgf){const [k,v]=b.dataset.rgf.split("|"),F=S.rgF||(S.rgF={k:"",u:"",s:""});if(k==="more")F.more=true;else{F[k]=F[k]===v?"":v;F.more=false}render();return}
-  if(b.dataset.act==="merken"){merkenOpen({u:b.dataset.u||""});return}
+  if(b.dataset.act==="merken"){merkenOpen(b.dataset.u?{u:b.dataset.u,kind:""}:{u:""});return}
+  if(b.dataset.rguf){const [k,v]=b.dataset.rguf.split("|"),F=S.rgUF||(S.rgUF={k:"",s:""});if(k==="more")F.more=true;else{F[k]=F[k]===v?"":v;F.more=false}render();return}
+  if(b.dataset.act==="bkopen"){S.bkOpen=S.bkOpen===S.reiseOpen?null:S.reiseOpen;render();setTimeout(()=>{const el=document.getElementById("bk-name");if(el)el.focus()},30);return}
   // Stand eines Ausflugsziels: 💡 Idee → ⭐ Favorit → 📅 Geplant (Tag wählen) → ✅ Erledigt → 💡 Idee
   if(b.dataset.tripst){const x=trips().find(y=>y.id===b.dataset.tripst);if(!x)return;const p="food/trip/"+x.id+"/",st=tripSt(x);
     try{if(st==="idee")await S.store.setPath(p+"fav",true);else if(st==="favorit")calDayPick(x.name,nextSat(),async k=>{try{await S.store.setPath(p+"date",k);toast("Steht am "+rDate(k)+" im Kalender")}catch(_){toast("Konnte nicht speichern.")}});
