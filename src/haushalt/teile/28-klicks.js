@@ -3,7 +3,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.mealfor){S.mealFor=ymd(new Date());S.booksOpen=true}
   if(b.dataset.allar!=null){arOpen(false);return}
   if(gmClick(b))return;
-  if(b.dataset.route){routePick(b.dataset.route);return}
+  if(b.dataset.route){routePick(b.dataset.route,b.dataset.rd?{d:b.dataset.rd,t:b.dataset.rt,name:b.dataset.rn}:null);return}
   if(b.dataset.cook){cookStart(b.dataset.cook);return}
   if(b.dataset.act==="mealforx"){S.mealFor=null;render();return}
   if((b.classList.contains("spot")&&b.dataset.go!=="post"||b.classList.contains("hoslot"))&&Date.now()-(S.mboxAt||0)<700)return;

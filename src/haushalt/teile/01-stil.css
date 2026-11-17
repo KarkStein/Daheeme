@@ -627,3 +627,9 @@ a.mkb{text-decoration:none;color:var(--fg)}.muslk[aria-pressed=false]{filter:gra
 .foldh{display:flex;align-items:center;gap:var(--sp2);flex:1;min-width:0;background:none;border:none;padding:0;margin:0;color:inherit;font:inherit;text-align:left;cursor:pointer;min-height:32px}
 .foldh h2{margin:0;min-width:0}.foldh>i{font-style:normal;color:var(--muted);font-size:var(--fs-s);flex:none}
 .foldc>.foldh{width:100%;justify-content:space-between}.foldc>.section-head:last-child{margin-bottom:0}.foldwrap{display:block}
+/* Route mit Ankunftszeit (17.11.2026) */
+.routearr{background:var(--navy-a);color:#fff;border-radius:var(--r);padding:var(--sp3) var(--sp4);margin:var(--sp2) 0;display:flex;flex-direction:column;gap:var(--sp1)}
+.routearr small{font-size:var(--fs-xs);opacity:.8}.routearr b{font-size:var(--fs-l)}.routeearly{margin-bottom:var(--sp2)}
+.routeearly{display:flex;flex-wrap:wrap;gap:var(--sp2)}
+.routeearly button{border:1px solid var(--line,currentColor);background:none;color:inherit;font:inherit;font-size:var(--fs-s);border-radius:999px;padding:var(--sp1) var(--sp3);min-height:32px;cursor:pointer}
+.routeearly button[aria-pressed=true]{background:var(--navy-a);border-color:var(--navy-a);color:#fff}
