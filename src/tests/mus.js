@@ -12,7 +12,7 @@ srv.listen(8765,async()=>{
   const sid=Object.entries(db.music).find(([k,m])=>m.svc==='Spotify')[0];
   await A.click('[data-musedit="'+sid+'"]');await A.fill('#mu-name','Roadtrip');await A.click('[data-musocc=auto]');await A.click('[data-act=mussave]');await A.waitForTimeout(400);
   await A.click('[data-musfav="'+sid+'"]');await A.waitForTimeout(300);
-  r.tiles=await A.$$eval('.muslist li',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));
+  r.tiles=await A.$$eval('.muscard .mk',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));
   await A.screenshot({path:out+'/musik.png',fullPage:true});
   await A.click('#tabs [data-tab=essen]');await A.waitForTimeout(300);r.koch=await A.$$eval('.musrow',l=>l.map(x=>x.innerText));
   await A.click('#tabs [data-tab=camp]');await A.waitForTimeout(300);await A.click('.spot[data-go=ausflug]');await A.waitForTimeout(300);await A.click('[data-tfold=rmus]');await A.waitForTimeout(200);r.auto=await A.$$eval('.musrow',l=>l.map(x=>x.innerText));

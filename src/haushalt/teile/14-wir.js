@@ -73,7 +73,8 @@ function renderKind(){const now=new Date(),cm=mondayOf(now),off=S.kidWk|0,mon=ad
     +row("🎁","Geschenke und Spielsachen",cnt("geschenke")?cnt("geschenke")+" offen":"",'data-nav="listen|bl:geschenke"')
     +row("🎄","Adventskalender","",'data-nav="geschenke|pf:advent"')
     +row("🚲","Ausflüge mit Kleinkind","",'data-nav="ausflug|tt:ideen"')
-    +row("🛝","Spielplätze und Spielideen","",'data-nav="spiel|ps:spielplatz"')+`</section>`;
+    +row("🛝","Spielplätze und Spielideen","",'data-nav="spiel|ps:spielplatz"')
+    +row("🎵","Kinderlieder und Hörspiele","",'data-nav="musik|ma:lied"')+musLikedRow()+`</section>`;
   return h}
 function renderPrivat(){const sec=S.privSec==="briefe"?"briefe":"lunch";
   let h=`<div><div class="eyebrow">Nur ihr zwei</div><h1>Partner</h1></div><div class="unl privtabs" style="margin:4px 0 12px">${[["lunch","🍽️ Mittagessen"],["briefe","✉️ Briefe"+(briefe().length?" ("+briefe().length+")":"")]].map(x=>`<button class="chipbtn${sec===x[0]?"":" neutral"}" data-priv="${x[0]}" aria-pressed="${sec===x[0]}">${x[1]}</button>`).join("")}</div>`;

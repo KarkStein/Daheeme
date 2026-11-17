@@ -115,7 +115,7 @@ function searchHits(q){const W=sNorm(q).split(/\s+/).filter(Boolean);if(!W.lengt
   trips().forEach(x=>add("Reisen und Ausflüge","🚲",x.name,"Ausflug",'data-nav="ausflug|tt:ideen"',x.note));
   listOf(F.fund).forEach(x=>{const h=x.area==="haus";add(h?"Am Haus":"Reisen",fundKind(x.kind,h?"haus":"reise")[1],x.name,(h?"Gemerkt Am Haus":"Gemerkt für unterwegs")+(x.place?" · "+x.place:""),h?(x.proj?`data-hproj="${esc(x.proj)}"`:'data-nav="amhaus|hs:wohnen"'):(x.reise?`data-reise="${esc(x.reise)}"`:'data-nav="ausflug|tt:recherche"'),x.note)});
   plays().forEach(x=>add("Sport und Spiel","⚽",x.name,(playSecs().find(p=>p[0]===x.sec)||[0,0,"Sonstiges"])[2],`data-nav="spiel|ps:${esc(x.sec||"sonst")}"`,x.note));
-  musics().forEach(x=>add("Musik","🎵",x.name,"Playlist",'data-nav="musik|"',x.note));
+  musics().forEach(x=>{const a=musArt(x);add("Musik",x.emo||a[1],x.name,a[2],`data-nav="musik|ma:${a[0]}"`,[x.note,x.txt].filter(Boolean).join(" "))});
   return H}
 function renderSearch(){const q=S.sq||"",H=searchHits(q);
   let h=`<div><div class="eyebrow">Quer durch alles</div><h1>🔍 Suche</h1></div><section class="card"><input id="sq" type="search" value="${esc(q)}" placeholder="Rezept, Termin, Idee, Einstellung …" autocomplete="off" enterkeyhint="search" aria-label="Suchen" style="width:100%"></section>`;

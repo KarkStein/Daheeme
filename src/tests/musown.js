@@ -12,7 +12,7 @@ srv.listen(8765,async()=>{
   const oid=Object.keys(db().musocc||{})[0];r.occ=db().musocc&&db().musocc[oid];r.draftOn=await A.$eval(`[data-musocc="${oid}"]`,x=>x.getAttribute('aria-pressed'));
   await A.screenshot({path:out+'/musik-rubrik.png',fullPage:true});
   await A.click('[data-act=mussave]');await A.waitForTimeout(400);const m=db().music.m1;r.m=[m.emo,m.occ].join('|');
-  r.tile=await A.$eval('.musico',x=>x.innerText);r.filter=await A.$$eval('[data-musfilter]',l=>l.map(x=>x.innerText));
+  r.tile=await A.$eval('.muscard .mk .mki',x=>x.innerText);r.filter=await A.$$eval('[data-musfilter]',l=>l.map(x=>x.innerText));
   // Rubrik löschen nimmt sie auch aus der Playlist
   await A.click('[data-musedit=m1]');await A.waitForTimeout(200);await A.click(`[data-musoccrm="${oid}"]`);await A.click(`[data-musoccrm="${oid}"]`);await A.waitForTimeout(500);
   r.gone=!(db().musocc||{})[oid]&&db().music.m1.occ==='kochen';

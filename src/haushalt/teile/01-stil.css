@@ -574,3 +574,6 @@ section[id^="sec-"]{scroll-margin-top:calc(var(--sp5)*3)}
 .glosrow b{grid-column:1;font-weight:600}.glosrow span{grid-column:1;font-size:var(--fs-s);opacity:.8;line-height:1.4}.glosrow i{grid-column:2;grid-row:1/3;align-self:center;font-style:normal;opacity:.5;font-size:var(--fs-l)}
 .glosrow.glossym{grid-template-columns:32px 1fr;align-items:center}.glossym b{font-size:var(--fs-l);font-weight:400;text-align:center}.glossym span{grid-column:2;grid-row:1}
 .glosrow[hidden],.glossec[hidden],.glosb[hidden],.glosnone[hidden]{display:none}
+a.mkb{text-decoration:none;color:var(--fg)}.muslk[aria-pressed=false]{filter:grayscale(1);opacity:.5}
+.mustxt{list-style:none;white-space:pre-wrap;font-size:var(--fs-s);line-height:1.5;padding:var(--sp2) var(--sp3);margin:0 0 var(--sp2);background:var(--bg);border-radius:var(--r-s)}
+.muscard .scrollrow+.scrollrow{margin-top:6px}.mkt b{overflow-wrap:break-word;hyphens:auto}.muscard .mk{gap:0}.muscard .mk .routebtn{padding:8px 5px}.muscard .mk .stbadge{padding:3px 8px;margin:0 var(--sp1)}
