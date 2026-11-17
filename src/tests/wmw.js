@@ -6,7 +6,7 @@ srv.listen(8765,async()=>{
   await A.click('#tabs [data-tab=woche]');await A.waitForTimeout(200);r.pager=await A.$$eval('.pdot',l=>l.map(x=>x.innerText));
   await A.click('[data-wpage="1"]');await A.waitForTimeout(300);r.h1=await A.$eval('#app h1',e=>e.innerText);
   r.secs=await A.$$eval('[data-wmwsec]',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));r.nums=await A.$eval('.wmwnums',e=>e.innerText.replace(/\n/g,' '));
-  await A.click('[data-wtick]');await A.waitForTimeout(400);r.nums2=await A.$eval('.wmwnums',e=>e.innerText.replace(/\n/g,' '));
+  await A.click('[data-wmwsec=offen]');await A.waitForTimeout(200);await A.click('[data-wtick]');await A.waitForTimeout(400);r.nums2=await A.$eval('.wmwnums',e=>e.innerText.replace(/\n/g,' '));
   await A.screenshot({path:out+'/wmw.png',fullPage:true});
   await A.click('[data-wmwwho=alle]');await A.waitForTimeout(200);r.alle=await A.$$eval('[data-wmwsec]',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));
   await A.click('[data-act=wmwall]');await A.waitForTimeout(200);r.opened=await A.$$eval('.wmwsec .setbody',l=>l.length);

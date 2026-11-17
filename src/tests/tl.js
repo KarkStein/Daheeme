@@ -11,7 +11,7 @@ srv.listen(8765,async()=>{
   await el.click();await A.waitForTimeout(400);r.h=await A.$eval('#app h1',e=>e.innerText);
   await A.click('#tabs [data-tab=woche]').catch(()=>{});
   await A.evaluate(()=>{const b=document.createElement("button");b.dataset.nav="woche|wp:1";b.id="zz";document.getElementById("app").appendChild(b)});await A.click("#zz");await A.waitForTimeout(300);
-  await A.click('[data-wmwwho=alle]');await A.waitForTimeout(200);r.wl=await A.$$eval('.wmwrow .tlink',l=>l.length);
+  await A.click('[data-wmwwho=alle]');await A.waitForTimeout(200);await A.click('[data-wmwsec=offen]');await A.waitForTimeout(200);r.wl=await A.$$eval('.wmwrow .tlink',l=>l.length);
   console.error(JSON.stringify(r),errs);
   const ok=!errs.length&&r.n>=1&&r.h==='Einkauf'&&r.wl>=1;
   console.error(ok?'TL OK':'TL FAIL');await b.close();srv.close();process.exit(0)});
