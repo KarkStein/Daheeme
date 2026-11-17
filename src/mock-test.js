@@ -37,12 +37,12 @@ srv.listen(8765,async()=>{
   await A.click('.appbar [data-go]');await A.click('[data-tab=einkauf]');await B.click('[data-tab=einkauf]');
   await A.fill('#shopinput','Milch');await A.press('#shopinput','Enter');await A.fill('#shopinput','Brot');await A.click('#shopform button[type=submit]');
   await B.waitForSelector(':nth-match(.shop li, 2)');await B.click(':nth-match(.shop li .item, 1)');
-  await A.waitForSelector('.shop li.done');await A.click('[data-act=shopclear]');await B.waitForSelector('.shop li.done',{state:'detached'});
+  await A.click('[data-tfold=shop_done]');await A.waitForSelector('.shop li.done');await A.click('[data-act=shopclear]');await B.waitForSelector('.shop li.done',{state:'detached'});
   await A.click('[data-tab=essen]');await B.click('[data-tab=essen]');await A.click('[data-food=rezepte]');await A.click('[data-act=recnew]');await A.fill('#rec-name','Linsensuppe');await A.fill('#rec-ing','250 g Linsen\n1 Zwiebel');await A.fill('#rec-note','Alles kochen.');await A.click('[data-act=recsave]');
   await B.click('[data-food=plan]');await B.click('[data-meal=d0]');await B.click('[data-mealrec]');await B.click('[data-act=mealsave]');
   await A.click('[data-food=heute]');await A.click('[data-food=plan]');await A.waitForSelector('.mealrow .tag');await A.click('[data-meal=d2]');await A.fill('#mealinput','Reste');await A.press('#mealinput','Enter');
   await B.waitForSelector('text=Reste');await B.click('[data-act=mealshop]');await B.click('[data-pickmode=alle]');await A.click('[data-tab=einkauf]');await A.waitForSelector(':nth-match(.shop li, 2)');
-  await A.click(':nth-match(.shop .catbtn, 1)');await A.click('[data-setcat=tk]');await B.click('[data-tab=einkauf]');await B.waitForSelector('text=Tiefkühl');
+  await A.click(':nth-match(.shop [data-shopedit], 1)');await A.click('#mbox [data-ebk=cat][data-ebv=tk]');await A.click('#mbox button[type=submit]');await B.click('[data-tab=einkauf]');await B.waitForSelector('text=Tiefkühl');
   await A.click('[data-tab=camp]');await B.click('[data-tab=camp]');await A.evaluate(()=>{const b=document.createElement('button');b.dataset.nav='privat|pv:lunch';b.id='zznav';document.getElementById('app').appendChild(b);b.click()});await A.waitForTimeout(300);await A.click('[data-act=lunew]');await A.fill('#lu-name','Trattoria');await A.fill('#lu-dishes','Pizza\nPasta');await A.click('[data-act=lusave]');
   await B.evaluate(()=>{const b=document.createElement('button');b.dataset.nav='privat|pv:lunch';b.id='zznav';document.getElementById('app').appendChild(b);b.click()});await B.waitForTimeout(300);await B.click('[data-lunch]');await B.click('button.star:nth-child(4)');await A.waitForSelector('.star.on');
   console.log('shop',JSON.stringify(Object.values(tree.haushalt)[0].food));

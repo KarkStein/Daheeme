@@ -55,7 +55,7 @@ app.addEventListener("submit",async e=>{if(e.target.classList&&e.target.classLis
   if(e.target.id==="packlistform"){e.preventDefault();const el=document.getElementById("packlistinput"),n=(el&&el.value||"").trim().slice(0,40);if(!n)return;const id=newId("l");S.packList=id;S.packListNew=false;S.store.setPath("food/packlist/"+id,{name:n,at:Date.now()}).catch(()=>toast("Konnte nicht speichern."));render();return}
   if(e.target.id==="packform"){e.preventDefault();const v=S.packText;S.packText="";const el=document.getElementById("packinput");if(el)el.value="";packAdd(v);return}
   if(e.target.id!=="shopform")return;e.preventDefault();const v=S.shopText;S.shopText="";const el=document.getElementById("shopinput");if(el)el.value="";const u=!!S.shopUrg;S.shopUrg=false;shopAdd(v,u)});
-app.addEventListener("input",e=>{if(e.target.id==="shopinput"){S.shopText=e.target.value;const sg=document.getElementById("shopsugg");if(sg)sg.innerHTML=shopSuggHtml(S.shopText);return}
+app.addEventListener("input",e=>{if(e.target.id==="shopinput"){S.shopText=e.target.value;const sg=document.getElementById("shopsugg");if(sg)sg.innerHTML=shopSuggArea();return}
   if(e.target.dataset&&e.target.dataset.wish){const w=S.wish||(S.wish={own:true});w[e.target.dataset.wish]=e.target.value;const r=document.getElementById("wishres");if(r)r.innerHTML=wishResHtml(w);const any=!!(w.lust||w.mit||w.ohne||w.wie);document.querySelectorAll(".wishweb .btnrow button").forEach(x=>{x.disabled=!any});const hn=document.querySelector(".wishweb .wishhint");if(hn)hn.hidden=any;return}
   if(e.target.id==="packinput"){S.packText=e.target.value;return}
   if(e.target.id==="prioinput"){S.prioText=e.target.value;return}
@@ -79,3 +79,7 @@ app.addEventListener("input",e=>{if(e.target.id==="shopinput"){S.shopText=e.targ
   if(e.target.id==="rdbq"){S.rdbQ=e.target.value;const pos=e.target.selectionStart;render();const el=document.getElementById("rdbq");if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}return}
   if(S.recDraft&&e.target.dataset.rf){S.recDraft[e.target.dataset.rf]=e.target.value;return}
   const row=e.target.closest(".editrow[data-i]");if(!row||!S.draft)return;if(e.target.dataset.f==="name")S.draft.tasks[+row.dataset.i].name=e.target.value});
+
+// „Oft gekauft“ erscheint beim Tipp ins leere Feld der Einkaufsliste und geht beim Tipp daneben wieder weg
+app.addEventListener("focusin",e=>{if(e.target.id==="shopinput"&&!S.shopFavOpen){S.shopFavOpen=true;shopSuggDraw()}});
+document.addEventListener("click",e=>{if(S.shopFavOpen&&!(e.target.closest&&e.target.closest("#shopsugg,#shopform"))){S.shopFavOpen=false;S.favEdit=false;if(!S.shopText)shopSuggDraw()}});

@@ -28,7 +28,7 @@ function buyLinked(list){const out=[];
   if(list==="baumarkt")funde("haus").filter(f=>f.proj&&(f.kind==="werkzeug"||f.kind==="material")&&f.st!=="gebucht").forEach(f=>{const hp=hprojs().find(x=>x.id===f.proj);if(hp)out.push({name:f.name,sub:f.price?f.price+" €":"",tick:`data-fundbought="${esc(f.id)}"`,link:`<button class="chipbtn neutral buyref" data-hproj="${esc(hp.id)}">${esc(hp.emo||"🛋️")} ${esc(hp.name)} ›</button>`})});
   return out}
 function renderBuy(){const O=S.buyOpen||(S.buyOpen={}),all=buys();
-  let h=`<div><div class="eyebrow">Einkauf</div><h1>Weitere Listen</h1></div>${shopSwitch("listen")}<div class="freq">Lebensmittel und Drogerie stehen auf der Einkaufsliste. Hier steht alles andere, was ihr besorgen wollt.</div>`;
+  let h=`<div><h1>Weitere Listen</h1></div><div class="freq">Lebensmittel und Drogerie stehen auf der Einkaufsliste. Hier steht alles andere, was ihr besorgen wollt.</div>`;
   buyLists().forEach(L=>{const own=all.filter(x=>x.list===L.id),op=own.filter(x=>!x.done).sort((a,b)=>(a.at||0)-(b.at||0)),dn=own.filter(x=>x.done).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0)),lk=buyLinked(L.id),n=op.length+lk.length,isO=!!O[L.id];
     h+=`<section class="card setcard buylist" id="buy-${esc(L.id)}"><button class="setsum" data-buysum="${esc(L.id)}" aria-expanded="${isO}"><h2>${L.emo} ${esc(L.name)}</h2><span class="freq num" style="margin-left:auto;margin-right:8px">${n?n+" offen":"leer"}</span><i>${isO?"▾":"›"}</i></button>`;
     if(isO){const who=(S.buyFor||{})[L.id]||"";
@@ -45,9 +45,7 @@ function renderBuy(){const O=S.buyOpen||(S.buyOpen={}),all=buys();
   h+=S.buyListNew?`<form class="addrow" id="buylistform" novalidate><input type="text" id="buylistinput" placeholder="Name der Liste, z. B. Fahrrad" maxlength="40" autocomplete="off" enterkeyhint="done" aria-label="Name der Liste"><button class="primary" type="submit">Anlegen</button></form>`:`<div class="btnrow"><button class="ghost" data-act="buylistnew">＋ Eigene Liste</button></div>`;
   return h}
 // Einkauf hat zwei Seiten (Florian 16.11.2026): Listen (Einkaufsliste, umschaltbar auf Weitere Listen) und Ausgaben
-function shopSwitch(on){const nS=shopItems().filter(i=>!i.done).length,nB=buyLists().reduce((a,L)=>a+buys().filter(x=>x.list===L.id&&!x.done).length+buyLinked(L.id).length,0);
-  return `<div class="unl shopsw" role="group" aria-label="Welche Liste">${[["einkauf","🧺 Einkaufsliste",nS],["listen","🛍️ Weitere Listen",nB]].map(o=>`<button class="chipbtn neutral" data-go="${o[0]}" aria-pressed="${on===o[0]}">${o[1]}${o[2]?` <span class="freq">${o[2]}</span>`:""}</button>`).join("")}</div>`}
-function shopPager(p){return `<div class="pager" role="group" aria-label="Seiten von Einkauf"><div class="pdots">${["einkauf","ausgaben"].map((k,i)=>[k,TAB_PAGES.einkauf[i]]).map((x,i)=>`<button class="pdot" data-go="${x[0]}" aria-pressed="${i===p}"><b>${x[1]}</b></button>`).join("")}</div></div>`}
+function shopPager(p){return `<div class="pager" role="group" aria-label="Seiten von Einkauf"><div class="pdots">${["einkauf","ausgaben","listen"].map((k,i)=>[k,TAB_PAGES.einkauf[i]]).map((x,i)=>`<button class="pdot" data-go="${x[0]}" aria-pressed="${i===p}"><b>${x[1]}</b></button>`).join("")}</div></div>`}
 // Vernetztes Entfernen: offene Einträge, die an einem gelöschten Ding hängen, gehen mit; Splitwise-Gruppen verlieren nur die Zuordnung
 // Bearbeiten-Fenster (Florian 15.11.2026: Einträge nachträglich ändern): fields [{k,label,type:text|url|chips|multi|note,opts:[[wert,text]],val,hint?}]; onDel = Funktion oder Liste [[Text,fn(V),mitRückfrage]]
 function editBox(title,fields,onSave,onDel){S.mboxAt=Date.now();if(document.getElementById("mbox"))return;const V={};fields.forEach(f=>V[f.k]=f.type==="multi"?(f.val||[]).slice():f.val==null?"":f.val);

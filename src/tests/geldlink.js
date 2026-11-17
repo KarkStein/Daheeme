@@ -11,7 +11,7 @@ srv.listen(8765,async()=>{
   await A.click('[data-geldoffer]');await A.waitForTimeout(300);r.formName=await A.$eval('[data-gf=name]',e=>e.value);await A.fill('[data-gf=amt]','12,30');await A.click('#geldform button[type=submit]');await A.waitForTimeout(500);
   r.back=await A.$eval('#app h1',e=>e.innerText);r.btn2=!!(await A.$('[data-geldoffer]'));const m1=money().find(x=>x.ref==='shop')||{};r.shop=[m1.name,m1.amt,m1.cat,m1.by,/Milch/.test(m1.note||'')].join();
   // 2) Weitere Listen: Gekauft-Haken bietet den Preis an
-  await put('food/buy/k1',{name:'Matschhose',list:'kleidung',at:1});await A.waitForTimeout(300);await A.click('.shopsw [data-go=listen]');await A.waitForTimeout(300);await A.click('[data-buysum=kleidung]');await A.waitForTimeout(200);
+  await put('food/buy/k1',{name:'Matschhose',list:'kleidung',at:1});await A.waitForTimeout(300);await A.click('.pager [data-go=listen]');await A.waitForTimeout(300);await A.click('[data-buysum=kleidung]');await A.waitForTimeout(200);
   await A.click('[data-buydone=k1]');await A.waitForTimeout(500);r.toast=await A.$eval('#toast',e=>e.innerText);await A.click('#toast .toastbtn');await A.waitForTimeout(300);
   r.buyForm=[await A.$eval('[data-gf=name]',e=>e.value),await A.$eval('[data-gcat][aria-pressed=true]',e=>e.dataset.gcat).catch(()=>'')].join();await A.fill('[data-gf=amt]','25');await A.click('#geldform button[type=submit]');await A.waitForTimeout(500);
   const m2=money().find(x=>x.ref==='buy:k1')||{};r.buy=[m2.amt,m2.cat].join();r.back2=await A.$eval('#app h1',e=>e.innerText);
@@ -37,6 +37,6 @@ srv.listen(8765,async()=>{
   await A.click('#tabs [data-tab=camp]');await A.waitForTimeout(500);r.pig=!!(await A.$('.camp .pig'));await A.addStyleTag({content:'#tabs{display:none!important}'});await (await A.$('.camp')).screenshot({path:out+'/sparschwein.png'});await A.addStyleTag({content:'#tabs{display:flex!important}'});
   await A.click('.spot[data-go=ausgaben]');await A.waitForTimeout(400);r.pigGo=await A.$eval('#app h1',e=>e.innerText);
   console.log(JSON.stringify(r),errs);
-  const ok=!errs.length&&!r.btn0&&r.btn1&&r.formName==='Einkauf'&&r.back==='Einkauf'&&!r.btn2&&r.shop==='Einkauf,1230,essen,p0,true'&&/Preis/.test(r.toast)&&r.buyForm==='Matschhose,kleid'&&r.buy==='2500,kleid'&&r.back2==='Weitere Listen'
+  const ok=!errs.length&&!r.btn0&&r.btn1&&r.formName==='Einkauf'&&r.back==='Einkaufsliste'&&!r.btn2&&r.shop==='Einkauf,1230,essen,p0,true'&&/Preis/.test(r.toast)&&r.buyForm==='Matschhose,kleid'&&r.buy==='2500,kleid'&&r.back2==='Weitere Listen'
     &&/70 € ausgegeben von 100 €/.test(r.budget.replace(/ /g,' '))&&r.trip&&r.search>0&&r.gone&&r.undo&&r.pig&&r.pigGo==='Ausgaben'&&/Matschhose/.test(r.sugg)&&r.suggCat==='kleid'&&/Nochmal/.test(r.menu);
   console.log(ok?'GELDLINK OK':'GELDLINK FAIL');await b.close();process.exit(0)});

@@ -30,5 +30,5 @@ srv.listen(8765,async()=>{
   r.cal=await A.evaluate(()=>0);
   await nav('suche|');await A.fill('#sq','Nikolaus');await A.waitForTimeout(400);r.search=await A.$$eval('#app button',l=>l.filter(x=>x.dataset.advgo).length);
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&r.doors===24&&r.d6&&/Nikolaus/.test(r.d6.name)&&/Nüsse/.test(r.d6.need||'')&&r.pick==='Auf die Einkaufsliste'&&r.shop.length===2&&r.shop.every(x=>x.endsWith('Türchen 6'))&&r.inShop==='Einkauf'&&r.trip.length===1&&r.trip[0].includes('-12-')&&r.prio.length===1&&r.search>0;
+  const ok=!errs.length&&r.doors===24&&r.d6&&/Nikolaus/.test(r.d6.name)&&/Nüsse/.test(r.d6.need||'')&&r.pick==='Auf die Einkaufsliste'&&r.shop.length===2&&r.shop.every(x=>x.endsWith('Türchen 6'))&&r.inShop==='Einkaufsliste'&&r.trip.length===1&&r.trip[0].includes('-12-')&&r.prio.length===1&&r.search>0;
   console.error(ok?'ADV OK':'ADV FAIL');await b.close();srv.close();process.exit(0)});

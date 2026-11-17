@@ -10,8 +10,8 @@ srv.listen(8765,async()=>{
   await A.selectOption('[data-splitref]','urlaub:u1');await A.waitForTimeout(400);r.ref=Object.values(db().split)[0].ref;
   await A.addStyleTag({content:'#tabs{display:none!important}'});await A.screenshot({path:out+'/ausgaben.png',fullPage:true});await A.addStyleTag({content:'#tabs{display:flex!important}'});
   await A.click('.splitref [data-reise=u1]');await A.waitForTimeout(400);await A.click('[data-tfold=ugeld]');await A.waitForTimeout(200);r.inUrlaub=await A.$$eval('a.chipbtn',l=>l.filter(x=>/Bretagne 2027|bretagne/i.test(x.innerText)).length);
-  await A.click('#tabs [data-tab=einkauf]');await A.waitForTimeout(300);await A.click('.shopsw [data-go=listen]');await A.waitForTimeout(400);r.h3=await A.$eval('#app h1',e=>e.innerText);
+  await A.click('#tabs [data-tab=einkauf]');await A.waitForTimeout(300);await A.click('.pager [data-go=listen]');await A.waitForTimeout(400);r.h3=await A.$eval('#app h1',e=>e.innerText);
   await A.evaluate(()=>{const b=document.createElement('button');b.dataset.go='bereiche';document.getElementById('app').appendChild(b);b.click()});await A.waitForTimeout(300);r.areas=await A.$eval('#app',e=>/Ausgaben/.test(e.innerText)&&/Weitere Listen/.test(e.innerText)&&/Tag und Woche/.test(e.innerText));
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&r.h1==='Ausgaben'&&r.pager.join()==='Listen,Ausgaben'&&r.names[0]==='bretagne 2027'&&r.ref==='urlaub:u1'&&r.inUrlaub>0&&r.h3==='Weitere Listen'&&r.areas;
+  const ok=!errs.length&&r.h1==='Ausgaben'&&r.pager.join()==='Einkaufsliste,Ausgaben,Weitere Listen'&&r.names[0]==='bretagne 2027'&&r.ref==='urlaub:u1'&&r.inUrlaub>0&&r.h3==='Weitere Listen'&&r.areas;
   console.error(ok?'SPLIT OK':'SPLIT FAIL');await b.close();srv.close();process.exit(0)});

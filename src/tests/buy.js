@@ -8,7 +8,7 @@ srv.listen(8765,async()=>{
   await put('food/advent/a1',{name:'Kalender',for:'kid',kind:'selbst',year:y,at:1});await put('food/adoor/a1_5',{cal:'a1',day:5,name:'Knete',kind:'klein',st:'idee',at:1});
   await put('food/hproj/h1',{name:'Hochbeet',emo:'🌱',cat:'garten',state:'aktuell',at:1});await put('food/fund/f1',{name:'Bio-Erde 40 l',kind:'material',st:'idee',area:'haus',proj:'h1',at:1});
   await put('food/pack/k1',{name:'Regenjacke',done:false,at:1});await A.waitForTimeout(400);
-  await A.click('#tabs [data-tab=einkauf]');await A.waitForTimeout(300);await A.click('.shopsw [data-go=listen]');await A.waitForTimeout(400);r.h1=await A.$eval('#app h1',e=>e.innerText);
+  await A.click('#tabs [data-tab=einkauf]');await A.waitForTimeout(300);await A.click('.pager [data-go=listen]');await A.waitForTimeout(400);r.h1=await A.$eval('#app h1',e=>e.innerText);
   r.counts=await A.$$eval('.buylist .setsum',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));
   await A.click('[data-buysum=kleidung]');await A.click('[data-buyfor="kleidung|kid"]');await A.fill('.buyform[data-bl=kleidung] input','Matschhose Gr. 98');await A.press('.buyform[data-bl=kleidung] input','Enter');await A.waitForTimeout(300);
   r.kl=Object.values(db().buy||{}).map(x=>x.name+'|'+x.list+'|'+(x.for||''));
@@ -23,7 +23,7 @@ srv.listen(8765,async()=>{
   await A.evaluate(()=>{const b=document.createElement('button');b.dataset.nav='einkauf|bl:kleidung';document.getElementById('app').appendChild(b);b.click()});await A.waitForTimeout(300);
   await A.click('[data-buypack]');await A.waitForTimeout(300);r.packBack=await A.$$eval('[data-packwear]',l=>l.length);
   // Eigene Liste
-  await A.click('#tabs [data-tab=einkauf]');await A.waitForTimeout(300);await A.click('.shopsw [data-go=listen]');await A.waitForTimeout(300);await A.click('[data-act=buylistnew]');await A.fill('#buylistinput','Fahrrad');await A.press('#buylistinput','Enter');await A.waitForTimeout(300);
+  await A.click('#tabs [data-tab=einkauf]');await A.waitForTimeout(300);await A.click('.pager [data-go=listen]');await A.waitForTimeout(300);await A.click('[data-act=buylistnew]');await A.fill('#buylistinput','Fahrrad');await A.press('#buylistinput','Enter');await A.waitForTimeout(300);
   r.own=Object.values(db().buylist||{}).map(x=>x.name);
   await A.evaluate(()=>{const b=document.createElement('button');b.dataset.nav='ausflug|tt:pack';document.getElementById('app').appendChild(b);b.click()});await A.waitForTimeout(300);await A.click('[data-packrm=k1]');await A.waitForTimeout(400);r.cascade=Object.values(db().buy||{}).filter(x=>x.ref==='pack:k1').length;
   // Geschenke-Link zurück

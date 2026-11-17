@@ -16,7 +16,7 @@ srv.listen(8765,async()=>{
   await B.click('[data-tab=einkauf]');await B.waitForSelector('text=für Kürbis-Pasta');
   const n1=await B.$$eval('ul.shop li',l=>l.length);
   await B.screenshot({path:out+'/liste.png',fullPage:true});
-  await B.click('[data-shopblockrm="Kürbis-Pasta"]');await B.waitForTimeout(500);
+  await B.click(`[data-shopfilter="Kürbis-Pasta"]`);await B.waitForTimeout(300);await B.click(`[data-shopblockrm="Kürbis-Pasta"]`);await B.waitForTimeout(500);
   const names=await B.$$eval('ul.shop .nm',l=>l.map(x=>x.textContent));
   console.log('vorher',n1,'nachher',names);
   const ok=!names.some(n=>/Kürbis|Nudeln|Sahne/.test(n))&&names.some(n=>/Milch/.test(n))&&names.some(n=>/Rindfleisch/.test(n));

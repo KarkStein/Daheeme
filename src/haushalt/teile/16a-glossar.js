@@ -4,7 +4,7 @@
 // Dinge im Bild aus PIC_SPOTS (12-startbild.js), Schnellmenüs aus QUICK, Seiten der 4 Reiter aus TAB_PAGES, Schalter aus S.gest.
 // Fest stehen hier nur Begriffe, Symbole und Gesten. Neuer Begriff = eine Zeile in GLOS_TERMS ([Begriff, Erklärung, Sprung-Attribut]).
 // Die Suche (Lupe) findet Begriffe und Dinge im Bild und öffnet das Glossar mit dem Wort im Filter (data-glosq).
-const TAB_PAGES={camp:["Haus","Kalender","Wichtig"],woche:WEEK_ORDER.map(i=>WEEK_PAGES[i]),essen:["Heute und Wochenplan","Rezepte"],einkauf:["Listen","Ausgaben"]};
+const TAB_PAGES={camp:["Haus","Kalender","Wichtig"],woche:WEEK_ORDER.map(i=>WEEK_PAGES[i]),essen:["Heute und Wochenplan","Rezepte"],einkauf:["Einkaufsliste","Ausgaben","Weitere Listen"]};
 const GLOS_TERMS=[
   ["Bereich","Ein Thema der App mit eigenem Symbol und Ding im Bild, z. B. Essen, Reisen und Ausflüge, Am Haus, Geschenke.","data-allar"],
   ["Projekt","🧩 Etwas mit Ziel und Ende, z. B. ein Urlaub, das Kinderzimmer oder der Adventskalender. Sammelt, was ihr euch dafür merkt.",'data-nav="projekte|pf:alle"'],

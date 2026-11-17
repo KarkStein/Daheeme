@@ -8,7 +8,7 @@ srv.listen(8765,async()=>{
   await A.reload();await A.waitForTimeout(800);
   await A.click('#tabs [data-tab=einkauf]');await A.waitForTimeout(300);
   const heads=()=>A.$$eval('.shopgrp',l=>l.map(x=>x.textContent.replace(/\s+/g,' ').trim()));r.h0=await heads();
-  await A.click('[data-act=shopcatman]');await A.waitForSelector('#mbox .sclist');
+  await A.click('.shop [data-shopedit]');await A.click('#mbox [data-ebdel="0"]');await A.waitForSelector('#mbox .sclist');
   await A.fill('#mbox [data-scic=obst]','🍎');await A.press('#mbox [data-scic=obst]','Tab');await A.waitForTimeout(200);
   await A.fill('#mbox [data-scnm=kuehl]','Kühlschrank');await A.press('#mbox [data-scnm=kuehl]','Tab');await A.waitForTimeout(200);
   await A.click('#mbox [data-scmv=tk][data-d="-1"]');await A.waitForTimeout(300);r.order=await A.$$eval('#mbox [data-scnm]',l=>l.map(x=>x.dataset.scnm));
@@ -19,10 +19,10 @@ srv.listen(8765,async()=>{
   await A.click('#mbox [data-scx]');await A.waitForTimeout(300);r.h1=await heads();
   // Milch in die eigene Kategorie
   const own=Object.keys(db().shopcat).find(k=>db().shopcat[k].own);
-  await A.click('[data-shopcat="i1"]');await A.waitForTimeout(200);r.pick=await A.$$eval('.catpick [data-setcat]',l=>l.map(x=>x.dataset.setcat));
-  await A.click(`.catpick [data-setcat="${own}"]`);await A.waitForTimeout(300);r.h2=await heads();r.milch=(db().shop.i1||{}).cat===own;
+  await A.click('[data-shopedit="i1"]');await A.waitForSelector('#mbox');r.pick=await A.$$eval('#mbox [data-ebk=cat]',l=>l.map(x=>x.dataset.ebv));
+  await A.click(`#mbox [data-ebk=cat][data-ebv="${own}"]`);await A.click('#mbox button[type=submit]');await A.waitForTimeout(300);r.h2=await heads();r.milch=(db().shop.i1||{}).cat===own;
   // Tiefkühl zurückholen
-  await A.click('[data-act=shopcatman]');await A.waitForSelector('#mbox .sclist');await A.click('#mbox [data-scback=tk]');await A.waitForTimeout(300);await A.click('#mbox [data-scx]');await A.waitForTimeout(300);r.h3=await heads();
+  await A.click('.shop [data-shopedit]');await A.click('#mbox [data-ebdel="0"]');await A.waitForSelector('#mbox .sclist');await A.click('#mbox [data-scback=tk]');await A.waitForTimeout(300);await A.click('#mbox [data-scx]');await A.waitForTimeout(300);r.h3=await heads();
   await A.screenshot({path:out+'/einkauf-kategorien-liste.png'});
   console.log(JSON.stringify(r),errs);
   const ok=!errs.length&&r.h0.some(x=>/Tiefkühl/.test(x))&&r.order.indexOf('tk')<r.order.indexOf('fleisch')&&r.db.obst==='🍎'&&r.db.kuehl==='Kühlschrank'&&r.db.tk===true&&r.db.own.includes('🌿Bio-Laden')&&r.back.includes('tk')

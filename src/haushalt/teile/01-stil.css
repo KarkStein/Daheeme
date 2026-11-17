@@ -615,3 +615,10 @@ a.mkb{text-decoration:none;color:var(--fg)}.muslk[aria-pressed=false]{filter:gra
 .gmlist{margin-top:var(--sp2)}
 .shop+.gmlist{border-top:1px solid var(--line);padding-top:var(--sp2)}
 .gmfld .freq{margin-top:var(--sp1)}
+
+/* Seite Einkauf aufgeräumt (17.11.2026) */
+.shopfl{margin-bottom:var(--sp2)}.shopfl .chipbtn{white-space:nowrap;flex:none}.shopfl .chipbtn[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.srcgo{text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.shopsugg .favhead{display:flex;justify-content:space-between;align-items:center;width:100%;background:none;border:none;padding:0}.shopsugg .favhead .linkish{font-size:var(--fs-s)}
+.shoppay{margin-top:var(--sp2)}.shopcard .tfoldb>.ghost{margin-top:var(--sp2)}
+.unl .blockchip{padding:0;background:none;border:none;flex:none}.shopsugg .favhead .eyebrow{background:none;border:none;padding:0}
