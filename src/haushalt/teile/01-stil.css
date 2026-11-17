@@ -603,3 +603,7 @@ a.mkb{text-decoration:none;color:var(--fg)}.muslk[aria-pressed=false]{filter:gra
 .wt .wtl{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.wt .wtm{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.wt .wtm .tlink{padding:0 2px;font-size:var(--fs-xs)}.wt .wtn{padding:2px 0}
 .wkfold .hotask .meta{display:none}
 .wtx .task-title{display:none}.wtx .tlink,.wkfold .hotask .tlink{align-self:flex-start}
+/* Fächer mit Seiten (Bündelung 17.11.2026): kleine Knöpfe neben dem Bereich */
+#fan .fanrow{display:flex;align-items:center;gap:var(--sp2);flex-wrap:wrap;max-width:100%}#fan.r .fanrow{flex-direction:row-reverse}
+#fan .fansub{background:var(--surface);border:1.5px solid var(--ink);border-radius:999px;padding:var(--sp2) var(--sp3);color:var(--ink);font:inherit;font-size:var(--fs-s);font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.35);transition:transform .12s}
+#fan .fansub.fanhot{transform:scale(1.08);outline:3px solid #f3e3b8}#fan .fansub.on{text-decoration:underline;text-decoration-color:var(--ochre);text-decoration-thickness:2px;text-underline-offset:3px}

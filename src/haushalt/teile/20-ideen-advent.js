@@ -52,7 +52,7 @@ function projOverview(){const L=projAll();
 function projAllTile(){const L=projAll();return `<button class="tile" data-pfilter="alle"><span class="te">🧩</span><span class="tn">Alle Projekte</span><span class="tc">${L.length?L.length+" laufen":"noch keins"}</span></button>`}
 // Sammlung am Leuchtturm (Florian 17.11.2026): alles Gemerkte aus allen Bereichen auf einen Blick, mit Filtern nach Bereich und Stand.
 // Nur Ansicht: die Einträge bleiben in ihren Bereichen (food/fund, food/idea, food/trip, food/play, food/music, food/rec). Neue Datenart = eine Zeile in sammAll.
-const SAMM_AREAS=[["reise","🧭","Reisen und Ausflüge"],["haus","🛠️","Am Haus"],["geschenke","🎁","Geschenke"],["spiel","⚽","Sport und Spiel"],["musik","🎵","Musik"],["sonst","📎","Sonstiges"],["rezepte","📖","Rezepte"]];
+const SAMM_AREAS=[["reise","🧭","Reisen und Ausflüge"],["haus","🛠️","Am Haus"],["geschenke","🎁","Geschenke"],["spiel","⚽","Spielen"],["musik","🎵","Musik"],["sonst","📎","Sonstiges"],["rezepte","📖","Rezepte"]];
 const SAMM_ST=[["idee","💡","Idee"],["favorit","⭐","Favorit"],["geplant","📅","Geplant"],["erledigt","✅","Erledigt"]];
 function sammAll(){const L=[],add=(ar,o)=>L.push(Object.assign({ar,at:0},o)),fst=s=>s==="gebucht"?"erledigt":s||"idee";
   funde("reise").forEach(f=>{const k=fundKind(f.kind,"reise"),u=f.reise&&urlaube().find(y=>y.id===f.reise);add("reise",{ic:k[1],name:f.name,sub:k[2]+(u?" · "+(u.emo||"⛵")+" "+u.name:"")+(f.st==="gebucht"?" · gebucht":""),st:fst(f.st),attr:u?`data-reise="${esc(u.id)}"`:`data-nav="ausflug|tt:recherche"`,at:f.at})});
@@ -60,7 +60,7 @@ function sammAll(){const L=[],add=(ar,o)=>L.push(Object.assign({ar,at:0},o)),fst
   funde("haus").forEach(f=>{const k=fundKind(f.kind,"haus"),p=f.proj&&hprojs().find(y=>y.id===f.proj);add("haus",{ic:k[1],name:f.name,sub:k[2]+(p?" · "+(p.emo||"🛋️")+" "+p.name:"")+(f.st==="gebucht"?" · gekauft":""),st:fst(f.st),attr:p?`data-hproj="${esc(p.id)}"`:`data-nav="amhaus|hs:wohnen"`,at:f.at})});
   projs().forEach(x=>{const c=projCat(x),pc=projCats().find(p=>p[0]===c)||PROJ_CATS[1],ar=c==="geschenk"?"geschenke":HCAT[c]?"haus":"sonst";
     add(ar,{ic:x.emo||pc[1],name:x.name,sub:ar==="geschenke"?(giftFor(x)||"Geschenk"):ar==="haus"?pc[2]+" · ohne Projekt":pc[2],st:x.done?"erledigt":pjSt(x.state),attr:ar==="geschenke"?`data-nav="geschenke|"`:`data-nav="${ar==="haus"?"amhaus":"projekte"}|pf:${esc(c)}"`,at:x.at})});
-  plays().forEach(x=>{const s=playSecs().find(p=>p[0]===(x.sec||"spielplatz"))||playSecs()[0];add("spiel",{ic:x.emo||s[1],name:x.name,sub:s[2],st:playSt(x),attr:`data-nav="spiel|ps:${esc(s[0])}"`,at:x.at})});
+  plays().forEach(x=>{const s=playSecs().find(p=>p[0]===playSecOf(x))||playSecs()[0];add("spiel",{ic:x.emo||s[1],name:x.name,sub:s[2],st:playSt(x),attr:`data-nav="spiel|ps:${esc(s[0])}"`,at:x.at})});
   musics().forEach(x=>{const a=musArt(x);add("musik",{ic:x.emo||a[1],name:x.name,sub:a[2]+(x.like?" · 💛 gerade beliebt":""),st:a[0]==="hoer"?(x.st||"idee"):x.fav?"favorit":"idee",attr:`data-nav="musik|ma:${a[0]}"`,at:x.at})});
   return L.sort((a,b)=>(b.at||0)-(a.at||0))}
 function sammHtml(){const F=S.sammF||(S.sammF={a:"",s:""}),L=sammAll();
@@ -75,7 +75,7 @@ function sammHtml(){const F=S.sammF||(S.sammF={a:"",s:""}),L=sammAll();
     <div class="freq">Alles, was ihr euch in einem Bereich merkt, steht auch hier. Ein Tipp öffnet den Eintrag in seinem Bereich.</div></section>`}
 function renderProjects(){const d=S.projDraft;
   if(S.tab==="projekte"&&(S.projFilter==="geschenk"||S.projFilter==="advent"))S.tab="geschenke";if(S.tab==="amhaus"&&HCAT_OLD[S.projFilter])S.projFilter="wohnen";
-  const G=projGroup();let h=`<div><div class="eyebrow">${G.eye}</div><h1>${G.title}</h1></div>${S.tab==="geschenke"?wirPager(2):""}${bellRow(S.tab)}`;
+  const G=projGroup();let h=`${S.tab==="geschenke"||S.tab==="projekte"?areaPager(S.tab):""}<div><div class="eyebrow">${G.eye}</div><h1>${G.title}</h1></div>${bellRow(S.tab)}`;
   if(d){const one=(f,L)=>`<div class="unl">${L.map(c=>`<button class="chipbtn" data-pset="${f}" data-v="${c[0]}" aria-pressed="${(f==="state"?pjSt(d[f]):d[f])===c[0]}">${c.length>=3?c[1]+" "+c[2]:c[1]}</button>`).join("")}</div>`;
     return h+`<section class="card tripform"><h2>${d.id?"Bearbeiten":"Neue Idee"}</h2>
     <label class="fld"><span>Was?</span><input type="text" id="pj-name" data-pf="name" value="${esc(d.name)}" maxlength="80" placeholder="Zum Beispiel Regal für den Flur" autocomplete="off"></label>${d.cat==="geschenk"?emoFld("data-pf",d.emo,"🎁"):""}

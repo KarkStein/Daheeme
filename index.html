@@ -606,6 +606,26 @@ a.mkb{text-decoration:none;color:var(--fg)}.muslk[aria-pressed=false]{filter:gra
 #fan .fanall{background:none;border:1px solid rgba(243,227,184,.6);color:#f3e3b8;border-radius:999px;padding:var(--sp1) var(--sp3);font:inherit;font-size:var(--fs-s)}#fan .fanall.fanhot{background:rgba(243,227,184,.2)}
 #fan .fanttl{color:#f3e3b8;font-weight:700;font-size:var(--fs-xs);letter-spacing:.08em;text-transform:uppercase}
 .ureise .ueck{margin-top:var(--sp3);border-top:1px solid var(--line);padding-top:var(--sp2)}.ureise .ueck h3{margin:0 0 var(--sp2);font-size:var(--fs-m)}.ureise .section-head b{font-size:var(--fs-m)}
+/* Woche kompakt (Florian 17.11.2026): Wochenstand schlicht, Abschnitte als Klapp-Karten, Aufgaben als Zeilen mit Kreisen */
+.wkstand .wkhead{display:flex;justify-content:space-between;align-items:center;gap:var(--sp2)}.wkstand .wkhead b{font-size:var(--fs-m)}.wkstand .wkn{font-weight:700;color:var(--muted)}.wkstand .wkf{margin-top:var(--sp2)}
+.wkfold.section{display:block}.wkfold .tfoldb{display:flex;flex-direction:column}
+.wt{display:flex;align-items:center;gap:6px;padding:6px 0;border-top:1px solid var(--line);min-height:44px}.wkfold .tfoldb>.wt:first-child{border-top:none}
+.wt .wtn{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;text-align:left;background:none;border:none;padding:4px 0;font:inherit;color:var(--fg)}.wt .wtn b{font-weight:600;overflow-wrap:break-word;hyphens:auto}.wt .wtn .freq{font-size:var(--fs-xs)}
+.wt.done .wtn b{color:var(--muted);text-decoration:line-through}
+.wt .wtw{font-weight:600;background:none;border:1px solid var(--line);border-radius:999px;padding:1px 8px}
+.wt .wtc{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;max-width:132px}
+.slot.wsl{width:28px;height:28px;border-width:2px;font-size:var(--fs-xs)}.slot.wsl.on.chk,.slot.wsl.split.h0.h1{font-size:var(--fs-s)}
+.wtsubs{padding:var(--sp1) 0 0;display:flex;flex-direction:column;gap:4px}.wtsubs .subbtn{padding:4px 10px}
+.wtx{padding:0 0 var(--sp2)}.wtx .task{box-shadow:none;border:none;background:none;padding:var(--sp1) 0}.wtx .linkish{align-self:flex-start}
+.wkfold .hotask{box-shadow:none;border:none;background:none;padding:var(--sp2) 0 0}.wkfold .hotask .task-title{font-size:var(--fs-s);font-weight:500;color:var(--muted)}
+.wkfold .donesep{margin:var(--sp2) 0 var(--sp1)}.wkfold .linkish{margin-top:var(--sp2);align-self:flex-start}.wkhint{text-align:center;margin-top:var(--sp2)}
+.wt .wtl{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.wt .wtm{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.wt .wtm .tlink{padding:0 2px;font-size:var(--fs-xs)}.wt .wtn{padding:2px 0}
+.wkfold .hotask .meta{display:none}
+.wtx .task-title{display:none}.wtx .tlink,.wkfold .hotask .tlink{align-self:flex-start}
+/* Fächer mit Seiten (Bündelung 17.11.2026): kleine Knöpfe neben dem Bereich */
+#fan .fanrow{display:flex;align-items:center;gap:var(--sp2);flex-wrap:wrap;max-width:100%}#fan.r .fanrow{flex-direction:row-reverse}
+#fan .fansub{background:var(--surface);border:1.5px solid var(--ink);border-radius:999px;padding:var(--sp2) var(--sp3);color:var(--ink);font:inherit;font-size:var(--fs-s);font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.35);transition:transform .12s}
+#fan .fansub.fanhot{transform:scale(1.08);outline:3px solid #f3e3b8}#fan .fansub.on{text-decoration:underline;text-decoration-color:var(--ochre);text-decoration-thickness:2px;text-underline-offset:3px}
 </style>
 
 <div class="app" id="app">
@@ -673,7 +693,7 @@ function periodOf(freq,mon){const th=addDays(mon,3);const y=th.getFullYear(),m=t
 const fmt=(d,o)=>d.toLocaleDateString("de-DE",o);
 
 // ---------- Zustand ----------
-const S={key:null,kitaSec:"termine",kitaDraft:null,kitaText:"",playMapOpen:false,playMapEdit:false,playMapText:"",playDraft:null,playSec:"",playF:"",projFilter:"",projText:"",tripTab:"ideen",tripDraft:null,tripFilter:"",packList:"main",packListNew:false,packText:"",ideas:null,shopCatEdit:null,lunchDraft:null,lunchOpen:null,lunchMapOpen:false,lunchMapEdit:false,lunchMapText:"",recDraft:null,recOpen:null,planEdit:null,planText:"",planRec:null,foodWeek:null,food:{},foodTab:"plan",shopText:"",store:null,mode:"loading",config:null,weeks:{},view:mondayOf(new Date()),tab:"camp",filter:"alle",hideDone:false,groupBy:"freq",me:null,draft:null,timedOut:false};
+const S={key:null,kitaSec:"termine",kitaDraft:null,kitaText:"",playMapOpen:false,playMapEdit:false,playMapText:"",playDraft:null,playSec:"",playF:"",wtOpen:"",wkMore:false,projFilter:"",projText:"",tripTab:"ideen",tripDraft:null,tripFilter:"",packList:"main",packListNew:false,packText:"",ideas:null,shopCatEdit:null,lunchDraft:null,lunchOpen:null,lunchMapOpen:false,lunchMapEdit:false,lunchMapText:"",recDraft:null,recOpen:null,planEdit:null,planText:"",planRec:null,foodWeek:null,food:{},foodTab:"plan",shopText:"",store:null,mode:"loading",config:null,weeks:{},view:mondayOf(new Date()),tab:"camp",filter:"alle",hideDone:false,groupBy:"freq",me:null,draft:null,timedOut:false};
 try{const m=localStorage.getItem("hq-me");if(m==="p0"||m==="p1")S.me=m;const f=localStorage.getItem("hq-filter");if(f==="meine")S.filter="meine";S.hideDone=localStorage.getItem("hq-hidedone")==="1";if(localStorage.getItem("hq-groupby")==="art")S.groupBy="art";const ft=localStorage.getItem("hq-foodtab");if(ft&&ft!=="shop"&&ft!=="mittag")S.foodTab=ft;}catch(e){}
 
 // ---------- Speicher-Adapter ----------
@@ -977,62 +997,81 @@ function renderCal(){if(S.terDraft)return renderTerForm();const today=ymd(new Da
   if(up.length)h+=`<section class="card"><div class="section-head"><h2>Demnächst</h2></div><ul class="evlist">${up.map(e=>evRow(e,true)).join("")}</ul></section>`;
   h+=`<div class="freq" style="text-align:center">Ein Handy-Kalender kann später hier andocken.</div>`;
   return h}
+// Woche kompakt (Florian 17.11.2026, „Alle drei nacheinander“, Bild /mnt/project-files/design/woche-kompakt-live.png): Wochenstand als schlichte Karte,
+// Abschnitte als Klapp-Karten (Stand je Gerät in hq-tfold, Schlüssel wk_<id>), Aufgaben als Zeilen mit Kreisen. Täglich zeigt nur den Kreis von heute,
+// Tipp auf den Namen klappt die ganze Aufgabe mit allen Tagen auf (S.wtOpen). „Diese Woche“ zeigt erst 6 Zeilen (S.wkMore).
+function wkFold(id,title,n,body,def){const k="wk_"+id,on=tFoldOn(k,def);return `<section class="card tfold wkfold section" id="sec-${id}"><button class="setsum" data-tfold="${k}" data-tdef="${def?1:0}" aria-expanded="${on}"><h2>${title}${n?` <span class="freq">(${n})</span>`:""}</h2><i>${on?"▾":"›"}</i></button>${on?`<div class="tfoldb">${body}</div>`:""}</section>`}
+const wkWho=(o,isRot)=>`<span class="owner wtw ${o==="p0"||o==="p1"?o:""}">${isRot?"↻ ":""}${esc(o==="p0"||o==="p1"?pname(o):OWNER_LABEL[o]||"")}</span>`;
 function renderWeek(){
   const mon=S.view,wk=wkKey(mon),cur=mondayOf(new Date()),isCur=+mon===+cur;
   const today=isCur?(new Date().getDay()+6)%7:(mon<cur?7:-1);
-  const sc=weekScore(wk),split=rotSplit(),tk=ticksOf(wk);
+  const split=rotSplit(),tk=ticksOf(wk);
   const {w}=isoWeek(mon);
   let h=`<div class="top"><div><h1>${isCur?"Diese Woche":(mon<cur?"Rückblick":"Vorschau")}</h1><div class="wkdate">KW ${w} · ${fmt(mon,{day:"numeric",month:"short"})} – ${fmt(addDays(mon,6),{day:"numeric",month:"short"})}</div></div>
    <div class="weeknav"><button class="iconbtn" data-prionew="woche" aria-label="Erinnerung anlegen">🔔</button><button class="iconbtn" data-wknav="-1" aria-label="Vorige Woche">‹</button>${isCur?"":`<button class="ghost" data-wknav="0">Heute</button>`}<button class="iconbtn" data-wknav="1" aria-label="Nächste Woche" ${+mon>=+addDays(cur,28)?"disabled":""}>›</button></div></div>`;
   if(!isCur)h+=`<div class="wkro">${mon<cur?(S.wkEdit===wk?`✏️ Nachtragen ist an. <button class="ghost" data-act="wkedit">Fertig</button>`:`🗄️ Archiv: diese Woche ist nur zum Ansehen. <button class="ghost" data-act="wkedit">✏️ Nachtragen</button>`):`🔭 Vorschau: Hausdienst kannst du schon eintragen, abhaken geht erst in der Woche selbst.`}</div>`;
-  const hoTop=true;
-  h+=meChooser();
+  if(!S.me)h+=meChooser();
   const cnt={all:[0,0],p0:[0,0],p1:[0,0]};
   tasks().forEach(t=>{if(group(t.freq)!=="week"||t.owner!=="rot")return;const o=ownerFor(t,mon,split);const n=slotsOf(t);
     for(let i=0;i<n;i++){const d=tk[t.id+"__"+i]?1:0;cnt.all[0]+=d;cnt.all[1]++;if(o==="p0"||o==="p1"){cnt[o][0]+=d;cnt[o][1]++}}});
-  const pct=cnt.all[1]?cnt.all[0]/cnt.all[1]:0;
   const mine=S.filter==="meine"&&S.me;
+  // Wochenstand (nur Wechsel-Aufgaben; bei „Mein Bereich“ meine Wechsel- und festen Aufgaben)
+  let sd,sn,sub;
   if(mine){const m={rot:[0,0],fix:[0,0]};
     tasks().forEach(t=>{if(group(t.freq)!=="week")return;const k=t.owner==="rot"?(ownerFor(t,mon,split)===S.me?"rot":null):(t.owner===S.me?"fix":null);if(!k)return;
       const n=slotsOf(t);for(let i=0;i<n;i++){m[k][0]+=tk[t.id+"__"+i]?1:0;m[k][1]++}});
-    const d=m.rot[0]+m.fix[0],n=m.rot[1]+m.fix[1];
-    h+=`<section class="campback dash wkpanel" aria-label="Mein Wochenstand">${panelHead("Mein Stand · KW "+w,n-d>0?`Noch ${n-d} offen`:"Alles erledigt",esc(pname(S.me))+", Wechsel und feste Aufgaben",panelRing(d,n,"gesamt",'data-jump="rot" aria-label="Gebündelt anzeigen"'))}
-    <div class="bcnts" style="grid-template-columns:repeat(2,1fr)">${panelTile(m.rot[0]+"/"+m.rot[1],"im Wechsel ›",'data-jump="rot"')}${panelTile(m.fix[0]+"/"+m.fix[1],"feste Aufgaben ›",'data-jump="fix"')}</div></section>`;
-    if(n&&d>=n)h+=`<div class="celebrate">Du hast alle deine Aufgaben für diese Woche erledigt.</div>`;
-  }else{
-  const fx=[0,0];tasks().forEach(t=>{if(group(t.freq)!=="week"||t.owner==="rot")return;const n=slotsOf(t);for(let i=0;i<n;i++){fx[0]+=tk[t.id+"__"+i]?1:0;fx[1]++}});const op=cnt.all[1]-cnt.all[0];
-  h+=`<section class="campback dash wkpanel" aria-label="Wochenstand">${panelHead("Wochenstand · KW "+w,op>0?`Noch ${op} offen`:"Alles erledigt","Wechsel-Aufgaben "+(isCur?"dieser Woche":mon<cur?"dieser Woche (Rückblick)":"(Vorschau)"),panelRing(cnt.all[0],cnt.all[1],"im Wechsel",'data-jump="rot" aria-label="Wechsel-Aufgaben gebündelt anzeigen"'))}
-    <div class="bcnts">${panelTile(cnt.p0[0]+"/"+cnt.p0[1],esc(pname("p0"))+" ›",'data-jump="rot"')}${panelTile(cnt.p1[0]+"/"+cnt.p1[1],esc(pname("p1"))+" ›",'data-jump="rot"')}${panelTile(fx[0]+"/"+fx[1],"feste Aufgaben ›",'data-jump="fix"')}</div></section>`;
-  if(cnt.all[1]&&cnt.all[0]>=cnt.all[1])h+=`<div class="celebrate">Alle Wechsel-Aufgaben dieser Woche sind erledigt.</div>`;}
-  h+=scopeSwitch(`<button class="chipbtn neutral" data-act="hidedone" aria-pressed="${S.hideDone}">Erledigte ausblenden</button><button class="chipbtn neutral" data-act="groupby" aria-pressed="${S.groupBy==="art"}">Fest und Wechsel bündeln</button>`);
+    sd=m.rot[0]+m.fix[0];sn=m.rot[1]+m.fix[1];sub=`Mein Stand · im Wechsel ${m.rot[0]}/${m.rot[1]} · fest ${m.fix[0]}/${m.fix[1]}`}
+  else{sd=cnt.all[0];sn=cnt.all[1];sub=`Wochenstand${isCur?"":mon<cur?" (Rückblick)":" (Vorschau)"} · ${esc(pname("p0"))} ${cnt.p0[0]}/${cnt.p0[1]} · ${esc(pname("p1"))} ${cnt.p1[0]}/${cnt.p1[1]}`}
+  h+=`<section class="card wkstand" aria-label="Wochenstand"><div class="wkhead"><div><b>${sn-sd>0?`Noch ${sn-sd} offen`:"Alles erledigt"}</b><div class="freq">${sub}</div></div><span class="num wkn">${sd}/${sn}</span></div>
+    <div class="unl scrollrow wkf" role="group" aria-label="Ansicht"><button class="chipbtn neutral" data-filter="alle" aria-pressed="${S.filter==="alle"}">Alle</button><button class="chipbtn neutral" data-filter="meine" aria-pressed="${S.filter==="meine"}">Mein Bereich</button><button class="chipbtn neutral" data-act="hidedone" aria-pressed="${S.hideDone}">Erledigte ausblenden</button><button class="chipbtn neutral" data-act="groupby" aria-pressed="${S.groupBy==="art"}">Fest und Wechsel bündeln</button></div>
+    ${S.filter==="meine"&&!S.me?`<div class="notice">Wähle oben aus, wer du bist, damit „Mein Bereich“ funktioniert.</div>`:""}</section>`;
+  if(sn&&sd>=sn)h+=`<div class="celebrate">${mine?"Du hast alle deine Aufgaben für diese Woche erledigt.":"Alle Wechsel-Aufgaben dieser Woche sind erledigt."}</div>`;
 
   const FO={day:0,week:1,month:2,half:3,year:4};
-  const card=t=>{const f=t.freq,o=ownerFor(t,mon,split),isRot=t.owner==="rot";let html,doneAll,pct;
-    if(f==="day"||f==="week"){const n=slotsOf(t),isHO=t.owner==="ho",isBoth=t.owner==="both";let c=0,slots="";
+  const card=t=>{const f=t.freq,o=ownerFor(t,mon,split),isRot=t.owner==="rot";let html,doneAll,pct;const sl=[];let c=0,n=1,pb="",pinfo="";
+    if(f==="day"||f==="week"){n=slotsOf(t);const isHO=t.owner==="ho",isBoth=t.owner==="both";let slots="";
       for(let i=0;i<n;i++){const k=t.id+"__"+i;const cls=["slot"];let lbl=f==="day"?DAYS[i]:"",aria="",on=false;
         if(isBoth){const leg=tk[k],a=tk[k+"_p0"]||(leg&&leg.by==="p0"?leg:null),b=tk[k+"_p1"]||(leg&&leg.by==="p1"?leg:null);
           c+=(a?0.5:0)+(b?0.5:0);cls.push("split");if(a)cls.push("h0");if(b)cls.push("h1");if(a&&b)lbl="✓";on=!!(a&&b);
           aria=(a?" "+esc(pname("p0"))+" erledigt":"")+(b?" "+esc(pname("p1"))+" erledigt":"")}
         else{const v=tk[k];if(v){c++;on=true;cls.push("on",isHO?(v.by==="x"?"x":v.by):"chk");lbl=isHO?(v.half==="vm"?`<span class="hohalf">${esc(pname(v.by).charAt(0))}/${esc(pname(v.by==="p0"?"p1":"p0").charAt(0))}</span>`:`<span>${esc(v.by==="x"?(v.lbl||"X").slice(0,2):pname(v.by).charAt(0))}${v.part?`<sup>${v.part==="ab"?1:2}</sup>`:""}</span>`):"✓";aria=" erledigt von "+esc(v.by==="x"?(v.lbl||"X"):pname(v.by))+(v.half==="vm"?" vormittags, "+esc(pname(v.by==="p0"?"p1":"p0"))+" nachmittags":v.part==="ab"?", holt nachmittags ab":v.part==="br"?", bringt morgens":"")}}
         if(f==="day"){if(i===today)cls.push("today");if(i>today)cls.push("future");if(isHO)cls.push("hoslot")}
-        if(hasSubs(t)&&!isBoth&&!isHO){slots+=`<div class="subgrp${on?" all":""}" role="group" aria-label="${esc(t.name)} ${f==="day"?DAYS[i]:(i+1)+". Mal"}">${n>1?`<span class="subn">${f==="day"?DAYS[i]:(i+1)+"."}</span>`:""}${t.subs.map((sn,j)=>{const sv=tk[k+"_s"+j];return `<button class="subbtn${sv?" on":""}" data-task="${esc(t.id)}" data-slot="${i}" data-sub="${j}" aria-pressed="${!!sv}" aria-label="${esc(sn)}${sv?" erledigt von "+esc(pname(sv.by)):""}">${sv?"✓ ":""}${esc(sn)}</button>`}).join("")}</div>`;continue}
-        slots+=`<button class="${cls.join(" ")}" data-task="${esc(t.id)}" data-slot="${i}" ${isBoth?'data-split="1"':""} ${f==="day"&&i>today&&!isHO?"disabled":""} aria-pressed="${on}" aria-label="${esc(t.name)} ${f==="day"?DAYS[i]:(i+1)+". Mal"}${aria}">${lbl}</button>`}
+        if(hasSubs(t)&&!isBoth&&!isHO){const g=`<div class="subgrp${on?" all":""}" role="group" aria-label="${esc(t.name)} ${f==="day"?DAYS[i]:(i+1)+". Mal"}">${n>1?`<span class="subn">${f==="day"?DAYS[i]:(i+1)+"."}</span>`:""}${t.subs.map((sn,j)=>{const sv=tk[k+"_s"+j];return `<button class="subbtn${sv?" on":""}" data-task="${esc(t.id)}" data-slot="${i}" data-sub="${j}" aria-pressed="${!!sv}" aria-label="${esc(sn)}${sv?" erledigt von "+esc(pname(sv.by)):""}">${sv?"✓ ":""}${esc(sn)}</button>`}).join("")}</div>`;slots+=g;sl.push(g);continue}
+        const btn=(extra,l)=>`<button class="${cls.join(" ")}${extra}" data-task="${esc(t.id)}" data-slot="${i}" ${isBoth?'data-split="1"':""} ${f==="day"&&i>today&&!isHO?"disabled":""} aria-pressed="${on}" aria-label="${esc(t.name)} ${f==="day"?DAYS[i]:(i+1)+". Mal"}${aria}">${l}</button>`;
+        slots+=btn("",lbl);sl.push(btn(" wsl",on?(isHO?lbl:"✓"):""))}
       doneAll=c>=n;pct=n?c/n:0;const cs=(c%1?String(c).replace(".",","):c);
       html=`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${f==="day"?"täglich":n+"× pro Woche"} · ${cs}/${n}</span></div></div></div><div class="slots">${slots}</div>${taskLink(t)}${isBoth?`<div class="freq">Jeder hakt seine Hälfte ab: links ${esc(pname("p0"))}, rechts ${esc(pname("p1"))}.</div>`:""}</article>`;
-    }else{const pt=periodTick(t,mon);doneAll=!!pt;pct=doneAll?1:0;if(!pt&&!periodDue(t,mon))return {t,o,html:"",done:false,later:periodMid(f,mon),pct:0,times:1};
+    }else{const pt=periodTick(t,mon);doneAll=!!pt;pct=doneAll?1:0;if(!pt&&!periodDue(t,mon))return {t,o,html:"",done:false,later:periodMid(f,mon),pct:0,times:1,sl,c:0,n:1};
       const lbl=pt?`✓ Erledigt von ${esc(pname(pt.v.by))} am ${fmt(new Date(pt.v.at),{day:"numeric",month:"short"})}`:"○ Als erledigt markieren";
+      pb=`<button class="slot wsl${pt?" on chk":""}" data-task="${esc(t.id)}" data-slot="p" aria-pressed="${doneAll}" aria-label="${esc(t.name)}${pt?" erledigt":" als erledigt markieren"}">${pt?"✓":""}</button>`;
+      pinfo=pt?`${esc(pname(pt.v.by))}, ${fmt(new Date(pt.v.at),{day:"numeric",month:"short"})}`:"";
       html=`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${FREQ_LABEL[f]}</span></div></div></div><div><button class="bigcheck${pt?" on chk":""}" data-task="${esc(t.id)}" data-slot="p" aria-pressed="${doneAll}">${lbl}</button></div>${taskLink(t)}</article>`}
-    return {t,o,html,done:doneAll,pct,times:slotsOf(t)}};
+    return {t,o,isRot,html,done:doneAll,pct,times:slotsOf(t),sl,c,n,pb,pinfo,subs:hasSubs(t)&&t.owner!=="both"&&t.owner!=="ho"}};
+  // Eine Zeile: Name (Tipp klappt die ganze Aufgabe auf), wer, Kreise
+  const row=x=>{const t=x.t,op=S.wtOpen===t.id,f=t.freq;let circ="",info="";
+    if(f==="day"){if(today>=0&&today<7)circ=x.sl[today]||"";else circ=`<span class="freq num">${x.c%1?String(x.c).replace(".",","):x.c}/7</span>`}
+    else if(f==="week"){if(!x.subs)circ=x.sl.join("")}
+    else{circ=x.pb;info=x.pinfo}
+    const subs=x.subs&&!op?`<div class="wtsubs">${x.sl.join("")}</div>`:"";
+    return `<div class="wt${x.done?" done":""}${op?" open":""}"><div class="wtl"><button class="wtn" data-wtopen="${esc(t.id)}" aria-expanded="${op}"><b>${esc(t.name)}</b></button><div class="wtm">${wkWho(x.o,x.isRot)}${info?`<span class="freq">${info}</span>`:""}${taskLink(t,true)}</div>${subs}</div>${op?"":`<span class="wtc">${circ}</span>`}</div>${op?`<div class="wtx">${x.html}<button class="linkish" data-wtopen="${esc(t.id)}">Zuklappen</button></div>`:""}`};
   const vis=x=>!(S.filter==="meine"&&S.me&&!(x.o===S.me||x.o==="both"||x.o==="ho"))&&!(S.hideDone&&x.done);
   const order=(a,b)=>FO[a.t.freq]-FO[b.t.freq]||b.times-a.times||a.pct-b.pct;
   const secs=S.groupBy==="art"
-    ?[["rot","Wechsel-Aufgaben",t=>t.owner==="rot"],["fix","Feste Aufgaben",t=>t.owner==="p0"||t.owner==="p1"],["gem","Gemeinsam und Hausdienst",t=>t.owner==="both"||t.owner==="ho"]]
-    :[["day","Täglich",t=>t.freq==="day"],["week","Diese Woche",t=>t.freq==="week"],["month","Diesen Monat",t=>t.freq==="month"],["half","Dieses Halbjahr",t=>t.freq==="half"],["year","Dieses Jahr",t=>t.freq==="year"]];
-  if(hoTop){const ho=tasks().filter(t=>t.owner==="ho").map(card);
-    h+=(ho.length?`<section class="section hotop" id="sec-ho" aria-label="Hausdienst"><div class="section-head"><h2>🔑 Hausdienst</h2><span class="freq">wer den Dienst zu Hause hat; der andere bringt und holt</span></div>${ho.map(x=>x.html).join("")}</section>`:"")}
-  secs.forEach(([id,title,fn0])=>{const fn=hoTop?t=>t.owner!=="ho"&&fn0(t):fn0;const xs=tasks().filter(fn).map(card).filter(vis).sort(order);if(!xs.length)return;
+    ?[["rot","↻ Wechsel-Aufgaben",t=>t.owner==="rot",1],["fix","📌 Feste Aufgaben",t=>t.owner==="p0"||t.owner==="p1",1],["gem","🤝 Gemeinsam",t=>t.owner==="both",1]]
+    :[["day","☀️ Täglich",t=>t.freq==="day",1],["week","📅 Diese Woche",t=>t.freq==="week",1],["month","🗓️ Diesen Monat",t=>t.freq==="month",0],["half","🌗 Dieses Halbjahr",t=>t.freq==="half",0],["year","🎉 Dieses Jahr",t=>t.freq==="year",0]];
+  // Hausdienst immer als erster Abschnitt (Florian 15.11.2026), Filter blenden ihn nicht aus
+  const ho=tasks().filter(t=>t.owner==="ho").map(card);
+  if(ho.length){const hv=today>=0&&today<7?tk[ho[0].t.id+"__"+today]:null,hn=n=>esc(pname(n).charAt(0));
+    const lab=!(today>=0&&today<7)?ho[0].c+" Tage eingetragen":!hv?"heute niemand":hv.by==="x"?"heute "+esc(hv.lbl||"jemand"):hv.half==="vm"?`heute ${hn(hv.by)} vorm. · ${hn(hv.by==="p0"?"p1":"p0")} nachm.`:"heute "+esc(pname(hv.by));
+    h+=wkFold("ho","🔑 Hausdienst",lab,`<div class="freq">Wer den Dienst zu Hause hat, bringt und holt nicht, das macht der andere. Kurz tippen trägt dich ein, lange drücken für mehr.</div>${ho.map(x=>x.html.replace('<article class="task','<article class="task hotask')).join("")}`,1)}
+  secs.forEach(([id,title,fn0,def])=>{const fn=t=>t.owner!=="ho"&&fn0(t);const xs=tasks().filter(fn).map(card).filter(vis).sort(order);if(!xs.length)return;
     const lt=xs.filter(x=>x.later),op=xs.filter(x=>!x.done&&!x.later),dn=xs.filter(x=>x.done);if(!op.length&&!dn.length&&!lt.length)return;
-    h+=`<section class="section" id="sec-${id}"><div class="section-head"><h2>${title}</h2>${!hoTop&&(id==="day"||id==="gem")?`<span class="freq">„Hausdienst“ = Dienst zu Hause, der andere bringt und holt</span>`:""}</div>${op.map(x=>x.html).join("")}${dn.length?`<div class="donesep">Erledigt</div>`+dn.map(x=>x.html).join(""):""}${lt.length?`<div class="laterline freq">⏳ Erst ab Mitte des Zeitraums: ${lt.map(x=>esc(x.t.name)+" (ab "+fmt(x.later,{day:"numeric",month:"numeric"})+")").join(", ")}</div>`:""}</section>`});
+    const lim=id==="week"&&!S.wkMore?6:99,all=op.concat(dn),shown=all.slice(0,lim),rest=all.length-shown.length;
+    const so=shown.filter(x=>!x.done),sdn=shown.filter(x=>x.done);
+    const nlab=op.length+dn.length?(id==="day"&&isCur?`${op.length+dn.length}, heute ${op.some(x=>x.sl[today]&&!/aria-pressed="true"/.test(x.sl[today]))?"offen":"erledigt"}`:`${op.length+dn.length}, ${dn.length} erledigt`)+(lt.length?`, ${lt.length} erst ab Mitte`:""):`${lt.length}, erst ab Mitte`;
+    const body=`${so.map(row).join("")}${sdn.length?`<div class="donesep">Erledigt</div>`+sdn.map(row).join(""):""}${rest>0?`<button class="linkish" data-act="wkmore">Noch ${rest} weitere zeigen</button>`:""}${lt.length?`<div class="laterline freq">⏳ Erst ab Mitte des Zeitraums: ${lt.map(x=>esc(x.t.name)+" (ab "+fmt(x.later,{day:"numeric",month:"numeric"})+")").join(", ")}</div>`:""}`;
+    h+=wkFold(id,title,nlab,body,def)});
+  h+=`<div class="freq wkhint">Kreise antippen hakt ab. Tipp auf den Namen zeigt alle Tage. Abschnitte bleiben auf diesem Handy auf oder zu.</div>`;
   return h}
 
 function renderScore(){
@@ -1121,7 +1160,7 @@ const PIC_SPOTS=[[166,196,50,48,"woche","Woche: offene Aufträge","🧹 Besen an
   [330,80,34,44,"projekte","Sammlung: Kirchtürme","⛪ Zwei Kirchtürme","stadt"],[40,133,40,38,"privat","Partner: Bank im Garten","🌹 Bank unter dem Rosenbogen","stadt"],
   [318,80,34,64,"projekte","Sammlung","🗼 Leuchtturm","meer"],[38,122,70,42,"privat","Partner: Klippen","🪨 Klippen","meer"],
   [24,244,18,26,"post","Briefkasten","📮 Briefkasten",""],[155,168,22,20,"amhaus","Am Haus: Lampe","🏮 Lampe über der Tür",""],[58,176,60,52,"amhaus","Garten: Baum","🌳 Baum","","garten"],
-  [40,203,22,28,"kind","Kind: Schaukel","🪢 Schaukel am Baum",""],[15,205,18,14,"ausgaben","Ausgaben: Sparschwein","🐷 Sparschwein",""],[240,238,26,26,"spiel","Sport und Spiel","⚽ Ball am Steinweg",""],
+  [40,203,22,28,"kind","Kind: Schaukel","🪢 Schaukel am Baum",""],[15,205,18,14,"ausgaben","Ausgaben: Sparschwein","🐷 Sparschwein",""],[240,238,26,26,"spiel","Spielen","⚽ Ball am Steinweg",""],
   [270,52,44,26,"reisen","Urlaube: Flugzeug","✈️ Flugzeug","stadt"],[259,97,84,24,"ausflug","Ausflüge: Tram","🚋 Tram","stadt"],[322,196,56,66,"reisen","Urlaube: Segelboot","⛵ Segelboot","meer"],
   [254,189,22,22,"musik","Musik: Ghettoblaster","📻 Ghettoblaster",""]];
 const picSpots=city=>PIC_SPOTS.filter(p=>!p[7]||p[7]===(city?"stadt":"meer"));
@@ -1199,7 +1238,7 @@ function houseScene(has,light,night,extras,sea,guests,dots,amb){dots=dots||{};am
   g+=`<path d="M185 172 L177 208" stroke="#7a5230" stroke-width="2.6" stroke-linecap="round"/><path d="M174.5 207 L180.5 208.3 L186 229 L166 229Z" fill="#d9a441"/><path d="M175 208 l-6 20 M176.5 208.4 l-3 20.4 M178 208.7 l0 20.3 M179.5 209 l3 20 M181 209 l5 19.5" stroke="#a8742a" stroke-width=".8"/><path d="M174.2 210.5 L181.3 212" stroke="#7a3f1c" stroke-width="2.2" stroke-linecap="round"/>`;
   // Lampe über der Tür (Am Haus)
   g+=`${night?'<circle cx="155" cy="172" r="16" fill="url(#hglow)" opacity=".8"/>':""}<path d="M155 162 v3" stroke="#2b2b2b" stroke-width="1.4"/><path d="M150.5 165 h9 l-1.5 9 h-6z" fill="${night?"#ffd66b":"#f6e7b0"}" stroke="#2b2b2b" stroke-width="1.2"/><path d="M149 165 h12 l-2 -2.5 h-8z" fill="#2b2b2b"/>`;
-  // Ball (Sport und Spiel), rechts oben am Steinweg beim Strand
+  // Ball (Spielen, Seite unter Kind), rechts oben am Steinweg beim Strand
   g+=`<g transform="translate(100,2)"><circle cx="140" cy="236" r="8.5" fill="#f4f1ea"/><path d="M140 227.5 a8.5 8.5 0 0 1 8.5 8.5 h-8.5z" fill="#f25f5c"/><path d="M131.5 236 a8.5 8.5 0 0 0 8.5 8.5 v-8.5z" fill="#f25f5c"/><path d="M140 227.5 a8.5 8.5 0 0 0 -8.5 8.5 h8.5z" fill="#3f6fa8"/><path d="M148.5 236 a8.5 8.5 0 0 1 -8.5 8.5 v-8.5z" fill="#ffd66b"/><circle cx="140" cy="236" r="2" fill="#f4f1ea"/><ellipse cx="141" cy="245.5" rx="7" ry="1.6" fill="#000" opacity=".12"/></g>`;
   // Fahrrad (Ausflüge) an den Baum gelehnt, vorn am Lenker der Korb mit Baguette (Einkauf); Baum steht weiter vorn und größer
   // Aushang am Baumstamm (Kalender, Florian 15.11.2026)
@@ -1762,7 +1801,8 @@ const briefe=()=>listOf(S.food&&S.food.brief).sort((a,b)=>(a.at||0)-(b.at||0));
 // ---------- Wir › Kind (Florian 15.11.2026): Seite 2 von Wir; Name nur aus der Datenbank (food/pref/kidname) ----------
 // Bringen und Abholen je Tag: Hand-Änderung (food/kid/bh/<wk>/d<i> {br?,ab?}) vor Homeoffice (Aufgabe owner "ho": ganzer Tag = beides, "2 von 2" = bringt, "1 von 2" = holt ab) vor fester Woche (food/kid/rule)
 const kidName=()=>((S.food&&S.food.pref&&S.food.pref.kidname)||"").trim()||"Kind";
-function wirPager(p){return `<div class="pager" role="group" aria-label="Seiten von Wir"><div class="pdots">${[["privat","Partner"],["kind",kidName()],["geschenke","Geschenke"]].map((x,i)=>`<button class="pdot" data-go="${x[0]}" aria-pressed="${i===p}"><b>${esc(x[1])}</b></button>`).join("")}</div></div>`}
+// Seiten-Leisten seit der Bündelung (17.11.2026) aus AREA_PAGES (15-bereiche.js): Wir = Partner | Geschenke, Kind = Kind | Kita | Spielen
+const wirPager=p=>areaPager(["privat","geschenke"][p]||"privat");
 const KID_RULE={br:["p0","p1","p0","p1","p0"],ab:["p1","p0","p1","p0","p1"]};
 const kidRule=()=>{const r=S.food&&S.food.kid&&S.food.kid.rule;return {br:(r&&r.br)||KID_RULE.br,ab:(r&&r.ab)||KID_RULE.ab}};
 const kitaZu=d=>kitas().find(x=>x.sec==="termine"&&x.kind==="zu"&&x.date===d)||null;
@@ -1812,7 +1852,7 @@ function kidBhRows(mon,cur){const today=ymd(new Date()),wk=wkKey(mon);return [0,
   const dn=cur&&x.k<=today&&!x.off?bringDone(wk,i):null;
   return `<li class="kidrow${isT?" today":""}${x.off?" off":""}"><span class="kidday"><b>${DN[i]}</b><small>${x.d.getDate()}.${x.d.getMonth()+1}.</small></span>${x.off?`<span class="freq">${x.off==="zu"?"🚪 Kita zu":x.off==="frei"?"🎉 "+esc(feiertag(x.k)):"⛵ Urlaub"}</span>`:`<span class="kidcol"><small>bringt</small>${who("br")}</span><span class="kidcol"><small>holt</small>${who("ab")}</span>`}</li>`}).join("")}
 function renderKind(){const now=new Date(),cm=mondayOf(now),off=S.kidWk|0,mon=addDays(cm,7*off),{w}=isoWeek(mon),today=ymd(now),di=(now.getDay()+6)%7,nm=kidName();
-  let h=`<div><div class="eyebrow">Wir</div><h1>${esc(nm)}</h1></div>`;
+  let h=`<div><div class="eyebrow">Familie</div><h1>${esc(nm)}</h1></div>`;
   if(nm==="Kind")h+=`<div class="freq">Den Namen tragt ihr unter <button class="linkbtn" data-go="settings">Einstellungen › Wir</button> ein. Er bleibt nur bei euch.</div>`;
   h+=`<section class="card kidbh"><div class="section-head"><h2>🚸 Bringen und Abholen</h2><span class="weeknav"><button class="iconbtn" data-kidwk="${off-1}" aria-label="Vorige Woche"${off<=-1?" disabled":""}>‹</button><span class="wkdate" style="margin:0">KW ${w}</span><button class="iconbtn" data-kidwk="${off+1}" aria-label="Nächste Woche"${off>=2?" disabled":""}>›</button></span></div>
     <ul class="kidlist">${kidBhRows(mon,off===0)}</ul>
@@ -1832,7 +1872,8 @@ function renderKind(){const now=new Date(),cm=mondayOf(now),off=S.kidWk|0,mon=ad
     +row("🎁","Geschenke und Spielsachen",cnt("geschenke")?cnt("geschenke")+" offen":"",'data-nav="listen|bl:geschenke"')
     +row("🎄","Adventskalender","",'data-nav="geschenke|pf:advent"')
     +row("🚲","Ausflüge mit Kleinkind","",'data-nav="ausflug|tt:ideen"')
-    +row("🛝","Spielplätze und Spielideen","",'data-nav="spiel|ps:spielplatz"')
+    +row("⚽","Spielen","",'data-go="spiel"')
+    +row("🛝","Spielplätze","",'data-nav="ausflug|rk:spielplatz"')
     +row("🎵","Kinderlieder und Hörspiele","",'data-nav="musik|ma:lied"')+musLikedRow()+`</section>`;
   return h}
 function renderPrivat(){const sec=S.privSec==="briefe"?"briefe":"lunch";
@@ -1917,20 +1958,25 @@ function wxPlaceRow(){const pl=S.food&&S.food.wxplace;return `<div class="freq" 
 // [Symbol, Name, Tab, Kurzname im Kreis (leer = nicht im Kreis), Sprung im Kreis, Unterbereiche()]
 // Gliederung (Florian 15.11.2026): Alltag, Essen, Zuhause, Freizeit, Wir, Quer. Die 4 Reiter unten bleiben Abkürzungen.
 // Farbe je Gruppe (Florian 16.11.2026, Alle Bereiche als Karte): keine Personenfarben (PCOL), kein Blau/Rot-Paar
-const AREA_GROUPS=[["essen","🍲","Essen","#c4622d"],["alltag","🗓️","Alltag","#2c4f7c"],["wir","🫶","Wir","#b04a6e"],["zuhause","🏡","Zuhause","#5f7d2e"],["freizeit","🌊","Freizeit","#1f8fa6"],["quer","🗂️","Quer durch alles","#6b6f78"]];
+const AREA_GROUPS=[["essen","🍲","Essen","#c4622d"],["alltag","🗓️","Alltag","#2c4f7c"],["wir","🫶","Familie","#b04a6e"],["zuhause","🏡","Zuhause","#5f7d2e"],["freizeit","🌊","Freizeit","#1f8fa6"],["quer","🗂️","Quer durch alles","#6b6f78"]];
 // [Symbol, Name, Tab, Kurzname im Kreis (leer = nicht im Kreis), Sprung im Kreis, Unterbereiche(), Gruppe, Kurz erklärt (Glossar)]
 const AREAS=[["🏠","Start","camp","","",()=>[["Kalender","sp:kalender"],["Wichtig","sp:wichtig"]],"","Das Haus-Bild mit der Kurzfassung des Tages, dazu die Seiten Kalender und Wichtig."],["🧹","Woche","woche","Woche","woche|",()=>[["Tag und Woche","wp:0"],["Wer macht was","wp:1"]],"alltag","Hausarbeit: was heute und diese Woche dran ist, Hausdienst und wer was macht."],
-  ["🎒","Kita","kita","Kita","kita|",()=>KITA_SECS.map(k=>[k[2]==="Essen"?"Kita-Essen":k[2],"ks:"+k[0]]),"alltag","Termine der Kita, Kita-Essen, was mitmuss, Infos."],
+  ["🎒","Kita","kita","Kita","kita|",()=>KITA_SECS.map(k=>[k[2]==="Essen"?"Kita-Essen":k[2],"ks:"+k[0]]),"wir","Seite unter Kind: Termine der Kita, Kita-Essen, was mitmuss, Infos."],
   ["🍲","Essen","essen","Essen","essen|",()=>[["Heute","ft:heute"],["Wochenplan","ft:plan"],["Rezepte","ft:rezepte"]],"essen","Was es heute gibt, der Wochenplan fürs Abendessen, Rezepte und Kochbücher."],
   ["🧺","Einkauf","einkauf","Einkauf","einkauf|",()=>[["Einkaufsliste",""],["Weitere Listen","bl:"],["Ausgaben","sp:ausgaben"]],"essen","Die Einkaufsliste, Weitere Listen (Kleidung, Geschenke, Baumarkt) und Ausgaben."],
   ["🛠️","Am Haus","amhaus","Am Haus","amhaus|",()=>PROJ_CATS.filter(c=>["wohnen","garten"].includes(c[0])).map(c=>[c[2],"pf:"+c[0]]).concat([["Gemerkt","hs:wohnen"]]),"zuhause","Projekte fürs Haus und was ihr euch dafür merkt: Einrichtung und Garten."],
   ["🧭","Reisen und Ausflüge","ausflug","Reisen","ausflug|tt:urlaub",()=>[["Urlaube","tt:urlaub"],["Ausflüge","tt:ideen"],["Packlisten","tt:pack"],["Gemerkt","tt:recherche"]],"freizeit","Urlaube, Ausflüge mit „Was ist los“, Packlisten und was ihr euch für unterwegs merkt."],
-  ["⚽","Sport und Spiel","spiel","Sport","spiel|",()=>playSecs().map(p=>[p[2],"ps:"+p[0]]),"freizeit","Spielplätze, Spielideen für zu Hause, Sport und Kurse."],["🎵","Musik","musik","Musik","musik|",()=>[],"freizeit","Playlist-Links nach Anlass, z. B. Kochen, Autofahrt, Kinder."],
-  ["🫶","Partner","privat","Partner","privat|",()=>[["Mittagessen","pv:lunch"],["Briefe","pv:briefe"],["Kontakte","pv:kontakte"]],"wir","Nur für euch zwei: Mittagessen, Briefe, Kontakt."],
-  ["🧒","Kind","kind","Kind","kind|",()=>[["Bringen und Abholen","sp:kind"]],"wir","Wer bringt und wer holt, dazu Kita, Kleidung und Geschenke fürs Kind."],
-  ["🎁","Geschenke","geschenke","Geschenke","geschenke|",()=>[["Geschenk-Ideen",""],["Adventskalender","pf:advent"]],"wir","Geschenke für alle, mit Stand und für wen, dazu der Adventskalender."],
+  ["⚽","Spielen","spiel","Spielen","spiel|",()=>playSecs().map(p=>[p[2],"ps:"+p[0]]),"wir","Seite unter Kind: Spielideen für zu Hause, Sport und Kurse. Spielplätze stehen unter Reisen und Ausflüge."],["🎵","Musik","musik","Musik","musik|",()=>[],"freizeit","Playlist-Links nach Anlass, z. B. Kochen, Autofahrt, Kinder."],
+  ["🧒","Kind","kind","Kind","kind|",()=>[["Bringen und Abholen","sp:kind"]],"wir","Wer bringt und wer holt, dazu die Seiten Kita und Spielen."],
+  ["🫶","Partner","privat","Partner","privat|",()=>[["Mittagessen","pv:lunch"],["Briefe","pv:briefe"],["Kontakte","pv:kontakte"]],"wir","Bereich Wir, erste Seite. Nur für euch zwei: Mittagessen, Briefe, Kontakt."],
+  ["🎁","Geschenke","geschenke","Geschenke","geschenke|",()=>[["Geschenk-Ideen",""],["Adventskalender","pf:advent"]],"wir","Seite unter Wir: Geschenke für alle, mit Stand und für wen, dazu der Adventskalender."],
   ["🗃️","Sammlung","projekte","Sammlung","projekte|",()=>[["Alles Gemerkte",""]].concat(projCats().filter(c=>PROJ_GROUPS.projekte.cats.includes(c[0])).map(c=>[c[2],"pf:"+c[0]])).concat([["Alle Projekte","pf:alle"]]),"quer","Alles, was ihr euch in den Bereichen merkt, auf einen Blick. Dazu Sonstiges und Alle Projekte."],
-  ["🔔","Wichtig","wichtig","Wichtig","wichtig|",()=>[],"quer","Alle Erinnerungen an einem Ort. Die Glocke oben links zählt sie."],["🤖","Recherchen","recherchen","","",()=>[],"quer","Was Claude regelmäßig sucht (Rezepte, Ausflüge) und eure Wünsche dafür."],["⚙️","Einstellungen","settings","","",()=>[],"quer","Aussehen, Bedienung, Ort und Wetter, Namen, Benachrichtigungen, Sicherung und dieses Glossar."]];
+  ["🔔","Wichtig","wichtig","Wichtig","wichtig|",()=>[],"quer","Alle Erinnerungen an einem Ort. Die Glocke oben links zählt sie."],["🤖","Recherchen","recherchen","","",()=>[],"quer","Seite unter Sammlung: was Claude regelmäßig sucht (Rezepte, Ausflüge) und eure Wünsche dafür."],["⚙️","Einstellungen","settings","","",()=>[],"quer","Aussehen, Bedienung, Ort und Wetter, Namen, Benachrichtigungen, Sicherung und dieses Glossar."]];
+// Bündelung (Florian 17.11.2026, „A neu“): Bereiche mit Seiten. [Symbol, Name, [[Tab, Seitenname], …]], erste Seite = Hauptseite.
+// Daraus: Seiten-Leiste oben (areaPager, Wischen blättert), Alle Bereiche (Seiten als Unterpunkte) und Fächer (Seiten als kleine Knöpfe).
+const AREA_PAGES={kind:["🧒","Kind",[["kind","Kind"],["kita","Kita"],["spiel","Spielen"]]],privat:["🫶","Wir",[["privat","Partner"],["geschenke","Geschenke"]]],projekte:["🗃️","Sammlung",[["projekte","Alles Gemerkte"],["recherchen","Recherchen"]]]};
+const areaMain=t=>Object.keys(AREA_PAGES).find(k=>AREA_PAGES[k][2].some(p=>p[0]===t))||"";
+function areaPager(t){const m=areaMain(t);if(!m)return "";const P=AREA_PAGES[m][2];return `<div class="pager" role="group" aria-label="Seiten von ${esc(AREA_PAGES[m][1])}"><div class="pdots">${P.map(p=>`<button class="pdot" data-go="${p[0]}" aria-pressed="${p[0]===t}"><b>${esc(p[0]==="kind"?kidName():p[1])}</b></button>`).join("")}</div></div>`}
 // Reihenfolge folgt den Gruppen (Florian 15.11.2026: Essen, dann Woche und Kita, dann Wir)
 AREAS.sort((x,y)=>(x[6]?AREA_GROUPS.findIndex(g=>g[0]===x[6]):-1)-(y[6]?AREA_GROUPS.findIndex(g=>g[0]===y[6]):-1));
 // Zusätze, die keine eigenen Bereiche sind: Kalender (im Kreis direkt nach Woche), Wichtig, Einstellungen
@@ -1953,10 +1999,13 @@ function focusApply(m){if(!m)return;const cm=mondayOf(new Date()),cur=+m===+cm,n
   if((S.tab==="essen"&&S.foodTab==="plan")||(S.tab==="kita"&&S.kitaSec==="essen"))S.foodWeek=cur?null:m;
   if(S.tab==="kind")S.kidWk=Math.max(-1,Math.min(2,n))}
 function goNav(v){const fw=focusWeek(),[tab,sub]=v.split("|"),[k,val]=(sub||"").split(":");S.prev=S.tab;S.tab=tab;S.weekPage=0;if(tab==="essen")S.foodTab="heute";if(PROJ_TABS.includes(tab)){S.projFilter="";S.hsamm=false;S.hprojOpen=null}
-  if(k==="wp")S.weekPage=+val||0;if(k==="ft")S.foodTab=val;if(tab==="kita")S.kitaSec=k==="ks"?val:"termine";if(tab==="spiel"){S.playSec=k==="ps"?val:"";S.playF=""}if(tab==="musik"){S.musFilter=k==="mf"?val:"";S.musArtF=k==="ma"?val:""}if(tab==="ausflug"||tab==="reisen"){S.reiseOpen=null;S.tripTab=tab==="reisen"?"urlaub":"ideen"}if(k==="tt")S.tripTab=val;if(k==="pf")S.projFilter=HCAT_OLD[val]||val;if(k==="hs"){S.projFilter=val;S.hsamm=true}if(k==="sp")S.tab=val;if(k==="bl"){S.tab="listen";if(val)(S.buyOpen||(S.buyOpen={}))[val]=true;setTimeout(()=>{const el=document.getElementById("buy-"+val);if(el)el.scrollIntoView({block:"start"})},40)}if(k==="ps")S.playSec=val;if(k==="gl"){(S.setOpen||(S.setOpen={})).glossar=true;S.glosQ="";setTimeout(()=>{const el=document.getElementById("set-glossar");if(el)el.scrollIntoView({block:"start"})},40)}if(tab==="privat")S.privSec=k==="pv"&&val!=="kontakte"?val:"";focusApply(fw);render();window.scrollTo(0,0);if(k==="pv"&&val==="kontakte")setTimeout(()=>{const el=document.getElementById("kontakte");if(el)el.scrollIntoView({block:"start"})},30)}
+  if(k==="wp")S.weekPage=+val||0;if(k==="ft")S.foodTab=val;if(tab==="kita")S.kitaSec=k==="ks"?val:"termine";if(tab==="spiel"){S.playSec=k==="ps"?val:"";S.playF=""}if(tab==="musik"){S.musFilter=k==="mf"?val:"";S.musArtF=k==="ma"?val:""}if(tab==="ausflug"||tab==="reisen"){S.reiseOpen=null;S.tripTab=tab==="reisen"?"urlaub":"ideen"}if(k==="tt")S.tripTab=val;if(k==="pf")S.projFilter=HCAT_OLD[val]||val;if(k==="hs"){S.projFilter=val;S.hsamm=true}if(k==="sp")S.tab=val;if(k==="bl"){S.tab="listen";if(val)(S.buyOpen||(S.buyOpen={}))[val]=true;setTimeout(()=>{const el=document.getElementById("buy-"+val);if(el)el.scrollIntoView({block:"start"})},40)}if(k==="ps")S.playSec=val;if(k==="rk"){S.tab="ausflug";S.tripTab="ideen";S.rgF={k:val,u:"",s:""};setTimeout(()=>{const el=document.querySelector(".rgcard");if(el)el.scrollIntoView({block:"start"})},40)}if(k==="gl"){(S.setOpen||(S.setOpen={})).glossar=true;S.glosQ="";setTimeout(()=>{const el=document.getElementById("set-glossar");if(el)el.scrollIntoView({block:"start"})},40)}if(tab==="privat")S.privSec=k==="pv"&&val!=="kontakte"?val:"";focusApply(fw);render();window.scrollTo(0,0);if(k==="pv"&&val==="kontakte")setTimeout(()=>{const el=document.getElementById("kontakte");if(el)el.scrollIntoView({block:"start"})},30)}
 // Offene Aufgaben (Florian 16.11.2026): Sprung auf Woche › Tag und Woche, gescrollt an den Anfang der Aufgaben (erster Abschnitt, z. B. Hausdienst), erste offene Aufgabe kurz hervorgehoben
 // Doppelring (Florian 16.11.2026): Tipp = heutige Aufgaben (Täglich), lange = Wochenaufgaben (Diese Woche bzw. Wechsel)
-function goTasks0(w){const sec=(w&&(document.getElementById(w==="week"?(S.groupBy==="art"?"sec-rot":"sec-week"):(S.groupBy==="art"?"sec-fix":"sec-day"))))||document.querySelector('section[id^="sec-"]');if(!sec)return;sec.scrollIntoView({block:"start"});const t=sec.querySelector('article.task:not(.done)')||sec;t.classList.add("hlflash");setTimeout(()=>t.classList.remove("hlflash"),1600)}
+function goTasks0(w){const id=w==="week"?(S.groupBy==="art"?"rot":"week"):(S.groupBy==="art"?"fix":"day");let sec=(w&&document.getElementById("sec-"+id))||document.querySelector('section[id^="sec-"]');if(!sec)return;
+  // Woche kompakt: der Abschnitt ist eine Klapp-Karte, zum Springen aufklappen (nur jetzt, nicht gespeichert)
+  const fb=sec.querySelector(':scope>[data-tfold]');if(fb&&fb.getAttribute("aria-expanded")==="false"){S.tFold=S.tFold||{};S.tFold[fb.dataset.tfold]=true;render();sec=document.getElementById(sec.id)||sec}
+  sec.scrollIntoView({block:"start"});const t=sec.querySelector('.wt:not(.done)')||sec.querySelector('article.task:not(.done)')||sec;t.classList.add("hlflash");setTimeout(()=>t.classList.remove("hlflash"),1600)}
 function goTasks(w){goNav("woche|wp:0");setTimeout(()=>goTasks0(w),60)}
 // ---------- Einstellungen (Zahnrad oben rechts, Entwurf) ----------
 const ALL_AREAS=[["🧹","Woche",{go:"woche"}],["👥","Wer macht was",{go:"woche",wp:1}],["🍲","Essen heute",{go:"essen",ft:"heute"}],["📅","Wochenplan",{go:"essen",ft:"plan"}],["📖","Rezepte und Kochbücher",{go:"essen",ft:"rezepte"}],["🎒","Kita-Essen",{go:"essen",ft:"kita"}],["🧺","Einkauf",{go:"einkauf"}],["🎒","Kita",{go:"kita"}],["🚲","Ausflüge",{go:"ausflug",tt:"ideen"}],["🧳","Packliste",{go:"ausflug",tt:"pack"}],["⛵","Urlaub",{go:"ausflug",tt:"urlaub"}],["🗃️","Sammlung",{go:"projekte"}],["🛠️","Am Haus",{go:"amhaus"}],["🎁","Geschenke",{go:"geschenke"}],["⚽","Sport und Spiel",{go:"spiel"}],["💞","Privat",{go:"privat"}],["📮","Briefkasten",{go:"post"}],["🔔","Wichtig",{go:"wichtig"}]];
@@ -2042,7 +2091,7 @@ function renderSettings(){const per=(S.config&&S.config.persons)||[];const G=S.g
     <div style="margin-top:8px">${sw("labels","Beschriftungen im Bild zeigen",!!S.labels)}</div><div class="freq" style="margin-top:10px">Motiv im Startbild</div><div class="unl">${motivList().map(x=>`<button class="chipbtn neutral" data-motiv-set="${x[0]}" aria-pressed="${motiv()===x[0]}">${x[1]} ${x[2]}</button>`).join("")}</div>
     <div class="freq" style="margin-top:10px">Bildstil</div><div class="unl">${stilList().map(x=>`<button class="chipbtn neutral" data-stil-set="${x[0]}" aria-pressed="${bildStil()===x[0]}">${x[1]} ${x[2]}</button>`).join("")}</div>
     <div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy. Standard ist das Haus am Meer mit Licht und Schatten.</div>${go('data-setgo="glossar" data-glosopen="bild"',"📖","Was im Bild wohin führt")}`,"aussehen");
-  h+=card("👆 Bedienung",`${sw("tap","Reiter unten blättern weiter",G.tap,"Tipp auf den Reiter, in dem du bist = nächste Unterseite. Doppelt auf Start = Kalender, dreifach = Wichtig. Aus: jeder Tipp öffnet die erste Seite.")}${sw("swipe","Wischen blättert die Seiten",G.swipe,"links und rechts: die Seiten der Leiste oben, z. B. Haus, Kalender, Wichtig. Nie in einen anderen Bereich.")}${sw("ring","Lange auf Start oder Einkauf: weitere Bereiche",G.ring,"Start: Familie und Zuhause (Kita, Kind, Partner, Geschenke, Am Haus). Einkauf: Freizeit und Gemerktes (Reisen, Spiel, Musik, Sammlung, Recherchen). Alle Bereiche gibt es immer über das Kachel-Symbol oben rechts.")}<div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy.</div>${go('data-setgo="glossar" data-glosopen="gesten"',"📖","Alle Gesten im Glossar")}`,"bedienung");
+  h+=card("👆 Bedienung",`${sw("tap","Reiter unten blättern weiter",G.tap,"Tipp auf den Reiter, in dem du bist = nächste Unterseite. Doppelt auf Start = Kalender, dreifach = Wichtig. Aus: jeder Tipp öffnet die erste Seite.")}${sw("swipe","Wischen blättert die Seiten",G.swipe,"links und rechts: die Seiten der Leiste oben, z. B. Haus, Kalender, Wichtig. Nie in einen anderen Bereich.")}${sw("ring","Lange auf Start oder Einkauf: weitere Bereiche",G.ring,"Start: Familie und Zuhause (Kind mit Kita und Spielen, Wir mit Partner und Geschenke, Am Haus). Einkauf: Freizeit und Gemerktes (Reisen und Ausflüge, Musik, Sammlung mit Recherchen). Alle Bereiche gibt es immer über das Kachel-Symbol oben rechts.")}<div class="freq" style="margin-top:6px">Gilt nur auf diesem Handy.</div>${go('data-setgo="glossar" data-glosopen="gesten"',"📖","Alle Gesten im Glossar")}`,"bedienung");
   h+=card("🍲 Essen",`${sw("veg","Mehr Vegetarisches bei Vorschlägen",vegW()>0,"für beide")}<div class="freq" style="margin:6px 0">Mengen sind für 4 Personen. Die Recherche achtet aufs Kleinkind. Ändern: schreib es Claude.</div>${go('data-nav="essen|ft:rezepte"',"🏷️","Rezepte, Filter und eigene Tags")}`,"essen");
   h+=card("",go('data-go="recherchen"',"🤖","<b>Recherchen</b> · alle festen Aufträge, Neues und eure Wünsche"));
   h+=card("",go('data-go="wichtig"',"🔔","<b>Wichtig</b> · alle Erinnerungen"));
@@ -2132,7 +2181,7 @@ const areaName=t=>{const a=AREAS.find(x=>x[2]===t);return a?a[1]:t};
 const picArea=go=>go==="woche|wp:3"?"camp":({reisen:"ausflug",ausgaben:"einkauf",post:""}[go.split("|")[0]]??go.split("|")[0]);
 function glosGest(){const G=S.gest||{},T=Object.keys(TAB_PAGES),pg=n=>T.filter(t=>TAB_PAGES[t][n]).map(t=>areaName(t)+" › "+TAB_PAGES[t][n]).join(", ");
   return [["Tipp auf einen anderen Reiter","Öffnet dessen erste Seite.",""],["Tipp auf den Reiter, in dem du bist","Blättert eine Seite weiter, nach der letzten wieder zur ersten.","tap"],
-    ["Doppeltipp auf einen Reiter",pg(1)+".","tap"],["Dreifachtipp auf einen Reiter",pg(2)+".","tap"],["Lange auf den Reiter Start","Familie und Zuhause: "+fanItems("camp").map(t=>t[1]).join(", ")+". Finger auf einen Eintrag gleiten lassen und loslassen öffnet ihn.","ring"],["Lange auf den Reiter Einkauf","Freizeit und Gemerktes: "+fanItems("einkauf").map(t=>t[1]).join(", ")+".","ring"],["Kachel oben rechts","Öffnet Alle Bereiche.",""],
+    ["Doppeltipp auf einen Reiter",pg(1)+".","tap"],["Dreifachtipp auf einen Reiter",pg(2)+".","tap"],["Lange auf den Reiter Start","Familie und Zuhause: "+fanItems("camp").map(t=>t[1]+(t[3].length?" ("+t[3].map(s=>s[0]).join(", ")+")":"")).join(", ")+". Finger auf einen Eintrag oder eine Seite daneben gleiten lassen und loslassen öffnet sie.","ring"],["Lange auf den Reiter Einkauf","Freizeit und Gemerktes: "+fanItems("einkauf").map(t=>t[1]+(t[3].length?" ("+t[3].map(s=>s[0]).join(", ")+")":"")).join(", ")+".","ring"],["Kachel oben rechts","Öffnet Alle Bereiche.",""],
     ["Wischen nach links oder rechts","Blättert die Seiten der Leiste oben (z. B. Haus, Kalender, Wichtig). Wechselt nie den Bereich. Auf Zeilen, die seitlich scrollen, bewegt es nur die Zeile.","swipe"],["Lange auf ein Ding im Bild","Schnellmenü mit den häufigsten Handgriffen (siehe Im Bild).",""],
     ["Tipp auf Sonne oder Mond","Klappt das Wetter auf: Sonnenzeiten, Mond, heute stündlich, 6 Tage.",""],["Tipp auf eine freie Stelle im Bild","Öffnet Tag und Woche.",""],
     ["Tipp auf den Doppelring","Deine Aufgaben von heute. Lange drücken: die Aufgaben der Woche.",""],["Lange auf einen Tag im Kalender","Neuer Termin an diesem Tag.",""],
@@ -2414,7 +2463,8 @@ function reiseRow(){const l=urlaube(),hearts=x=>Object.values(x.hearts||{}).filt
 // Gemerkt für unterwegs: Ausflugsziele (food/trip, „Für hier“) und Gemerktes für Urlaube (food/fund) in einer Liste mit Filtern nach Art, Urlaub und Stand
 const tripSt=x=>x.done?"erledigt":x.date?"geplant":x.fav?"favorit":"idee";
 function rgItems(){const U=urlaube(),L=[];
-  trips().forEach(x=>{const k=tripKinds().find(c=>c[0]===x.kind);L.push({t:"t",id:x.id,ic:emoOf(x,k?k[1]:"🚲"),name:x.name,art:"ausflug",artL:"Ausflugsziel"+(k&&k[0]!=="sonst"?" · "+k[2]:""),u:"hier",st:tripSt(x),date:x.date,place:x.place||x.name,rain:x.wx==="egal",pack:x.pack&&packLists().find(p=>p.id===x.pack),at:x.at||0})});
+  // Ausflugsziele der Art Spielplatz (auch die aus Sport und Spiel umgezogenen) laufen unter der Art 🛝 Spielplatz
+  trips().forEach(x=>{const k=tripKinds().find(c=>c[0]===x.kind),sp=x.kind==="spiel";L.push({t:"t",id:x.id,ic:emoOf(x,k?k[1]:"🚲"),name:x.name,art:sp?"spielplatz":"ausflug",artL:sp?"Spielplatz":"Ausflugsziel"+(k&&k[0]!=="sonst"?" · "+k[2]:""),u:"hier",st:tripSt(x),date:x.date,place:x.place||x.name,rain:x.wx==="egal",pack:x.pack&&packLists().find(p=>p.id===x.pack),at:x.at||0})});
   funde("reise").forEach(f=>{const k=fundKind(f.kind,"reise"),u=f.reise&&U.find(y=>y.id===f.reise);L.push({t:"f",id:f.id,ic:k[1],name:f.name,art:k[0],artL:k[2]+(f.st==="gebucht"?" · gebucht":""),u:u?u.id:"hier",uL:u?(u.emo||"⛵")+" "+u.name:"",st:f.st==="gebucht"?"erledigt":f.st||"idee",place:f.addr||f.place||(u?f.name+" "+(u.place||""):""),ref:f.ref||"",at:f.at||0})});
   return L.sort((a,b)=>(b.at||0)-(a.at||0))}
 const refMask=r=>"****"+String(r||"").slice(-2);
@@ -2440,7 +2490,7 @@ function merkenOpen(pre){pre=pre||{};const U=urlaube().filter(u=>reiseSt(u)!=="e
     {k:"st",label:"Stand",type:"chips",opts:SAMM_ST.map(s=>[s[0],s[1]+" "+s[2]]),val:"idee"},
     {k:"n",type:"note",label:"Steht danach unter 🔖 Gemerkt, im Urlaub und in der 🗃️ Sammlung. Mit Datum (📅 Geplant) auch im Kalender."}],
   async V=>{const raw=String(V.name||"").trim();if(!raw){toast("Bitte eintragen, was ihr euch merken wollt.");return}const link=safeLink(raw),name=(link?nameFromLink(link):raw).slice(0,80),now=Date.now();
-    if(V.kind==="ausflug"&&!V.u){const id=newId("t"),o={name,at:now,by:S.me||""};if(link)o.link=link;if(V.st==="favorit")o.fav=true;if(V.st==="erledigt"){o.done=true;o.doneAt=now}
+    if((V.kind==="ausflug"||V.kind==="spielplatz")&&!V.u){const id=newId("t"),o={name,at:now,by:S.me||""};if(V.kind==="spielplatz")o.kind="spiel";if(link)o.link=link;if(V.st==="favorit")o.fav=true;if(V.st==="erledigt"){o.done=true;o.doneAt=now}
       await S.store.setPath("food/trip/"+id,o);if(V.st==="geplant")calDayPick(name,nextSat(),async k=>{try{await S.store.setPath("food/trip/"+id+"/date",k);toast("Steht am "+rDate(k)+" im Kalender")}catch(_){toast("Konnte nicht speichern.")}});else toast("🔖 "+name+" gemerkt");return}
     const kind=V.kind==="ausflug"?"erleben":V.kind||kindGuess(raw,link)||"sonst",o={name,kind,st:V.st==="erledigt"?"gebucht":V.st||"idee",at:now,by:S.me||""};if(V.u)o.reise=V.u;if(link)o.link=link;
     await S.store.setPath("food/fund/"+newId("f"),o);toast(fundKind(kind,"reise")[1]+" "+name+" gemerkt")})}
@@ -2448,7 +2498,7 @@ function tripHome(){const mu=(S.food&&S.food.reisemap)||"",emb=mapsEmbed(mu),E=u
   let h=reiseRow()+rgCard()+atipFixCards()+atipCard();
   {const F=freiNext(10);if(F.length)h+=foldCard("frei","🏖️ Ferien und Feiertage",F.length,`<ul class="evlist frei">${F.map(x=>`<li><span class="ev">${freiLine(x)}</span></li>`).join("")}</ul>${ferienList().length?"":`<div class="freq">Die Schulferien kommen gleich nach; Feiertage sind schon da.</div>`}`)}
   if(E.length)h+=foldCard("uerl","✅ Erledigte Urlaube",E.length,`<div class="urow">${E.map(x=>`<button class="ut st-erledigt" data-reise="${esc(x.id)}"><span class="te">${esc(x.emo||"⛵")}</span><span><b>${esc(x.name)}</b><span class="freq">${x.from?esc(reiseWhen(x)):"✅ Erledigt"}</span></span></button>`).join("")}</div>`);
-  h+=foldCard("rmap","🗺️ Alle Ziele auf einer Karte","",`${emb?`<div class="mapwrap"><iframe src="${esc(emb)}" loading="lazy" title="Karte mit allen Zielen"></iframe></div>`:mu?`<a href="${esc(mu)}" target="_blank" rel="noopener">Karte öffnen</a>`:""}<div class="freq">Legt in Google Maps unter „Meine Karten“ eine Karte an und fügt den Link hier ein, dann erscheint sie hier.</div><form class="addrow" id="reisemapform" novalidate><input type="url" id="reisemapinput" value="${esc(mu)}" placeholder="Link zur Karte" autocomplete="off"><button class="primary" type="submit">OK</button></form>`);
+  h+=foldCard("rmap","🗺️ Alle Ziele auf einer Karte","",`${(m=>m&&mapOk(m)?`<div class="btnrow"><a class="ghost linkbtn" href="${esc(m)}" target="_blank" rel="noopener noreferrer">🛝 Eure Spielplatz-Karte öffnen</a></div>`:"")((S.food&&S.food.playmap)||"")}${emb?`<div class="mapwrap"><iframe src="${esc(emb)}" loading="lazy" title="Karte mit allen Zielen"></iframe></div>`:mu?`<a href="${esc(mu)}" target="_blank" rel="noopener">Karte öffnen</a>`:""}<div class="freq">Legt in Google Maps unter „Meine Karten“ eine Karte an und fügt den Link hier ein, dann erscheint sie hier.</div><form class="addrow" id="reisemapform" novalidate><input type="url" id="reisemapinput" value="${esc(mu)}" placeholder="Link zur Karte" autocomplete="off"><button class="primary" type="submit">OK</button></form>`);
   {const mz=musLinks("auto",3);if(mz)h+=foldCard("rmus","🚗 Musik für die Fahrt","",mz)}
   return h}
 const tripKinds=()=>catsOf("trip",TRIP_KIND);
@@ -2977,7 +3027,7 @@ function projOverview(){const L=projAll();
 function projAllTile(){const L=projAll();return `<button class="tile" data-pfilter="alle"><span class="te">🧩</span><span class="tn">Alle Projekte</span><span class="tc">${L.length?L.length+" laufen":"noch keins"}</span></button>`}
 // Sammlung am Leuchtturm (Florian 17.11.2026): alles Gemerkte aus allen Bereichen auf einen Blick, mit Filtern nach Bereich und Stand.
 // Nur Ansicht: die Einträge bleiben in ihren Bereichen (food/fund, food/idea, food/trip, food/play, food/music, food/rec). Neue Datenart = eine Zeile in sammAll.
-const SAMM_AREAS=[["reise","🧭","Reisen und Ausflüge"],["haus","🛠️","Am Haus"],["geschenke","🎁","Geschenke"],["spiel","⚽","Sport und Spiel"],["musik","🎵","Musik"],["sonst","📎","Sonstiges"],["rezepte","📖","Rezepte"]];
+const SAMM_AREAS=[["reise","🧭","Reisen und Ausflüge"],["haus","🛠️","Am Haus"],["geschenke","🎁","Geschenke"],["spiel","⚽","Spielen"],["musik","🎵","Musik"],["sonst","📎","Sonstiges"],["rezepte","📖","Rezepte"]];
 const SAMM_ST=[["idee","💡","Idee"],["favorit","⭐","Favorit"],["geplant","📅","Geplant"],["erledigt","✅","Erledigt"]];
 function sammAll(){const L=[],add=(ar,o)=>L.push(Object.assign({ar,at:0},o)),fst=s=>s==="gebucht"?"erledigt":s||"idee";
   funde("reise").forEach(f=>{const k=fundKind(f.kind,"reise"),u=f.reise&&urlaube().find(y=>y.id===f.reise);add("reise",{ic:k[1],name:f.name,sub:k[2]+(u?" · "+(u.emo||"⛵")+" "+u.name:"")+(f.st==="gebucht"?" · gebucht":""),st:fst(f.st),attr:u?`data-reise="${esc(u.id)}"`:`data-nav="ausflug|tt:recherche"`,at:f.at})});
@@ -2985,7 +3035,7 @@ function sammAll(){const L=[],add=(ar,o)=>L.push(Object.assign({ar,at:0},o)),fst
   funde("haus").forEach(f=>{const k=fundKind(f.kind,"haus"),p=f.proj&&hprojs().find(y=>y.id===f.proj);add("haus",{ic:k[1],name:f.name,sub:k[2]+(p?" · "+(p.emo||"🛋️")+" "+p.name:"")+(f.st==="gebucht"?" · gekauft":""),st:fst(f.st),attr:p?`data-hproj="${esc(p.id)}"`:`data-nav="amhaus|hs:wohnen"`,at:f.at})});
   projs().forEach(x=>{const c=projCat(x),pc=projCats().find(p=>p[0]===c)||PROJ_CATS[1],ar=c==="geschenk"?"geschenke":HCAT[c]?"haus":"sonst";
     add(ar,{ic:x.emo||pc[1],name:x.name,sub:ar==="geschenke"?(giftFor(x)||"Geschenk"):ar==="haus"?pc[2]+" · ohne Projekt":pc[2],st:x.done?"erledigt":pjSt(x.state),attr:ar==="geschenke"?`data-nav="geschenke|"`:`data-nav="${ar==="haus"?"amhaus":"projekte"}|pf:${esc(c)}"`,at:x.at})});
-  plays().forEach(x=>{const s=playSecs().find(p=>p[0]===(x.sec||"spielplatz"))||playSecs()[0];add("spiel",{ic:x.emo||s[1],name:x.name,sub:s[2],st:playSt(x),attr:`data-nav="spiel|ps:${esc(s[0])}"`,at:x.at})});
+  plays().forEach(x=>{const s=playSecs().find(p=>p[0]===playSecOf(x))||playSecs()[0];add("spiel",{ic:x.emo||s[1],name:x.name,sub:s[2],st:playSt(x),attr:`data-nav="spiel|ps:${esc(s[0])}"`,at:x.at})});
   musics().forEach(x=>{const a=musArt(x);add("musik",{ic:x.emo||a[1],name:x.name,sub:a[2]+(x.like?" · 💛 gerade beliebt":""),st:a[0]==="hoer"?(x.st||"idee"):x.fav?"favorit":"idee",attr:`data-nav="musik|ma:${a[0]}"`,at:x.at})});
   return L.sort((a,b)=>(b.at||0)-(a.at||0))}
 function sammHtml(){const F=S.sammF||(S.sammF={a:"",s:""}),L=sammAll();
@@ -3000,7 +3050,7 @@ function sammHtml(){const F=S.sammF||(S.sammF={a:"",s:""}),L=sammAll();
     <div class="freq">Alles, was ihr euch in einem Bereich merkt, steht auch hier. Ein Tipp öffnet den Eintrag in seinem Bereich.</div></section>`}
 function renderProjects(){const d=S.projDraft;
   if(S.tab==="projekte"&&(S.projFilter==="geschenk"||S.projFilter==="advent"))S.tab="geschenke";if(S.tab==="amhaus"&&HCAT_OLD[S.projFilter])S.projFilter="wohnen";
-  const G=projGroup();let h=`<div><div class="eyebrow">${G.eye}</div><h1>${G.title}</h1></div>${S.tab==="geschenke"?wirPager(2):""}${bellRow(S.tab)}`;
+  const G=projGroup();let h=`${S.tab==="geschenke"||S.tab==="projekte"?areaPager(S.tab):""}<div><div class="eyebrow">${G.eye}</div><h1>${G.title}</h1></div>${bellRow(S.tab)}`;
   if(d){const one=(f,L)=>`<div class="unl">${L.map(c=>`<button class="chipbtn" data-pset="${f}" data-v="${c[0]}" aria-pressed="${(f==="state"?pjSt(d[f]):d[f])===c[0]}">${c.length>=3?c[1]+" "+c[2]:c[1]}</button>`).join("")}</div>`;
     return h+`<section class="card tripform"><h2>${d.id?"Bearbeiten":"Neue Idee"}</h2>
     <label class="fld"><span>Was?</span><input type="text" id="pj-name" data-pf="name" value="${esc(d.name)}" maxlength="80" placeholder="Zum Beispiel Regal für den Flur" autocomplete="off"></label>${d.cat==="geschenk"?emoFld("data-pf",d.emo,"🎁"):""}
@@ -3165,9 +3215,9 @@ function fundDelOpts(f){const A=FAREA[f.area||"reise"],o=[];
   o.push([fundLinked(f).length?"Ganz löschen, auch dort":"Ganz löschen",async()=>{await fundDropAll(f);toast("Gelöscht")},true]);return o}
 function fundRmAsk(id){const f=listOf(S.food&&S.food.fund).find(y=>y.id===id);if(!f)return;const lk=fundLinked(f);
   editBox(f.name,[{k:"x",type:"note",label:(f[FAREA[f.area||"reise"].key]?"Nur aus dem "+FAREA[f.area||"reise"].word+" nehmen: der Eintrag bleibt in der Sammlung. ":"")+"Ganz löschen: weg aus Sammlung"+(lk.length?" und bei "+lk.map(k=>FUND_LINKS[k].lbl).join(", "):"")+"."}],async()=>{},fundDelOpts(f))}
-// ---------- Sport und Spiel (Ball) ----------
+// ---------- Spielen (Ball), seit der Bündelung 17.11.2026 Seite unter Kind (Kind | Kita | Spielen); Spielplätze sind nach Reisen und Ausflüge umgezogen (migPlayTrip) ----------
 const playSecs=()=>catsOf("play",PLAY_SECS);
-const PLAY_SECS=[["spielplatz","🛝","Spielplätze"],["zuhause","🎲","Spielideen zu Hause"],["sport","⚽","Sport und Kurse"],["sonst","📎","Sonstiges"]];
+const PLAY_SECS=[["zuhause","🎲","Spielideen zu Hause"],["sport","🤸","Sport und Kurse"],["sonst","📎","Sonstiges"]];
 const PLAY_HINT={spielplatz:["Zum Beispiel Wasserspielplatz am Park","Was gibt es dort? Schatten, Sandkasten, Toilette …"],zuhause:["Zum Beispiel Höhle aus Decken bauen","Wie geht es?"],sport:["Zum Beispiel Kinderturnen","Wo, Kosten, Anmeldung"],sonst:["Zum Beispiel Schwimmflügel kaufen","Worum geht es?"]};
 const PLAY_AGE=[["1","ab 1"],["2","ab 2"],["3","ab 3"],["4","ab 4"],["6","ab 6"]];
 const PLAY_WX=[["drinnen","☔ Drinnen"],["draussen","☀️ Draußen"],["egal","Beides"]];
@@ -3224,7 +3274,14 @@ function renderMusic(){const d=S.musDraft,F=S.musFilter||"",AF=S.musArtF||"";
   h+=L.length?`<ul class="mklist">${L.map(musRow).join("")}</ul>`:`<div class="freq">${all.length?"Für diesen Filter ist nichts gemerkt.":"Noch nichts gemerkt. Link einfügen genügt. Playlists erscheinen dann auch beim Kochen, bei Urlaub und Ausflügen und unter Spiel zu Hause."}</div>`;
   if(all.length)h+=`<div class="freq">Tipp auf den Namen öffnet den Link. ⭐ Favorit, 💛 gerade beliebt beim Kind, bei Hörspielen schaltet das Schild den Stand weiter.</div>`;
   return h+`</section>`}
-const plays=()=>listOf(S.food&&S.food.play);
+const plays=()=>listOf(S.food&&S.food.play).filter(x=>!x.moved);
+// Spielplätze ziehen um (Florian 17.11.2026, „Sport auflösen“): aus food/play (Art Spielplatz) wird ein Ausflugsziel für hier food/trip/tpl_<id> mit Art „spiel“.
+// Feste Id, damit zwei Geräte nichts doppelt anlegen; das Original bleibt mit moved:"trip:<id>" liegen (rückholbar) und ist überall ausgeblendet.
+async function migPlayTrip(){if(S.migPlay||!S.food||!S.food.play)return;S.migPlay=1;
+  // nur fertige Einträge: ohne sec zählt nur mit at (playsave schreibt Feld für Feld, at zuletzt), sonst würde ein halb gespeicherter neuer Eintrag mitgenommen
+  for(const x of listOf(S.food.play).filter(y=>!y.moved&&(y.sec==="spielplatz"||(!y.sec&&y.at&&y.name)))){const tid="tpl_"+x.id,st=playSt(x),note=[x.age?"Ab "+x.age+" Jahren.":"",x.note||""].filter(Boolean).join(" ").slice(0,500),o={name:x.name||"Spielplatz",kind:"spiel",at:x.at||Date.now(),by:x.by||"",done:st==="erledigt"};
+    if(x.emo)o.emo=x.emo;if(x.link)o.link=x.link;if(note)o.note=note;if(x.wx==="egal"||x.wx==="drinnen")o.wx="egal";if(st==="favorit")o.fav=true;if(st==="erledigt")o.doneAt=x.at||Date.now();
+    try{if(!(S.food.trip&&S.food.trip[tid]))await S.store.setPath("food/trip/"+tid,o);await S.store.setPath("food/play/"+x.id+"/moved","trip:"+tid)}catch(_){S.migPlay=0;return}}}
 function nameFromLink(u){try{const p=new URL(u).pathname.split("/").filter(Boolean);let s=p.reverse().find(x=>/[a-zäöüß]{3}/i.test(x)&&!/^\d+$/.test(x))||"";s=decodeURIComponent(s).replace(/\.(html?|php|aspx?)$/i,"").replace(/[-_+]+/g," ").replace(/\b\d{3,}\b/g,"").replace(/\s+/g," ").trim();return s?s.charAt(0).toUpperCase()+s.slice(1):""}catch(_){return ""}}
 // Sport und Spiel im Gemerkt-Bauplan (Florian 17.11.2026, wie Reisen und Musik): eine Karte „🔖 Gemerkt“ mit „＋ Merken“ und 🗺️ (Spielplatz-Karte),
 // zwei wischbare Filterzeilen Art (S.playSec, "" = Alle, Sprung spiel|ps:<art>) und Wo/Stand (S.playF), Zeilen li.mk, Stand-Leiter am Schild (food/play/<id>/st, fav bleibt = Favorit)
@@ -3234,9 +3291,9 @@ const playSecOf=x=>{const s=x.sec||"spielplatz";return s==="links"||!playSecs().
 const playOut=x=>playSecOf(x)==="spielplatz"||x.wx==="draussen"||x.wx==="egal",playIn=x=>x.wx==="drinnen"||x.wx==="egal";
 const telPlain=s=>{let t=String(s||"");telNums(t).forEach(m=>{t=t.split(m).join("📞 "+telMask(m))});return t};
 function renderPlay(){const d=S.playDraft,PS=playSecs(),F=S.playF||"",cur=PS.find(s=>s[0]===S.playSec);
-  let h=`<div><div class="eyebrow">Mit dem Ball</div><h1>Sport und Spiel</h1></div>${bellRow("spiel")}`;
+  let h=`<div><div class="eyebrow">Kind</div><h1>Spielen</h1></div>${bellRow("spiel")}`;
   if(d){const sec=PS.find(s=>s[0]===d.sec)||PS[0],x=d.id&&plays().find(y=>y.id===d.id),one=(f,L)=>`<div class="unl">${L.map(c=>`<button class="chipbtn" data-plset="${f}" data-v="${c[0]}" aria-pressed="${d[f]===c[0]}">${c[1]}</button>`).join("")}</div>`,hint=PLAY_HINT[d.sec]||["",""];
-    return h+`<section class="card tripform"><h2>${d.id?"✎ Bearbeiten":"🔖 Merken bei Sport und Spiel"}</h2>
+    return h+`<section class="card tripform"><h2>${d.id?"✎ Bearbeiten":"🔖 Merken bei Spielen"}</h2>
     <div class="fld"><span>Art</span><div class="unl">${PS.map(s=>`<button type="button" class="chipbtn" data-plset="sec" data-v="${esc(s[0])}" aria-pressed="${d.sec===s[0]}">${esc(s[1])} ${esc(s[2])}</button>`).join("")}</div></div>
     ${d.sec==="zuhause"&&!d.id?`<label class="fld"><span>Link zur Spielidee (füllt den Namen vor)</span><input type="url" id="pl-link0" data-plf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off"></label>`:""}
     <label class="fld"><span>Name</span><input type="text" id="pl-name" data-plf="name" value="${esc(d.name)}" maxlength="80" placeholder="${esc(hint[0])}" autocomplete="off"></label>${emoFld("data-plf",d.emo,sec[1])}
@@ -3251,27 +3308,19 @@ function renderPlay(){const d=S.playDraft,PS=playSecs(),F=S.playF||"",cur=PS.fin
   const all=plays(),open=all.filter(x=>playSt(x)!=="erledigt"),cS={},STO={favorit:0,geplant:1,idee:2,erledigt:3};open.forEach(x=>{const k=playSecOf(x);cS[k]=(cS[k]||0)+1});
   const R=all.filter(x=>(!cur||playSecOf(x)===cur[0])&&(F==="draussen"?playOut(x):F==="drinnen"?playIn(x):true)&&(F==="erledigt"?playSt(x)==="erledigt":F==="favorit"?playSt(x)==="favorit":playSt(x)!=="erledigt"))
     .sort((a,b)=>STO[playSt(a)]-STO[playSt(b)]||(a.name||"").localeCompare(b.name||"","de"));
-  const n=S.playMore?R.length:Math.min(R.length,10),mapOn=!!(S.playMapShow||S.playMapEdit);
+  const n=S.playMore?R.length:Math.min(R.length,10);
   const chS=(v,t)=>`<button class="chipbtn neutral" data-playsec="${esc(v)}" aria-pressed="${(cur?cur[0]:"")===v}">${t}</button>`,chF=(v,t)=>`<button class="chipbtn neutral" data-playf="${v}" aria-pressed="${F===v}">${t}</button>`;
   const badge=x=>{const s=PLAY_ST.find(y=>y[0]===playSt(x))||PLAY_ST[0];return `<button class="stbadge st-${s[0]}" data-playst="${esc(x.id)}" aria-label="Stand von ${esc(x.name)}: ${s[2]}, antippen schaltet weiter">${s[1]} ${s[2]}</button>`};
   const row=x=>{const k=playSecOf(x),s=PS.find(p=>p[0]===k)||PS[PS.length-1],lk=safeLink(x.link),sp=k==="spielplatz",done=playSt(x)==="erledigt",nt=telPlain(x.note);
     const sub=[cur?"":s[2],x.age?"ab "+x.age:"",x.wx==="drinnen"?"☔ drinnen":x.wx==="draussen"?"☀️ draußen":x.wx==="egal"?"drinnen und draußen":"",x.when?"🕒 "+x.when:"",x.mat?"🧺 "+x.mat:""].filter(Boolean).join(" · ");
     return `<li class="mk"><button class="mkb" data-playedit="${esc(x.id)}" aria-label="${esc(x.name)} ansehen und ändern"><span class="mki">${esc(x.emo||s[1])}</span><span class="mkt"><b>${esc(x.name)}</b>${sub?`<span class="freq">${esc(sub)}</span>`:""}${nt?`<span class="freq">${esc(nt.length>90?nt.slice(0,88)+" …":nt)}</span>`:""}</span></button>${telA(x.note)}${lk||sp?`<a class="catbtn routebtn" href="${esc(lk||"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(x.name))}" target="_blank" rel="noopener" aria-label="${sp?"In Google Maps öffnen":"Link öffnen"}">${sp?"🗺️":"🔗"}</a>`:""}${sp&&!done?transitA(x.name):""}${badge(x)}</li>`};
-  h+=`<section class="card playcard"><div class="section-head" style="align-items:center"><h2>🔖 Gemerkt <span class="freq">(${open.length})</span></h2><span style="display:flex;gap:var(--sp2);align-items:center"><button class="iconbtn" data-act="plmapshow" aria-pressed="${mapOn}" aria-label="Spielplatz-Karte ${mapOn?"ausblenden":"zeigen"}">🗺️</button><button class="primary" data-act="playnew">＋ Merken</button></span></div>
+  h+=`<section class="card playcard"><div class="section-head" style="align-items:center"><h2>🔖 Gemerkt <span class="freq">(${open.length})</span></h2><button class="primary" data-act="playnew">＋ Merken</button></div>
     <div class="unl scrollrow">${chS("","Alle")}${PS.map(s=>chS(s[0],`${esc(s[1])} ${esc(s[2])}${cS[s[0]]?" "+cS[s[0]]:""}`)).join("")}${catBtn("play")}</div>
     <div class="unl scrollrow">${chF("","Alle")}${chF("draussen","☀️ Draußen")}${chF("drinnen","☔ Drinnen")}${chF("favorit","⭐ Favoriten")}${chF("erledigt","✅ Erledigt")}</div>`;
   h+=R.length?`<ul class="mklist">${R.slice(0,n).map(row).join("")}</ul>${R.length>n?`<button class="ghost small" data-act="playmore">Alle ${R.length} zeigen</button>`:""}`
-    :`<div class="freq">${all.length?"Für diesen Filter ist nichts gemerkt.":"Noch nichts gemerkt. Spielplätze, Spielideen für zu Hause, Sport und Kurse legt ihr mit ＋ Merken an. Ihr seht beide dieselbe Liste."}</div>`;
+    :`<div class="freq">${all.length?"Für diesen Filter ist nichts gemerkt.":"Noch nichts gemerkt. Spielideen für zu Hause, Sport und Kurse legt ihr mit ＋ Merken an. Ihr seht beide dieselbe Liste."}</div>`;
   if(cur&&cur[0]==="zuhause")h+=musLinks("kinder",3);
-  h+=`<div class="freq">Ein Tipp auf den Namen ändert den Eintrag, das Schild rechts schaltet den Stand weiter: 💡 Idee, ⭐ Favorit, 📅 Geplant, ✅ Erledigt.</div></section>`;
-  if(mapOn){const mu=(S.food&&S.food.playmap)||"",emb=mapsEmbed(mu);
-    if(S.playMapEdit)h+=`<section class="card"><h2>Eure Spielplatz-Karte</h2><div class="freq">So geht es: In Google Maps eine eigene Karte anlegen (am Handy unter „Gespeichert“ eine Liste, am Computer unter „Meine Karten“), Spielplätze hinzufügen, dann „Teilen“ und den Link hier einfügen. Ein Link aus „Meine Karten“ wird direkt hier angezeigt, eine Liste öffnet sich in Google Maps.</div>
-      <input type="url" id="pl-mapurl" value="${esc(S.playMapText)}" placeholder="https://maps.app.goo.gl/…" autocomplete="off" aria-label="Link zur Karte">
-      <div class="btnrow"><button class="primary" data-act="plmapsave">Speichern</button><button class="ghost" data-act="plmapcancel">Abbrechen</button></div></section>`;
-    else h+=`<section class="card"><div class="section-head"><h2>🗺️ Karte</h2><button class="ghost" data-act="plmapedit">${mu?"Link ändern":"Karte verknüpfen"}</button></div>
-      ${emb?`<iframe class="mapframe" src="${esc(emb)}" title="Eure Spielplatz-Karte" loading="lazy" referrerpolicy="no-referrer"></iframe><div class="btnrow"><a class="ghost linkbtn" href="${esc(mu)}" target="_blank" rel="noopener noreferrer">In Google Maps öffnen</a></div>`
-        :mu&&mapOk(mu)?`<div class="btnrow"><a class="primary linkbtn" href="${esc(mu)}" target="_blank" rel="noopener noreferrer">Eure Karte in Google Maps öffnen</a></div>`
-        :`<div class="freq">Noch keine Karte verknüpft. Jeder Spielplatz hat trotzdem ein 🗺️, das ihn in Google Maps sucht.</div>`}</section>`}
+  h+=`<div class="freq">Ein Tipp auf den Namen ändert den Eintrag, das Schild rechts schaltet den Stand weiter: 💡 Idee, ⭐ Favorit, 📅 Geplant, ✅ Erledigt.</div><div class="btnrow"><button class="ghost" data-nav="ausflug|rk:spielplatz">🛝 Spielplätze stehen unter Reisen und Ausflüge ›</button></div></section>`;
   return h}
 // ---------- Kita (Rucksack) ----------
 const KITA_SECS=[["termine","📅","Termine"],["essen","🍽️","Essen"],["tasche","📦","Mitbringen"],["infos","📝","Infos"]];
@@ -3297,8 +3346,8 @@ function parseKitaPlan(txt){const m=/(\d{1,2})\.(\d{1,2})\./.exec(txt||"");if(!m
 const kitaMeals=mon=>((S.food&&S.food.kitaplan)||{})[wkKey(mon)]||{};
 const KITA_BAG=["Wechselkleidung","Windeln","Feuchttücher","Matschhose","Gummistiefel","Hausschuhe","Sonnenhut","Sonnencreme","Brotdose","Trinkflasche","Kuscheltier"];
 const kitas=()=>listOf(S.food&&S.food.kita);
-const PRIO_FROM={essen:["🍲","Essen"],woche:["🧹","Woche"],kita:["🎒","Kita"],projekte:["🗃️","Sammlung"],amhaus:["🛠️","Am Haus"],geschenke:["🎁","Geschenke"],ausflug:["🚲","Ausflüge"],spiel:["⚽","Sport und Spiel"],einkauf:["🧺","Einkauf"],rezepte:["📖","Rezepte"],mittag:["🫶","Partner"],frei:["📌",""]};
-const PRIO_AREAS=[["frei","📌","Allgemein"],["woche","🧹","Woche"],["essen","🍲","Essen"],["einkauf","🧺","Einkauf"],["kita","🎒","Kita"],["ausflug","🚲","Ausflüge"],["reisen","⛵","Reisen"],["projekte","🗃️","Sammlung"],["amhaus","🛠️","Am Haus"],["geschenke","🎁","Geschenke"],["spiel","⚽","Sport und Spiel"]];
+const PRIO_FROM={essen:["🍲","Essen"],woche:["🧹","Woche"],kita:["🎒","Kita"],projekte:["🗃️","Sammlung"],amhaus:["🛠️","Am Haus"],geschenke:["🎁","Geschenke"],ausflug:["🚲","Ausflüge"],spiel:["⚽","Spielen"],einkauf:["🧺","Einkauf"],rezepte:["📖","Rezepte"],mittag:["🫶","Partner"],frei:["📌",""]};
+const PRIO_AREAS=[["frei","📌","Allgemein"],["woche","🧹","Woche"],["essen","🍲","Essen"],["einkauf","🧺","Einkauf"],["kita","🎒","Kita"],["ausflug","🚲","Ausflüge"],["reisen","⛵","Reisen"],["projekte","🗃️","Sammlung"],["amhaus","🛠️","Am Haus"],["geschenke","🎁","Geschenke"],["spiel","⚽","Spielen"]];
 const PRIO_TPL={frei:["Anrufen","Termin ausmachen","Rechnung bezahlen","Geburtstag"],woche:["Bettwäsche wechseln","Fenster putzen","Müll rausstellen"],essen:["Fleisch auftauen","Für Rezept einkaufen","Brot backen","Essen vorkochen"],einkauf:["Wocheneinkauf","Pfand wegbringen","Drogerie"],kita:["Wechselkleidung mitgeben","Beitrag zahlen","Foto mitbringen","Abholung klären"],ausflug:["Tickets buchen","Wetter prüfen","Packliste durchgehen"],reisen:["Pässe prüfen","Auto checken lassen","Kita abmelden","Unterkunft bestätigen"],projekte:["Idee besprechen"],geschenke:["Geschenk besorgen","Geschenk einpacken"],amhaus:["Handwerker anrufen","Filter wechseln","Pflanzen gießen"],spiel:["Kurs anmelden","Schwimmsachen packen"]};
 const TAB_FROM={reisen:"reisen",essen:"essen",einkauf:"einkauf",kita:"kita",ausflug:"ausflug",projekte:"projekte",amhaus:"amhaus",geschenke:"geschenke",spiel:"spiel",woche:"woche"};
 const prios=()=>listOf(S.food&&S.food.prio).sort((a,b)=>((a.due||"")+(a.time||"")+(a.at||0))<((b.due||"")+(b.time||"")+(b.at||0))?-1:1);
@@ -3355,7 +3404,7 @@ function renderPrioMask(){const d=S.prioDraft,f=d.from||"frei",tpl=(PRIO_TPL[f]|
    <div class="btnrow"><button class="primary" data-act="pmsave">Speichern</button><button class="ghost" data-act="pmcancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="pmdel">Löschen</button>`:""}</div></section>${d.id?"":BULK_CARD}`}
 function renderWichtig(){if(S.prioDraft)return renderPrioMask();const today=ymd(new Date()),k=S.prioSort||"datum",list=prioSorted();let h=`<div><div class="eyebrow">Alle Erinnerungen</div><h1>🔔 Wichtig</h1></div><div class="btnrow"><button class="primary" data-prionew="frei">＋ Neue Erinnerung</button></div><div class="freq">Hier stehen alle Erinnerungen. ✎ ändert Text, Tag, Uhrzeit und Wiederholung. Benachrichtigung aufs Handy kommt später; bis dahin zeigt die Glocke oben, was heute fällig ist.</div><div class="filters" role="group" aria-label="Sortieren">${PRIO_SORT.map(x=>`<button class="chipbtn neutral" data-priosort="${x[0]}" aria-pressed="${k===x[0]}">${x[1]}</button>`).join("")}</div>`;h+=rInbox(false);h+=choiceCard();
   {const T=bellItems().T;if(T.length)h+=`<section class="card"><div class="section-head"><h2>📅 Termine mit Glocke</h2><span class="freq num">${T.length}</span></div><ul class="evlist">${T.map(e=>evRow(e,true)).join("")}</ul></section>`}
-  if(!list.length)return h+`<div class="empty"><h2>Nichts Wichtiges</h2><div>Tippt in Kita, Essen, Einkauf, Ideen, Am Haus, Ausflügen oder Sport und Spiel auf die Glocke 🔔. Dann steht der Eintrag hier und auf der Startseite.</div></div><section class="card"><form class="addrow" id="prioform" style="margin-top:6px" novalidate><input type="text" id="prioinput" placeholder="Etwas Wichtiges notieren" value="${esc(S.prioText||"")}" autocomplete="off" enterkeyhint="done" aria-label="Wichtiges notieren"><button class="primary" type="submit">+</button></form></section>`;
+  if(!list.length)return h+`<div class="empty"><h2>Nichts Wichtiges</h2><div>Tippt in Kita, Essen, Einkauf, Ideen, Am Haus, Ausflügen oder Spielen auf die Glocke 🔔. Dann steht der Eintrag hier und auf der Startseite.</div></div><section class="card"><form class="addrow" id="prioform" style="margin-top:6px" novalidate><input type="text" id="prioinput" placeholder="Etwas Wichtiges notieren" value="${esc(S.prioText||"")}" autocomplete="off" enterkeyhint="done" aria-label="Wichtiges notieren"><button class="primary" type="submit">+</button></form></section>`;
   const sec=(t,a)=>a.length?`<section class="card"><div class="section-head"><h2>${t}</h2><span class="freq num">${a.length}</span></div>${a.map(prioRow).join("")}</section>`:"";
   if(k==="datum"){const tm=ymd(addDays(new Date(),1));h+=sec("Heute und überfällig",list.filter(x=>x.due&&x.due<=today))+sec("Morgen",list.filter(x=>x.due===tm))+sec("Später",list.filter(x=>x.due&&x.due>tm))+sec("Ohne Datum",list.filter(x=>!x.due))}
   else if(k==="bereich")Object.keys(PRIO_FROM).forEach(f=>{h+=sec(PRIO_FROM[f][0]+" "+(PRIO_FROM[f][1]||"Notizen"),list.filter(x=>(PRIO_FROM[x.from]?x.from:"frei")===f))});
@@ -3495,7 +3544,7 @@ const RSRC=[{key:"ideen",file:"ideen.json",get:()=>S.ideas,lab:"📖 Tagesrezept
   {key:"reise",file:"reisefunde.json",get:()=>S.rfunde,lab:"🧭 Reisen und Ausflüge",nav:"ausflug|tt:recherche",n:j=>(j.items||[]).length},
   {key:"atipp",file:"ausflugtipps.json",get:()=>S.atipps,lab:"🗓️ Was ist los (Ausflüge)",nav:"ausflug|tt:ideen",n:j=>(j.items||[]).length},
   {key:"haus",file:"hausfunde.json",get:()=>S.hfunde,lab:"🛠️ Am Haus",nav:"amhaus|",n:j=>(j.items||[]).length}];
-const RAREA=[["rezepte","📖","Rezepte"],["reisen","🧭","Reisen und Ausflüge"],["haus","🛠️","Am Haus"],["spiel","⚽","Sport und Spiel"],["musik","🎵","Musik"],["kita","🎒","Kita"],["sonst","🔎","Sonstiges"]];
+const RAREA=[["rezepte","📖","Rezepte"],["reisen","🧭","Reisen und Ausflüge"],["haus","🛠️","Am Haus"],["spiel","⚽","Spielen"],["musik","🎵","Musik"],["kita","🎒","Kita"],["sonst","🔎","Sonstiges"]];
 const RRHY=[["taeglich","täglich"],["woechentlich","wöchentlich"],["monatlich","monatlich"],["einmal","einmal"]];
 const rArea=k=>RAREA.find(a=>a[0]===k)||RAREA[RAREA.length-1];
 const rDate=u=>{const m=String(u||"").match(/(\d{4})-(\d\d)-(\d\d)/);return m?`${+m[3]}.${+m[2]}.`:""};
@@ -3557,7 +3606,7 @@ function searchHits(q){const W=sNorm(q).split(/\s+/).filter(Boolean);if(!W.lengt
   urlaube().forEach(x=>add("Reisen und Ausflüge",x.emo||"⛵",x.name,"Urlaub"+(x.place?" · "+x.place:""),`data-reise="${esc(x.id)}"`,x.note));
   trips().forEach(x=>add("Reisen und Ausflüge","🚲",x.name,"Ausflug",'data-nav="ausflug|tt:ideen"',x.note));
   listOf(F.fund).forEach(x=>{const h=x.area==="haus";add(h?"Am Haus":"Reisen",fundKind(x.kind,h?"haus":"reise")[1],x.name,(h?"Gemerkt Am Haus":"Gemerkt für unterwegs")+(x.place?" · "+x.place:""),h?(x.proj?`data-hproj="${esc(x.proj)}"`:'data-nav="amhaus|hs:wohnen"'):(x.reise?`data-reise="${esc(x.reise)}"`:'data-nav="ausflug|tt:recherche"'),x.note)});
-  plays().forEach(x=>add("Sport und Spiel","⚽",x.name,(playSecs().find(p=>p[0]===x.sec)||[0,0,"Sonstiges"])[2],`data-nav="spiel|ps:${esc(x.sec||"sonst")}"`,x.note));
+  plays().forEach(x=>add("Spielen","⚽",x.name,(playSecs().find(p=>p[0]===playSecOf(x))||[0,0,"Sonstiges"])[2],`data-nav="spiel|ps:${esc(playSecOf(x))}"`,x.note));
   musics().forEach(x=>{const a=musArt(x);add("Musik",x.emo||a[1],x.name,a[2],`data-nav="musik|ma:${a[0]}"`,[x.note,x.txt].filter(Boolean).join(" "))});
   return H}
 function renderSearch(){const q=S.sq||"",H=searchHits(q);
@@ -3582,7 +3631,7 @@ function render(){
   if(!S.config&&!S.cfgConfirmed&&!S.timedOut){app.innerHTML=h+`<div class="empty">Plan wird geladen …</div>`;return}
   if(!S.config){h+=`<div class="empty"><h2>Noch kein Haushaltsplan hinterlegt</h2><div>Legt euren Plan aus der Vorlage an (eure Liste mit Müll, Saugen, Wäsche und Co.). Danach könnt ihr alles unter „Plan“ anpassen.</div><button class="primary" data-act="template">Plan aus Vorlage anlegen</button></div>`;app.innerHTML=h;return}
   h+=`<div class="appbar"><span class="appleft"><button class="iconbtn bellnav" data-go="wichtig" aria-label="Wichtig: alle Erinnerungen">🔔${(n=>n?`<b class="badge">${n}</b>`:"")(bellItems().n)}</button></span><span class="appleft"><button class="iconbtn" data-go="suche" aria-label="Suche"${S.tab==="suche"?' aria-pressed="true"':""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button><button class="iconbtn" data-go="settings" aria-label="Einstellungen"${S.tab==="settings"?' aria-pressed="true"':""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button><button class="iconbtn" data-allar aria-label="Alle Bereiche"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></svg></button></span></div>`;
-  h+=S.tab==="ausgaben"?shopPager(1)+renderGeld():S.tab==="listen"?shopPager(0)+renderBuy():S.tab==="wichtig"&&!S.prioDraft?startPager(2)+renderWichtig():S.tab==="bereiche"?renderAreas():S.tab==="settings"?renderSettings():S.tab==="wichtig"?renderWichtig():S.tab==="woche"?((S.weekPage|0)===3?startPager(1)+renderCal():weekPager()+((S.weekPage|0)===0?(+S.view===+mondayOf(new Date())?renderTag():"")+renderWeek():renderWmw())):S.tab==="camp"?renderCamp():S.tab==="essen"||S.tab==="einkauf"?renderFood():S.tab==="ausflug"?renderTrips():PROJ_TABS.includes(S.tab)?renderProjects():S.tab==="spiel"?renderPlay():S.tab==="musik"?renderMusic():S.tab==="recherchen"?renderResearch():S.tab==="suche"?renderSearch():S.tab==="kita"?renderKita():S.tab==="privat"?wirPager(0)+renderPrivat():S.tab==="kind"?wirPager(1)+renderKind():S.tab==="post"?(S.tab="privat",S.privSec="briefe",wirPager(0)+renderPrivat()):S.tab==="reisen"?renderTrips():renderCamp();
+  h+=S.tab==="ausgaben"?shopPager(1)+renderGeld():S.tab==="listen"?shopPager(0)+renderBuy():S.tab==="wichtig"&&!S.prioDraft?startPager(2)+renderWichtig():S.tab==="bereiche"?renderAreas():S.tab==="settings"?renderSettings():S.tab==="wichtig"?renderWichtig():S.tab==="woche"?((S.weekPage|0)===3?startPager(1)+renderCal():weekPager()+((S.weekPage|0)===0?(+S.view===+mondayOf(new Date())?renderTag():"")+renderWeek():renderWmw())):S.tab==="camp"?renderCamp():S.tab==="essen"||S.tab==="einkauf"?renderFood():S.tab==="ausflug"?renderTrips():PROJ_TABS.includes(S.tab)?renderProjects():S.tab==="spiel"?areaPager("spiel")+renderPlay():S.tab==="musik"?renderMusic():S.tab==="recherchen"?areaPager("recherchen")+renderResearch():S.tab==="suche"?renderSearch():S.tab==="kita"?areaPager("kita")+renderKita():S.tab==="privat"?wirPager(0)+renderPrivat():S.tab==="kind"?areaPager("kind")+renderKind():S.tab==="post"?(S.tab="privat",S.privSec="briefe",wirPager(0)+renderPrivat()):S.tab==="reisen"?renderTrips():renderCamp();
   const y=window.scrollY,ae=document.activeElement,fid=ae&&app.contains(ae)&&ae.id?ae.id:null,sel=fid&&ae.selectionStart!=null?[ae.selectionStart,ae.selectionEnd]:null;
   h+=renderPick();app.innerHTML=h;window.scrollTo(0,y);syncNav();
   if(fid){const el=document.getElementById(fid);if(el){el.focus({preventScroll:true});if(sel){try{el.setSelectionRange(sel[0],sel[1])}catch(_){}}}}
@@ -3654,7 +3703,8 @@ const tapCur=t=>(TAP_AT[t]||[]).findIndex(f=>f());
 // Oben Angeheftet (lange auf einen Eintrag drücken, je Gerät hq-arfav) oder zuletzt Benutztes (hq-arrec). Tipp daneben, ✕ und Zurück schließen.
 const AR_EXTRA={alltag:[[1,["📅","Kalender","woche|wp:3",[]]]],quer:[[0,["🏠","Start","camp|",[]]],[2,["🔍","Suche","suche|",[]]],[99,["❓","Glossar","settings|gl:",[]]]]};
 const AR_COLS=[["essen","alltag","zuhause"],["wir","freizeit"]];
-function arGroups(){return AREA_GROUPS.map(g=>{const L=AREAS.filter(a=>a[6]===g[0]).map(a=>[a[0],a[1],a[2]+"|",a[5]().map(x=>[x[0],a[2]+"|"+x[1]])]);(AR_EXTRA[g[0]]||[]).forEach(([i,e])=>L.splice(i,0,e));return [g,L]})}
+// Bereiche mit Seiten (AREA_PAGES): nur die Hauptseite steht groß da, die übrigen Seiten zuerst als Unterpunkte (in Quer bleiben alle als Knopf)
+function arGroups(){return AREA_GROUPS.map(g=>{const q=g[0]==="quer",L=AREAS.filter(a=>a[6]===g[0]&&(q||!areaMain(a[2])||areaMain(a[2])===a[2])).map(a=>{const P=!q&&AREA_PAGES[a[2]],sub=a[5]().map(x=>[x[0],a[2]+"|"+x[1]]);return P?[P[0],P[1],a[2]+"|",P[2].slice(1).map(p=>[p[1],p[0]+"|"]).concat(sub)]:[a[0],a[1],a[2]+"|",sub]});(AR_EXTRA[g[0]]||[]).forEach(([i,e])=>L.splice(i,0,e));return [g,L]})}
 // Alle Ziele flach [Symbol, Name, Sprung] für Angeheftet/Zuletzt; Unterseiten mit allgemeinem Namen bekommen den Bereich davor
 const arAll=()=>arGroups().flatMap(([g,L])=>L.flatMap(a=>[[a[0],a[1],a[2]]].concat(a[3].map(s=>[a[0],/^(Heute|Termine|Infos|Sonstiges)$/.test(s[0])?a[1]+" · "+s[0]:s[0],s[1]]))));
 const arTile=v=>arAll().find(t=>t[2]===v);
@@ -3699,10 +3749,12 @@ new MutationObserver(()=>{const open=ovlOpen();
 // ---------- Fächer (Florian 17.11.2026, „So bauen, Kachel bleibt“): lange auf Start = Familie und Zuhause, lange auf Einkauf = Freizeit und Gemerktes ----------
 // Statt Alle Bereiche (die bleibt über die Kachel oben rechts und als Eintrag im Fächer). Einträge aus AREAS (Symbol, Name, Sprung). Nach dem langen Drücken
 // kann der Finger auf einen Eintrag gleiten und dort loslassen; sonst bleibt der Fächer offen, Tipp auf einen Eintrag öffnet ihn, Tipp daneben oder Zurück schließt.
-const FAN={camp:["Familie und Zuhause",["kita","kind","privat","geschenke","amhaus"]],einkauf:["Freizeit und Gemerktes",["ausflug","spiel","musik","projekte","recherchen"]]};
-const fanItems=k=>FAN[k][1].map(t=>AREAS.find(a=>a[2]===t)).filter(Boolean).map(a=>[a[0],a[1],a[4]||a[2]+"|"]);
+// Seit der Bündelung (Florian 17.11.2026, „A neu“): je Seite drei Bereiche, deren weitere Seiten als kleine Knöpfe daneben (FAN_SUB, sonst aus AREA_PAGES)
+const FAN={camp:["Familie und Zuhause",["kind","privat","amhaus"]],einkauf:["Freizeit und Gemerktes",["ausflug","musik","projekte"]]};
+const FAN_SUB={ausflug:[["Packlisten","ausflug|tt:pack"]]};
+const fanItems=k=>FAN[k][1].map(t=>AREAS.find(a=>a[2]===t)).filter(Boolean).map(a=>{const P=AREA_PAGES[a[2]];return P?[P[0],P[1],a[2]+"|",P[2].slice(1).map(p=>[p[1],p[0]+"|"])]:[a[0],a[1],a[4]||a[2]+"|",FAN_SUB[a[2]]||[]]});
 function fanHtml(k){const tb=document.getElementById("tabs").getBoundingClientRect(),bt=document.querySelector(`#tabs [data-tab="${k}"]:not([hidden])`),r=bt?bt.getBoundingClientRect():null,cur=arCur();
-  return `<div class="fanbg"></div>${r?`<div class="fanring" style="left:${Math.round(r.left+r.width/2-30)}px;top:${Math.round(r.top+4)}px"></div>`:""}<div class="fanlist" role="menu" aria-label="${esc(FAN[k][0])}" style="bottom:${Math.max(16,Math.round(innerHeight-tb.top+14))}px">${fanItems(k).map(t=>`<button class="fanit${t[2]===cur?" on":""}" role="menuitem" data-fannav="${esc(t[2])}"><span>${t[0]}</span><b>${esc(t[1])}</b></button>`).join("")}<button class="fanall" data-fanall>Alle Bereiche ›</button><div class="fanttl">${esc(FAN[k][0])}</div></div>`}
+  return `<div class="fanbg"></div>${r?`<div class="fanring" style="left:${Math.round(r.left+r.width/2-30)}px;top:${Math.round(r.top+4)}px"></div>`:""}<div class="fanlist" role="menu" aria-label="${esc(FAN[k][0])}" style="bottom:${Math.max(16,Math.round(innerHeight-tb.top+14))}px">${fanItems(k).map(t=>`<div class="fanrow"><button class="fanit${t[2]===cur?" on":""}" role="menuitem" data-fannav="${esc(t[2])}"><span>${t[0]}</span><b>${esc(t[1])}</b></button>${t[3].map(s=>`<button class="fansub${s[1]===cur?" on":""}" role="menuitem" data-fannav="${esc(s[1])}">${esc(s[0])}</button>`).join("")}</div>`).join("")}<button class="fanall" data-fanall>Alle Bereiche ›</button><div class="fanttl">${esc(FAN[k][0])}</div></div>`}
 function fanOpen(k,byPress){if(document.getElementById("fan")||!FAN[k])return;if(byPress)try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}
   S.fan={k,armed:!byPress,at:byPress?Date.now():0};const el=document.createElement("div");el.id="fan";el.className=k==="einkauf"?"r":"l";el.innerHTML=fanHtml(k);document.body.appendChild(el);
   el.addEventListener("click",e=>{const f=S.fan;if(!f)return;if(!f.armed||Date.now()-f.at<300){e.preventDefault();return}
@@ -3974,7 +4026,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="playmore"){S.playMore=true;render();return}
   if(b.dataset.plset){const d=S.playDraft;if(d){const f=b.dataset.plset,v=b.dataset.v;d[f]=d[f]===v&&f!=="sec"&&f!=="st"?"":v;render()}return}
   if(b.dataset.playfav){const x=plays().find(y=>y.id===b.dataset.playfav);if(x){try{await S.store.setPath("food/play/"+x.id+"/fav",x.fav?null:true)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}return}
-  if(b.dataset.act==="playnew"){const F=S.playF||"";S.playDraft={id:null,sec:S.playSec||"spielplatz",name:"",note:"",link:"",age:"",wx:F==="drinnen"||F==="draussen"?F:"",mat:"",when:"",st:F==="favorit"?"favorit":"idee"};render();window.scrollTo(0,0);const el=document.getElementById("pl-name");if(el)el.focus();return}
+  if(b.dataset.act==="playnew"){const F=S.playF||"";S.playDraft={id:null,sec:S.playSec||"zuhause",name:"",note:"",link:"",age:"",wx:F==="drinnen"||F==="draussen"?F:"",mat:"",when:"",st:F==="favorit"?"favorit":"idee"};render();window.scrollTo(0,0);const el=document.getElementById("pl-name");if(el)el.focus();return}
   if(b.dataset.playedit){const x=plays().find(y=>y.id===b.dataset.playedit);if(x){S.playDraft={id:x.id,sec:playSecOf(x),st:playSt(x),emo:x.emo||"",name:x.name||"",note:x.note||"",link:x.link||"",age:x.age||"",wx:x.wx||"",mat:x.mat||"",when:x.when||""};render();window.scrollTo(0,0)}return}
   if(b.dataset.act==="playcancel"){S.playDraft=null;render();return}
   if(b.dataset.act==="playsave"){const d=S.playDraft,name=(d.name||"").trim().slice(0,80);if(!name){toast("Bitte einen Namen eintragen");return}
@@ -4064,6 +4116,8 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="gotasks"){goTasks(b.classList.contains("bring2")?"day":"");return}
   if(b.dataset.catman){catManage(b.dataset.catman);return}
   if(b.dataset.advren){const c=advCals().find(x=>x.id===b.dataset.advren);if(!c)return;editBox("Adventskalender",[{k:"name",label:"Name",type:"text",val:c.name},{k:"emo",label:"Symbol (optional)",type:"text",val:c.emo||""}],async V=>{const n=String(V.name||"").trim().slice(0,40);if(!n){toast("Bitte einen Namen eintragen.");return}await S.store.setPath("food/advent/"+c.id+"/name",n);await S.store.setPath("food/advent/"+c.id+"/emo",emoClean(V.emo));toast("Gespeichert")});return}
+  if(b.dataset.wtopen){S.wtOpen=S.wtOpen===b.dataset.wtopen?"":b.dataset.wtopen;render();return}
+  if(b.dataset.act==="wkmore"){S.wkMore=true;render();return}
   if(b.dataset.tfold){const k=b.dataset.tfold;S.tFold=S.tFold||{};S.tFold[k]=!tFoldOn(k,b.dataset.tdef==="1");try{localStorage.setItem("hq-tfold",JSON.stringify(S.tFold))}catch(_){}render();return}
   if(b.dataset.atipopen!=null){const O=S.atipOpen||(S.atipOpen={}),k=b.dataset.atipopen;O[k]=!O[k];render();return}
   if(b.dataset.atipwo!=null){S.atipWO=atipTog(atipWO(),b.dataset.atipwo,ATIP_WO);render();return}
@@ -4383,10 +4437,10 @@ function moveOpen(kind,id){const M=moveSrc(kind,id);if(!M)return;
       await shareSave(V.to,M.x.name,M.x.link,M.note);await M.drop();M.done();toast("Verschoben nach "+shareTo(V.to)[2]);shareGo(V.to)})}
 
 // ---------- Eigene Rubriken und Symbole (Florian 16.11.2026, „Alle ja“) ----------
-// Wie bei Musik: eigene Rubriken bei Sport und Spiel (Abschnitte), Arten von Ausflügen, Arten in der Sammlung (Reisen und Am Haus) und Ideen-Kacheln.
+// Wie bei Musik: eigene Rubriken bei Spielen (Abschnitte), Arten von Ausflügen, Arten in der Sammlung (Reisen und Am Haus) und Ideen-Kacheln.
 // Gespeichert in food/cats/<key>/<id> {ic,name,at}. Löschen setzt Einträge dieser Rubrik auf die Vorgabe (fb) zurück.
 const CAT_DEFS={
-  play:{lbl:"Rubrik bei Sport und Spiel",path:"play",field:"sec",fb:"sonst",ph:"z. B. Basteln",ic:"🎈"},
+  play:{lbl:"Rubrik bei Spielen",path:"play",field:"sec",fb:"sonst",ph:"z. B. Basteln",ic:"🎈"},
   trip:{lbl:"Art von Ausflug",path:"trip",field:"kind",fb:null,ph:"z. B. Burgen",ic:"🏰"},
   fund:{lbl:"Art bei Gemerkt (Reisen)",path:"fund",field:"kind",fb:"sonst",ph:"z. B. Souvenirs",ic:"🧭"},
   hfund:{lbl:"Art bei Gemerkt (Am Haus)",path:"fund",field:"kind",fb:"sonst",ph:"z. B. Bad",ic:"🛁"},
@@ -4716,7 +4770,7 @@ function start(store,mode){S.store=store;S.mode=mode;let gotCfg=false,gotWeeks=f
   store.listen((cfg,fromCache)=>{S.config=cfg;if(cfg&&!fromCache&&Array.isArray(cfg.tasks)&&!(cfg.mig&&cfg.mig.saug1))migSaugen(cfg);else if(cfg&&!fromCache&&Array.isArray(cfg.tasks)&&!(cfg.mig&&cfg.mig.bring1))migBring(cfg);if(!fromCache){gotCfg=true;S.cfgConfirmed=true}if(gotCfg&&gotWeeks){clearTimeout(timer);S.timedOut=false}render()},
     (w,fromCache)=>{S.weeks=w;if(!fromCache)gotWeeks=true;if(gotCfg&&gotWeeks){clearTimeout(timer);S.timedOut=false}render()},
     err=>{clearTimeout(timer);toast("Verbindung zu den gemeinsamen Daten verloren. Seite neu öffnen.")},
-    food=>{S.food=food||{};migSpiel();migShopBell();geldFixBook();render()});// Florian 16.11.2026: früher nur bestimmte Bereiche, dadurch fehlten nach dem Neuladen auf Woche/Kalender/Suche Essen, Kita und Termine
+    food=>{S.food=food||{};migSpiel();migShopBell();migPlayTrip();geldFixBook();render()});// Florian 16.11.2026: früher nur bestimmte Bereiche, dadurch fehlten nach dem Neuladen auf Woche/Kalender/Suche Essen, Kita und Termine
   try{fetch("wochenideen.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.wideas=j;if(S.tab==="essen")render()}}).catch(()=>{})}catch(_){}
   try{fetch("hausfunde.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.hfunde=j;if(S.tab==="amhaus")render()}}).catch(()=>{})}catch(_){}
   shareIn();

@@ -17,12 +17,13 @@ srv.listen(8765,async()=>{
   await A.fill('#projinput','Lampe im Flur tauschen');await A.press('#projinput','Enter');await A.waitForTimeout(200);
   await B.click('.spot[data-go=amhaus]');await B.waitForSelector('.tiles');const cnt=await B.$$eval('.tile .tc',l=>l.map(x=>x.textContent));
   await B.goBack();await B.waitForTimeout(200);
-  // Spielplatz-Karte
-  await B.click('.spot[data-go=spiel]');await B.click('[data-act=plmapshow]');await B.click('[data-act=plmapedit]');await B.fill('#pl-mapurl','https://www.google.com/maps/d/viewer?mid=1AbCdEfGhIjKlMnOpQ');await B.click('[data-act=plmapsave]');await B.waitForTimeout(300);
-  const ifr=!!(await B.$('iframe.mapframe'));
-  await B.click('[data-act=playnew]');await B.fill('#pl-name','Spielplatz am Hafen');await B.click('[data-act=playsave]');await B.waitForTimeout(300);
-  const mapHref=await B.$eval('.playcard .mk a.catbtn',e=>e.href);
+  // Spielplätze (seit der Bündelung 17.11.2026 unter Reisen und Ausflüge): die alte Spielplatz-Karte steht als Link in „Alle Ziele auf einer Karte“, neue Spielplätze kommen über ＋ Merken
+  await B.evaluate(()=>{const k=/k=([^&]+)/.exec(location.href)[1];return fetch('/haushalt/'+k+'/food/playmap.json',{method:'PUT',body:JSON.stringify('https://www.google.com/maps/d/viewer?mid=1AbCdEfGhIjKlMnOpQ')})});await B.waitForTimeout(400);
+  await B.evaluate(()=>{const b=document.createElement("button");b.dataset.nav="ausflug|rk:spielplatz";b.id="zz";document.getElementById("app").appendChild(b)});await B.click("#zz");await B.waitForTimeout(400);
+  await B.click('[data-tfold=rmap]');await B.waitForTimeout(200);const ifr=!!(await B.$('a[href*="maps/d/viewer"]'));
+  await B.click('.rgcard [data-act=merken]');await B.waitForSelector('#mbox');await B.fill('#mbox input[type=text]','Spielplatz am Hafen');await B.click('#mbox [data-ebk=kind][data-ebv=spielplatz]');await B.click('#mbox button[type=submit]');await B.waitForTimeout(500);
+  const mapHref=await B.$$eval('.rgcard .mk',l=>{const x=l.find(y=>/Spielplatz am Hafen/.test(y.innerText));return x&&x.querySelector('[data-route]')?'route':''});
   await B.screenshot({path:out+'/spielplatz-karte.png',fullPage:true});
   console.log({lt,ht,quick,h2,cnt,ifr,mapHref,errs});
-  const ok=!errs.length&&lt.join()==='sonst,alle'&&ht.join()==='wohnen,garten'&&!quick&&/Einrichtung/.test(h2)&&cnt[0]==='1 offen'&&cnt[1]==='1 offen'&&ifr&&/maps\/search/.test(mapHref);
+  const ok=!errs.length&&lt.join()==='sonst,alle'&&ht.join()==='wohnen,garten'&&!quick&&/Einrichtung/.test(h2)&&cnt[0]==='1 offen'&&cnt[1]==='1 offen'&&ifr&&mapHref==='route';
   console.log(ok?'PROJ OK':'PROJ FAIL');await b.close();srv.close();process.exit(0)});

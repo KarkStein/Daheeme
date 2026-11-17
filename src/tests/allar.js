@@ -19,12 +19,12 @@ srv.listen(8765,async()=>{
   await A.tap('[data-allar]');await A.waitForTimeout(300);await A.tap('#allar [data-arnav="musik|"]');await A.waitForTimeout(400);r.musik=await A.$eval('#app h1',e=>e.innerText);r.closed=!(await has());
   await A.goBack();await A.waitForTimeout(400);r.backTo=await A.$eval('#app h1',e=>e.innerText);
   // 4) Anheften per langem Drücken; oben "Angeheftet"
-  await A.tap('[data-allar]');await A.waitForTimeout(400);await A.dispatchEvent('#allar [data-arnav="kita|"]','contextmenu');await A.waitForTimeout(700);r.pinLbl=await A.$eval('#allar .arlbl',e=>e.innerText);r.pinFirst=await A.$eval('#allar .artop [data-arnav]',e=>e.dataset.arnav);r.pinMark=await A.$eval('#allar .armain[data-arnav="kita|"]',e=>e.classList.contains('fav'));await A.tap('#allar [data-arx]');await A.waitForTimeout(300);r.x=!(await has());
+  await A.tap('[data-allar]');await A.waitForTimeout(400);await A.dispatchEvent('#allar [data-arnav="amhaus|"]','contextmenu');await A.waitForTimeout(700);r.pinLbl=await A.$eval('#allar .arlbl',e=>e.innerText);r.pinFirst=await A.$eval('#allar .artop [data-arnav]',e=>e.dataset.arnav);r.pinMark=await A.$eval('#allar .armain[data-arnav="amhaus|"]',e=>e.classList.contains('fav'));await A.tap('#allar [data-arx]');await A.waitForTimeout(300);r.x=!(await has());
   // 5) Schnellmenü im Bild: Zurück schließt es
   await A.tap('#tabs [data-tab=camp]');await A.waitForTimeout(400);await A.dispatchEvent('.spot[data-go=woche]','contextmenu');await A.waitForTimeout(300);r.qopen=!!(await A.$('#mbox'));await A.goBack().catch(()=>{});await A.waitForTimeout(400);r.qback=!(await A.$('#mbox'));r.qcamp=!!(await A.$('.camp'));
   // 6) Schnellmenü per Tipp daneben: kein toter Schritt im Verlauf
   await A.dispatchEvent('.spot[data-go=woche]','contextmenu');await A.waitForTimeout(800);await A.mouse.click(195,8);await A.waitForTimeout(400);r.qout=!(await A.$('#mbox'));
   r.afterQ=await A.evaluate(()=>JSON.stringify(history.state));
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&r.open&&r.stays&&r.groups.length===6&&r.tiles>=12&&r.subs>=25&&r.col&&r.noFoot&&r.pinMark&&r.fits&&r.outside&&/Essen/.test(r.stillEssen)&&r.top&&r.backClose&&/Essen/.test(r.backStay)&&/Musik/.test(r.musik)&&r.closed&&/Essen/.test(r.backTo)&&/angeheftet/i.test(r.pinLbl)&&r.pinFirst==='kita|'&&r.x&&r.qopen&&r.qback&&r.qcamp&&r.qout&&/camp/.test(r.afterQ)&&!/ov/.test(r.afterQ);
+  const ok=!errs.length&&r.open&&r.stays&&r.groups.length===6&&r.tiles>=8&&r.subs>=20&&r.col&&r.noFoot&&r.pinMark&&r.fits&&r.outside&&/Essen/.test(r.stillEssen)&&r.top&&r.backClose&&/Essen/.test(r.backStay)&&/Musik/.test(r.musik)&&r.closed&&/Essen/.test(r.backTo)&&/angeheftet/i.test(r.pinLbl)&&r.pinFirst==='amhaus|'&&r.x&&r.qopen&&r.qback&&r.qcamp&&r.qout&&/camp/.test(r.afterQ)&&!/ov/.test(r.afterQ);
   console.error(ok?'ALLAR OK':'ALLAR FAIL');await b.close();srv.close();process.exit(0)});

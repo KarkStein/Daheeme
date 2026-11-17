@@ -40,6 +40,6 @@ srv.listen(8765,async()=>{
   await nav('privat|');r.ppager=!!(await A.$('.pager [data-go=kind]'));
   console.error(JSON.stringify(r),errs);
   const n0=r.mon0[0],F=r.tue[0],J=r.thu[0];
-  const ok=!errs.length&&r.name==='Testkind'&&/Partner/.test(r.pager)&&/Testkind/.test(r.pager)&&r.h1==='Testkind'&&r.rows.length===5&&r.tue[0]===r.tue[1]&&r.thu[0]!==r.thu[1]&&/Kita zu/.test(r.rows[4])
-    &&r.mo[0]===r.mo[1]&&r.ho0==='p0'&&r.ov0==='null'&&r.split[0]!==r.split[1]&&r.ho0b&&r.ho0b.by==='p1'&&r.ho0b.half==='vm'&&r.ov0b==='null'&&r.kh[0]===r.kh[1]&&r.kh[0]!==r.mo[0]&&r.ho0c==='p1'&&r.ov0c==='null'&&/"ab":\["p1","p0","p0"/.test(r.rule1)&&r.noTick&&r.noIcon&&/"br"/.test(r.rule)&&/bringt/.test(r.dash)&&/holt ab/.test(r.dash)&&r.swing==='Testkind'&&r.ppager&&r.kvt.by==='p0'&&r.kvt.half==='vm'&&r.kv[0]!==r.kv[1]&&r.kv[1]===F;
+  const ok=!errs.length&&r.name==='Testkind'&&/Kita/.test(r.pager)&&/Spielen/.test(r.pager)&&/Testkind/.test(r.pager)&&r.h1==='Testkind'&&r.rows.length===5&&r.tue[0]===r.tue[1]&&r.thu[0]!==r.thu[1]&&/Kita zu/.test(r.rows[4])
+    &&r.mo[0]===r.mo[1]&&r.ho0==='p0'&&r.ov0==='null'&&r.split[0]!==r.split[1]&&r.ho0b&&r.ho0b.by==='p1'&&r.ho0b.half==='vm'&&r.ov0b==='null'&&r.kh[0]===r.kh[1]&&r.kh[0]!==r.mo[0]&&r.ho0c==='p1'&&r.ov0c==='null'&&/"ab":\["p1","p0","p0"/.test(r.rule1)&&r.noTick&&r.noIcon&&/"br"/.test(r.rule)&&/bringt/.test(r.dash)&&/holt ab/.test(r.dash)&&r.swing==='Testkind'&&!r.ppager&&r.kvt.by==='p0'&&r.kvt.half==='vm'&&r.kv[0]!==r.kv[1]&&r.kv[1]===F;
   console.error(ok?'KIND OK':'KIND FAIL');await b.close();srv.close();process.exit(0)});

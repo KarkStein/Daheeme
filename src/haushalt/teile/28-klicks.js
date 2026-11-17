@@ -230,7 +230,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="playmore"){S.playMore=true;render();return}
   if(b.dataset.plset){const d=S.playDraft;if(d){const f=b.dataset.plset,v=b.dataset.v;d[f]=d[f]===v&&f!=="sec"&&f!=="st"?"":v;render()}return}
   if(b.dataset.playfav){const x=plays().find(y=>y.id===b.dataset.playfav);if(x){try{await S.store.setPath("food/play/"+x.id+"/fav",x.fav?null:true)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}return}
-  if(b.dataset.act==="playnew"){const F=S.playF||"";S.playDraft={id:null,sec:S.playSec||"spielplatz",name:"",note:"",link:"",age:"",wx:F==="drinnen"||F==="draussen"?F:"",mat:"",when:"",st:F==="favorit"?"favorit":"idee"};render();window.scrollTo(0,0);const el=document.getElementById("pl-name");if(el)el.focus();return}
+  if(b.dataset.act==="playnew"){const F=S.playF||"";S.playDraft={id:null,sec:S.playSec||"zuhause",name:"",note:"",link:"",age:"",wx:F==="drinnen"||F==="draussen"?F:"",mat:"",when:"",st:F==="favorit"?"favorit":"idee"};render();window.scrollTo(0,0);const el=document.getElementById("pl-name");if(el)el.focus();return}
   if(b.dataset.playedit){const x=plays().find(y=>y.id===b.dataset.playedit);if(x){S.playDraft={id:x.id,sec:playSecOf(x),st:playSt(x),emo:x.emo||"",name:x.name||"",note:x.note||"",link:x.link||"",age:x.age||"",wx:x.wx||"",mat:x.mat||"",when:x.when||""};render();window.scrollTo(0,0)}return}
   if(b.dataset.act==="playcancel"){S.playDraft=null;render();return}
   if(b.dataset.act==="playsave"){const d=S.playDraft,name=(d.name||"").trim().slice(0,80);if(!name){toast("Bitte einen Namen eintragen");return}

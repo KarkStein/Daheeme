@@ -49,5 +49,5 @@ srv.listen(8765,async()=>{
     &&r.atipOpen&&/Was ist los \(2\)/.test(r.atipN)&&r.atipClosed&&r.atipBack
     &&r.rowScrolls&&r.afterRow==='Reisen und Ausflüge'&&r.afterH1==='Reisen und Ausflüge'&&/Packlisten/.test(r.afterTab)&&/Heute/.test(r.e0)&&r.e1==='Rezepte'&&r.e2==='Rezepte'&&r.eH1==='Essen'&&/Heute/.test(r.e3)
     &&r.merkenKinds>=8&&r.trip.includes('Wildpark Poing:fav')&&r.fund.includes('unterkunft:idee:u1:Ferienhaus am Strand')&&r.gemerkt.includes('Wildpark Poing')&&r.gemerkt.includes('Ferienhaus am Strand')
-    &&r.gH1==='Geschenke'&&r.gPager.length===3&&r.gAdv&&r.sH1==='Sammlung'&&r.samm.includes('Ferienhaus am Strand')&&r.haus.join()==='Einrichtung,Garten,Gemerkt';
+    &&r.gH1==='Geschenke'&&r.gPager.join()==='Partner,Geschenke'&&r.gAdv&&r.sH1==='Sammlung'&&r.samm.includes('Ferienhaus am Strand')&&r.haus.join()==='Einrichtung,Garten,Gemerkt';
   console.error(ok?'STUFE1 OK':'STUFE1 FAIL');await b.close();srv.close();process.exit(0)});

@@ -7,4 +7,4 @@ srv.listen(8765,async()=>{
   await A.fill('#pl-link0','https://www.familie.de/spielideen/hoehle-bauen-aus-decken-12345.html');await A.waitForTimeout(100);
   const nm=await A.$eval('#pl-name',e=>e.value);await A.screenshot({path:out+'/link.png',fullPage:true});
   await A.click('[data-act=playsave]');await A.waitForTimeout(300);const has=await A.$$eval('.playcard .mk a.catbtn',l=>l.map(x=>x.href));
-  console.log(secs,nm,has,errs);console.log(!errs.length&&secs.join()==='spielplatz,zuhause,sport,sonst'&&nm==='Hoehle bauen aus decken'&&has.length===1?'LINK OK':'LINK FAIL');await b.close();srv.close();process.exit(0)});
+  console.log(secs,nm,has,errs);console.log(!errs.length&&secs.join()==='zuhause,sport,sonst'&&nm==='Hoehle bauen aus decken'&&has.length===1?'LINK OK':'LINK FAIL');await b.close();srv.close();process.exit(0)});

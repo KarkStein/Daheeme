@@ -155,7 +155,8 @@ function reiseRow(){const l=urlaube(),hearts=x=>Object.values(x.hearts||{}).filt
 // Gemerkt für unterwegs: Ausflugsziele (food/trip, „Für hier“) und Gemerktes für Urlaube (food/fund) in einer Liste mit Filtern nach Art, Urlaub und Stand
 const tripSt=x=>x.done?"erledigt":x.date?"geplant":x.fav?"favorit":"idee";
 function rgItems(){const U=urlaube(),L=[];
-  trips().forEach(x=>{const k=tripKinds().find(c=>c[0]===x.kind);L.push({t:"t",id:x.id,ic:emoOf(x,k?k[1]:"🚲"),name:x.name,art:"ausflug",artL:"Ausflugsziel"+(k&&k[0]!=="sonst"?" · "+k[2]:""),u:"hier",st:tripSt(x),date:x.date,place:x.place||x.name,rain:x.wx==="egal",pack:x.pack&&packLists().find(p=>p.id===x.pack),at:x.at||0})});
+  // Ausflugsziele der Art Spielplatz (auch die aus Sport und Spiel umgezogenen) laufen unter der Art 🛝 Spielplatz
+  trips().forEach(x=>{const k=tripKinds().find(c=>c[0]===x.kind),sp=x.kind==="spiel";L.push({t:"t",id:x.id,ic:emoOf(x,k?k[1]:"🚲"),name:x.name,art:sp?"spielplatz":"ausflug",artL:sp?"Spielplatz":"Ausflugsziel"+(k&&k[0]!=="sonst"?" · "+k[2]:""),u:"hier",st:tripSt(x),date:x.date,place:x.place||x.name,rain:x.wx==="egal",pack:x.pack&&packLists().find(p=>p.id===x.pack),at:x.at||0})});
   funde("reise").forEach(f=>{const k=fundKind(f.kind,"reise"),u=f.reise&&U.find(y=>y.id===f.reise);L.push({t:"f",id:f.id,ic:k[1],name:f.name,art:k[0],artL:k[2]+(f.st==="gebucht"?" · gebucht":""),u:u?u.id:"hier",uL:u?(u.emo||"⛵")+" "+u.name:"",st:f.st==="gebucht"?"erledigt":f.st||"idee",place:f.addr||f.place||(u?f.name+" "+(u.place||""):""),ref:f.ref||"",at:f.at||0})});
   return L.sort((a,b)=>(b.at||0)-(a.at||0))}
 const refMask=r=>"****"+String(r||"").slice(-2);
@@ -181,7 +182,7 @@ function merkenOpen(pre){pre=pre||{};const U=urlaube().filter(u=>reiseSt(u)!=="e
     {k:"st",label:"Stand",type:"chips",opts:SAMM_ST.map(s=>[s[0],s[1]+" "+s[2]]),val:"idee"},
     {k:"n",type:"note",label:"Steht danach unter 🔖 Gemerkt, im Urlaub und in der 🗃️ Sammlung. Mit Datum (📅 Geplant) auch im Kalender."}],
   async V=>{const raw=String(V.name||"").trim();if(!raw){toast("Bitte eintragen, was ihr euch merken wollt.");return}const link=safeLink(raw),name=(link?nameFromLink(link):raw).slice(0,80),now=Date.now();
-    if(V.kind==="ausflug"&&!V.u){const id=newId("t"),o={name,at:now,by:S.me||""};if(link)o.link=link;if(V.st==="favorit")o.fav=true;if(V.st==="erledigt"){o.done=true;o.doneAt=now}
+    if((V.kind==="ausflug"||V.kind==="spielplatz")&&!V.u){const id=newId("t"),o={name,at:now,by:S.me||""};if(V.kind==="spielplatz")o.kind="spiel";if(link)o.link=link;if(V.st==="favorit")o.fav=true;if(V.st==="erledigt"){o.done=true;o.doneAt=now}
       await S.store.setPath("food/trip/"+id,o);if(V.st==="geplant")calDayPick(name,nextSat(),async k=>{try{await S.store.setPath("food/trip/"+id+"/date",k);toast("Steht am "+rDate(k)+" im Kalender")}catch(_){toast("Konnte nicht speichern.")}});else toast("🔖 "+name+" gemerkt");return}
     const kind=V.kind==="ausflug"?"erleben":V.kind||kindGuess(raw,link)||"sonst",o={name,kind,st:V.st==="erledigt"?"gebucht":V.st||"idee",at:now,by:S.me||""};if(V.u)o.reise=V.u;if(link)o.link=link;
     await S.store.setPath("food/fund/"+newId("f"),o);toast(fundKind(kind,"reise")[1]+" "+name+" gemerkt")})}
@@ -189,7 +190,7 @@ function tripHome(){const mu=(S.food&&S.food.reisemap)||"",emb=mapsEmbed(mu),E=u
   let h=reiseRow()+rgCard()+atipFixCards()+atipCard();
   {const F=freiNext(10);if(F.length)h+=foldCard("frei","🏖️ Ferien und Feiertage",F.length,`<ul class="evlist frei">${F.map(x=>`<li><span class="ev">${freiLine(x)}</span></li>`).join("")}</ul>${ferienList().length?"":`<div class="freq">Die Schulferien kommen gleich nach; Feiertage sind schon da.</div>`}`)}
   if(E.length)h+=foldCard("uerl","✅ Erledigte Urlaube",E.length,`<div class="urow">${E.map(x=>`<button class="ut st-erledigt" data-reise="${esc(x.id)}"><span class="te">${esc(x.emo||"⛵")}</span><span><b>${esc(x.name)}</b><span class="freq">${x.from?esc(reiseWhen(x)):"✅ Erledigt"}</span></span></button>`).join("")}</div>`);
-  h+=foldCard("rmap","🗺️ Alle Ziele auf einer Karte","",`${emb?`<div class="mapwrap"><iframe src="${esc(emb)}" loading="lazy" title="Karte mit allen Zielen"></iframe></div>`:mu?`<a href="${esc(mu)}" target="_blank" rel="noopener">Karte öffnen</a>`:""}<div class="freq">Legt in Google Maps unter „Meine Karten“ eine Karte an und fügt den Link hier ein, dann erscheint sie hier.</div><form class="addrow" id="reisemapform" novalidate><input type="url" id="reisemapinput" value="${esc(mu)}" placeholder="Link zur Karte" autocomplete="off"><button class="primary" type="submit">OK</button></form>`);
+  h+=foldCard("rmap","🗺️ Alle Ziele auf einer Karte","",`${(m=>m&&mapOk(m)?`<div class="btnrow"><a class="ghost linkbtn" href="${esc(m)}" target="_blank" rel="noopener noreferrer">🛝 Eure Spielplatz-Karte öffnen</a></div>`:"")((S.food&&S.food.playmap)||"")}${emb?`<div class="mapwrap"><iframe src="${esc(emb)}" loading="lazy" title="Karte mit allen Zielen"></iframe></div>`:mu?`<a href="${esc(mu)}" target="_blank" rel="noopener">Karte öffnen</a>`:""}<div class="freq">Legt in Google Maps unter „Meine Karten“ eine Karte an und fügt den Link hier ein, dann erscheint sie hier.</div><form class="addrow" id="reisemapform" novalidate><input type="url" id="reisemapinput" value="${esc(mu)}" placeholder="Link zur Karte" autocomplete="off"><button class="primary" type="submit">OK</button></form>`);
   {const mz=musLinks("auto",3);if(mz)h+=foldCard("rmus","🚗 Musik für die Fahrt","",mz)}
   return h}
 const tripKinds=()=>catsOf("trip",TRIP_KIND);

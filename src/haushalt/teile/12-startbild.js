@@ -66,7 +66,7 @@ const PIC_SPOTS=[[166,196,50,48,"woche","Woche: offene Aufträge","🧹 Besen an
   [330,80,34,44,"projekte","Sammlung: Kirchtürme","⛪ Zwei Kirchtürme","stadt"],[40,133,40,38,"privat","Partner: Bank im Garten","🌹 Bank unter dem Rosenbogen","stadt"],
   [318,80,34,64,"projekte","Sammlung","🗼 Leuchtturm","meer"],[38,122,70,42,"privat","Partner: Klippen","🪨 Klippen","meer"],
   [24,244,18,26,"post","Briefkasten","📮 Briefkasten",""],[155,168,22,20,"amhaus","Am Haus: Lampe","🏮 Lampe über der Tür",""],[58,176,60,52,"amhaus","Garten: Baum","🌳 Baum","","garten"],
-  [40,203,22,28,"kind","Kind: Schaukel","🪢 Schaukel am Baum",""],[15,205,18,14,"ausgaben","Ausgaben: Sparschwein","🐷 Sparschwein",""],[240,238,26,26,"spiel","Sport und Spiel","⚽ Ball am Steinweg",""],
+  [40,203,22,28,"kind","Kind: Schaukel","🪢 Schaukel am Baum",""],[15,205,18,14,"ausgaben","Ausgaben: Sparschwein","🐷 Sparschwein",""],[240,238,26,26,"spiel","Spielen","⚽ Ball am Steinweg",""],
   [270,52,44,26,"reisen","Urlaube: Flugzeug","✈️ Flugzeug","stadt"],[259,97,84,24,"ausflug","Ausflüge: Tram","🚋 Tram","stadt"],[322,196,56,66,"reisen","Urlaube: Segelboot","⛵ Segelboot","meer"],
   [254,189,22,22,"musik","Musik: Ghettoblaster","📻 Ghettoblaster",""]];
 const picSpots=city=>PIC_SPOTS.filter(p=>!p[7]||p[7]===(city?"stadt":"meer"));
@@ -144,7 +144,7 @@ function houseScene(has,light,night,extras,sea,guests,dots,amb){dots=dots||{};am
   g+=`<path d="M185 172 L177 208" stroke="#7a5230" stroke-width="2.6" stroke-linecap="round"/><path d="M174.5 207 L180.5 208.3 L186 229 L166 229Z" fill="#d9a441"/><path d="M175 208 l-6 20 M176.5 208.4 l-3 20.4 M178 208.7 l0 20.3 M179.5 209 l3 20 M181 209 l5 19.5" stroke="#a8742a" stroke-width=".8"/><path d="M174.2 210.5 L181.3 212" stroke="#7a3f1c" stroke-width="2.2" stroke-linecap="round"/>`;
   // Lampe über der Tür (Am Haus)
   g+=`${night?'<circle cx="155" cy="172" r="16" fill="url(#hglow)" opacity=".8"/>':""}<path d="M155 162 v3" stroke="#2b2b2b" stroke-width="1.4"/><path d="M150.5 165 h9 l-1.5 9 h-6z" fill="${night?"#ffd66b":"#f6e7b0"}" stroke="#2b2b2b" stroke-width="1.2"/><path d="M149 165 h12 l-2 -2.5 h-8z" fill="#2b2b2b"/>`;
-  // Ball (Sport und Spiel), rechts oben am Steinweg beim Strand
+  // Ball (Spielen, Seite unter Kind), rechts oben am Steinweg beim Strand
   g+=`<g transform="translate(100,2)"><circle cx="140" cy="236" r="8.5" fill="#f4f1ea"/><path d="M140 227.5 a8.5 8.5 0 0 1 8.5 8.5 h-8.5z" fill="#f25f5c"/><path d="M131.5 236 a8.5 8.5 0 0 0 8.5 8.5 v-8.5z" fill="#f25f5c"/><path d="M140 227.5 a8.5 8.5 0 0 0 -8.5 8.5 h8.5z" fill="#3f6fa8"/><path d="M148.5 236 a8.5 8.5 0 0 1 -8.5 8.5 v-8.5z" fill="#ffd66b"/><circle cx="140" cy="236" r="2" fill="#f4f1ea"/><ellipse cx="141" cy="245.5" rx="7" ry="1.6" fill="#000" opacity=".12"/></g>`;
   // Fahrrad (Ausflüge) an den Baum gelehnt, vorn am Lenker der Korb mit Baguette (Einkauf); Baum steht weiter vorn und größer
   // Aushang am Baumstamm (Kalender, Florian 15.11.2026)

@@ -4,7 +4,8 @@
 // Oben Angeheftet (lange auf einen Eintrag drücken, je Gerät hq-arfav) oder zuletzt Benutztes (hq-arrec). Tipp daneben, ✕ und Zurück schließen.
 const AR_EXTRA={alltag:[[1,["📅","Kalender","woche|wp:3",[]]]],quer:[[0,["🏠","Start","camp|",[]]],[2,["🔍","Suche","suche|",[]]],[99,["❓","Glossar","settings|gl:",[]]]]};
 const AR_COLS=[["essen","alltag","zuhause"],["wir","freizeit"]];
-function arGroups(){return AREA_GROUPS.map(g=>{const L=AREAS.filter(a=>a[6]===g[0]).map(a=>[a[0],a[1],a[2]+"|",a[5]().map(x=>[x[0],a[2]+"|"+x[1]])]);(AR_EXTRA[g[0]]||[]).forEach(([i,e])=>L.splice(i,0,e));return [g,L]})}
+// Bereiche mit Seiten (AREA_PAGES): nur die Hauptseite steht groß da, die übrigen Seiten zuerst als Unterpunkte (in Quer bleiben alle als Knopf)
+function arGroups(){return AREA_GROUPS.map(g=>{const q=g[0]==="quer",L=AREAS.filter(a=>a[6]===g[0]&&(q||!areaMain(a[2])||areaMain(a[2])===a[2])).map(a=>{const P=!q&&AREA_PAGES[a[2]],sub=a[5]().map(x=>[x[0],a[2]+"|"+x[1]]);return P?[P[0],P[1],a[2]+"|",P[2].slice(1).map(p=>[p[1],p[0]+"|"]).concat(sub)]:[a[0],a[1],a[2]+"|",sub]});(AR_EXTRA[g[0]]||[]).forEach(([i,e])=>L.splice(i,0,e));return [g,L]})}
 // Alle Ziele flach [Symbol, Name, Sprung] für Angeheftet/Zuletzt; Unterseiten mit allgemeinem Namen bekommen den Bereich davor
 const arAll=()=>arGroups().flatMap(([g,L])=>L.flatMap(a=>[[a[0],a[1],a[2]]].concat(a[3].map(s=>[a[0],/^(Heute|Termine|Infos|Sonstiges)$/.test(s[0])?a[1]+" · "+s[0]:s[0],s[1]]))));
 const arTile=v=>arAll().find(t=>t[2]===v);
@@ -49,10 +50,12 @@ new MutationObserver(()=>{const open=ovlOpen();
 // ---------- Fächer (Florian 17.11.2026, „So bauen, Kachel bleibt“): lange auf Start = Familie und Zuhause, lange auf Einkauf = Freizeit und Gemerktes ----------
 // Statt Alle Bereiche (die bleibt über die Kachel oben rechts und als Eintrag im Fächer). Einträge aus AREAS (Symbol, Name, Sprung). Nach dem langen Drücken
 // kann der Finger auf einen Eintrag gleiten und dort loslassen; sonst bleibt der Fächer offen, Tipp auf einen Eintrag öffnet ihn, Tipp daneben oder Zurück schließt.
-const FAN={camp:["Familie und Zuhause",["kita","kind","privat","geschenke","amhaus"]],einkauf:["Freizeit und Gemerktes",["ausflug","spiel","musik","projekte","recherchen"]]};
-const fanItems=k=>FAN[k][1].map(t=>AREAS.find(a=>a[2]===t)).filter(Boolean).map(a=>[a[0],a[1],a[4]||a[2]+"|"]);
+// Seit der Bündelung (Florian 17.11.2026, „A neu“): je Seite drei Bereiche, deren weitere Seiten als kleine Knöpfe daneben (FAN_SUB, sonst aus AREA_PAGES)
+const FAN={camp:["Familie und Zuhause",["kind","privat","amhaus"]],einkauf:["Freizeit und Gemerktes",["ausflug","musik","projekte"]]};
+const FAN_SUB={ausflug:[["Packlisten","ausflug|tt:pack"]]};
+const fanItems=k=>FAN[k][1].map(t=>AREAS.find(a=>a[2]===t)).filter(Boolean).map(a=>{const P=AREA_PAGES[a[2]];return P?[P[0],P[1],a[2]+"|",P[2].slice(1).map(p=>[p[1],p[0]+"|"])]:[a[0],a[1],a[4]||a[2]+"|",FAN_SUB[a[2]]||[]]});
 function fanHtml(k){const tb=document.getElementById("tabs").getBoundingClientRect(),bt=document.querySelector(`#tabs [data-tab="${k}"]:not([hidden])`),r=bt?bt.getBoundingClientRect():null,cur=arCur();
-  return `<div class="fanbg"></div>${r?`<div class="fanring" style="left:${Math.round(r.left+r.width/2-30)}px;top:${Math.round(r.top+4)}px"></div>`:""}<div class="fanlist" role="menu" aria-label="${esc(FAN[k][0])}" style="bottom:${Math.max(16,Math.round(innerHeight-tb.top+14))}px">${fanItems(k).map(t=>`<button class="fanit${t[2]===cur?" on":""}" role="menuitem" data-fannav="${esc(t[2])}"><span>${t[0]}</span><b>${esc(t[1])}</b></button>`).join("")}<button class="fanall" data-fanall>Alle Bereiche ›</button><div class="fanttl">${esc(FAN[k][0])}</div></div>`}
+  return `<div class="fanbg"></div>${r?`<div class="fanring" style="left:${Math.round(r.left+r.width/2-30)}px;top:${Math.round(r.top+4)}px"></div>`:""}<div class="fanlist" role="menu" aria-label="${esc(FAN[k][0])}" style="bottom:${Math.max(16,Math.round(innerHeight-tb.top+14))}px">${fanItems(k).map(t=>`<div class="fanrow"><button class="fanit${t[2]===cur?" on":""}" role="menuitem" data-fannav="${esc(t[2])}"><span>${t[0]}</span><b>${esc(t[1])}</b></button>${t[3].map(s=>`<button class="fansub${s[1]===cur?" on":""}" role="menuitem" data-fannav="${esc(s[1])}">${esc(s[0])}</button>`).join("")}</div>`).join("")}<button class="fanall" data-fanall>Alle Bereiche ›</button><div class="fanttl">${esc(FAN[k][0])}</div></div>`}
 function fanOpen(k,byPress){if(document.getElementById("fan")||!FAN[k])return;if(byPress)try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}
   S.fan={k,armed:!byPress,at:byPress?Date.now():0};const el=document.createElement("div");el.id="fan";el.className=k==="einkauf"?"r":"l";el.innerHTML=fanHtml(k);document.body.appendChild(el);
   el.addEventListener("click",e=>{const f=S.fan;if(!f)return;if(!f.armed||Date.now()-f.at<300){e.preventDefault();return}

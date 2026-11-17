@@ -4,9 +4,9 @@ srv.listen(8765,async()=>{
   await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');await A.waitForTimeout(300);
   const r={};
   await A.click('#tabs [data-tab=woche]');await A.waitForTimeout(400);
-  r.n=await A.$$eval('.tasklink',l=>l.length);
+  r.n=await A.$$eval('.wt .tlink[data-go=einkauf]',l=>l.length);
   await A.addStyleTag({content:'#tabs{display:none!important}'});
-  const el=await A.$('.tasklink');await el.scrollIntoViewIfNeeded();await A.waitForTimeout(300);const box=await (await el.evaluateHandle(e=>e.closest('.task'))).asElement().boundingBox();
+  const el=await A.$('.wt .tlink[data-go=einkauf]');await el.scrollIntoViewIfNeeded();await A.waitForTimeout(300);const box=await (await el.evaluateHandle(e=>e.closest('.wt'))).asElement().boundingBox();
   await A.screenshot({path:out+'/einkaufen-link.png',clip:{x:0,y:box.y-10,width:400,height:box.height+20}});
   await el.click();await A.waitForTimeout(400);r.h=await A.$eval('#app h1',e=>e.innerText);
   await A.click('#tabs [data-tab=woche]').catch(()=>{});

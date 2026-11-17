@@ -3,7 +3,8 @@ const briefe=()=>listOf(S.food&&S.food.brief).sort((a,b)=>(a.at||0)-(b.at||0));
 // ---------- Wir › Kind (Florian 15.11.2026): Seite 2 von Wir; Name nur aus der Datenbank (food/pref/kidname) ----------
 // Bringen und Abholen je Tag: Hand-Änderung (food/kid/bh/<wk>/d<i> {br?,ab?}) vor Homeoffice (Aufgabe owner "ho": ganzer Tag = beides, "2 von 2" = bringt, "1 von 2" = holt ab) vor fester Woche (food/kid/rule)
 const kidName=()=>((S.food&&S.food.pref&&S.food.pref.kidname)||"").trim()||"Kind";
-function wirPager(p){return `<div class="pager" role="group" aria-label="Seiten von Wir"><div class="pdots">${[["privat","Partner"],["kind",kidName()],["geschenke","Geschenke"]].map((x,i)=>`<button class="pdot" data-go="${x[0]}" aria-pressed="${i===p}"><b>${esc(x[1])}</b></button>`).join("")}</div></div>`}
+// Seiten-Leisten seit der Bündelung (17.11.2026) aus AREA_PAGES (15-bereiche.js): Wir = Partner | Geschenke, Kind = Kind | Kita | Spielen
+const wirPager=p=>areaPager(["privat","geschenke"][p]||"privat");
 const KID_RULE={br:["p0","p1","p0","p1","p0"],ab:["p1","p0","p1","p0","p1"]};
 const kidRule=()=>{const r=S.food&&S.food.kid&&S.food.kid.rule;return {br:(r&&r.br)||KID_RULE.br,ab:(r&&r.ab)||KID_RULE.ab}};
 const kitaZu=d=>kitas().find(x=>x.sec==="termine"&&x.kind==="zu"&&x.date===d)||null;
@@ -53,7 +54,7 @@ function kidBhRows(mon,cur){const today=ymd(new Date()),wk=wkKey(mon);return [0,
   const dn=cur&&x.k<=today&&!x.off?bringDone(wk,i):null;
   return `<li class="kidrow${isT?" today":""}${x.off?" off":""}"><span class="kidday"><b>${DN[i]}</b><small>${x.d.getDate()}.${x.d.getMonth()+1}.</small></span>${x.off?`<span class="freq">${x.off==="zu"?"🚪 Kita zu":x.off==="frei"?"🎉 "+esc(feiertag(x.k)):"⛵ Urlaub"}</span>`:`<span class="kidcol"><small>bringt</small>${who("br")}</span><span class="kidcol"><small>holt</small>${who("ab")}</span>`}</li>`}).join("")}
 function renderKind(){const now=new Date(),cm=mondayOf(now),off=S.kidWk|0,mon=addDays(cm,7*off),{w}=isoWeek(mon),today=ymd(now),di=(now.getDay()+6)%7,nm=kidName();
-  let h=`<div><div class="eyebrow">Wir</div><h1>${esc(nm)}</h1></div>`;
+  let h=`<div><div class="eyebrow">Familie</div><h1>${esc(nm)}</h1></div>`;
   if(nm==="Kind")h+=`<div class="freq">Den Namen tragt ihr unter <button class="linkbtn" data-go="settings">Einstellungen › Wir</button> ein. Er bleibt nur bei euch.</div>`;
   h+=`<section class="card kidbh"><div class="section-head"><h2>🚸 Bringen und Abholen</h2><span class="weeknav"><button class="iconbtn" data-kidwk="${off-1}" aria-label="Vorige Woche"${off<=-1?" disabled":""}>‹</button><span class="wkdate" style="margin:0">KW ${w}</span><button class="iconbtn" data-kidwk="${off+1}" aria-label="Nächste Woche"${off>=2?" disabled":""}>›</button></span></div>
     <ul class="kidlist">${kidBhRows(mon,off===0)}</ul>
@@ -73,7 +74,8 @@ function renderKind(){const now=new Date(),cm=mondayOf(now),off=S.kidWk|0,mon=ad
     +row("🎁","Geschenke und Spielsachen",cnt("geschenke")?cnt("geschenke")+" offen":"",'data-nav="listen|bl:geschenke"')
     +row("🎄","Adventskalender","",'data-nav="geschenke|pf:advent"')
     +row("🚲","Ausflüge mit Kleinkind","",'data-nav="ausflug|tt:ideen"')
-    +row("🛝","Spielplätze und Spielideen","",'data-nav="spiel|ps:spielplatz"')
+    +row("⚽","Spielen","",'data-go="spiel"')
+    +row("🛝","Spielplätze","",'data-nav="ausflug|rk:spielplatz"')
     +row("🎵","Kinderlieder und Hörspiele","",'data-nav="musik|ma:lied"')+musLikedRow()+`</section>`;
   return h}
 function renderPrivat(){const sec=S.privSec==="briefe"?"briefe":"lunch";

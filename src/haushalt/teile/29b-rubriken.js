@@ -1,9 +1,9 @@
 
 // ---------- Eigene Rubriken und Symbole (Florian 16.11.2026, „Alle ja“) ----------
-// Wie bei Musik: eigene Rubriken bei Sport und Spiel (Abschnitte), Arten von Ausflügen, Arten in der Sammlung (Reisen und Am Haus) und Ideen-Kacheln.
+// Wie bei Musik: eigene Rubriken bei Spielen (Abschnitte), Arten von Ausflügen, Arten in der Sammlung (Reisen und Am Haus) und Ideen-Kacheln.
 // Gespeichert in food/cats/<key>/<id> {ic,name,at}. Löschen setzt Einträge dieser Rubrik auf die Vorgabe (fb) zurück.
 const CAT_DEFS={
-  play:{lbl:"Rubrik bei Sport und Spiel",path:"play",field:"sec",fb:"sonst",ph:"z. B. Basteln",ic:"🎈"},
+  play:{lbl:"Rubrik bei Spielen",path:"play",field:"sec",fb:"sonst",ph:"z. B. Basteln",ic:"🎈"},
   trip:{lbl:"Art von Ausflug",path:"trip",field:"kind",fb:null,ph:"z. B. Burgen",ic:"🏰"},
   fund:{lbl:"Art bei Gemerkt (Reisen)",path:"fund",field:"kind",fb:"sonst",ph:"z. B. Souvenirs",ic:"🧭"},
   hfund:{lbl:"Art bei Gemerkt (Am Haus)",path:"fund",field:"kind",fb:"sonst",ph:"z. B. Bad",ic:"🛁"},

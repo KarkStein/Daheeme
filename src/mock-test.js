@@ -26,6 +26,7 @@ srv.listen(8765,async()=>{
   const link=A.url();console.log('link',link);
   const B=await mk();await B.goto(link);await B.waitForSelector('[data-me=p1]');
   await A.click('[data-me=p0]');await B.click('[data-me=p1]');await A.click('[data-tab=woche]');await B.click('[data-tab=woche]');
+  await A.click('#sec-week [data-act=wkmore]');await B.click('#sec-week [data-act=wkmore]');
   await A.click('[data-task=einkaufen][data-slot="0"]');
   await B.waitForSelector('[data-task=einkaufen][data-slot="0"].on.chk');
   await B.click('[data-task=bad][data-slot="0"]');
