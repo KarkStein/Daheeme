@@ -245,7 +245,7 @@ function renderScore(){
      <div class="notice">Alle Punkte von euch beiden zählen zusammen. Ihr levelt euer Zuhause gemeinsam, nicht gegeneinander.</div></section>`;
   h+=`<div class="stats"><div class="stat"><span class="freq">${esc(pname("p0"))}, gesamt</span><b class="num" style="color:var(--p0)">${tot.p0}</b></div><div class="stat"><span class="freq">${esc(pname("p1"))}, gesamt</span><b class="num" style="color:var(--p1)">${tot.p1}</b></div>
       <div class="stat"><span class="freq">Wochen-Serie</span><b class="num">🔥 ${st}</b></div><div class="stat"><span class="freq">Beste Woche</span><b class="num">${best} P.</b></div></div>`;
-  h+=`<section class="card"><div class="section-head"><h2>Letzte 8 Wochen</h2><div class="legend"><span><i style="background:var(--p0)"></i>${esc(pname("p0"))}</span><span><i style="background:var(--p1)"></i>${esc(pname("p1"))}</span></div></div>
+  h+=`<section data-fk="f_w8|0" class="card"><div class="section-head"><h2>Letzte 8 Wochen</h2><div class="legend"><span><i style="background:var(--p0)"></i>${esc(pname("p0"))}</span><span><i style="background:var(--p1)"></i>${esc(pname("p1"))}</span></div></div>
      <div class="chart" role="img" aria-label="Punkte pro Woche">${weeks.map(x=>`<div class="bar" title="${x.s.pts.p0} / ${x.s.pts.p1}"><i class="b1" style="height:${x.s.pts.p1/max*100}%"></i><i class="b0" style="height:${x.s.pts.p0/max*100}%"></i></div>`).join("")}</div>
      <div class="chart-x num">${weeks.map(x=>`<span>${x.s.pct>=GOAL?"★":""}KW${isoWeek(x.m).w}</span>`).join("")}</div>
      <div class="freq">★ = Wochenziel (${Math.round(GOAL*100)} %) erreicht</div></section>`;

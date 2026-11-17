@@ -1,5 +1,8 @@
 // Minimal Firebase-RTDB-like mock (REST + SSE) and a two-device sync test.
 const http=require('http'),fs=require('fs'),path=require('path');const {chromium}=require('playwright');
+// Einklappen (17.11.2026): Prüfskripte laufen mit aufgeklappten Karten; die Vorgaben prüft tests/einklappen.js (setzt globalThis.FOLD_ASIS)
+const FOLD_OPEN=['f_rfix','f_rfund','f_tdone','f_also','f_hpeck','f_kpast','f_kmimp','f_kda','f_kimp','f_sug','f_kontakt','f_gfix','f_gsplit','f_wnod','f_wbulk','f_w8'];
+{const l0=chromium.launch.bind(chromium);chromium.launch=async o=>{const b=await l0(o),n0=b.newContext.bind(b);b.newContext=async x=>{const c=await n0(x);if(!globalThis.FOLD_ASIS)await c.addInitScript(K=>{try{if(!localStorage.getItem('hq-tfold')){const o={};K.forEach(k=>o[k]=true);localStorage.setItem('hq-tfold',JSON.stringify(o))}}catch(_){}},FOLD_OPEN);return c};return b}}
 let tree={};const clients=[];
 const get=p=>p.reduce((o,k)=>o==null?null:o[k],tree);
 function setAt(p,d){if(!p.length){tree=d||{};return}let o=tree;for(let i=0;i<p.length-1;i++){if(typeof o[p[i]]!=='object'||o[p[i]]===null)o[p[i]]={};o=o[p[i]]}

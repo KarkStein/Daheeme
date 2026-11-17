@@ -52,7 +52,7 @@ function bringDone(wk,i){const tk=ticksOf(wk);for(const t of bringTasks())for(le
 // Seite Kind, Wochen-Tafel Bringen und Abholen, Größen und Gesundheit: 14a-kind.js (Umbau Florian 17.11.2026)
 function renderPrivat(){const sec=S.privSec==="briefe"?"briefe":"lunch";
   let h=`<div><div class="eyebrow">Nur ihr zwei</div><h1>Partner</h1></div><div class="unl privtabs" style="margin:4px 0 12px">${[["lunch","🍽️ Mittagessen"],["briefe","✉️ Briefe"+(briefe().length?" ("+briefe().length+")":"")]].map(x=>`<button class="chipbtn${sec===x[0]?"":" neutral"}" data-priv="${x[0]}" aria-pressed="${sec===x[0]}">${x[1]}</button>`).join("")}</div>`;
-  h+=sec==="briefe"?briefCard():`<div class="section-head"><h2>🍽️ Mittagessen</h2></div>`+renderLunch();
+  h+=sec==="briefe"?briefCard():`<section data-fk="f_lunch|1" class="foldwrap"><div class="section-head"><h2>🍽️ Mittagessen</h2></div>`+renderLunch()+`</section>`;
   return h+contactCard()}
 // ---------- Briefkasten: WhatsApp zum anderen und Briefe ----------
 function waNum(n){let d=String(n||"").replace(/[^\d+]/g,"");if(d.startsWith("+"))d=d.slice(1);else if(d.startsWith("00"))d=d.slice(2);else if(d.startsWith("0"))d="49"+d.slice(1);return d.length>=8?d:""}
@@ -74,7 +74,7 @@ function briefCard(){const l=briefe();return `<section class="card"><div class="
   <form class="addrow" id="briefform" novalidate><input type="text" id="briefinput" placeholder="📜🪶" maxlength="80" autocomplete="off" aria-label="Brief"><button class="primary" type="submit">+</button></form>
   ${l.length?`<ul class="shop">${l.map(x=>`<li><span class="nm" style="flex:1;padding:10px 0">${esc(x.name)}</span><button class="rm" data-briefrm="${esc(x.id)}" aria-label="${esc(x.name)} entfernen">✕</button></li>`).join("")}</ul>`:`<div class="empty"><div>Noch nichts eingetragen.</div></div>`}</section>`}
 function contactCard(){const l=contactList();
-  return `<section class="card postcard" id="kontakte"><div class="section-head"><h2>📇 Kontakt</h2></div><div class="freq">Ein Tipp auf den Briefkasten im Bild öffnet WhatsApp an ${esc(l[0].name)}. Lange drücken zeigt Anrufen und Briefe. Die Nummern liegen nur in euren gemeinsamen Daten.</div>
+  return `<section data-fk="f_kontakt|0" class="card postcard" id="kontakte"><div class="section-head"><h2>📇 Kontakt</h2></div><div class="freq">Ein Tipp auf den Briefkasten im Bild öffnet WhatsApp an ${esc(l[0].name)}. Lange drücken zeigt Anrufen und Briefe. Die Nummern liegen nur in euren gemeinsamen Daten.</div>
   ${l.map(c=>`<div class="contact"><div class="contacthead"><b>${esc(c.name)}</b>${c.main?"":`<button class="rm" data-contactrm="${esc(c.id)}" aria-label="${esc(c.name)} entfernen">✕</button>`}</div>${callBtns(c)}${telField(c.main?otherP():"",c.raw,c.name)}</div>`).join("")}</section>`}
 // Briefkasten im Bild: kurzer Tipp = WhatsApp an den anderen, lange drücken = Auswahl (mehrere Kontakte, Briefe)
 function mboxTap(){if(Date.now()-(S.mboxAt||0)<700)return;const c=contactList()[0];if(c.num){const a=document.createElement("a");a.href="https://wa.me/"+c.num;a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();a.remove();return}mboxAsk(c)}

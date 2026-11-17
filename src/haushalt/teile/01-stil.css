@@ -622,3 +622,8 @@ a.mkb{text-decoration:none;color:var(--fg)}.muslk[aria-pressed=false]{filter:gra
 .shopsugg .favhead{display:flex;justify-content:space-between;align-items:center;width:100%;background:none;border:none;padding:0}.shopsugg .favhead .linkish{font-size:var(--fs-s)}
 .shoppay{margin-top:var(--sp2)}.shopcard .tfoldb>.ghost{margin-top:var(--sp2)}
 .unl .blockchip{padding:0;background:none;border:none;flex:none}.shopsugg .favhead .eyebrow{background:none;border:none;padding:0}
+
+/* Einklappen in der ganzen App (17.11.2026): Klapp-Knopf um die Überschrift */
+.foldh{display:flex;align-items:center;gap:var(--sp2);flex:1;min-width:0;background:none;border:none;padding:0;margin:0;color:inherit;font:inherit;text-align:left;cursor:pointer;min-height:32px}
+.foldh h2{margin:0;min-width:0}.foldh>i{font-style:normal;color:var(--muted);font-size:var(--fs-s);flex:none}
+.foldc>.foldh{width:100%;justify-content:space-between}.foldc>.section-head:last-child{margin-bottom:0}.foldwrap{display:block}

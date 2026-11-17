@@ -64,7 +64,7 @@ function rfItems(ar){ar=ar||"reise";const j=S[FAREA[ar].rf];if(!j||!Array.isArra
 function rfProj(i,ar){ar=ar||"reise";const v=i[FAREA[ar].key];if(!v)return null;const U=FAREA[ar].projs();return U.find(u=>u.id===v)||U.find(u=>u.name.toLowerCase()===String(v).toLowerCase())||null}
 const rfReise=i=>rfProj(i,"reise");
 function rfundCard(fk,fr,ar){ar=ar||"reise";const A=FAREA[ar],J=S[A.rf],L=rfItems(ar).map(i=>[i,J.items.indexOf(i)]).filter(([i])=>(!fk||i.kind===fk)&&(!fr||fr==="-"||(rfProj(i,ar)||{}).id===fr));
-  return `<section class="card rfund"><div class="section-head"><h2>🤖 Aus der Recherche</h2>${J&&J.updated?`<span class="freq">${esc(J.updated)}</span>`:""}</div>
+  return `<section data-fk="f_rfund|0" class="card rfund"><div class="section-head"><h2>🤖 Aus der Recherche</h2>${J&&J.updated?`<span class="freq">${esc(J.updated)}</span>`:""}</div>
     ${L.length?`<ul class="evlist fundlist">${L.map(([i,ix])=>{const k=fundKind(i.kind,ar),r=rfProj(i,ar),u=safeLink(i.link);return `<li class="fund"><span class="fk">${k[1]}</span><span class="ev">${u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(i.name)}</a>`:esc(i.name)}<br><span class="freq">${k[2]}${i.place?" · "+esc(i.place):""}${i.price?" · "+esc(i.price)+" €":""}${i.auftrag?" · "+esc(i.auftrag):""}${r?" · "+esc(r.emo||A.emo)+" "+esc(r.name):""}</span>${i.note?`<br><span class="freq">${esc(i.note)}</span>`:""}</span><button class="catbtn" data-rftake="${ix}" data-ar="${ar}" aria-label="${esc(i.name)} übernehmen">＋</button></li>`}).join("")}</ul>`
       :`<div class="freq">${A.rfHint}</div>`}</section>`}
 function renderSammlung(ar){ar=ar||"reise";const A=FAREA[ar],ff=fundFilt(ar),fk=ff.k,fr=ff.p,fs=ff.s,U=A.projs(),all=funde(ar);
@@ -78,7 +78,7 @@ function renderSammlung(ar){ar=ar||"reise";const A=FAREA[ar],ff=fundFilt(ar),fk=
   h+=rfundCard(fk,fr,ar);
   h+=L.length?`<section class="card"><ul class="evlist fundlist">${L.map(f=>fundLi(f,"",ar)+(U.length?`<li class="fundmeta"><label class="freq">Gehört zu <select data-fundto="${esc(f.id)}" data-ar="${ar}"><option value="">${A.noneSel}</option>${U.map(u=>`<option value="${esc(u.id)}"${f[A.key]===u.id?" selected":""}>${esc(u.emo||A.emo)} ${esc(u.name)}</option>`).join("")}</select></label></li>`:"")).join("")}</ul></section>`
     :`<div class="empty"><h2>${all.length?"Nichts Passendes":"Noch nichts gesammelt"}</h2><div>Fügt oben Links oder Namen ein. Filter oben grenzen ein.</div></div>`;
-  const GG=fk||fr||fs?"":gmRows(ar);if(GG)h+=`<section class="card"><div class="section-head"><h2>🔖 Auch hier gezeigt</h2></div><ul class="mklist gmlist">${GG}</ul><div class="freq">Gemerktes aus anderen Bereichen, das auch hierher gehört.</div></section>`;
+  const GG=fk||fr||fs?"":gmRows(ar);if(GG)h+=`<section data-fk="f_also|0" class="card"><div class="section-head"><h2>🔖 Auch hier gezeigt</h2></div><ul class="mklist gmlist">${GG}</ul><div class="freq">Gemerktes aus anderen Bereichen, das auch hierher gehört.</div></section>`;
   return h}
 const renderRecherche=()=>renderSammlung("reise");
 function reiseDays(x){if(!x.from)return null;const t=startOfDay(new Date()),a=startOfDay(new Date(x.from+"T12:00:00")),b=x.to?startOfDay(new Date(x.to+"T12:00:00")):a;const n=Math.round((a-t)/864e5);return t>b?{past:true}:n<=0?{now:true}:{n}}
@@ -169,7 +169,7 @@ function rgCard(uid){const inU=!!uid,F=inU?(S.rgUF&&S.rgUF.uid===uid?S.rgUF:(S.r
   const arts=(inU?[]:[["ausflug","🚲","Ausflugsziel"]]).concat(FAREA.reise.kinds).filter(a=>(inU?all:open).some(x=>x.art===a[0])||F.k===a[0]);
   const us=urlaube().filter(u=>open.some(x=>x.u===u.id)||F.u===u.id);
   const badge=x=>{const s=SAMM_ST.find(y=>y[0]===x.st)||SAMM_ST[0],lb=x.st==="geplant"&&x.date?"📅 "+dLabel(x.date):s[1]+" "+s[2];return `<button class="stbadge st-${x.st}" ${x.t==="t"?`data-tripst="${esc(x.id)}"`:`data-fundst="${esc(x.id)}" data-ar="reise"`} aria-label="Stand von ${esc(x.name)}: ${s[2]}, antippen schaltet weiter">${esc(lb)}</button>`};
-  return `<section class="card rgcard"><div class="section-head" style="align-items:center"><h2>🔖 Gemerkt <span class="freq">(${inU?all.length:open.length})</span></h2><button class="primary" data-act="merken"${inU?` data-u="${esc(uid)}"`:""}>＋ Merken</button></div>
+  return `<section data-fk="${inU?"f_rgu":"f_rg"}|1" class="card rgcard"><div class="section-head" style="align-items:center"><h2>🔖 Gemerkt <span class="freq">(${inU?all.length:open.length})</span></h2><button class="primary" data-act="merken"${inU?` data-u="${esc(uid)}"`:""}>＋ Merken</button></div>
     ${inU?(all.length?`<div class="unl scrollrow">${chip("k","","Alle")}${arts.map(a=>chip("k",a[0],a[1]+" "+a[2])).join("")}${all.some(x=>x.st==="erledigt")||F.s==="erledigt"?chip("s","erledigt","✅ Gebucht"):""}</div>`:""):all.length?`<div class="unl scrollrow">${chip("k","","Alle")}${arts.map(a=>chip("k",a[0],a[1]+" "+a[2])).join("")}</div>
     <div class="unl scrollrow">${chip("u","","Alle")}${chip("u","hier","🏙️ Für hier")}${us.map(u=>chip("u",u.id,(u.emo||"⛵")+" "+u.name)).join("")}${open.some(x=>x.rain)||F.w?chip("w","regen","☔ Bei Regen"):""}${chip("s","favorit","⭐ Nur Favoriten")}${chip("s","erledigt","✅ Erledigt")}</div>`:""}
     ${R.length?`<ul class="mklist">${R.slice(0,n).map(x=>`<li class="mk"><button class="mkb" ${x.t==="t"?`data-tripedit="${esc(x.id)}"`:`data-fundedit="${esc(x.id)}"`} aria-label="${esc(x.name)} ansehen und ändern"><span class="mki">${esc(x.ic)}</span><span class="mkt"><b>${esc(x.name)}</b><span class="freq">${esc(x.artL)}${inU?"":x.uL?" · "+esc(x.uL):x.u==="hier"?" · für hier":""}${x.ref?" · Buchung "+esc(refMask(x.ref)):""}${esc(x.also||"")}</span></span></button>${x.pack&&x.st!=="erledigt"?`<button class="catbtn routebtn" data-gopack="${esc(x.pack.id)}" aria-label="Packliste ${esc(x.pack.name)} öffnen">🎒</button>`:""}${x.st!=="erledigt"&&x.place?transitA(x.place):""}${badge(x)}</li>`).join("")}</ul>${R.length>n?`<button class="ghost small" ${inU?"data-rguf":"data-rgf"}="more|1">Alle ${R.length} zeigen</button>`:""}${GG?`<ul class="mklist gmlist">${GG}</ul>`:""}`
@@ -262,6 +262,15 @@ function atipCard(){const all=atipItems(),z=S.atipZ||"woche",c=S.atipC||"",io=at
 // Ausflüge kompakt (Florian 16.11.2026): Gemerkt, Geht immer und Jahreszeit als Klapp-Karten mit Anzahl, Stand je Gerät in hq-tfold; Tipps zeigen nur den Titel, Tipp öffnet den Rest
 try{S.tFold=JSON.parse(localStorage.getItem("hq-tfold")||"{}")||{}}catch(_){S.tFold={}}
 const tFoldOn=(k,def)=>S.tFold&&k in S.tFold?!!S.tFold[k]:!!def;
+// Einklappen in der ganzen App (Florian 17.11.2026, „So bauen wie im Dokument“): Karten tragen die Marke data-fk="<schlüssel>|<vorgabe>".
+// foldAll macht beim Zeichnen aus der ersten Überschrift den Klapp-Knopf (.foldh, schaltet wie data-tfold); zugeklappt bleibt nur der Kopf samt Knöpfen rechts.
+function foldOne(k,def,html){const on=tFoldOn(k,def),a=html.indexOf("<h2"),b=html.indexOf("</h2>");if(a<0||b<a)return html;
+  const pre=html.slice(0,a),h2=html.slice(a,b+5);let rest=html.slice(b+5);
+  if(!on){let end=0;if(/<div class="section-head"[^>]*>\s*$/.test(pre)){let d=1,m;const rx=/<(\/?)div\b/g;while((m=rx.exec(rest))){d+=m[1]?-1:1;if(!d){end=m.index+6;break}}}rest=rest.slice(0,end)+"</section>"}
+  return pre.replace(/class="/,'class="foldc ')+`<button class="foldh" data-tfold="${esc(k)}" data-tdef="${def?1:0}" aria-expanded="${on}">${h2}<i>${on?"▾":"›"}</i></button>`+rest}
+function foldAll(html){let i=0;for(;;){i=html.indexOf('<section data-fk="',i);if(i<0)return html;const q=html.indexOf('"',i+18),kd=html.slice(i+18,q).split("|");
+  let d=0,e=-1,m;const rx=/<(\/?)section\b/g;rx.lastIndex=i;while((m=rx.exec(html))){d+=m[1]?-1:1;if(!d){e=m.index+10;break}}if(e<0)return html;
+  html=html.slice(0,i)+foldOne(kd[0],kd[1]==="1","<section"+html.slice(q+1,e))+html.slice(e);i++}}
 function foldCard(k,title,n,body,def,cls){const on=tFoldOn(k,def);return `<section class="card tfold${cls?" "+cls:""}"><button class="setsum" data-tfold="${esc(k)}" data-tdef="${def?1:0}" aria-expanded="${on}"><h2>${title}${n===""||n==null?"":` <span class="freq">(${n})</span>`}</h2><i>${on?"▾":"›"}</i></button>${on?`<div class="tfoldb">${body}</div>`:""}</section>`}
 function atipLi(i){const u=safeLink(i.link),ix=S.atipps.items.indexOf(i),on=!!(S.atipOpen&&S.atipOpen[ix]),kc=i.dauer&&ATIP_CAT.find(x=>x[0]===atipCat(i));
   const short=i.dauer?(i.where==="umland"?"Umland":""):atipWhen(i);
@@ -305,7 +314,7 @@ function renderTripIdeas(){const d=S.tripDraft;
   if(kinds.length||all.some(x=>!x.done&&x.wx==="egal"))h+=`<div class="unl"><button class="chipbtn" data-tfilter="" aria-pressed="${!F}">Alle</button>${all.some(x=>!x.done&&x.wx==="egal")?`<button class="chipbtn" data-tfilter="regen" aria-pressed="${F==="regen"}">🌧️ Bei Regen</button>`:""}${kinds.map(k=>`<button class="chipbtn" data-tfilter="${k[0]}" aria-pressed="${F===k[0]}">${k[1]} ${k[2]}</button>`).join("")}</div>`;
   h+=open.length?""
     :`<div class="empty"><h2>${F?"Nichts Passendes":"Noch keine Ideen"}</h2><div>${F?"Für diesen Filter gibt es noch kein Ziel.":"Legt mit dem Knopf oben eure erste Ausflugsidee an. Ihr seht beide dieselbe Liste."}</div></div>`;
-  if(done.length)h+=`<section class="card"><div class="section-head"><h2>Schon gemacht</h2><span class="freq num">${done.length}</span></div><ul class="shop">${done.map(card).join("")}</ul></section>`;
+  if(done.length)h+=`<section data-fk="f_tdone|0" class="card"><div class="section-head"><h2>Schon gemacht</h2><span class="freq num">${done.length}</span></div><ul class="shop">${done.map(card).join("")}</ul></section>`;
   return h}
 // Tag wählen (Florian 16.11.2026: jedes Ausflugsziel in den Kalender, gemerkt oder nicht). Vorschlag: Datum des Tipps, sonst nächstes Wochenende
 function nextSat(){const d=startOfDay(new Date());const n=(6-d.getDay()+7)%7;return ymd(addDays(d,n))}
