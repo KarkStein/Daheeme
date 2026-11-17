@@ -138,6 +138,8 @@ function renderReise(x){const st=reiseSt(x),cd=reiseDays(x),hc=x.hearts||{},pins
     <div class="fld"><span>Symbol</span><div class="unl">${REISE_EMO.map(e=>`<button class="chipbtn neutral" data-reiseemo="${e}" aria-pressed="${(x.emo||"⛵")===e}">${e}</button>`).join("")}</div></div>
     ${fld("budget","💶 Budget grob (€)","number","z. B. 1500")}<label class="fld"><span>Notiz</span><textarea data-rsf="note" rows="2">${esc(x.note||"")}</textarea></label><div class="freq">Wird beim Verlassen eines Feldes gespeichert.</div></div>`:x.note?`<div class="freq" style="margin-top:var(--sp2)">${esc(x.note)}</div>`:""}</section>`;
   if(pins.length||bk.length)fundMigrate(x);
+  // Erledigt und Löschen vor Gemerkt (Florian 17.11.2026: „Das da unten ist unlogisch“)
+  h+=`<div class="btnrow reiseact">${st==="erledigt"?`<button class="ghost small" data-reisest="aktuell">↩ Zurückholen</button>`:`<button class="ghost small" data-reisest="erledigt">✅ Auf Erledigt</button>`}${st==="traum"?`<button class="ghost small" data-reisest="aktuell">📅 Jetzt planen</button>`:""}<button class="ghost small danger" data-act="reisedel">🗑 Urlaub löschen</button></div>`;
   h+=rgCard(x.id);
   const done=items.filter(i=>i.done).length;
   h+=foldCard("upack",`🧳 Packliste`,items.length?`${items.length}, ${items.length-done} offen`:"",`<div class="unl">${[["basis","🎒 Basis"],["strand","🏖️ Strand"],["winter","❄️ Winter"],["kind","🧒 Kleinkind"]].map(t=>`<button class="chipbtn neutral" data-packtpl="${t[0]}">+ ${t[1]}</button>`).join("")}</div>
@@ -148,7 +150,6 @@ function renderReise(x){const st=reiseSt(x),cd=reiseDays(x),hc=x.hearts||{},pins
   {const sc=splitChips("urlaub:"+x.id);h+=foldCard("ugeld","💶 Ausgaben","",`<div class="unl">${grpLinkHtml("urlaub:"+x.id,x.name,x.emo||"⛵",x.budget||"")}</div>${sc}${splitAddForm("urlaub:"+x.id)}`)}
   {const mz=musLinks("auto",3);if(mz)h+=foldCard("umus","🚗 Musik für die Fahrt","",mz)}
   h+=foldCard("urev","📝 Rückblick","",`<label class="fld"><span>${st==="erledigt"?"Wie war es? Was nehmen wir mit?":"Füllt ihr nach dem Urlaub aus."}</span><textarea data-rsf="review" rows="3">${esc(x.review||"")}</textarea></label>`,st==="erledigt"||!!x.review);
-  h+=`<div class="btnrow">${st==="erledigt"?`<button class="ghost" data-reisest="aktuell">↩ Zurückholen</button>`:`<button class="ghost" data-reisest="erledigt">✅ Auf Erledigt</button>`}${st==="traum"?`<button class="ghost" data-reisest="aktuell">📅 Jetzt planen</button>`:""}<button class="ghost danger" data-act="reisedel">Urlaub löschen</button></div>`;
   return h}
 function renderUrlaub(){return `<section class="card"><div class="section-head"><h2>⛵ Urlaub</h2></div><div class="freq">Urlaube haben jetzt einen eigenen Bereich: Reisen, im Bild das Meer.</div><div class="btnrow" style="margin-top:8px"><button class="primary" data-go="reisen">Zu Reisen ›</button></div></section>`}
 // Bauplan (Florian 17.11.2026): zwei Reiter. Übersicht = Urlaube (Projekte) als Zeile, darunter „🔖 Gemerkt“ (Ausflugsziele und alles für Urlaube in einer Liste),
@@ -165,6 +166,30 @@ function reiseRow(){const l=urlaube(),hearts=x=>Object.values(x.hearts||{}).filt
   const A=l.filter(x=>reiseSt(x)==="aktuell").sort((a,b)=>String(a.from||"9").localeCompare(String(b.from||"9"))),T=l.filter(x=>reiseSt(x)==="traum").sort((a,b)=>hearts(b)-hearts(a)||(a.at||0)-(b.at||0));
   const sub=x=>{const st=reiseSt(x),cd=reiseDays(x),hc=x.hearts||{};return st==="traum"?`💡 Idee ${hc.p0?"❤️":"🤍"}${hc.p1?"❤️":"🤍"}`:cd&&cd.now?"▶️ läuft gerade":x.from?"📅 "+reiseWhen(x)+(cd&&cd.n?" · in "+cd.n+" T.":""):"📅 Geplant, ohne Datum"};
   return `<div class="section-head" style="margin-top:var(--sp3)"><h2>🧩 Urlaube</h2><span class="freq num">${A.length+T.length}</span></div><div class="urow">${A.concat(T).map(x=>`<button class="ut st-${reiseSt(x)}" data-reise="${esc(x.id)}"><span class="te">${esc(x.emo||"⛵")}</span><span><b>${esc(x.name)}</b><span class="freq">${sub(x)}</span></span></button>`).join("")}<button class="ut add" data-act="reisenew" data-st="aktuell"><span class="te">＋</span><span><b>Neuer Urlaub</b><span class="freq">oder Idee</span></span></button></div>`}
+// Urlaub löschen samt Packliste, Erinnerungen und Ausgaben-Zuordnung (Ausgaben selbst bleiben)
+async function reiseDel(uid){await splitDropRef("urlaub:"+uid);await prioDropRef([uid]);for(const i of packs().filter(i=>i.list==="u_"+uid))await S.store.setPath("food/pack/"+i.id,null);await S.store.setPath("food/packlist/u_"+uid,null);await S.store.setPath("food/urlaub/"+uid,null);if(S.reiseOpen===uid)S.reiseOpen=null}
+// Lange auf einen Urlaub in der Urlaube-Zeile: Öffnen, Erledigt/Zurückholen, Löschen mit Nachfrage (Florian 17.11.2026)
+function reiseMenu(uid){const x=urlaube().find(y=>y.id===uid);if(!x||document.getElementById("mbox"))return;const st=reiseSt(x);S.mboxAt=Date.now();
+  const el=document.createElement("div");el.id="mbox";
+  el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="Urlaub"><div class="section-head"><h2>${esc(x.emo||"⛵")} ${esc(x.name)}</h2></div><div class="chlist">
+    <button type="button" class="chipbtn neutral" data-rm="open">📂 Öffnen</button>
+    ${st==="erledigt"?`<button type="button" class="chipbtn neutral" data-rm="aktuell">↩ Zurückholen</button>`:`<button type="button" class="chipbtn neutral" data-rm="erledigt">✅ Auf Erledigt</button>`}
+    ${st==="traum"?`<button type="button" class="chipbtn neutral" data-rm="planen">📅 Jetzt planen</button>`:""}
+    <button type="button" class="chipbtn neutral danger" data-rm="del">🗑 Urlaub löschen</button></div>
+    <div class="btnrow"><button class="ghost" type="button" data-rm="x">Schließen</button></div></div>`;
+  document.body.appendChild(el);
+  el.addEventListener("click",async e=>{const b=e.target.closest("[data-rm]");
+    if(!b){if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose();return}
+    const a=b.dataset.rm;if(a==="x"){mboxClose();return}
+    if(a==="open"){mboxClose();S.reiseOpen=uid;S.tab="ausflug";S.tripTab="urlaub";render();window.scrollTo(0,0);return}
+    if(a==="del"&&b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Wirklich löschen?";return}
+    mboxClose();try{if(a==="del"){await reiseDel(uid);toast("Urlaub gelöscht")}else{const v=a==="planen"?"aktuell":a;await S.store.setPath("food/urlaub/"+uid+"/state",v);toast(v==="erledigt"?"Steht jetzt unter ✅ Erledigt":"Steht jetzt unter 📅 Geplant")}}catch(_){toast("Konnte nicht speichern.")}render()})}
+(()=>{let t=null,x0=0,y0=0,fired=0;const clr=()=>{clearTimeout(t);t=null};
+  app.addEventListener("pointerdown",e=>{const b=e.target.closest&&e.target.closest(".ut[data-reise]");if(!b)return;x0=e.clientX;y0=e.clientY;clr();t=setTimeout(()=>{t=null;fired=Date.now();try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}reiseMenu(b.dataset.reise)},500)});
+  app.addEventListener("pointermove",e=>{if(t&&Math.abs(e.clientX-x0)+Math.abs(e.clientY-y0)>12)clr()});
+  ["pointerup","pointercancel"].forEach(n=>app.addEventListener(n,clr));
+  app.addEventListener("click",e=>{if(fired&&Date.now()-fired<900&&e.target.closest&&e.target.closest(".ut[data-reise]")){fired=0;e.stopPropagation();e.preventDefault()}},true);
+  app.addEventListener("contextmenu",e=>{if(e.target.closest&&e.target.closest(".ut[data-reise]"))e.preventDefault()})})();
 // Gemerkt für unterwegs: Ausflugsziele (food/trip, „Für hier“) und Gemerktes für Urlaube (food/fund) in einer Liste mit Filtern nach Art, Urlaub und Stand
 const tripSt=x=>x.done?"erledigt":x.date?"geplant":x.fav?"favorit":"idee";
 function rgItems(){const U=urlaube(),L=[];
