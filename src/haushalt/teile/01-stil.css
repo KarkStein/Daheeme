@@ -605,7 +605,7 @@ a.mkb{text-decoration:none;color:var(--fg)}.muslk[aria-pressed=false]{filter:gra
 .wkfold .hotask{box-shadow:none;border:none;background:none;padding:var(--sp2) 0 0}.wkfold .hotask .task-title{font-size:var(--fs-s);font-weight:500;color:var(--muted)}
 .wkfold .donesep{margin:var(--sp2) 0 var(--sp1)}.wkfold .linkish{margin-top:var(--sp2);align-self:flex-start}.wkhint{text-align:center;margin-top:var(--sp2)}
 .wt .wtl{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.wt .wtm{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.wt .wtm .tlink{padding:0 2px;font-size:var(--fs-xs)}.wt .wtn{padding:2px 0}
-.wkfold .hotask .meta{display:none}
+.wkfold .hotask .meta{display:none}.wkfold .hotask .task-title{display:none}.hocol{display:flex;flex-direction:column;align-items:center;gap:2px}.hocol small{font-size:var(--fs-xs);color:var(--muted)}.hocol.today small{font-weight:700;color:var(--ink)}.hotask .slots{justify-content:space-between;gap:var(--sp1)}.hoein{display:flex;flex-direction:column;margin-top:var(--sp2);padding-top:var(--sp2);border-top:1px solid var(--line)}.hochk .wt{border-top:none}.hochk .slot:not(.on){border-style:solid;border-color:var(--ink)}.hochkh{display:block}.hochk .hochkn{font-weight:500}.hochk.none{padding:var(--sp1) 0}.hochkn{font-weight:700}.hohint{margin-top:var(--sp2)}
 .wtx .task-title{display:none}.wtx .tlink,.wkfold .hotask .tlink{align-self:flex-start}
 /* Fächer mit Seiten (Bündelung 17.11.2026): kleine Knöpfe neben dem Bereich */
 #fan .fanrow{display:flex;align-items:center;gap:var(--sp2);flex-wrap:wrap;max-width:100%}#fan.r .fanrow{flex-direction:row-reverse}

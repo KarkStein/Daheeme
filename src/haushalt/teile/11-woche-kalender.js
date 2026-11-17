@@ -197,7 +197,7 @@ function renderWeek(){
         if(f==="day"){if(i===today)cls.push("today");if(i>today)cls.push("future");if(isHO)cls.push("hoslot")}
         if(hasSubs(t)&&!isBoth&&!isHO){const g=`<div class="subgrp${on?" all":""}" role="group" aria-label="${esc(t.name)} ${f==="day"?DAYS[i]:(i+1)+". Mal"}">${n>1?`<span class="subn">${f==="day"?DAYS[i]:(i+1)+"."}</span>`:""}${t.subs.map((sn,j)=>{const sv=tk[k+"_s"+j];return `<button class="subbtn${sv?" on":""}" data-task="${esc(t.id)}" data-slot="${i}" data-sub="${j}" aria-pressed="${!!sv}" aria-label="${esc(sn)}${sv?" erledigt von "+esc(pname(sv.by)):""}">${sv?"✓ ":""}${esc(sn)}</button>`}).join("")}</div>`;slots+=g;sl.push(g);continue}
         const btn=(extra,l)=>`<button class="${cls.join(" ")}${extra}" data-task="${esc(t.id)}" data-slot="${i}" ${isBoth?'data-split="1"':""} ${f==="day"&&i>today&&!isHO?"disabled":""} aria-pressed="${on}" aria-label="${esc(t.name)} ${f==="day"?DAYS[i]:(i+1)+". Mal"}${aria}">${l}</button>`;
-        slots+=btn("",lbl);sl.push(btn(" wsl",on?(isHO?lbl:"✓"):""))}
+        slots+=isHO?`<span class="hocol${i===today?" today":""}"><small>${DAYS[i]}</small>${btn("",on?lbl:"＋")}</span>`:btn("",lbl);sl.push(btn(" wsl",on?(isHO?lbl:"✓"):""))}
       doneAll=c>=n;pct=n?c/n:0;const cs=(c%1?String(c).replace(".",","):c);
       html=`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${f==="day"?"täglich":n+"× pro Woche"} · ${cs}/${n}</span></div></div></div><div class="slots">${slots}</div>${taskLink(t)}${isBoth?`<div class="freq">Jeder hakt seine Hälfte ab: links ${esc(pname("p0"))}, rechts ${esc(pname("p1"))}.</div>`:""}</article>`;
     }else{const pt=periodTick(t,mon);doneAll=!!pt;pct=doneAll?1:0;if(!pt&&!periodDue(t,mon))return {t,o,html:"",done:false,later:periodMid(f,mon),pct:0,times:1,sl,c:0,n:1};
@@ -222,7 +222,7 @@ function renderWeek(){
   const ho=tasks().filter(t=>t.owner==="ho").map(card);
   if(ho.length){const hv=today>=0&&today<7?tk[ho[0].t.id+"__"+today]:null,hn=n=>esc(pname(n).charAt(0));
     const lab=!(today>=0&&today<7)?ho[0].c+" Tage eingetragen":!hv?"heute niemand":hv.by==="x"?"heute "+esc(hv.lbl||"jemand"):hv.half==="vm"?`heute ${hn(hv.by)} vorm. · ${hn(hv.by==="p0"?"p1":"p0")} nachm.`:"heute "+esc(pname(hv.by));
-    h+=wkFold("ho","🔑 Hausdienst",lab,`<div class="freq">Wer den Dienst zu Hause hat, bringt und holt nicht, das macht der andere. Kurz tippen trägt dich ein, lange drücken für mehr.</div>${ho.map(x=>x.html.replace('<article class="task','<article class="task hotask')).join("")}`,1)}
+    h+=wkFold("ho","🔑 Hausdienst",lab,`${isCur?hoChkRows(ho[0].t,hv,today):""}<div class="hoein"><b>Einteilen</b><span class="freq">Wer hat wann den Dienst? Daraus folgt, wer bringt und holt.</span></div>${ho.map(x=>x.html.replace('<article class="task','<article class="task hotask')).join("")}<div class="freq hohint">Kurz tippen trägt dich ein, lange drücken: andere Person oder geteilt. <button class="linkish" data-nav="kita|">🚸 Bringen und Abholen ›</button></div>`,1)}
   secs.forEach(([id,title,fn0,def])=>{const fn=t=>t.owner!=="ho"&&fn0(t);const xs=tasks().filter(fn).map(card).filter(vis).sort(order);if(!xs.length)return;
     const lt=xs.filter(x=>x.later),op=xs.filter(x=>!x.done&&!x.later),dn=xs.filter(x=>x.done);if(!op.length&&!dn.length&&!lt.length)return;
     const lim=id==="week"&&!S.wkMore?6:99,all=op.concat(dn),shown=all.slice(0,lim),rest=all.length-shown.length;

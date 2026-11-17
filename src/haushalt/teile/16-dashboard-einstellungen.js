@@ -6,6 +6,10 @@ function prioTarget(x){return x.from==="mittag"?` data-go="privat"`:(x.from==="r
 function hoMine(){const now=new Date(),mon=mondayOf(now),di=(now.getDay()+6)%7,t=tasks().find(x=>x.owner==="ho");if(!t)return null;const v=ticksOf(wkKey(mon))[t.id+"__"+di];if(!v||!(v.by==="p0"||v.by==="p1"))return null;
   const oth=v.by==="p0"?"p1":"p0",me=S.me||v.by;if(S.me&&S.me!==v.by&&v.half!=="vm")return null;
   const part=v.half==="vm"?(me===v.by?"vormittags":"nachmittags"):"";return {t,di,v,me,part,done:!!(v.ok&&v.ok[me])}}
+// Hausdienst abhaken (Florian 17.11.2026: Einteilen und Abhaken sind zwei Felder): täglich ein eigenes Feld bei der Person, die heute den Dienst hat; geteilter Tag = zwei Felder (vormittags, nachmittags). Haken in ok:{p0|p1} am Hausdienst-Eintrag des Tages.
+function hoChkRows(t,v,di){if(!v||!(v.by==="p0"||v.by==="p1"))return `<div class="hochk none"><span class="freq">✅ Abhaken: Heute ist noch niemand eingeteilt. Unten eintragen, dann steht hier das Feld zum Abhaken.</span></div>`;
+  const oth=v.by==="p0"?"p1":"p0",P=v.half==="vm"?[[v.by,"vormittags"],[oth,"nachmittags"]]:[[v.by,""]];
+  return `<div class="hochk"><b class="hochkh">Heute abhaken</b>${P.map(([p,part])=>{const dn=!!(v.ok&&v.ok[p]);return `<div class="wt${dn?" done":""}"><div class="wtl"><b class="hochkn">${esc(t.name)}</b><div class="wtm">${wkWho(p)}<span class="freq">heute${part?" "+part:""}${dn?" · erledigt":""}</span></div></div><span class="wtc"><button class="slot wsl${dn?" on chk":""}" data-hodone="${di}|${p}" aria-pressed="${dn}" aria-label="Hausdienst heute${part?" "+part:""}, ${esc(pname(p))}: ${dn?"erledigt":"abhaken"}">${dn?"✓":""}</button></span></div>`}).join("")}</div>`}
 function tasksToday(){const r=tasksCount(true);return r.total?r:tasksCount(false)}
 // day=true: nur tägliche Aufgaben von heute; sonst alle Wochen-Aufgaben
 function tasksCount(day){const mon=mondayOf(new Date()),tk=ticksOf(wkKey(mon)),split=rotSplit(),di=(new Date().getDay()+6)%7;let open=0,total=0;

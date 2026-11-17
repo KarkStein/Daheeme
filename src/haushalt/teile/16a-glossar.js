@@ -15,7 +15,7 @@ const GLOS_TERMS=[
   ["Vorschlag","✨ Was die App oder die Recherche anbietet, z. B. Tagesrezepte oder Was ist los. Ein Tipp übernimmt oder merkt es.",""],
   ["Liste","Zum Abhaken: Einkaufsliste, Weitere Listen, Packliste, Mitbringen.",'data-nav="einkauf|"'],
   ["Geschenke","🎁 Eigener Bereich unter Wir: Geschenke für alle mit Stand und für wen, dazu der Adventskalender. Auf 📅 Geplant erscheinen sie bei Einkauf › Weitere Listen › Geschenke.",'data-nav="geschenke|"'],
-  ["Hausdienst","Wer an einem Tag Hausdienst hat, ist für zu Hause da und bringt und holt das Kind nicht, das macht der andere. Geht auch geteilt: vormittags der eine, nachmittags der andere. Eintragen in Woche.",'data-nav="woche|wp:0"'],
+  ["Hausdienst","Wer an einem Tag Hausdienst hat, ist für zu Hause da und bringt und holt das Kind nicht, das macht der andere. Geht auch geteilt: vormittags der eine, nachmittags der andere. In Woche gibt es dafür zwei Felder: Einteilen (wer hat wann den Dienst) und Heute abhaken (bei der Person, die heute dran ist).",'data-nav="woche|wp:0"'],
   ["Wichtig","Der eine Ort für alle Erinnerungen. Die 🔔 oben links zählt, was in den nächsten 24 Stunden fällig oder schon überfällig ist, dazu Termine mit 🔔.",'data-nav="wichtig|"'],
   ["Erinnerung","Etwas, woran die App erinnert, mit Tag und Uhrzeit, auf Wunsch wiederholt. Steht unter Wichtig.",'data-nav="wichtig|"'],
   ["Termin","Steht im Kalender, mit Zeit, Ort und Personen. Zählt an der Glocke nur, wenn an ihm 🔔 angetippt ist.",'data-nav="woche|wp:3"'],
