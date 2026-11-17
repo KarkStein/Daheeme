@@ -49,6 +49,7 @@ const GLOS_TERMS=[
   ["Gruppe","Ausgaben für einen Anlass, z. B. einen Urlaub, mit eigenem Stand und Budget. Standard ist „Haushalt“.",'data-go="ausgaben"'],
   ["Gemeinsames Konto","Als Zahler wählbar. Zählt bei den Ausgaben, aber nicht im Stand zwischen euch.",'data-go="ausgaben"'],
   ["Alle Projekte","Alle laufenden Projekte aus Am Haus, Urlaube und Adventskalender auf einer Seite. Die Projekte selbst bleiben in ihrem Bereich.",'data-nav="projekte|pf:alle"'],
+  ["Zeigen bei","Einmal ablegen, überall finden: Jeder gemerkte Eintrag bleibt ein Eintrag. Im Bearbeiten-Fenster wählt ihr, wo er zusätzlich steht (Geschenke, Spielen, Hörspiele und Tonies, Kind, Am Haus, Reisen). Stand und Änderungen gelten überall.",'data-nav="projekte|"'],
   ["Lose gemerkt","Am Haus: Gemerktes, das noch zu keinem Projekt gehört. 🧩 macht ein Projekt daraus.",'data-nav="amhaus|"'],
   ["Adventskalender","24 Türchen fürs Kind, von beiden gefüllt. Kleinigkeiten stehen bei Weitere Listen › Geschenke.",'data-nav="geschenke|pf:advent"'],
   ["Packliste","Was auf eine Reise mitmuss, gemeinsam oder je Urlaub.",'data-nav="ausflug|tt:pack"'],

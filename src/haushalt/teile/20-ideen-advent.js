@@ -84,6 +84,7 @@ function renderProjects(){const d=S.projDraft;
     ${d.cat==="geschenk"?`<div class="fld"><span>Für wen</span>${one("who",whoOpts().filter(o=>o[0]!=="both").map(o=>[o[0],o[1]]))}</div><label class="fld"><span>Oder für jemand anderen, und zu welchem Anlass?</span><input type="text" id="pj-for" data-pf="for" value="${esc(d.for)}" maxlength="60" placeholder="Zum Beispiel Oma, Weihnachten" autocomplete="off"></label>`:""}
     <label class="fld"><span>Link (Shop, Anleitung, Bild)</span><input type="url" id="pj-link" data-pf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off"></label>
     <label class="fld"><span>Notiz</span><textarea id="pj-note" data-pf="note" rows="4" placeholder="Maße, Preis, nächste Schritte">${esc(d.note)}</textarea></label>
+    ${gmMaskRow("idea",d.id)}
     <div class="btnrow"><button class="primary" data-act="projsave">Speichern</button><button class="ghost" data-act="projcancel">Abbrechen</button>${d.id?`<button class="ghost" data-move="idea|${esc(d.id)}">↪ Verschieben</button><button class="ghost danger" data-act="projdel">Löschen</button>`:""}</div></section>`}
   const all=projs();let F=S.projFilter||"";if(S.tab==="geschenke"&&F!=="advent")F="geschenk";
   if(F==="advent")return h+renderAdvent();
@@ -99,7 +100,7 @@ function renderProjects(){const d=S.projDraft;
   const cat=projCats().find(k=>k[0]===F)||PROJ_CATS[1],inCat=x=>projCat(x)===F,open=all.filter(x=>!x.done&&inCat(x)),done=all.filter(x=>x.done&&inCat(x)).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0));
   const ord=x=>{const i=PROJ_STATE.findIndex(s=>s[0]===pjSt(x.state));return i<0?0:-i};open.sort((a,b)=>ord(a)-ord(b)||(a.at||0)-(b.at||0));
   const card=x=>{const l=safeLink(x.link),st=PROJ_STATE.find(s=>s[0]===pjSt(x.state))||PROJ_STATE[0];
-    return `<li class="${x.done?"done":""}"><button class="item" data-projdone="${esc(x.id)}" aria-pressed="${!!x.done}" aria-label="${esc(x.name)}: ${x.done?"doch nicht erledigt":"erledigt"}"><span class="box">${x.done?"✓":""}</span><span class="nm">${x.emo?esc(x.emo)+" ":""}${esc(x.name)}${giftFor(x)?`<br><span class="freq">${esc(giftFor(x))}</span>`:""}${String(x.ref||"").startsWith("fund:")?`<br><span class="freq">🧩 auch im Projekt</span>`:""}${x.note&&!x.done?`<br><span class="freq">${telNote(x.note)}</span>`:""}</span></button>${telA(x.note)}${x.done?"":`<button class="stbadge st-${st[0]}" data-projstate="${esc(x.id)}" aria-label="Stand: ${st[1]}, antippen zum Weiterschalten">${st[1]}</button>`}${l?`<a class="catbtn" href="${esc(l)}" target="_blank" rel="noopener" aria-label="Link öffnen">🔗</a>`:""}${x.done?"":bell(S.tab,x)}${!x.done&&HCAT[projCat(x)]?`<button class="catbtn" data-proj2hp="${esc(x.id)}" aria-label="${esc(x.name)} zum Projekt machen">🧩</button>`:""}<button class="rm" data-projedit="${esc(x.id)}" aria-label="${esc(x.name)} bearbeiten">✎</button></li>`};
+    return `<li class="${x.done?"done":""}"><button class="item" data-projdone="${esc(x.id)}" aria-pressed="${!!x.done}" aria-label="${esc(x.name)}: ${x.done?"doch nicht erledigt":"erledigt"}"><span class="box">${x.done?"✓":""}</span><span class="nm">${x.emo?esc(x.emo)+" ":""}${esc(x.name)}${giftFor(x)?`<br><span class="freq">${esc(giftFor(x))}</span>`:""}${gmShow(x).length?`<br><span class="freq">${esc(gmAlso(x).slice(3))}</span>`:""}${x.note&&!x.done?`<br><span class="freq">${telNote(x.note)}</span>`:""}</span></button>${telA(x.note)}${x.done?"":`<button class="stbadge st-${st[0]}" data-projstate="${esc(x.id)}" aria-label="Stand: ${st[1]}, antippen zum Weiterschalten">${st[1]}</button>`}${l?`<a class="catbtn" href="${esc(l)}" target="_blank" rel="noopener" aria-label="Link öffnen">🔗</a>`:""}${x.done?"":bell(S.tab,x)}${!x.done&&HCAT[projCat(x)]?`<button class="catbtn" data-proj2hp="${esc(x.id)}" aria-label="${esc(x.name)} zum Projekt machen">🧩</button>`:""}<button class="rm" data-projedit="${esc(x.id)}" aria-label="${esc(x.name)} bearbeiten">✎</button></li>`};
   h+=S.tab==="geschenke"?`<div class="tiles">${advTile()}<button class="tile" data-nav="listen|bl:geschenke"><span class="te">🛍️</span><span class="tn">Zum Kaufen</span><span class="tc">Einkauf › Geschenke</span></button>${(()=>{const H=musics().filter(m=>m.art==="hoer"),g=H.filter(m=>m.st==="geplant").length;return `<button class="tile" data-nav="musik|ma:hoer"><span class="te">🎧</span><span class="tn">Hörspiele und Tonies</span><span class="tc">${g?g+" geplant":H.length?H.length+" bei Musik":"bei Musik"}</span></button>`})()}</div><div class="freq">Steht ein Geschenk, Hörspiel oder Tonie auf 📅 Geplant, erscheint es zum Kaufen bei Einkauf › Weitere Listen › Geschenke.</div>`:`<div class="btnrow"><button class="ghost" data-pfilter="">${projBack()}</button></div><h2 style="margin:0">${cat[1]} ${esc(cat[2])}</h2>`;
   const hp=S.tab==="amhaus"&&HCAT[F];
   if(hp){h+=hprojTiles(F);
@@ -108,7 +109,8 @@ function renderProjects(){const d=S.projDraft;
     if(done.length)h+=`<details class="card reisedone"><summary class="section-head"><h2>✅ Erledigt</h2><span class="freq num">${done.length} ▾</span></summary><ul class="shop">${done.map(card).join("")}</ul></details>`;
     return h}
   h+=`<form class="addrow" id="projform" novalidate><input type="text" id="projinput" placeholder="Neu bei ${esc(cat[2])}" value="${esc(S.projText)}" autocomplete="off" enterkeyhint="done" aria-label="Neue Idee bei ${esc(cat[2])}"><button class="primary" type="submit">Merken</button></form>`;
-  h+=open.length?`<section class="card"><div class="section-head"><h2>Offen</h2><span class="freq num">${open.length}</span></div><ul class="shop">${open.map(card).join("")}</ul><div class="freq">Das Schild rechts schaltet weiter: 💡 Idee, ⭐ Favorit, 📅 Geplant. Das Kästchen links heißt ✅ erledigt.${S.tab==="amhaus"?" 🧩 macht aus einer Idee ein Projekt.":""}</div></section>`
+  const GG=S.tab==="geschenke"?gmGuests("geschenke").filter(i=>i.st!=="erledigt"):[];
+  h+=open.length||GG.length?`<section class="card"><div class="section-head"><h2>Offen</h2><span class="freq num">${open.length+GG.length}</span></div>${open.length?`<ul class="shop">${open.map(card).join("")}</ul>`:""}${GG.length?`<ul class="mklist gmlist">${GG.map(i=>gmRow(i,"geschenke")).join("")}</ul>`:""}<div class="freq">Das Schild rechts schaltet weiter: 💡 Idee, ⭐ Favorit, 📅 Geplant. Das Kästchen links heißt ✅ erledigt.${S.tab==="amhaus"?" 🧩 macht aus einer Idee ein Projekt.":""}</div></section>`
     :`<div class="empty"><h2>Hier ist noch nichts</h2><div>Tippt oben ein, was euch einfällt. Es landet direkt bei ${esc(cat[2])}.</div></div>`;
   if(done.length)h+=`<section class="card"><div class="section-head"><h2>✅ Erledigt</h2><span class="freq num">${done.length}</span></div><ul class="shop">${done.map(card).join("")}</ul></section>`;
   return h}
@@ -195,12 +197,8 @@ function advBack(){const n=new Date();if(n.getMonth()!==11||n.getDate()>24)retur
   return `<div class="btasks">${L.map(c=>{const D=advDoors(c.id),x=D[d],m=d<24&&D[d+1],hid=advHidden(c,d);return `<button class="btask" data-advgo="${esc(c.id)}"><span>🎄</span><b>${hid?"Türchen "+d+" wartet auf dich":x?"Türchen "+d+": "+esc(x.name):"Türchen "+d+" ist noch leer"}</b><small>${c.for==="kid"?"Kind":esc(pname(c.for))}${m&&!advHidden(c,d+1)&&n.getHours()>=16?" · morgen: "+esc(m.name):""}</small></button>`}).join("")}</div>`}
 // ---------- Funde bearbeiten, entfernen, verknüpfen (Florian 16.11.2026) ----------
 // Ein Fund (food/fund) kann zusätzlich an anderer Stelle stehen. Verknüpfung in f.links {<ziel>: <id dort>}; Ziele hier austauschbar.
-// geschenk = Geschenk-Idee unter Ideen (food/idea, cat geschenk, who, ref "fund:<id>"), einkauf = Einkaufsliste, wichtig = Erinnerung.
+// einkauf = Einkaufsliste, wichtig = Erinnerung (dort entsteht wirklich ein eigener Eintrag). Geschenke, Spielen, Musik, Kind: seit 17.11.2026 keine Kopie mehr, sondern das Feld show (29f-gemerkt.js).
 const FUND_LINKS={
-  geschenk:{lbl:"🎁 Geschenke",nav:"geschenke|",has:id=>!!projs().find(x=>x.id===id),
-    make:async(f,o)=>{const id=newId("p");await S.store.setPath("food/idea/"+id,{name:f.name,cat:"geschenk",state:"idee",who:o.who||null,link:f.link||null,ref:"fund:"+f.id,at:Date.now(),by:S.me||""});return id},
-    sync:async(id,f)=>{await S.store.setPath("food/idea/"+id+"/name",f.name);await S.store.setPath("food/idea/"+id+"/link",f.link||null)},
-    drop:async id=>S.store.setPath("food/idea/"+id,null)},
   einkauf:{lbl:"🧺 Einkaufsliste",nav:"einkauf|",has:id=>!!shopItems().find(x=>x.id===id&&!x.done),
     make:async f=>{const id="i"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);await S.store.setPath("food/shop/"+id,{name:f.name.slice(0,80),done:false,at:Date.now(),by:S.me||"",src:"Projekt: "+fundProjName(f)});return id},
     sync:async(id,f)=>S.store.setPath("food/shop/"+id+"/name",f.name.slice(0,80)),
@@ -213,7 +211,6 @@ function fundProjName(f){const ar=f.area||"reise",A=FAREA[ar],p=f[A.key]&&A.proj
 const fundLinked=f=>Object.keys(FUND_LINKS).filter(k=>f.links&&f.links[k]&&FUND_LINKS[k].has(f.links[k]));
 // Vorschlag, wohin ein Fund passt (Florian: vorschlagen, aber selbst auswählen)
 function fundSugg(f){const t=((f.name||"")+" "+(f.link||"")).toLowerCase(),out=[];
-  if(f.kind==="spielzeug"||/geschenk|tonie|lego|duplo|playmobil|puzzle|spielzeug|kuscheltier|buch|bilderbuch|gutschein/.test(t))out.push("geschenk");
   if(/drogerie|dm\b|rossmann|lebensmittel|reiniger|putzmittel/.test(t))out.push("einkauf");
   return out.filter(k=>!fundLinked(f).includes(k))}
 async function fundSetLinks(f,want,o){const L=Object.assign({},f.links||{});
@@ -221,19 +218,19 @@ async function fundSetLinks(f,want,o){const L=Object.assign({},f.links||{});
     if(w&&!on)L[k]=await FUND_LINKS[k].make(f,o||{});else if(!w&&on){await FUND_LINKS[k].drop(L[k]);delete L[k]}else if(w&&on)await FUND_LINKS[k].sync(L[k],f)}
   await S.store.setPath("food/fund/"+f.id+"/links",Object.keys(L).length?L:null)}
 async function fundDropAll(f){for(const k of fundLinked(f))await FUND_LINKS[k].drop(f.links[k]);await S.store.setPath("food/fund/"+f.id,null)}
-function fundEdit(id){const f=listOf(S.food&&S.food.fund).find(y=>y.id===id);if(!f)return;const ar=f.area||"reise",A=FAREA[ar],sg=fundSugg(f),lk=fundLinked(f);
-  const gift=f.links&&f.links.geschenk&&projs().find(x=>x.id===f.links.geschenk);
+function fundEdit(id){const f=listOf(S.food&&S.food.fund).find(y=>y.id===id);if(!f)return;const ar=f.area||"reise",A=FAREA[ar],sg=fundSugg(f).concat(gmSugg(gmItem("fund",f))),lk=fundLinked(f).concat(gmShow(f));
   editBox(f.name,[{k:"name",label:"Name",type:"text",val:f.name},{k:"link",label:"Link",type:"url",val:f.link||""},
     {k:"kind",label:"Art",type:"chips",opts:A.kinds.map(c=>[c[0],c[1]+" "+c[2]]),val:f.kind||"sonst"},
     {k:"st",label:"Stand",type:"chips",opts:A.st.map(s=>[s[0],s[1]+" "+s[2]]),val:f.st||"idee"},
     {k:"price",label:"Preis in €",type:"text",val:f.price||""}].concat(ar==="reise"?[{k:"ref",label:"Buchungsnummer (nur in euren Daten, in Listen versternt)",type:"text",val:f.ref||""},{k:"addr",label:"Adresse oder Anfahrt",type:"text",val:f.addr||""}]:[]).concat([
     {k:"proj",label:"Gehört zu",type:"chips",opts:[["",A.none]].concat(A.projs().filter(p=>ar==="reise"||p.state!=="erledigt"||p.id===f[A.key]).map(p=>[p.id,(p.emo||A.emo)+" "+p.name])),val:f[A.key]||""},
-    {k:"links",label:"Auch zeigen bei",type:"multi",opts:Object.keys(FUND_LINKS).map(k=>[k,(sg.includes(k)?"✨ ":"")+FUND_LINKS[k].lbl]),val:lk,hint:sg.length?"✨ = passt vermutlich. Antippen wählt aus, nichts passiert von allein. Abwählen nimmt den Eintrag dort wieder weg.":"Antippen wählt aus. Abwählen nimmt den Eintrag dort wieder weg."},
-    {k:"who",label:"Geschenk für wen",type:"chips",opts:[["","Offen"]].concat(whoOpts().filter(o=>o[0]!=="both")),val:(gift&&gift.who)||""}]),
+    {k:"who",label:"Für wen",type:"chips",opts:[["","Offen"]].concat(whoOpts().filter(o=>o[0]!=="both")),val:f.who||""},
+    {k:"links",label:"Zeigen bei",type:"multi",opts:GM_PLACES.filter(p=>p[0]!==ar).map(p=>[p[0],(sg.includes(p[0])?"✨ ":"")+p[1]+" "+p[2]]).concat(Object.keys(FUND_LINKS).map(k=>[k,(sg.includes(k)?"✨ ":"")+FUND_LINKS[k].lbl])),val:lk,hint:(sg.length?"✨ = passt vermutlich. ":"")+"Der Eintrag bleibt einer und steht auch dort, mit demselben Stand. Einkaufsliste und Wichtig legen dort einen eigenen Eintrag an. Abwählen nimmt ihn wieder weg."},
+    {k:"note",label:"Notiz",type:"text",val:f.note||"",max:500}]),
     async V=>{const name=String(V.name||"").trim().slice(0,120)||f.name,link=safeLink(V.link)||null,n=Object.assign({},f,{name,link});
-      const up={name,link,kind:V.kind||"sonst",st:V.st||"idee",price:String(V.price||"").replace(/[^0-9,.]/g,"").slice(0,10)||null};up[A.key]=V.proj||null;if(ar==="reise"){up.ref=String(V.ref||"").trim().slice(0,60)||null;up.addr=String(V.addr||"").trim().slice(0,160)||null}
+      const up={name,link,who:V.who||null,note:String(V.note||"").trim().slice(0,500)||null,kind:V.kind||"sonst",st:V.st||"idee",price:String(V.price||"").replace(/[^0-9,.]/g,"").slice(0,10)||null};up[A.key]=V.proj||null;if(ar==="reise"){up.ref=String(V.ref||"").trim().slice(0,60)||null;up.addr=String(V.addr||"").trim().slice(0,160)||null}
       for(const k of Object.keys(up))await S.store.setPath("food/fund/"+f.id+"/"+k,up[k]);
-      await fundSetLinks(n,V.links||[],{who:V.who});if(V.links&&V.links.includes("geschenk")&&f.links&&f.links.geschenk)await S.store.setPath("food/idea/"+f.links.geschenk+"/who",V.who||null);toast("Gespeichert")},
+      const W=V.links||[];await gmSetShow("fund",f.id,W.filter(k=>gmPlace(k)));await fundSetLinks(n,W.filter(k=>FUND_LINKS[k]));toast("Gespeichert")},
     (f.area==="haus"?[["↪ Verschieben",()=>moveOpen("fund",f.id)]]:[]).concat(fundDelOpts(f)))}
 function fundDelOpts(f){const A=FAREA[f.area||"reise"],o=[];
   if(f[A.key])o.push(["Nur aus dem "+A.word+" nehmen",async()=>{await S.store.setPath("food/fund/"+f.id+"/"+A.key,null);toast("Steht weiter in der Sammlung")},false]);

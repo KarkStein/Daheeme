@@ -57,6 +57,9 @@ function renderKind(){const nm=kidName(),today=ymd(new Date());
     +ML.slice(0,4).map(m=>row((MUS_ART.find(a=>a[0]===m.art)||MUS_ART[0])[1],esc(m.name),"💛 "+esc(lab(MUS_ART,m.art||"playlist")),`data-nav="musik|mf:like"`)).join("")
     +row("🚲",AT?AT+(AT===1?" Ausflug passt":" Ausflüge passen")+" dazu":"Ausflüge, die dazu passen","Was ist los · 💛",'data-kidatip="1"')
     +(ML.length?"":row("🎵","Kinderlieder und Hörspiele","mit 💛 markieren, dann stehen sie hier",'data-nav="musik|ma:lied"'))+`</div>`,true,"kidcard");
+  // 🔖 Gemerkt fürs Kind: alles mit „Für wen: Kind“ oder „Zeigen bei Kind“, egal wo es abgelegt ist
+  const GK=gmKid().filter(i=>i.st!=="erledigt");
+  h+=foldCard("kid_gm","🔖 Gemerkt fürs Kind",GK.length||"",GK.length?`<ul class="mklist gmlist">${GK.slice(0,12).map(i=>gmRow(i,"kind")).join("")}</ul>${GK.length>12?`<button class="linkish" data-go="projekte">Alle ${GK.length} in der Sammlung ›</button>`:""}`:`<div class="freq">Noch nichts. Bei jedem gemerkten Eintrag könnt ihr „Für wen: ${esc(nm)}“ oder „Zeigen bei 🧒 Kind“ wählen, dann steht er hier.</div>`,GK.length>0,"kidcard");
   // 🛍️ Besorgen
   const ck=kidBuyCnt("kleidung"),cg=kidBuyCnt("geschenke"),bs=[ck?ck+" Kleidung":"",cg?cg+(cg===1?" Geschenk":" Geschenke"):""].filter(Boolean).join(", ");
   h+=foldCard("kid_buy","🛍️ Besorgen",bs,`<div class="tagcard">`+row("👕","Kleidung",ck?ck+" offen":"",'data-nav="listen|bl:kleidung"')+row("🎁","Geschenke und Spielsachen",cg?cg+" offen":"",'data-nav="listen|bl:geschenke"')+row("🎄","Adventskalender","",'data-nav="geschenke|pf:advent"')+row("🎧","Hörspiele und Tonies","",'data-nav="musik|ma:hoer"')+`</div>`,false,"kidcard");

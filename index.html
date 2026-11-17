@@ -630,6 +630,10 @@ a.mkb{text-decoration:none;color:var(--fg)}.muslk[aria-pressed=false]{filter:gra
 #fan .fanrow{display:flex;align-items:center;gap:var(--sp2);flex-wrap:wrap;max-width:100%}#fan.r .fanrow{flex-direction:row-reverse}
 #fan .fansub{background:var(--surface);border:1.5px solid var(--ink);border-radius:999px;padding:var(--sp2) var(--sp3);color:var(--ink);font:inherit;font-size:var(--fs-s);font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.35);transition:transform .12s}
 #fan .fansub.fanhot{transform:scale(1.08);outline:3px solid #f3e3b8}#fan .fansub.on{text-decoration:underline;text-decoration-color:var(--ochre);text-decoration-thickness:2px;text-underline-offset:3px}
+/* Gemerktes vernetzen: Gäste aus anderen Bereichen (gleiche Zeile li.mk) */
+.gmlist{margin-top:var(--sp2)}
+.shop+.gmlist{border-top:1px solid var(--line);padding-top:var(--sp2)}
+.gmfld .freq{margin-top:var(--sp1)}
 </style>
 
 <div class="app" id="app">
@@ -1969,6 +1973,9 @@ function renderKind(){const nm=kidName(),today=ymd(new Date());
     +ML.slice(0,4).map(m=>row((MUS_ART.find(a=>a[0]===m.art)||MUS_ART[0])[1],esc(m.name),"💛 "+esc(lab(MUS_ART,m.art||"playlist")),`data-nav="musik|mf:like"`)).join("")
     +row("🚲",AT?AT+(AT===1?" Ausflug passt":" Ausflüge passen")+" dazu":"Ausflüge, die dazu passen","Was ist los · 💛",'data-kidatip="1"')
     +(ML.length?"":row("🎵","Kinderlieder und Hörspiele","mit 💛 markieren, dann stehen sie hier",'data-nav="musik|ma:lied"'))+`</div>`,true,"kidcard");
+  // 🔖 Gemerkt fürs Kind: alles mit „Für wen: Kind“ oder „Zeigen bei Kind“, egal wo es abgelegt ist
+  const GK=gmKid().filter(i=>i.st!=="erledigt");
+  h+=foldCard("kid_gm","🔖 Gemerkt fürs Kind",GK.length||"",GK.length?`<ul class="mklist gmlist">${GK.slice(0,12).map(i=>gmRow(i,"kind")).join("")}</ul>${GK.length>12?`<button class="linkish" data-go="projekte">Alle ${GK.length} in der Sammlung ›</button>`:""}`:`<div class="freq">Noch nichts. Bei jedem gemerkten Eintrag könnt ihr „Für wen: ${esc(nm)}“ oder „Zeigen bei 🧒 Kind“ wählen, dann steht er hier.</div>`,GK.length>0,"kidcard");
   // 🛍️ Besorgen
   const ck=kidBuyCnt("kleidung"),cg=kidBuyCnt("geschenke"),bs=[ck?ck+" Kleidung":"",cg?cg+(cg===1?" Geschenk":" Geschenke"):""].filter(Boolean).join(", ");
   h+=foldCard("kid_buy","🛍️ Besorgen",bs,`<div class="tagcard">`+row("👕","Kleidung",ck?ck+" offen":"",'data-nav="listen|bl:kleidung"')+row("🎁","Geschenke und Spielsachen",cg?cg+" offen":"",'data-nav="listen|bl:geschenke"')+row("🎄","Adventskalender","",'data-nav="geschenke|pf:advent"')+row("🎧","Hörspiele und Tonies","",'data-nav="musik|ma:hoer"')+`</div>`,false,"kidcard");
@@ -2261,6 +2268,7 @@ const GLOS_TERMS=[
   ["Gruppe","Ausgaben für einen Anlass, z. B. einen Urlaub, mit eigenem Stand und Budget. Standard ist „Haushalt“.",'data-go="ausgaben"'],
   ["Gemeinsames Konto","Als Zahler wählbar. Zählt bei den Ausgaben, aber nicht im Stand zwischen euch.",'data-go="ausgaben"'],
   ["Alle Projekte","Alle laufenden Projekte aus Am Haus, Urlaube und Adventskalender auf einer Seite. Die Projekte selbst bleiben in ihrem Bereich.",'data-nav="projekte|pf:alle"'],
+  ["Zeigen bei","Einmal ablegen, überall finden: Jeder gemerkte Eintrag bleibt ein Eintrag. Im Bearbeiten-Fenster wählt ihr, wo er zusätzlich steht (Geschenke, Spielen, Hörspiele und Tonies, Kind, Am Haus, Reisen). Stand und Änderungen gelten überall.",'data-nav="projekte|"'],
   ["Lose gemerkt","Am Haus: Gemerktes, das noch zu keinem Projekt gehört. 🧩 macht ein Projekt daraus.",'data-nav="amhaus|"'],
   ["Adventskalender","24 Türchen fürs Kind, von beiden gefüllt. Kleinigkeiten stehen bei Weitere Listen › Geschenke.",'data-nav="geschenke|pf:advent"'],
   ["Packliste","Was auf eine Reise mitmuss, gemeinsam oder je Urlaub.",'data-nav="ausflug|tt:pack"'],
@@ -2464,7 +2472,7 @@ const fundStL=(st,ar)=>FAREA[ar||"reise"].st.find(s=>s[0]===st)||FAREA[ar||"reis
 const fundFilt=ar=>{S.ff=S.ff||{};return S.ff[ar]||(S.ff[ar]={k:"",p:"",s:""})};
 // Eine Zeile der Sammlung; ctx="proj" blendet das Projekt aus
 function fundLi(f,ctx,ar){ar=ar||f.area||"reise";const A=FAREA[ar],k=fundKind(f.kind,ar),st=f.st||"idee",S0=fundStL(st,ar),u=safeLink(f.link),pid=f[A.key],r=pid&&A.projs().find(y=>y.id===pid),t=f.trip&&trips().find(y=>y.id===f.trip),maps=mapsQ(f.addr||(f.name+" "+(f.place||(r&&r.place)||"")));
-  return `<li class="fund st-${st}"><span class="fk">${k[1]}</span><span class="ev">${u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(f.name)}</a>`:esc(f.name)}<br><span class="freq">${k[2]}${st==="gebucht"?" · "+A.doneW:""}${f.ref?" · Nr. "+esc(f.ref):""}${ctx==="proj"?` · <input class="fprice" data-fundpr="${esc(f.id)}" inputmode="decimal" value="${esc(f.price||"")}" placeholder="Preis" maxlength="10" aria-label="Preis von ${esc(f.name)} in Euro"> €`:f.price?" · "+esc(f.price)+" €":""}${ar==="reise"?` · <a href="${esc(maps)}" target="_blank" rel="noopener">🗺️</a>`+transitA(f.addr||(f.name+" "+(f.place||(r&&r.place)||"")).trim()):""}${ctx!=="proj"&&r?` · <button class="linkbtn" data-${A.open}="${esc(r.id)}">${esc(r.emo||A.emo)} ${esc(r.name)}</button>`:""}${t?` · 🚲 ${esc(t.name)}`:""}${fundLinked(f).map(k=>` · <button class="linkbtn" data-nav="${FUND_LINKS[k].nav}">${FUND_LINKS[k].lbl}</button>`).join("")}</span></span>
+  return `<li class="fund st-${st}"><span class="fk">${k[1]}</span><span class="ev">${u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(f.name)}</a>`:esc(f.name)}<br><span class="freq">${k[2]}${st==="gebucht"?" · "+A.doneW:""}${f.ref?" · Nr. "+esc(f.ref):""}${ctx==="proj"?` · <input class="fprice" data-fundpr="${esc(f.id)}" inputmode="decimal" value="${esc(f.price||"")}" placeholder="Preis" maxlength="10" aria-label="Preis von ${esc(f.name)} in Euro"> €`:f.price?" · "+esc(f.price)+" €":""}${ar==="reise"?` · <a href="${esc(maps)}" target="_blank" rel="noopener">🗺️</a>`+transitA(f.addr||(f.name+" "+(f.place||(r&&r.place)||"")).trim()):""}${ctx!=="proj"&&r?` · <button class="linkbtn" data-${A.open}="${esc(r.id)}">${esc(r.emo||A.emo)} ${esc(r.name)}</button>`:""}${t?` · 🚲 ${esc(t.name)}`:""}${gmShow(f).map(k=>` · <button class="linkbtn" data-nav="${gmPlace(k)[3]}">${gmPlace(k)[1]} ${gmPlace(k)[2]}</button>`).join("")}${fundLinked(f).map(k=>` · <button class="linkbtn" data-nav="${FUND_LINKS[k].nav}">${FUND_LINKS[k].lbl}</button>`).join("")}</span></span>
     <button class="stbadge st-${st}" data-fundst="${esc(f.id)}" data-ar="${ar}" aria-label="Stand von ${esc(f.name)}: ${S0[2]}, antippen schaltet weiter">${S0[1]} ${S0[2]}</button><button class="catbtn" data-fundedit="${esc(f.id)}" aria-label="${esc(f.name)} bearbeiten" style="background:none;border:none">✎</button><button class="rm" data-fundrm="${esc(f.id)}" aria-label="${esc(f.name)} entfernen">✕</button></li>`}
 function fundForm(id,proj,ar){ar=ar||"reise";const A=FAREA[ar];S.fundNewKind=S.fundNewKind||{};const k=S.fundNewKind[ar]||"";return `<div class="unl" style="margin-top:6px">${A.kinds.map(c=>`<button class="chipbtn neutral" data-fundnk="${c[0]}" data-ar="${ar}" aria-pressed="${k===c[0]}">${c[1]} ${c[2]}</button>`).join("")}${catBtn(ar==="haus"?"hfund":"fund")}</div>
   <form class="addrow fundform" id="${id}" data-ar="${ar}" data-proj="${esc(proj||"")}" novalidate><input class="fn" placeholder="Name oder Link einfügen" maxlength="300" autocomplete="off" aria-label="Name oder Link"><button class="primary" type="submit">+</button></form><div class="freq">${A.linkHint}</div>`}
@@ -2488,6 +2496,7 @@ function renderSammlung(ar){ar=ar||"reise";const A=FAREA[ar],ff=fundFilt(ar),fk=
   h+=rfundCard(fk,fr,ar);
   h+=L.length?`<section class="card"><ul class="evlist fundlist">${L.map(f=>fundLi(f,"",ar)+(U.length?`<li class="fundmeta"><label class="freq">Gehört zu <select data-fundto="${esc(f.id)}" data-ar="${ar}"><option value="">${A.noneSel}</option>${U.map(u=>`<option value="${esc(u.id)}"${f[A.key]===u.id?" selected":""}>${esc(u.emo||A.emo)} ${esc(u.name)}</option>`).join("")}</select></label></li>`:"")).join("")}</ul></section>`
     :`<div class="empty"><h2>${all.length?"Nichts Passendes":"Noch nichts gesammelt"}</h2><div>Fügt oben Links oder Namen ein. Filter oben grenzen ein.</div></div>`;
+  const GG=fk||fr||fs?"":gmRows(ar);if(GG)h+=`<section class="card"><div class="section-head"><h2>🔖 Auch hier gezeigt</h2></div><ul class="mklist gmlist">${GG}</ul><div class="freq">Gemerktes aus anderen Bereichen, das auch hierher gehört.</div></section>`;
   return h}
 const renderRecherche=()=>renderSammlung("reise");
 function reiseDays(x){if(!x.from)return null;const t=startOfDay(new Date()),a=startOfDay(new Date(x.from+"T12:00:00")),b=x.to?startOfDay(new Date(x.to+"T12:00:00")):a;const n=Math.round((a-t)/864e5);return t>b?{past:true}:n<=0?{now:true}:{n}}
@@ -2566,13 +2575,14 @@ function reiseRow(){const l=urlaube(),hearts=x=>Object.values(x.hearts||{}).filt
 const tripSt=x=>x.done?"erledigt":x.date?"geplant":x.fav?"favorit":"idee";
 function rgItems(){const U=urlaube(),L=[];
   // Ausflugsziele der Art Spielplatz (auch die aus Sport und Spiel umgezogenen) laufen unter der Art 🛝 Spielplatz
-  trips().forEach(x=>{const k=tripKinds().find(c=>c[0]===x.kind),sp=x.kind==="spiel";L.push({t:"t",id:x.id,ic:emoOf(x,k?k[1]:"🚲"),name:x.name,art:sp?"spielplatz":"ausflug",artL:sp?"Spielplatz":"Ausflugsziel"+(k&&k[0]!=="sonst"?" · "+k[2]:""),u:"hier",st:tripSt(x),date:x.date,place:x.place||x.name,rain:x.wx==="egal",pack:x.pack&&packLists().find(p=>p.id===x.pack),at:x.at||0})});
-  funde("reise").forEach(f=>{const k=fundKind(f.kind,"reise"),u=f.reise&&U.find(y=>y.id===f.reise);L.push({t:"f",id:f.id,ic:k[1],name:f.name,art:k[0],artL:k[2]+(f.st==="gebucht"?" · gebucht":""),u:u?u.id:"hier",uL:u?(u.emo||"⛵")+" "+u.name:"",st:f.st==="gebucht"?"erledigt":f.st||"idee",place:f.addr||f.place||(u?f.name+" "+(u.place||""):""),ref:f.ref||"",at:f.at||0})});
+  trips().forEach(x=>{const k=tripKinds().find(c=>c[0]===x.kind),sp=x.kind==="spiel";L.push({t:"t",id:x.id,ic:emoOf(x,k?k[1]:"🚲"),name:x.name,art:sp?"spielplatz":"ausflug",artL:sp?"Spielplatz":"Ausflugsziel"+(k&&k[0]!=="sonst"?" · "+k[2]:""),u:"hier",st:tripSt(x),date:x.date,place:x.place||x.name,rain:x.wx==="egal",pack:x.pack&&packLists().find(p=>p.id===x.pack),also:gmAlso(x),at:x.at||0})});
+  funde("reise").forEach(f=>{const k=fundKind(f.kind,"reise"),u=f.reise&&U.find(y=>y.id===f.reise);L.push({t:"f",id:f.id,ic:k[1],name:f.name,art:k[0],artL:k[2]+(f.st==="gebucht"?" · gebucht":""),u:u?u.id:"hier",uL:u?(u.emo||"⛵")+" "+u.name:"",st:f.st==="gebucht"?"erledigt":f.st||"idee",place:f.addr||f.place||(u?f.name+" "+(u.place||""):""),ref:f.ref||"",also:gmAlso(f),at:f.at||0})});
   return L.sort((a,b)=>(b.at||0)-(a.at||0))}
 const refMask=r=>"****"+String(r||"").slice(-2);
 // Gemerkt nach dem Bauplan; mit uid nur für diesen Urlaub (eigene Filter S.rgUF über data-rguf, Erledigtes = gebucht bleibt sichtbar, unten)
 function rgCard(uid){const inU=!!uid,F=inU?(S.rgUF&&S.rgUF.uid===uid?S.rgUF:(S.rgUF={uid,k:"",s:""})):(S.rgF||(S.rgF={k:"",u:"",s:""})),all=rgItems().filter(x=>!inU||x.u===uid),open=all.filter(x=>x.st!=="erledigt");
   const R=all.filter(x=>(!F.k||x.art===F.k)&&(inU||!F.u||x.u===F.u)&&(!F.w||x.rain)&&(F.s==="erledigt"?x.st==="erledigt":F.s?x.st===F.s:inU||x.st!=="erledigt"));if(inU)R.sort((a,b)=>(a.st==="erledigt")-(b.st==="erledigt"));
+  const GG=inU||F.k||F.u||F.w?"":gmRows("reise",i=>F.s?i.st===F.s:i.st!=="erledigt");
   const n=F.more?R.length:Math.min(R.length,8),chip=(k,v,lab)=>`<button class="chipbtn neutral" ${inU?"data-rguf":"data-rgf"}="${k}|${v}" aria-pressed="${F[k]===v}">${lab}</button>`;
   const arts=(inU?[]:[["ausflug","🚲","Ausflugsziel"]]).concat(FAREA.reise.kinds).filter(a=>(inU?all:open).some(x=>x.art===a[0])||F.k===a[0]);
   const us=urlaube().filter(u=>open.some(x=>x.u===u.id)||F.u===u.id);
@@ -2580,8 +2590,8 @@ function rgCard(uid){const inU=!!uid,F=inU?(S.rgUF&&S.rgUF.uid===uid?S.rgUF:(S.r
   return `<section class="card rgcard"><div class="section-head" style="align-items:center"><h2>🔖 Gemerkt <span class="freq">(${inU?all.length:open.length})</span></h2><button class="primary" data-act="merken"${inU?` data-u="${esc(uid)}"`:""}>＋ Merken</button></div>
     ${inU?(all.length?`<div class="unl scrollrow">${chip("k","","Alle")}${arts.map(a=>chip("k",a[0],a[1]+" "+a[2])).join("")}${all.some(x=>x.st==="erledigt")||F.s==="erledigt"?chip("s","erledigt","✅ Gebucht"):""}</div>`:""):all.length?`<div class="unl scrollrow">${chip("k","","Alle")}${arts.map(a=>chip("k",a[0],a[1]+" "+a[2])).join("")}</div>
     <div class="unl scrollrow">${chip("u","","Alle")}${chip("u","hier","🏙️ Für hier")}${us.map(u=>chip("u",u.id,(u.emo||"⛵")+" "+u.name)).join("")}${open.some(x=>x.rain)||F.w?chip("w","regen","☔ Bei Regen"):""}${chip("s","favorit","⭐ Nur Favoriten")}${chip("s","erledigt","✅ Erledigt")}</div>`:""}
-    ${R.length?`<ul class="mklist">${R.slice(0,n).map(x=>`<li class="mk"><button class="mkb" ${x.t==="t"?`data-tripedit="${esc(x.id)}"`:`data-fundedit="${esc(x.id)}"`} aria-label="${esc(x.name)} ansehen und ändern"><span class="mki">${esc(x.ic)}</span><span class="mkt"><b>${esc(x.name)}</b><span class="freq">${esc(x.artL)}${inU?"":x.uL?" · "+esc(x.uL):x.u==="hier"?" · für hier":""}${x.ref?" · Buchung "+esc(refMask(x.ref)):""}</span></span></button>${x.pack&&x.st!=="erledigt"?`<button class="catbtn routebtn" data-gopack="${esc(x.pack.id)}" aria-label="Packliste ${esc(x.pack.name)} öffnen">🎒</button>`:""}${x.st!=="erledigt"&&x.place?transitA(x.place):""}${badge(x)}</li>`).join("")}</ul>${R.length>n?`<button class="ghost small" ${inU?"data-rguf":"data-rgf"}="more|1">Alle ${R.length} zeigen</button>`:""}`
-      :`<div class="freq">${all.length?"Für diesen Filter ist nichts gemerkt.":inU?"Unterkunft, Anreise, Strände, Spielplätze, Restaurants: mit ＋ Merken anlegen. Alles steht auch in der 🗃️ Sammlung.":"Merkt euch hier Ausflugsziele, Unterkünfte, Spielplätze oder Restaurants, für hier oder für einen Urlaub."}</div>`}
+    ${R.length?`<ul class="mklist">${R.slice(0,n).map(x=>`<li class="mk"><button class="mkb" ${x.t==="t"?`data-tripedit="${esc(x.id)}"`:`data-fundedit="${esc(x.id)}"`} aria-label="${esc(x.name)} ansehen und ändern"><span class="mki">${esc(x.ic)}</span><span class="mkt"><b>${esc(x.name)}</b><span class="freq">${esc(x.artL)}${inU?"":x.uL?" · "+esc(x.uL):x.u==="hier"?" · für hier":""}${x.ref?" · Buchung "+esc(refMask(x.ref)):""}${esc(x.also||"")}</span></span></button>${x.pack&&x.st!=="erledigt"?`<button class="catbtn routebtn" data-gopack="${esc(x.pack.id)}" aria-label="Packliste ${esc(x.pack.name)} öffnen">🎒</button>`:""}${x.st!=="erledigt"&&x.place?transitA(x.place):""}${badge(x)}</li>`).join("")}</ul>${R.length>n?`<button class="ghost small" ${inU?"data-rguf":"data-rgf"}="more|1">Alle ${R.length} zeigen</button>`:""}${GG?`<ul class="mklist gmlist">${GG}</ul>`:""}`
+      :GG?`<ul class="mklist gmlist">${GG}</ul>`:`<div class="freq">${all.length?"Für diesen Filter ist nichts gemerkt.":inU?"Unterkunft, Anreise, Strände, Spielplätze, Restaurants: mit ＋ Merken anlegen. Alles steht auch in der 🗃️ Sammlung.":"Merkt euch hier Ausflugsziele, Unterkünfte, Spielplätze oder Restaurants, für hier oder für einen Urlaub."}</div>`}
     ${inU?`<div class="freq">Ein Tipp auf den Namen ändert den Eintrag, auch Buchungsnummer und Adresse. Das Schild schaltet den Stand weiter, gebucht ist ✅ Erledigt. <button class="linkish" data-act="bkopen">＋ Buchung mit Nummer eintragen</button> · <button class="linkish" data-fundopen="${esc(uid)}" data-ar="reise">✨ Vorschläge und alle Filter</button></div>${S.bkOpen===uid?`<form id="bkform" class="bkform" novalidate><input id="bk-name" placeholder="Was (z. B. Ferienhaus, Fähre)" maxlength="80" autocomplete="off"><input id="bk-ref" placeholder="Buchungsnummer" maxlength="60" autocomplete="off"><input id="bk-link" type="url" placeholder="Link" autocomplete="off"><input id="bk-addr" placeholder="Adresse oder Anfahrt" maxlength="160" autocomplete="off"><button class="primary" type="submit">Hinzufügen</button></form>`:""}`
       :`<div class="freq">Ein Tipp auf den Namen ändert den Eintrag, das Schild rechts schaltet den Stand weiter: 💡 Idee, ⭐ Favorit, 📅 Geplant, ✅ Erledigt. <button class="linkish" data-act="tripnew">Ausflugsziel mit allen Angaben</button></div>`}</section>`}
 // Fenster „🔖 Merken“ (Florian 17.11.2026): Was, Art, Gehört zu, Stand. Ausflugsziel für hier → food/trip, alles andere → food/fund (Daten bleiben, wo sie waren)
@@ -2698,6 +2708,7 @@ function renderTripIdeas(){const d=S.tripDraft;
     <label class="fld"><span>Link (Karte oder Webseite)</span><input type="url" id="tr-link" data-tf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off"></label>
     <label class="fld"><span>Notiz</span><textarea id="tr-note" data-tf="note" rows="3" placeholder="Parkplatz, Eintritt, was man nicht vergessen darf">${esc(d.note)}</textarea></label>
     ${d.id?geldSrcRow("trip:"+d.id,{name:d.name||"",cat:"frei",date:d.date||ymd(new Date())}):""}
+    ${gmMaskRow("trip",d.id)}
     <div class="btnrow"><button class="primary" data-act="tripsave">Speichern</button><button class="ghost" data-act="tripcancel">Abbrechen</button>${d.id?`<button class="ghost" data-move="trip|${esc(d.id)}">↪ Verschieben</button><button class="ghost danger" data-act="tripdel">Löschen</button>`:""}</div></section>`}
   const mz=musLinks("auto",3);
   const all=trips(),F=S.tripFilter||"",match=x=>!F||(F==="regen"?x.wx==="egal":x.kind===F);
@@ -2761,6 +2772,7 @@ function buyLinked(list){const out=[];
   if(list==="geschenke"){projs().filter(x=>projCat(x)==="geschenk"&&!x.done&&(x.state==="geplant"||x.state==="dran")).forEach(x=>out.push({name:x.name,kid:x.who==="kid",sub:giftFor(x),tick:`data-projdone="${esc(x.id)}"`,link:`<button class="chipbtn neutral buyref" data-nav="geschenke|">🎁 Idee ›</button>`}));
     const y=new Date().getFullYear();advCals().filter(c=>c.year===y).forEach(c=>Object.values(advDoors(c.id)).filter(d=>(d.kind||advKind(d.name))==="klein"&&(d.st||"idee")==="idee"&&d.name).sort((a,b)=>a.day-b.day).forEach(d=>out.push({name:d.name,kid:true,sub:"für "+kidName()+" · Türchen "+d.day+(advNeed(d).length?" · "+advNeed(d).join(", "):""),tick:`data-advbought="${esc(c.id)}|${d.day}"`,link:`<button class="chipbtn neutral buyref" data-advgo="${esc(c.id)}">🎄 Türchen ›</button>`})));
     musics().filter(m=>m.art==="hoer"&&m.st==="geplant").forEach(m=>out.push({name:"🎧 "+m.name,kid:true,sub:"Hörspiel/Tonie für "+kidName(),tick:`data-musbought="${esc(m.id)}"`,link:`<button class="chipbtn neutral buyref" data-nav="musik|ma:hoer">🎧 Musik ›</button>`}))}
+  if(list==="geschenke")gmGuests("geschenke").filter(i=>i.st==="geplant").forEach(i=>out.push({name:i.name,kid:i.who==="kid",sub:[gmWho(i),i.from].filter(Boolean).join(" · "),tick:`data-gmdone="${i.store}|${esc(i.id)}"`,link:`<button class="chipbtn neutral buyref" data-nav="geschenke|">🎁 Geschenke ›</button>`}));
   if(list==="baumarkt")funde("haus").filter(f=>f.proj&&(f.kind==="werkzeug"||f.kind==="material")&&f.st!=="gebucht").forEach(f=>{const hp=hprojs().find(x=>x.id===f.proj);if(hp)out.push({name:f.name,sub:f.price?f.price+" €":"",tick:`data-fundbought="${esc(f.id)}"`,link:`<button class="chipbtn neutral buyref" data-hproj="${esc(hp.id)}">${esc(hp.emo||"🛋️")} ${esc(hp.name)} ›</button>`})});
   return out}
 function renderBuy(){const O=S.buyOpen||(S.buyOpen={}),all=buys();
@@ -3161,6 +3173,7 @@ function renderProjects(){const d=S.projDraft;
     ${d.cat==="geschenk"?`<div class="fld"><span>Für wen</span>${one("who",whoOpts().filter(o=>o[0]!=="both").map(o=>[o[0],o[1]]))}</div><label class="fld"><span>Oder für jemand anderen, und zu welchem Anlass?</span><input type="text" id="pj-for" data-pf="for" value="${esc(d.for)}" maxlength="60" placeholder="Zum Beispiel Oma, Weihnachten" autocomplete="off"></label>`:""}
     <label class="fld"><span>Link (Shop, Anleitung, Bild)</span><input type="url" id="pj-link" data-pf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off"></label>
     <label class="fld"><span>Notiz</span><textarea id="pj-note" data-pf="note" rows="4" placeholder="Maße, Preis, nächste Schritte">${esc(d.note)}</textarea></label>
+    ${gmMaskRow("idea",d.id)}
     <div class="btnrow"><button class="primary" data-act="projsave">Speichern</button><button class="ghost" data-act="projcancel">Abbrechen</button>${d.id?`<button class="ghost" data-move="idea|${esc(d.id)}">↪ Verschieben</button><button class="ghost danger" data-act="projdel">Löschen</button>`:""}</div></section>`}
   const all=projs();let F=S.projFilter||"";if(S.tab==="geschenke"&&F!=="advent")F="geschenk";
   if(F==="advent")return h+renderAdvent();
@@ -3176,7 +3189,7 @@ function renderProjects(){const d=S.projDraft;
   const cat=projCats().find(k=>k[0]===F)||PROJ_CATS[1],inCat=x=>projCat(x)===F,open=all.filter(x=>!x.done&&inCat(x)),done=all.filter(x=>x.done&&inCat(x)).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0));
   const ord=x=>{const i=PROJ_STATE.findIndex(s=>s[0]===pjSt(x.state));return i<0?0:-i};open.sort((a,b)=>ord(a)-ord(b)||(a.at||0)-(b.at||0));
   const card=x=>{const l=safeLink(x.link),st=PROJ_STATE.find(s=>s[0]===pjSt(x.state))||PROJ_STATE[0];
-    return `<li class="${x.done?"done":""}"><button class="item" data-projdone="${esc(x.id)}" aria-pressed="${!!x.done}" aria-label="${esc(x.name)}: ${x.done?"doch nicht erledigt":"erledigt"}"><span class="box">${x.done?"✓":""}</span><span class="nm">${x.emo?esc(x.emo)+" ":""}${esc(x.name)}${giftFor(x)?`<br><span class="freq">${esc(giftFor(x))}</span>`:""}${String(x.ref||"").startsWith("fund:")?`<br><span class="freq">🧩 auch im Projekt</span>`:""}${x.note&&!x.done?`<br><span class="freq">${telNote(x.note)}</span>`:""}</span></button>${telA(x.note)}${x.done?"":`<button class="stbadge st-${st[0]}" data-projstate="${esc(x.id)}" aria-label="Stand: ${st[1]}, antippen zum Weiterschalten">${st[1]}</button>`}${l?`<a class="catbtn" href="${esc(l)}" target="_blank" rel="noopener" aria-label="Link öffnen">🔗</a>`:""}${x.done?"":bell(S.tab,x)}${!x.done&&HCAT[projCat(x)]?`<button class="catbtn" data-proj2hp="${esc(x.id)}" aria-label="${esc(x.name)} zum Projekt machen">🧩</button>`:""}<button class="rm" data-projedit="${esc(x.id)}" aria-label="${esc(x.name)} bearbeiten">✎</button></li>`};
+    return `<li class="${x.done?"done":""}"><button class="item" data-projdone="${esc(x.id)}" aria-pressed="${!!x.done}" aria-label="${esc(x.name)}: ${x.done?"doch nicht erledigt":"erledigt"}"><span class="box">${x.done?"✓":""}</span><span class="nm">${x.emo?esc(x.emo)+" ":""}${esc(x.name)}${giftFor(x)?`<br><span class="freq">${esc(giftFor(x))}</span>`:""}${gmShow(x).length?`<br><span class="freq">${esc(gmAlso(x).slice(3))}</span>`:""}${x.note&&!x.done?`<br><span class="freq">${telNote(x.note)}</span>`:""}</span></button>${telA(x.note)}${x.done?"":`<button class="stbadge st-${st[0]}" data-projstate="${esc(x.id)}" aria-label="Stand: ${st[1]}, antippen zum Weiterschalten">${st[1]}</button>`}${l?`<a class="catbtn" href="${esc(l)}" target="_blank" rel="noopener" aria-label="Link öffnen">🔗</a>`:""}${x.done?"":bell(S.tab,x)}${!x.done&&HCAT[projCat(x)]?`<button class="catbtn" data-proj2hp="${esc(x.id)}" aria-label="${esc(x.name)} zum Projekt machen">🧩</button>`:""}<button class="rm" data-projedit="${esc(x.id)}" aria-label="${esc(x.name)} bearbeiten">✎</button></li>`};
   h+=S.tab==="geschenke"?`<div class="tiles">${advTile()}<button class="tile" data-nav="listen|bl:geschenke"><span class="te">🛍️</span><span class="tn">Zum Kaufen</span><span class="tc">Einkauf › Geschenke</span></button>${(()=>{const H=musics().filter(m=>m.art==="hoer"),g=H.filter(m=>m.st==="geplant").length;return `<button class="tile" data-nav="musik|ma:hoer"><span class="te">🎧</span><span class="tn">Hörspiele und Tonies</span><span class="tc">${g?g+" geplant":H.length?H.length+" bei Musik":"bei Musik"}</span></button>`})()}</div><div class="freq">Steht ein Geschenk, Hörspiel oder Tonie auf 📅 Geplant, erscheint es zum Kaufen bei Einkauf › Weitere Listen › Geschenke.</div>`:`<div class="btnrow"><button class="ghost" data-pfilter="">${projBack()}</button></div><h2 style="margin:0">${cat[1]} ${esc(cat[2])}</h2>`;
   const hp=S.tab==="amhaus"&&HCAT[F];
   if(hp){h+=hprojTiles(F);
@@ -3185,7 +3198,8 @@ function renderProjects(){const d=S.projDraft;
     if(done.length)h+=`<details class="card reisedone"><summary class="section-head"><h2>✅ Erledigt</h2><span class="freq num">${done.length} ▾</span></summary><ul class="shop">${done.map(card).join("")}</ul></details>`;
     return h}
   h+=`<form class="addrow" id="projform" novalidate><input type="text" id="projinput" placeholder="Neu bei ${esc(cat[2])}" value="${esc(S.projText)}" autocomplete="off" enterkeyhint="done" aria-label="Neue Idee bei ${esc(cat[2])}"><button class="primary" type="submit">Merken</button></form>`;
-  h+=open.length?`<section class="card"><div class="section-head"><h2>Offen</h2><span class="freq num">${open.length}</span></div><ul class="shop">${open.map(card).join("")}</ul><div class="freq">Das Schild rechts schaltet weiter: 💡 Idee, ⭐ Favorit, 📅 Geplant. Das Kästchen links heißt ✅ erledigt.${S.tab==="amhaus"?" 🧩 macht aus einer Idee ein Projekt.":""}</div></section>`
+  const GG=S.tab==="geschenke"?gmGuests("geschenke").filter(i=>i.st!=="erledigt"):[];
+  h+=open.length||GG.length?`<section class="card"><div class="section-head"><h2>Offen</h2><span class="freq num">${open.length+GG.length}</span></div>${open.length?`<ul class="shop">${open.map(card).join("")}</ul>`:""}${GG.length?`<ul class="mklist gmlist">${GG.map(i=>gmRow(i,"geschenke")).join("")}</ul>`:""}<div class="freq">Das Schild rechts schaltet weiter: 💡 Idee, ⭐ Favorit, 📅 Geplant. Das Kästchen links heißt ✅ erledigt.${S.tab==="amhaus"?" 🧩 macht aus einer Idee ein Projekt.":""}</div></section>`
     :`<div class="empty"><h2>Hier ist noch nichts</h2><div>Tippt oben ein, was euch einfällt. Es landet direkt bei ${esc(cat[2])}.</div></div>`;
   if(done.length)h+=`<section class="card"><div class="section-head"><h2>✅ Erledigt</h2><span class="freq num">${done.length}</span></div><ul class="shop">${done.map(card).join("")}</ul></section>`;
   return h}
@@ -3272,12 +3286,8 @@ function advBack(){const n=new Date();if(n.getMonth()!==11||n.getDate()>24)retur
   return `<div class="btasks">${L.map(c=>{const D=advDoors(c.id),x=D[d],m=d<24&&D[d+1],hid=advHidden(c,d);return `<button class="btask" data-advgo="${esc(c.id)}"><span>🎄</span><b>${hid?"Türchen "+d+" wartet auf dich":x?"Türchen "+d+": "+esc(x.name):"Türchen "+d+" ist noch leer"}</b><small>${c.for==="kid"?"Kind":esc(pname(c.for))}${m&&!advHidden(c,d+1)&&n.getHours()>=16?" · morgen: "+esc(m.name):""}</small></button>`}).join("")}</div>`}
 // ---------- Funde bearbeiten, entfernen, verknüpfen (Florian 16.11.2026) ----------
 // Ein Fund (food/fund) kann zusätzlich an anderer Stelle stehen. Verknüpfung in f.links {<ziel>: <id dort>}; Ziele hier austauschbar.
-// geschenk = Geschenk-Idee unter Ideen (food/idea, cat geschenk, who, ref "fund:<id>"), einkauf = Einkaufsliste, wichtig = Erinnerung.
+// einkauf = Einkaufsliste, wichtig = Erinnerung (dort entsteht wirklich ein eigener Eintrag). Geschenke, Spielen, Musik, Kind: seit 17.11.2026 keine Kopie mehr, sondern das Feld show (29f-gemerkt.js).
 const FUND_LINKS={
-  geschenk:{lbl:"🎁 Geschenke",nav:"geschenke|",has:id=>!!projs().find(x=>x.id===id),
-    make:async(f,o)=>{const id=newId("p");await S.store.setPath("food/idea/"+id,{name:f.name,cat:"geschenk",state:"idee",who:o.who||null,link:f.link||null,ref:"fund:"+f.id,at:Date.now(),by:S.me||""});return id},
-    sync:async(id,f)=>{await S.store.setPath("food/idea/"+id+"/name",f.name);await S.store.setPath("food/idea/"+id+"/link",f.link||null)},
-    drop:async id=>S.store.setPath("food/idea/"+id,null)},
   einkauf:{lbl:"🧺 Einkaufsliste",nav:"einkauf|",has:id=>!!shopItems().find(x=>x.id===id&&!x.done),
     make:async f=>{const id="i"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);await S.store.setPath("food/shop/"+id,{name:f.name.slice(0,80),done:false,at:Date.now(),by:S.me||"",src:"Projekt: "+fundProjName(f)});return id},
     sync:async(id,f)=>S.store.setPath("food/shop/"+id+"/name",f.name.slice(0,80)),
@@ -3290,7 +3300,6 @@ function fundProjName(f){const ar=f.area||"reise",A=FAREA[ar],p=f[A.key]&&A.proj
 const fundLinked=f=>Object.keys(FUND_LINKS).filter(k=>f.links&&f.links[k]&&FUND_LINKS[k].has(f.links[k]));
 // Vorschlag, wohin ein Fund passt (Florian: vorschlagen, aber selbst auswählen)
 function fundSugg(f){const t=((f.name||"")+" "+(f.link||"")).toLowerCase(),out=[];
-  if(f.kind==="spielzeug"||/geschenk|tonie|lego|duplo|playmobil|puzzle|spielzeug|kuscheltier|buch|bilderbuch|gutschein/.test(t))out.push("geschenk");
   if(/drogerie|dm\b|rossmann|lebensmittel|reiniger|putzmittel/.test(t))out.push("einkauf");
   return out.filter(k=>!fundLinked(f).includes(k))}
 async function fundSetLinks(f,want,o){const L=Object.assign({},f.links||{});
@@ -3298,19 +3307,19 @@ async function fundSetLinks(f,want,o){const L=Object.assign({},f.links||{});
     if(w&&!on)L[k]=await FUND_LINKS[k].make(f,o||{});else if(!w&&on){await FUND_LINKS[k].drop(L[k]);delete L[k]}else if(w&&on)await FUND_LINKS[k].sync(L[k],f)}
   await S.store.setPath("food/fund/"+f.id+"/links",Object.keys(L).length?L:null)}
 async function fundDropAll(f){for(const k of fundLinked(f))await FUND_LINKS[k].drop(f.links[k]);await S.store.setPath("food/fund/"+f.id,null)}
-function fundEdit(id){const f=listOf(S.food&&S.food.fund).find(y=>y.id===id);if(!f)return;const ar=f.area||"reise",A=FAREA[ar],sg=fundSugg(f),lk=fundLinked(f);
-  const gift=f.links&&f.links.geschenk&&projs().find(x=>x.id===f.links.geschenk);
+function fundEdit(id){const f=listOf(S.food&&S.food.fund).find(y=>y.id===id);if(!f)return;const ar=f.area||"reise",A=FAREA[ar],sg=fundSugg(f).concat(gmSugg(gmItem("fund",f))),lk=fundLinked(f).concat(gmShow(f));
   editBox(f.name,[{k:"name",label:"Name",type:"text",val:f.name},{k:"link",label:"Link",type:"url",val:f.link||""},
     {k:"kind",label:"Art",type:"chips",opts:A.kinds.map(c=>[c[0],c[1]+" "+c[2]]),val:f.kind||"sonst"},
     {k:"st",label:"Stand",type:"chips",opts:A.st.map(s=>[s[0],s[1]+" "+s[2]]),val:f.st||"idee"},
     {k:"price",label:"Preis in €",type:"text",val:f.price||""}].concat(ar==="reise"?[{k:"ref",label:"Buchungsnummer (nur in euren Daten, in Listen versternt)",type:"text",val:f.ref||""},{k:"addr",label:"Adresse oder Anfahrt",type:"text",val:f.addr||""}]:[]).concat([
     {k:"proj",label:"Gehört zu",type:"chips",opts:[["",A.none]].concat(A.projs().filter(p=>ar==="reise"||p.state!=="erledigt"||p.id===f[A.key]).map(p=>[p.id,(p.emo||A.emo)+" "+p.name])),val:f[A.key]||""},
-    {k:"links",label:"Auch zeigen bei",type:"multi",opts:Object.keys(FUND_LINKS).map(k=>[k,(sg.includes(k)?"✨ ":"")+FUND_LINKS[k].lbl]),val:lk,hint:sg.length?"✨ = passt vermutlich. Antippen wählt aus, nichts passiert von allein. Abwählen nimmt den Eintrag dort wieder weg.":"Antippen wählt aus. Abwählen nimmt den Eintrag dort wieder weg."},
-    {k:"who",label:"Geschenk für wen",type:"chips",opts:[["","Offen"]].concat(whoOpts().filter(o=>o[0]!=="both")),val:(gift&&gift.who)||""}]),
+    {k:"who",label:"Für wen",type:"chips",opts:[["","Offen"]].concat(whoOpts().filter(o=>o[0]!=="both")),val:f.who||""},
+    {k:"links",label:"Zeigen bei",type:"multi",opts:GM_PLACES.filter(p=>p[0]!==ar).map(p=>[p[0],(sg.includes(p[0])?"✨ ":"")+p[1]+" "+p[2]]).concat(Object.keys(FUND_LINKS).map(k=>[k,(sg.includes(k)?"✨ ":"")+FUND_LINKS[k].lbl])),val:lk,hint:(sg.length?"✨ = passt vermutlich. ":"")+"Der Eintrag bleibt einer und steht auch dort, mit demselben Stand. Einkaufsliste und Wichtig legen dort einen eigenen Eintrag an. Abwählen nimmt ihn wieder weg."},
+    {k:"note",label:"Notiz",type:"text",val:f.note||"",max:500}]),
     async V=>{const name=String(V.name||"").trim().slice(0,120)||f.name,link=safeLink(V.link)||null,n=Object.assign({},f,{name,link});
-      const up={name,link,kind:V.kind||"sonst",st:V.st||"idee",price:String(V.price||"").replace(/[^0-9,.]/g,"").slice(0,10)||null};up[A.key]=V.proj||null;if(ar==="reise"){up.ref=String(V.ref||"").trim().slice(0,60)||null;up.addr=String(V.addr||"").trim().slice(0,160)||null}
+      const up={name,link,who:V.who||null,note:String(V.note||"").trim().slice(0,500)||null,kind:V.kind||"sonst",st:V.st||"idee",price:String(V.price||"").replace(/[^0-9,.]/g,"").slice(0,10)||null};up[A.key]=V.proj||null;if(ar==="reise"){up.ref=String(V.ref||"").trim().slice(0,60)||null;up.addr=String(V.addr||"").trim().slice(0,160)||null}
       for(const k of Object.keys(up))await S.store.setPath("food/fund/"+f.id+"/"+k,up[k]);
-      await fundSetLinks(n,V.links||[],{who:V.who});if(V.links&&V.links.includes("geschenk")&&f.links&&f.links.geschenk)await S.store.setPath("food/idea/"+f.links.geschenk+"/who",V.who||null);toast("Gespeichert")},
+      const W=V.links||[];await gmSetShow("fund",f.id,W.filter(k=>gmPlace(k)));await fundSetLinks(n,W.filter(k=>FUND_LINKS[k]));toast("Gespeichert")},
     (f.area==="haus"?[["↪ Verschieben",()=>moveOpen("fund",f.id)]]:[]).concat(fundDelOpts(f)))}
 function fundDelOpts(f){const A=FAREA[f.area||"reise"],o=[];
   if(f[A.key])o.push(["Nur aus dem "+A.word+" nehmen",async()=>{await S.store.setPath("food/fund/"+f.id+"/"+A.key,null);toast("Steht weiter in der Sammlung")},false]);
@@ -3346,7 +3355,7 @@ function musLinks(occ,max){const L=musics().filter(m=>safeLink(m.link)&&(csv(m.o
 // Gerade beliebt beim Kind (💛), für die Seite Kind
 function musLikedRow(){const L=musics().filter(m=>m.like&&musKid(m));if(!L.length)return "";return `<div class="musrow">💛 ${L.slice(0,4).map(m=>{const u=safeLink(m.link);return u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(musArt(m)[1])} ${esc(m.name)}</a>`:`${esc(musArt(m)[1])} ${esc(m.name)}`}).join(" · ")}<button class="linkbtn" data-go="musik" data-musf="like">›</button></div>`}
 function musRow(m){const u=safeLink(m.link),sv=musSvc(m.link),a=musArt(m),oc=csv(m.occ).map(k=>musOcc().find(o=>o[0]===k)).filter(Boolean),kid=musKid(m);
-  const sub=[a[2]].concat(oc.map(o=>o[2])).join(" · ")+(u?" · "+sv[1]:"");
+  const sub=[a[2]].concat(oc.map(o=>o[2])).join(" · ")+(u?" · "+sv[1]:"")+gmAlso(m);
   const right=a[0]==="hoer"?(()=>{const s=musSt(m);return `<button class="stbadge st-${s[0]}" data-musst="${esc(m.id)}" aria-label="Stand von ${esc(m.name)}: ${s[2]}, antippen schaltet weiter">${s[1]} ${s[2]}</button>`})()
     :`<button class="catbtn routebtn" data-musfav="${esc(m.id)}" aria-pressed="${!!m.fav}" aria-label="${m.fav?"Kein Favorit mehr":"Als Favorit markieren"}">${m.fav?"⭐":"☆"}</button>`;
   return `<li class="mk"><a class="mkb" ${u?`href="${esc(u)}" target="_blank" rel="noopener"`:""}><span class="mki">${esc(m.emo||a[1])}</span><span class="mkt"><b>${esc(m.name)}</b><span class="freq">${esc(sub)}</span>${m.note?`<span class="freq">${esc(m.note)}</span>`:""}</span></a>${m.txt?`<button class="catbtn routebtn" data-mustxt="${esc(m.id)}" aria-expanded="${S.musTxt===m.id}" aria-label="Liedtext ${S.musTxt===m.id?"zuklappen":"zeigen"}">📝</button>`:""}${kid?`<button class="catbtn routebtn muslk" data-muslike="${esc(m.id)}" aria-pressed="${!!m.like}" aria-label="${m.like?"Nicht mehr gerade beliebt":"Gerade beliebt"}">💛</button>`:""}${right}<button class="catbtn routebtn" data-musedit="${esc(m.id)}" aria-label="${esc(m.name)} bearbeiten">✎</button></li>${S.musTxt===m.id&&m.txt?`<li class="mustxt">${esc(m.txt)}</li>`:""}`}
@@ -3365,7 +3374,7 @@ function renderMusic(){const d=S.musDraft,F=S.musFilter||"",AF=S.musArtF||"";
     ${a==="lied"?`<label class="fld"><span>Liedtext zum Mitsingen (optional)</span><textarea data-muf="txt" rows="5" maxlength="4000">${esc(d.txt||"")}</textarea></label>`:""}
     <label class="fld"><span>Eigenes Symbol (optional, ein Emoji)</span><input data-muf="emo" value="${esc(d.emo||"")}" maxlength="8" placeholder="${musArt(d)[1]}" autocomplete="off" style="width:90px"></label>
     <label class="fld"><span>Notiz</span><input data-muf="note" value="${esc(d.note)}" maxlength="120" autocomplete="off"></label>
-    <div class="btnrow"><button class="primary" data-act="mussave">Speichern</button><button class="ghost" data-act="muscancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="musdel">Löschen</button>`:""}</div></section>`}
+    ${gmMaskRow("mus",d.id)}<div class="btnrow"><button class="primary" data-act="mussave">Speichern</button><button class="ghost" data-act="muscancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="musdel">Löschen</button>`:""}</div></section>`}
   const all=musics(),cA={},cO={};all.forEach(m=>{const k=musArt(m)[0];cA[k]=(cA[k]||0)+1;csv(m.occ).forEach(o=>cO[o]=(cO[o]||0)+1)});
   const L=all.filter(m=>(!AF||musArt(m)[0]===AF)&&(!F||(F==="like"?m.like:F==="fav"?musFav(m):csv(m.occ).includes(F))));
   const chA=(v,t)=>`<button class="chipbtn neutral" data-musartf="${v}" aria-pressed="${AF===v}">${t}</button>`,chO=(v,t)=>`<button class="chipbtn neutral" data-musfilter="${v}" aria-pressed="${F===v}">${t}</button>`;
@@ -3373,7 +3382,8 @@ function renderMusic(){const d=S.musDraft,F=S.musFilter||"",AF=S.musArtF||"";
   h+=`<section class="card muscard"><div class="section-head" style="align-items:center"><h2>🔖 Gemerkt <span class="freq">(${all.length})</span></h2><button class="primary" data-act="musnew">＋ Merken</button></div>`;
   if(all.length)h+=`<div class="unl scrollrow">${chA("","Alle")}${MUS_ART.filter(a=>cA[a[0]]||AF===a[0]).map(a=>chA(a[0],`${a[1]} ${a[2]} ${cA[a[0]]||0}`)).join("")}</div>
     <div class="unl scrollrow">${chO("","Alle")}${all.some(m=>m.like)||F==="like"?chO("like","💛 Gerade beliebt"):""}${all.some(musFav)||F==="fav"?chO("fav","⭐ Favoriten"):""}${musOcc().filter(o=>cO[o[0]]||F===o[0]).map(o=>chO(o[0],`${esc(o[1])} ${esc(o[2])}`)).join("")}</div>`;
-  h+=L.length?`<ul class="mklist">${L.map(musRow).join("")}</ul>`:`<div class="freq">${all.length?"Für diesen Filter ist nichts gemerkt.":"Noch nichts gemerkt. Link einfügen genügt. Playlists erscheinen dann auch beim Kochen, bei Urlaub und Ausflügen und unter Spiel zu Hause."}</div>`;
+  const GG=(!AF||AF==="hoer")&&!F?gmRows("hoer"):"";
+  h+=L.length||GG?`<ul class="mklist">${L.map(musRow).join("")}${GG}</ul>`:`<div class="freq">${all.length?"Für diesen Filter ist nichts gemerkt.":"Noch nichts gemerkt. Link einfügen genügt. Playlists erscheinen dann auch beim Kochen, bei Urlaub und Ausflügen und unter Spiel zu Hause."}</div>`;
   if(all.length)h+=`<div class="freq">Tipp auf den Namen öffnet den Link. ⭐ Favorit, 💛 gerade beliebt beim Kind, bei Hörspielen schaltet das Schild den Stand weiter.</div>`;
   return h+`</section>`}
 const plays=()=>listOf(S.food&&S.food.play).filter(x=>!x.moved);
@@ -3406,6 +3416,7 @@ function renderPlay(){const d=S.playDraft,PS=playSecs(),F=S.playF||"",cur=PS.fin
     ${d.sec==="zuhause"&&!d.id?"":`<label class="fld"><span>${d.sec==="spielplatz"?"Link aus Google Maps (sonst sucht die App nach dem Namen)":"Link"}</span><input type="url" id="pl-link" data-plf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off"></label>`}
     <div class="fld"><span>Stand</span><div class="unl">${PLAY_ST.map(s=>`<button type="button" class="chipbtn" data-plset="st" data-v="${s[0]}" aria-pressed="${(d.st||"idee")===s[0]}">${s[1]} ${s[2]}</button>`).join("")}</div></div>
     <label class="fld"><span>Notiz</span><textarea id="pl-note" data-plf="note" rows="3" placeholder="${esc(hint[1])}">${esc(d.note)}</textarea></label>
+    ${gmMaskRow("play",d.id)}
     <div class="btnrow"><button class="primary" data-act="playsave">Speichern</button><button class="ghost" data-act="playcancel">Abbrechen</button>${x?bell("spiel",x):""}${d.id?`<button class="ghost" data-move="play|${esc(d.id)}">↪ Verschieben</button><button class="ghost danger" data-act="playdel">Löschen</button>`:""}</div></section>`}
   const all=plays(),open=all.filter(x=>playSt(x)!=="erledigt"),cS={},STO={favorit:0,geplant:1,idee:2,erledigt:3};open.forEach(x=>{const k=playSecOf(x);cS[k]=(cS[k]||0)+1});
   const R=all.filter(x=>(!cur||playSecOf(x)===cur[0])&&(F==="draussen"?playOut(x):F==="drinnen"?playIn(x):true)&&(F==="erledigt"?playSt(x)==="erledigt":F==="favorit"?playSt(x)==="favorit":playSt(x)!=="erledigt"))
@@ -3414,12 +3425,13 @@ function renderPlay(){const d=S.playDraft,PS=playSecs(),F=S.playF||"",cur=PS.fin
   const chS=(v,t)=>`<button class="chipbtn neutral" data-playsec="${esc(v)}" aria-pressed="${(cur?cur[0]:"")===v}">${t}</button>`,chF=(v,t)=>`<button class="chipbtn neutral" data-playf="${v}" aria-pressed="${F===v}">${t}</button>`;
   const badge=x=>{const s=PLAY_ST.find(y=>y[0]===playSt(x))||PLAY_ST[0];return `<button class="stbadge st-${s[0]}" data-playst="${esc(x.id)}" aria-label="Stand von ${esc(x.name)}: ${s[2]}, antippen schaltet weiter">${s[1]} ${s[2]}</button>`};
   const row=x=>{const k=playSecOf(x),s=PS.find(p=>p[0]===k)||PS[PS.length-1],lk=safeLink(x.link),sp=k==="spielplatz",done=playSt(x)==="erledigt",nt=telPlain(x.note);
-    const sub=[cur?"":s[2],x.age?"ab "+x.age:"",x.wx==="drinnen"?"☔ drinnen":x.wx==="draussen"?"☀️ draußen":x.wx==="egal"?"drinnen und draußen":"",x.when?"🕒 "+x.when:"",x.mat?"🧺 "+x.mat:""].filter(Boolean).join(" · ");
+    const sub=[cur?"":s[2],x.age?"ab "+x.age:"",x.wx==="drinnen"?"☔ drinnen":x.wx==="draussen"?"☀️ draußen":x.wx==="egal"?"drinnen und draußen":"",x.when?"🕒 "+x.when:"",x.mat?"🧺 "+x.mat:""].filter(Boolean).join(" · ")+gmAlso(x);
     return `<li class="mk"><button class="mkb" data-playedit="${esc(x.id)}" aria-label="${esc(x.name)} ansehen und ändern"><span class="mki">${esc(x.emo||s[1])}</span><span class="mkt"><b>${esc(x.name)}</b>${sub?`<span class="freq">${esc(sub)}</span>`:""}${nt?`<span class="freq">${esc(nt.length>90?nt.slice(0,88)+" …":nt)}</span>`:""}</span></button>${telA(x.note)}${lk||sp?`<a class="catbtn routebtn" href="${esc(lk||"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(x.name))}" target="_blank" rel="noopener" aria-label="${sp?"In Google Maps öffnen":"Link öffnen"}">${sp?"🗺️":"🔗"}</a>`:""}${sp&&!done?transitA(x.name):""}${badge(x)}</li>`};
-  h+=`<section class="card playcard"><div class="section-head" style="align-items:center"><h2>🔖 Gemerkt <span class="freq">(${open.length})</span></h2><button class="primary" data-act="playnew">＋ Merken</button></div>
+  h+=`<section class="card playcard"><div class="section-head" style="align-items:center"><h2>🔖 Gemerkt <span class="freq">(${open.length+gmGuests("spiel").filter(i=>i.st!=="erledigt").length})</span></h2><button class="primary" data-act="playnew">＋ Merken</button></div>
     <div class="unl scrollrow">${chS("","Alle")}${PS.map(s=>chS(s[0],`${esc(s[1])} ${esc(s[2])}${cS[s[0]]?" "+cS[s[0]]:""}`)).join("")}${catBtn("play")}</div>
     <div class="unl scrollrow">${chF("","Alle")}${chF("draussen","☀️ Draußen")}${chF("drinnen","☔ Drinnen")}${chF("favorit","⭐ Favoriten")}${chF("erledigt","✅ Erledigt")}</div>`;
-  h+=R.length?`<ul class="mklist">${R.slice(0,n).map(row).join("")}</ul>${R.length>n?`<button class="ghost small" data-act="playmore">Alle ${R.length} zeigen</button>`:""}`
+  const GL=cur||F==="draussen"||F==="drinnen"?[]:gmGuests("spiel").filter(i=>F?i.st===F:i.st!=="erledigt");
+  h+=R.length||GL.length?`<ul class="mklist">${R.slice(0,n).map(row).join("")}${GL.map(i=>gmRow(i,"spiel")).join("")}</ul>${R.length>n?`<button class="ghost small" data-act="playmore">Alle ${R.length} zeigen</button>`:""}`
     :`<div class="freq">${all.length?"Für diesen Filter ist nichts gemerkt.":"Noch nichts gemerkt. Spielideen für zu Hause, Sport und Kurse legt ihr mit ＋ Merken an. Ihr seht beide dieselbe Liste."}</div>`;
   if(cur&&cur[0]==="zuhause")h+=musLinks("kinder",3);
   h+=`<div class="freq">Ein Tipp auf den Namen ändert den Eintrag, das Schild rechts schaltet den Stand weiter: 💡 Idee, ⭐ Favorit, 📅 Geplant, ✅ Erledigt.</div><div class="btnrow"><button class="ghost" data-nav="ausflug|rk:spielplatz">🛝 Spielplätze stehen unter Reisen und Ausflüge ›</button></div></section>`;
@@ -3906,6 +3918,7 @@ app.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;
   if(b.dataset.mealfor){S.mealFor=ymd(new Date());S.booksOpen=true}
   if(b.dataset.allar!=null){arOpen(false);return}
+  if(gmClick(b))return;
   if(b.dataset.route){routePick(b.dataset.route);return}
   if(b.dataset.cook){cookStart(b.dataset.cook);return}
   if(b.dataset.act==="mealforx"){S.mealFor=null;render();return}
@@ -4039,7 +4052,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="muscancel"){S.musDraft=null;render();return}
   if(b.dataset.act==="musdel"&&S.musDraft&&S.musDraft.id){if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Wirklich löschen?";return}try{await S.store.setPath("food/music/"+S.musDraft.id,null);S.musDraft=null;toast("Gelöscht");render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.act==="mussave"&&S.musDraft){const d=S.musDraft,a=d.art||"playlist",u=safeLink(d.link),name=((d.name||"").trim()||(u?musName(u,a):"")).slice(0,80);if(!name){toast("Bitte Name oder Link eintragen");return}const id=d.id||newId("m"),old=musics().find(x=>x.id===id)||{},st=a==="hoer"?(d.st||"idee"):null;
-    try{await S.store.setPath("food/music/"+id,{name,link:u||null,svc:u?musSvc(u)[0]:null,art:a==="playlist"?null:a,occ:d.occ||null,emo:String(d.emo||"").trim().slice(0,8)||null,note:(d.note||"").trim().slice(0,120)||null,fav:a==="hoer"?null:(old.fav||null),st,like:musKid(d)&&d.like?true:null,txt:a==="lied"?(String(d.txt||"").trim().slice(0,4000)||null):null,at:old.at||Date.now(),by:old.by||S.me||""});S.musDraft=null;toast(st==="geplant"&&old.st!=="geplant"?"🎁 Gespeichert. Steht bei Einkauf › Weitere Listen › Geschenke":"Gespeichert");render()}catch(_){toast("Konnte nicht speichern.")}return}
+    try{await S.store.setPath("food/music/"+id,{name,link:u||null,svc:u?musSvc(u)[0]:null,art:a==="playlist"?null:a,occ:d.occ||null,emo:String(d.emo||"").trim().slice(0,8)||null,note:(d.note||"").trim().slice(0,120)||null,fav:a==="hoer"?null:(old.fav||null),st,show:old.show||null,who:old.who||null,like:musKid(d)&&d.like?true:null,txt:a==="lied"?(String(d.txt||"").trim().slice(0,4000)||null):null,at:old.at||Date.now(),by:old.by||S.me||""});S.musDraft=null;if(d.id||!gmOffer("mus",id,{name,link:u,art:a==="playlist"?null:a}))toast(st==="geplant"&&old.st!=="geplant"?"🎁 Gespeichert. Steht bei Einkauf › Weitere Listen › Geschenke":"Gespeichert");render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.calview){S.calView=b.dataset.calview;try{localStorage.setItem("hq-calview2",S.calView)}catch(_){}render();return}
   if(b.dataset.caloffall!=null){S.calOff=b.dataset.caloffall==="1"?[]:CAL_LBL.map(l=>l[0]);try{localStorage.setItem("hq-caloff",JSON.stringify(S.calOff))}catch(_){}render();return}
   if(b.dataset.fwmap){try{await S.store.setPath("food/ext/fwmap/"+b.dataset.fwmap,b.dataset.v||null)}catch(_){toast("Konnte nicht speichern.")}return}
@@ -4139,7 +4152,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="playcancel"){S.playDraft=null;render();return}
   if(b.dataset.act==="playsave"){const d=S.playDraft,name=(d.name||"").trim().slice(0,80);if(!name){toast("Bitte einen Namen eintragen");return}
     const id=d.id||newId("s"),base="food/play/"+id+"/";
-    try{await S.store.setPath(base+"name",name);await S.store.setPath(base+"emo",emoClean(d.emo));await S.store.setPath(base+"sec",d.sec);for(const k of ["age","wx"])await S.store.setPath(base+k,d[k]||null);for(const k of ["mat","when"])await S.store.setPath(base+k,(d[k]||"").trim().slice(0,120)||null);await S.store.setPath(base+"link",safeLink(d.link)||null);await S.store.setPath(base+"note",(d.note||"").trim().slice(0,600)||null);await S.store.setPath(base+"st",d.st&&d.st!=="idee"?d.st:null);await S.store.setPath(base+"fav",d.st==="favorit"?true:null);if(!d.id){await S.store.setPath(base+"at",Date.now());await S.store.setPath(base+"by",S.me||"")}S.playDraft=null;toast("Gespeichert");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
+    try{await S.store.setPath(base+"name",name);await S.store.setPath(base+"emo",emoClean(d.emo));await S.store.setPath(base+"sec",d.sec);for(const k of ["age","wx"])await S.store.setPath(base+k,d[k]||null);for(const k of ["mat","when"])await S.store.setPath(base+k,(d[k]||"").trim().slice(0,120)||null);await S.store.setPath(base+"link",safeLink(d.link)||null);await S.store.setPath(base+"note",(d.note||"").trim().slice(0,600)||null);await S.store.setPath(base+"st",d.st&&d.st!=="idee"?d.st:null);await S.store.setPath(base+"fav",d.st==="favorit"?true:null);if(!d.id){await S.store.setPath(base+"at",Date.now());await S.store.setPath(base+"by",S.me||"")}S.playDraft=null;if(d.id||!gmOffer("play",id,{name,link:d.link,sec:d.sec}))toast("Gespeichert");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.act==="playdel"){try{await S.store.setPath("food/play/"+S.playDraft.id,null);S.playDraft=null;toast("Gelöscht");render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.pset){const d=S.projDraft;if(d){const f=b.dataset.pset;d[f]=d[f]===b.dataset.v?"":b.dataset.v;render()}return}
   if(b.dataset.hproj){S.tab="amhaus";S.projFilter=hprojCat(hprojs().find(x=>x.id===b.dataset.hproj));S.hprojOpen=b.dataset.hproj;S.hsamm=false;render();window.scrollTo(0,0);return}
@@ -4410,14 +4423,14 @@ app.addEventListener("submit",async e=>{if(e.target.classList&&e.target.classLis
   if(e.target.id==="contactaddform"){e.preventDefault();const n=document.getElementById("contactname"),t=document.getElementById("contactnum"),nv=(n&&n.value||"").trim().slice(0,30),tv=(t&&t.value||"").trim().slice(0,30);if(!nv){toast("Bitte einen Namen eintragen.");return}if(tv&&!waNum(tv)){toast("Bitte eine gültige Handynummer eintragen.");return}S.store.setPath("food/contacts/"+newId("c"),{name:nv,num:tv,at:Date.now()}).catch(()=>toast("Konnte nicht speichern."));n.value="";t.value="";return}
   if(e.target.id==="contactform"){e.preventDefault();const el=document.getElementById("contactinput"),v=(el&&el.value||"").trim().slice(0,30);if(!waNum(v)){toast("Bitte eine gültige Handynummer eintragen.");return}const ot=(S.me||"p0")==="p0"?"p1":"p0";S.store.setPath("food/contact/"+ot,v).then(()=>render()).catch(()=>toast("Konnte nicht speichern."));return}
   if(e.target.id==="briefform"){e.preventDefault();const el=document.getElementById("briefinput"),v=(el&&el.value||"").trim().slice(0,80);if(!v)return;el.value="";S.store.setPath("food/brief/"+newId("b"),{name:v,at:Date.now(),by:S.me||""}).catch(()=>toast("Konnte nicht speichern."));return}
-  if(e.target.classList&&e.target.classList.contains("fundform")){e.preventDefault();const el=e.target.querySelector(".fn"),v=(el.value||"").trim();if(!v)return;const ar=e.target.dataset.ar||"reise",A=FAREA[ar],link=safeLink(v),name=link?nameFromLink(link):v.slice(0,80),kind=(S.fundNewKind&&S.fundNewKind[ar])||A.guess(name,link)||"sonst",o={name,kind,st:"idee",at:Date.now(),by:S.me||""};if(ar!=="reise")o.area=ar;if(link)o.link=link;if(e.target.dataset.proj)o[A.key]=e.target.dataset.proj;try{const fid=newId("f");await S.store.setPath("food/fund/"+fid,o);el.value="";const sg=fundSugg(Object.assign({id:fid},o));if(sg.length)toastAct(fundKind(kind,ar)[1]+" "+name+" gespeichert. Passt auch zu "+FUND_LINKS[sg[0]].lbl+"?",FUND_LINKS[sg[0]].lbl.split(" ")[0]+" Ja, auch dort",async()=>{await fundSetLinks(Object.assign({id:fid},o),[sg[0]]);toast("Steht jetzt auch bei "+FUND_LINKS[sg[0]].lbl.replace(/^\S+\s/,""))});else toast(fundKind(kind,ar)[1]+" "+name+" gespeichert")}catch(_){toast("Konnte nicht speichern.")}return}
+  if(e.target.classList&&e.target.classList.contains("fundform")){e.preventDefault();const el=e.target.querySelector(".fn"),v=(el.value||"").trim();if(!v)return;const ar=e.target.dataset.ar||"reise",A=FAREA[ar],link=safeLink(v),name=link?nameFromLink(link):v.slice(0,80),kind=(S.fundNewKind&&S.fundNewKind[ar])||A.guess(name,link)||"sonst",o={name,kind,st:"idee",at:Date.now(),by:S.me||""};if(ar!=="reise")o.area=ar;if(link)o.link=link;if(e.target.dataset.proj)o[A.key]=e.target.dataset.proj;try{const fid=newId("f");await S.store.setPath("food/fund/"+fid,o);el.value="";const sg=fundSugg(Object.assign({id:fid},o));if(gmOffer("fund",fid,o)){}else if(sg.length)toastAct(fundKind(kind,ar)[1]+" "+name+" gespeichert. Passt auch zu "+FUND_LINKS[sg[0]].lbl+"?",FUND_LINKS[sg[0]].lbl.split(" ")[0]+" Ja, auch dort",async()=>{await fundSetLinks(Object.assign({id:fid},o),[sg[0]]);toast("Steht jetzt auch bei "+FUND_LINKS[sg[0]].lbl.replace(/^\S+\s/,""))});else toast(fundKind(kind,ar)[1]+" "+name+" gespeichert")}catch(_){toast("Konnte nicht speichern.")}return}
   if(e.target.id==="pinform"&&S.reiseOpen){e.preventDefault();const n=document.getElementById("pinname"),l=document.getElementById("pinlink"),v=(n.value||"").trim().slice(0,80);if(!v)return;try{await S.store.setPath("food/urlaub/"+S.reiseOpen+"/pins/"+newId("p"),{name:v,kind:S.pinKind||"unterkunft",link:safeLink(l.value)||null,at:Date.now()})}catch(_){toast("Konnte nicht speichern.")}return}
   if(e.target.id==="bkform"&&S.reiseOpen){e.preventDefault();const g=i=>(document.getElementById(i).value||"").trim();const v=g("bk-name").slice(0,80);if(!v){toast("Bitte eintragen, was gebucht ist.");return}try{await S.store.setPath("food/fund/"+newId("f"),{name:v,kind:kindGuess(v,g("bk-link"))||"unterkunft",st:"gebucht",ref:g("bk-ref").slice(0,60)||null,link:safeLink(g("bk-link"))||null,addr:g("bk-addr").slice(0,160)||null,reise:S.reiseOpen,at:Date.now(),by:S.me||""})}catch(_){toast("Konnte nicht speichern.")}return}
   if(e.target.id==="rpackform"&&S.reiseOpen){e.preventDefault();const el=document.getElementById("rpackinput"),v=(el.value||"").trim().slice(0,60);if(!v)return;el.value="";const pl="u_"+S.reiseOpen,x=urlaube().find(y=>y.id===S.reiseOpen);try{if(!(S.food&&S.food.packlist&&S.food.packlist[pl]))await S.store.setPath("food/packlist/"+pl,{name:"⛵ "+(x?x.name:"Urlaub"),at:Date.now()});await S.store.setPath("food/pack/"+newId("k"),{name:v,done:false,at:Date.now(),list:pl})}catch(_){toast("Konnte nicht speichern.")}return}
   if(e.target.id==="reisemapform"){e.preventDefault();const u=(document.getElementById("reisemapinput").value||"").trim();if(u&&!mapOk(u)){toast("Bitte einen Google-Maps-Link einfügen.");return}try{await S.store.setPath("food/reisemap",u||null);S.reiseMapOpen=true;render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(e.target.id==="musform"){e.preventDefault();const el=document.getElementById("musin"),txt=(el&&el.value||"").trim();if(!txt)return;const m=txt.match(/https?:\/\/\S+/),u=m?safeLink(m[0]):"",rest=txt.replace(m?m[0]:"","").replace(/[·|–-]\s*(spotify|apple music|youtube|tonies)\s*$/i,"").trim(),art=S.musArtF||musArtGuess(txt,u),name=(rest||(u?musName(u,art):txt)).slice(0,80),F=S.musFilter||"";
     const occ=(F&&F!=="like"&&F!=="fav"?[F]:[]).concat(musOccGuess(name+" "+(u||""))).filter((x,i,a)=>a.indexOf(x)===i).join(","),d={art,occ},A=musArt(d);
-    try{await S.store.setPath("food/music/"+newId("m"),{name,link:u||null,svc:u?musSvc(u)[0]:null,art:art==="playlist"?null:art,occ:occ||null,like:F==="like"&&musKid(d)?true:null,fav:F==="fav"&&art!=="hoer"?true:null,st:art==="hoer"?(F==="fav"?"favorit":"idee"):null,at:Date.now(),by:S.me||""});toast("Gespeichert als "+A[1]+" "+A[2]+(/-(Playlist|Song|Hörspiel|Kinderlied)$/.test(name)?". Mit ✎ Namen geben":". Falsch? Mit ✎ ändern"));render()}catch(_){toast("Konnte nicht speichern.")}return}
+    try{const mid=newId("m");await S.store.setPath("food/music/"+mid,{name,link:u||null,svc:u?musSvc(u)[0]:null,art:art==="playlist"?null:art,occ:occ||null,like:F==="like"&&musKid(d)?true:null,fav:F==="fav"&&art!=="hoer"?true:null,st:art==="hoer"?(F==="fav"?"favorit":"idee"):null,at:Date.now(),by:S.me||""});if(!gmOffer("mus",mid,{name,link:u,art:art==="playlist"?null:art}))toast("Gespeichert als "+A[1]+" "+A[2]+(/-(Playlist|Song|Hörspiel|Kinderlied)$/.test(name)?". Mit ✎ Namen geben":". Falsch? Mit ✎ ändern"));render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(e.target.id==="calquick"){e.preventDefault();const el=document.getElementById("calq"),txt=(el&&el.value||"").trim();if(!txt)return;let t=" "+txt.replace(/(^|\s)(mo|di|mi|do|fr|sa|so)\.?(?=\s+\d|\s*$)/ig,(m,a,w)=>a+{mo:"montag",di:"dienstag",mi:"mittwoch",do:"donnerstag",fr:"freitag",sa:"samstag",so:"sonntag"}[w.toLowerCase()])+" ",rp=null,who=null;
     if(/\s(jede[ns]?\s(jahr)|jährlich|geburtstag)/i.test(t))rp="y";else if(/\sjede[ns]?\s(woche)|wöchentlich/i.test(t))rp="w";else if(/\sjede[ns]?\s(monat)|monatlich/i.test(t))rp="m";
     t=t.replace(/\sjede[ns]?\s(jahr|woche|monat)|\s(jährlich|wöchentlich|monatlich)/ig," ");if(/\s(kind|kita)\s/i.test(t)){who="kid";t=t.replace(/\s(für\s)?kind(?=\s)/i," ")}
@@ -4717,6 +4730,92 @@ function placeNewFor(x,set){editBox("Ort eintragen",[{k:"addr",label:"Adresse",t
     await S.store.setPath("food/place/"+newId("o"),{name,addr:addr||null,at:Date.now(),by:S.me||""});await set(name)})}
 // Familywall-Termine mit Kita, Kinderhaus, Krippe oder Kindergarten im Titel gelten als Art Kita, solange keine andere Art gewählt ist
 const KITA_RX=/\b(kita|kinderhaus|kinderkrippe|krippe|kindergarten)/i;
+// ---------- Gemerktes vernetzen (Florian 17.11.2026: „Einmal ablegen? Überall finden“, „So bauen, Kopien zusammenführen“) ----------
+// Ein Eintrag bleibt in seinem Speicher (food/fund, trip, idea, play, music). Das Feld show ("geschenke,spiel") sagt, wo er zusätzlich steht;
+// who (p0|p1|kid) sagt, für wen. Die anderen Bereiche zeigen denselben Eintrag als Zeile (gmRow), mit demselben Stand und demselben Fenster (gmEdit).
+// Neuer Ort = eine Zeile in GM_PLACES plus gmGuests(<ort>) in der Liste dort.
+const GM_PLACES=[["geschenke","🎁","Geschenke","geschenke|"],["spiel","⚽","Spielen","spiel|"],["hoer","🎧","Hörspiele und Tonies","musik|ma:hoer"],["kind","🧒","Kind","kind|kf:kid_gm"],["haus","🛠️","Am Haus","amhaus|hs:wohnen"],["reise","🧭","Reisen und Ausflüge","ausflug|tt:ideen"]];
+const GM_PATH={fund:"food/fund/",trip:"food/trip/",idea:"food/idea/",play:"food/play/",mus:"food/music/"};
+const gmPlace=k=>GM_PLACES.find(p=>p[0]===k);
+const gmShow=x=>csv(x&&x.show).filter(k=>gmPlace(k));
+function gmRaw(store,id){const L=store==="fund"?listOf(S.food&&S.food.fund):store==="trip"?trips():store==="idea"?projs():store==="play"?plays():musics();return L.find(x=>x.id===id)}
+// Einheitliche Sicht auf einen Eintrag: wo er zu Hause ist (home), woher er kommt (from), Stand auf der einen Leiter
+function gmItem(store,x){const o={store,id:x.id,name:x.name||"",link:safeLink(x.link)||"",who:x.who||"",show:gmShow(x),at:x.at||0,note:x.note||"",x};
+  if(store==="fund"){const ar=x.area||"reise",k=fundKind(x.kind,ar),A=FAREA[ar],p=x[A.key]&&A.projs().find(y=>y.id===x[A.key]);o.home=ar;o.ic=k[1];o.from=p?(p.emo||A.emo)+" "+p.name:ar==="haus"?"🛠️ Am Haus":"🧭 Reisen";o.st=x.st==="gebucht"?"erledigt":x.st||"idee";o.price=x.price||""}
+  else if(store==="trip"){const k=tripKinds().find(c=>c[0]===x.kind);o.home="reise";o.ic=emoOf(x,k?k[1]:"🚲");o.from=x.kind==="spiel"?"🛝 Spielplatz":"🚲 Ausflugsziel";o.st=tripSt(x)}
+  else if(store==="idea"){const c=projCat(x),pc=projCats().find(p=>p[0]===c)||PROJ_CATS[1];o.home=c==="geschenk"?"geschenke":HCAT[c]?"haus":"samm";o.ic=x.emo||pc[1];o.from=c==="geschenk"?"🎁 Geschenke":pc[1]+" "+pc[2];o.st=x.done?"erledigt":pjSt(x.state);o.gfor=x.for||""}
+  else if(store==="play"){const s=playSecs().find(p=>p[0]===playSecOf(x))||playSecs()[0];o.home="spiel";o.ic=x.emo||s[1];o.from="⚽ "+s[2];o.st=playSt(x)}
+  else{const a=musArt(x);o.home=a[0]==="hoer"?"hoer":"musik";o.ic=x.emo||a[1];o.from=a[1]+" "+a[2];o.st=a[0]==="hoer"?(x.st||"idee"):x.fav?"favorit":"idee"}
+  return o}
+function gmAll(){const L=[];listOf(S.food&&S.food.fund).forEach(x=>L.push(gmItem("fund",x)));trips().forEach(x=>L.push(gmItem("trip",x)));projs().forEach(x=>L.push(gmItem("idea",x)));plays().forEach(x=>L.push(gmItem("play",x)));musics().forEach(x=>L.push(gmItem("mus",x)));return L.sort((a,b)=>(b.at||0)-(a.at||0))}
+// Gäste eines Ortes: Einträge von woanders, die auch hier stehen sollen
+const gmGuests=place=>gmAll().filter(i=>i.home!==place&&i.show.includes(place));
+// Alles fürs Kind (Seite Kind): ausdrücklich bei Kind gezeigt oder „Für wen: Kind“
+const gmKid=()=>gmAll().filter(i=>i.show.includes("kind")||i.who==="kid");
+const gmWho=i=>i.who==="kid"?"für "+kidName():i.who?"für "+pname(i.who):"";
+// „auch bei 🎁 ⚽“ für die Zeile im eigenen Bereich
+const gmAlso=x=>{const L=gmShow(x);return L.length?" · auch bei "+L.map(k=>gmPlace(k)[1]).join(" "):""};
+const gmStL=s=>SAMM_ST.find(y=>y[0]===s)||SAMM_ST[0];
+// Die eine Zeile für Gäste (Bauplan li.mk): Name = Fenster, Schild = Stand weiter
+function gmRow(i,here){const s=gmStL(i.st),sub=[gmWho(i),i.gfor,i.from].concat(i.show.filter(k=>k!==here).map(k=>gmPlace(k)[1]+" "+gmPlace(k)[2])).filter(Boolean).join(" · ");
+  return `<li class="mk gmg"><button class="mkb" data-gmedit="${i.store}|${esc(i.id)}" aria-label="${esc(i.name)} ansehen und ändern"><span class="mki">${esc(i.ic)}</span><span class="mkt"><b>${esc(i.name)}</b><span class="freq">${esc(sub)}</span></span></button>${i.link?`<a class="catbtn routebtn" href="${esc(i.link)}" target="_blank" rel="noopener" aria-label="Link öffnen">🔗</a>`:""}<button class="stbadge st-${s[0]}" data-gmst="${i.store}|${esc(i.id)}" aria-label="Stand von ${esc(i.name)}: ${s[2]}, antippen schaltet weiter">${s[1]} ${s[2]}</button></li>`}
+const gmRows=(place,f)=>gmGuests(place).filter(f||(i=>i.st!=="erledigt")).map(i=>gmRow(i,place)).join("");
+// Vorschlag, wo ein Eintrag noch hinpasst (✨): nur Vorschlag, gewählt wird selbst
+function gmSugg(i){const t=(i.name+" "+i.link).toLowerCase(),out=[],add=k=>{if(!out.includes(k))out.push(k)};
+  if(/tonie|hörspiel|hoerspiel|hörbuch/.test(t)){add("hoer");add("geschenke");add("kind")}
+  if((i.store==="fund"&&i.x.kind==="spielzeug")||/spielzeug|lego|duplo|playmobil|puzzle|kuscheltier|laufrad|puppe|bauklötze|brio|bilderbuch|spielküche|knete/.test(t)){add("geschenke");add("spiel");add("kind")}
+  if(/geschenk|gutschein/.test(t))add("geschenke");
+  if(i.who==="kid")add("kind");
+  return out.filter(k=>k!==i.home&&!i.show.includes(k))}
+async function gmSetShow(store,id,L){await S.store.setPath(GM_PATH[store]+id+"/show",L.filter(k=>gmPlace(k)).join(",")||null)}
+// Chips „Zeigen bei“ in den großen Masken (Spielen, Musik, Ausflug, Idee): schreiben sofort, der Entwurf bleibt offen
+function gmMaskRow(store,id){const x=id&&gmRaw(store,id);if(!x)return "";const i=gmItem(store,x),sg=gmSugg(i);
+  return `<div class="fld gmfld"><span>Zeigen bei</span><div class="unl">${GM_PLACES.filter(p=>p[0]!==i.home).map(p=>`<button type="button" class="chipbtn neutral" data-gmshow="${store}|${esc(id)}|${p[0]}" aria-pressed="${i.show.includes(p[0])}">${sg.includes(p[0])?"✨ ":""}${p[1]} ${p[2]}</button>`).join("")}</div><div class="freq">Der Eintrag bleibt einer und steht dann auch dort, mit demselben Stand. Gilt sofort.</div></div>`}
+// Stand auf der einen Leiter setzen, je Speicher mit seinen eigenen Feldern
+async function gmSetSt(i,st){const p=GM_PATH[i.store]+i.id+"/",x=i.x;
+  if(i.store==="fund"){await S.store.setPath(p+"st",st==="erledigt"?"gebucht":st);if(st==="erledigt"&&x.st!=="gebucht"&&x.area==="haus")geldBought({name:x.name,cat:"wohnen",amt:priceCent(x.price),ref:"fund:"+x.id,grp:""})}
+  else if(i.store==="idea"){if(st!=="erledigt")await S.store.setPath(p+"state",st==="idee"?null:st);await S.store.setPath(p+"done",st==="erledigt"?true:null);await S.store.setPath(p+"doneAt",st==="erledigt"?(x.doneAt||Date.now()):null);if(st==="erledigt"&&!x.done&&projCat(x)==="geschenk")geldBought({name:x.name,cat:"geschenk",ref:"idea:"+x.id})}
+  else if(i.store==="play"){await S.store.setPath(p+"st",st==="idee"?null:st);await S.store.setPath(p+"fav",st==="favorit"?true:null)}
+  else if(i.store==="mus"){if(musArt(x)[0]==="hoer")await S.store.setPath(p+"st",st);else await S.store.setPath(p+"fav",st==="favorit"?true:null)}
+  else{if(st==="geplant"&&!x.date){calDayPick(x.name,nextSat(),async k=>{try{await S.store.setPath(p+"date",k);await S.store.setPath(p+"done",null);toast("Steht am "+rDate(k)+" im Kalender")}catch(_){toast("Konnte nicht speichern.")}});return}
+    await S.store.setPath(p+"fav",st==="favorit"?true:st==="idee"?null:x.fav||null);if(st==="idee"||st==="favorit")await S.store.setPath(p+"date",null);await S.store.setPath(p+"done",st==="erledigt"?true:null);await S.store.setPath(p+"doneAt",st==="erledigt"?Date.now():null)}}
+const gmSteps=i=>i.store==="mus"&&musArt(i.x)[0]!=="hoer"?["idee","favorit"]:["idee","favorit","geplant","erledigt"];
+// Der große Weg: die Maske im eigenen Bereich mit allen Angaben
+function gmNative(store,id){const x=gmRaw(store,id);if(!x)return;const i=gmItem(store,x);
+  if(store==="fund"){fundEdit(id);return}
+  goNav(store==="trip"?"ausflug|tt:ideen":store==="play"?"spiel|":store==="mus"?"musik|":i.home==="geschenke"?"geschenke|":i.home==="haus"?"amhaus|pf:"+projCat(x):"projekte|pf:"+projCat(x));
+  const b=document.createElement("button");b.hidden=true;b.dataset[store==="trip"?"tripedit":store==="play"?"playedit":store==="mus"?"musedit":"projedit"]=id;app.appendChild(b);b.click();b.remove()}
+// Das eine Fenster, von jeder Stelle aus: Name, Link, Stand, Für wen, Zeigen bei, Notiz
+function gmEdit(store,id){const x=gmRaw(store,id);if(!x)return;if(store==="fund"){fundEdit(id);return}const i=gmItem(store,x),sg=gmSugg(i),steps=gmSteps(i);
+  editBox(i.ic+" "+i.name,[{k:"name",label:"Name",type:"text",val:i.name},{k:"link",label:"Link",type:"url",val:x.link||""},
+    {k:"st",label:"Stand",type:"chips",opts:steps.map(s=>{const l=gmStL(s);return [s,l[1]+" "+(store==="mus"&&s==="erledigt"?"Haben wir":l[2])]}),val:i.st},
+    {k:"who",label:"Für wen",type:"chips",opts:[["","Offen"]].concat(whoOpts().filter(o=>o[0]!=="both")),val:i.who},
+    {k:"show",label:"Zeigen bei",type:"multi",opts:GM_PLACES.filter(p=>p[0]!==i.home).map(p=>[p[0],(sg.includes(p[0])?"✨ ":"")+p[1]+" "+p[2]]),val:i.show,hint:"Zu Hause bei "+i.from+". "+(sg.length?"✨ = passt vermutlich. ":"")+"Der Eintrag bleibt einer und steht auch dort, mit demselben Stand."},
+    {k:"note",label:"Notiz",type:"text",val:x.note||"",max:store==="mus"?120:500}],
+    async V=>{const p=GM_PATH[store]+id+"/",name=String(V.name||"").trim().slice(0,80)||i.name;
+      await S.store.setPath(p+"name",name);await S.store.setPath(p+"link",safeLink(V.link)||null);await S.store.setPath(p+"note",String(V.note||"").trim().slice(0,store==="mus"?120:500)||null);await S.store.setPath(p+"who",V.who||null);await gmSetShow(store,id,V.show||[]);
+      if(V.st!==i.st)await gmSetSt(i,V.st);toast("Gespeichert")},
+    [["Alle Angaben ›",()=>gmNative(store,id)]])}
+// Nach dem Anlegen: passt es noch woanders hin? (Toast, ein Tipp)
+function gmOffer(store,id,o){const i=gmItem(store,Object.assign({id},o)),sg=gmSugg(i);if(!sg.length)return false;const P=sg.map(gmPlace);
+  toastAct(i.name+" gemerkt. Auch zeigen bei "+P.map(p=>p[1]+" "+p[2]).join(", ")+"?","Ja, auch dort",async()=>{try{await gmSetShow(store,id,i.show.concat(sg));toast("Steht jetzt auch bei "+P.map(p=>p[2]).join(", "))}catch(_){toast("Konnte nicht speichern.")}});return true}
+// Klicks; liefert true, wenn erledigt
+function gmClick(b){const D=b.dataset;
+  if(D.gmedit){const [s,id]=D.gmedit.split("|");gmEdit(s,id);return true}
+  if(D.gmst||D.gmdone){const [s,id]=(D.gmst||D.gmdone).split("|"),x=gmRaw(s,id);if(x){const i=gmItem(s,x),o=gmSteps(i),nx=D.gmdone?"erledigt":o[(o.indexOf(i.st)+1)%o.length];gmSetSt(i,nx).catch(()=>toast("Konnte nicht speichern."))}return true}
+  if(D.gmshow){const [s,id,k]=D.gmshow.split("|"),x=gmRaw(s,id);if(x){const L=gmShow(x),j=L.indexOf(k);if(j<0)L.push(k);else L.splice(j,1);gmSetShow(s,id,L).catch(()=>toast("Konnte nicht speichern."))}return true}
+  return false}
+// Kopien zusammenführen (Florians Ja vom 17.11.2026): Bisher legte „Auch zeigen bei 🎁 Geschenke“ am Fund eine zweite Geschenk-Idee an (food/idea, ref "fund:<id>").
+// Jetzt bleibt nur der Fund und zeigt sich bei Geschenke. Für wen, Anlass, Notiz und der weitere Stand der Kopie wandern an den Fund, dann fällt die Kopie weg.
+// Reihenfolge so, dass ein zweites Gerät nichts doppelt macht: erst der Fund, dann die Kopie, zuletzt der Verweis.
+async function migGmCopies(){if(S.migGm||!S.food||!S.food.fund)return;S.migGm=1;const RK=["idee","favorit","geplant","gebucht"];
+  for(const f of listOf(S.food.fund).filter(y=>y.links&&y.links.geschenk)){const c=projs().find(y=>y.id===f.links.geschenk),p="food/fund/"+f.id+"/";
+    try{if(c){const L=gmShow(f);if(!L.includes("geschenke"))L.push("geschenke");await gmSetShow("fund",f.id,L);
+        if(c.who&&!f.who)await S.store.setPath(p+"who",c.who);const nt=[c.for,c.note].filter(Boolean).join(". ").slice(0,500);if(nt&&!f.note)await S.store.setPath(p+"note",nt);
+        const cs=c.done?"gebucht":pjSt(c.state);if(RK.indexOf(cs)>RK.indexOf(f.st||"idee"))await S.store.setPath(p+"st",cs);
+        for(const w of prios().filter(w=>w.ref===c.id))await S.store.setPath("food/prio/"+w.id+"/ref",null);
+        await S.store.setPath("food/idea/"+c.id,null)}
+      await S.store.setPath(p+"links/geschenk",null)}catch(_){S.migGm=0;return}}}
 // ---------- Motive und Bildstil (Nachtauftrag 15.11.2026) ----------
 // Motiv: "meer" (Haus am Meer, Standard) oder "stadt" (Stadthaus in München, Entwurf).
 // Bildstil fürs Haus am Meer: "" (wie bisher), "licht" (Licht und Schatten), "aquarell", "fein" (Texturen und Licht).
@@ -4879,7 +4978,7 @@ function start(store,mode){S.store=store;S.mode=mode;let gotCfg=false,gotWeeks=f
   store.listen((cfg,fromCache)=>{S.config=cfg;if(cfg&&!fromCache&&Array.isArray(cfg.tasks)&&!(cfg.mig&&cfg.mig.saug1))migSaugen(cfg);else if(cfg&&!fromCache&&Array.isArray(cfg.tasks)&&!(cfg.mig&&cfg.mig.bring1))migBring(cfg);if(!fromCache){gotCfg=true;S.cfgConfirmed=true}if(gotCfg&&gotWeeks){clearTimeout(timer);S.timedOut=false}render()},
     (w,fromCache)=>{S.weeks=w;if(!fromCache){gotWeeks=true;setTimeout(migDayFuture,1500)}if(gotCfg&&gotWeeks){clearTimeout(timer);S.timedOut=false}render()},
     err=>{clearTimeout(timer);toast("Verbindung zu den gemeinsamen Daten verloren. Seite neu öffnen.")},
-    food=>{S.food=food||{};migSpiel();migShopBell();migPlayTrip();geldFixBook();render()});// Florian 16.11.2026: früher nur bestimmte Bereiche, dadurch fehlten nach dem Neuladen auf Woche/Kalender/Suche Essen, Kita und Termine
+    food=>{S.food=food||{};migSpiel();migShopBell();migPlayTrip();migGmCopies();geldFixBook();render()});// Florian 16.11.2026: früher nur bestimmte Bereiche, dadurch fehlten nach dem Neuladen auf Woche/Kalender/Suche Essen, Kita und Termine
   try{fetch("wochenideen.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.wideas=j;if(S.tab==="essen")render()}}).catch(()=>{})}catch(_){}
   try{fetch("hausfunde.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.hfunde=j;if(S.tab==="amhaus")render()}}).catch(()=>{})}catch(_){}
   shareIn();
