@@ -42,6 +42,8 @@ const AREAS=[["🏠","Start","camp","","",()=>[["Kalender","sp:kalender"],["Wich
 // Bündelung (Florian 17.11.2026, „A neu“): Bereiche mit Seiten. [Symbol, Name, [[Tab, Seitenname], …]], erste Seite = Hauptseite.
 // Daraus: Seiten-Leiste oben (areaPager, Wischen blättert), Alle Bereiche (Seiten als Unterpunkte) und Fächer (Seiten als kleine Knöpfe).
 const AREA_PAGES={kind:["🧒","Kind",[["kind","Kind"],["kita","Kita"],["spiel","Spielen"]]],privat:["🫶","Wir",[["privat","Partner"],["geschenke","Geschenke"]]],projekte:["🗃️","Sammlung",[["projekte","Alles Gemerkte"],["recherchen","Recherchen"]]]};
+// Seiten unter dem Bereich für Fächer und Alle Bereiche: die erste Seite nur, wenn sie anders heißt als der Bereich (Wir › Partner, Sammlung › Alles Gemerkte; Florian 17.11.2026: Partner fehlte)
+const areaSubPages=m=>{const P=AREA_PAGES[m];return P[2].filter((p,i)=>i||p[1]!==P[1]).map(p=>[p[1],p[0]+"|"])};
 const areaMain=t=>Object.keys(AREA_PAGES).find(k=>AREA_PAGES[k][2].some(p=>p[0]===t))||"";
 function areaPager(t){const m=areaMain(t);if(!m)return "";const P=AREA_PAGES[m][2];return `<div class="pager" role="group" aria-label="Seiten von ${esc(AREA_PAGES[m][1])}"><div class="pdots">${P.map(p=>`<button class="pdot" data-go="${p[0]}" aria-pressed="${p[0]===t}"><b>${esc(p[0]==="kind"?kidName():p[1])}</b></button>`).join("")}</div></div>`}
 // Reihenfolge folgt den Gruppen (Florian 15.11.2026: Essen, dann Woche und Kita, dann Wir)

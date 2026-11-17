@@ -29,6 +29,6 @@ srv.listen(8765,async()=>{
   // 5) Schalter aus: kein Fächer
   await A.evaluate(()=>localStorage.setItem('hq-gest',JSON.stringify({ring:false})));await A.reload();await A.waitForTimeout(800);[x,y]=await mid('#tabs [data-tab=camp]:not([hidden])');await touch('touchstart',x,y);await A.waitForTimeout(600);await touch('touchend',x,y);await A.waitForTimeout(300);r.off=!(await has());
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&r.open&&r.stays&&r.side==='r'&&r.right.join('|')==='🧭 Reisen und Ausflüge|Packlisten|🎵 Musik|🗃️ Sammlung|Recherchen'&&r.noAllar&&r.fits&&/Musik/.test(r.musik)&&r.closed
-    &&r.left.join()==='kind|,kita|,spiel|,privat|,geschenke|,amhaus|'&&r.lcls==='l'&&r.hot&&r.tab==='Kind'&&r.kind==='FAMILIE'&&r.closed2&&r.backClose&&r.backTab==='Kind'&&r.allar&&r.tile&&/Einkaufsliste|Einkauf/.test(r.shortTap)&&r.noFan&&r.off;
+  const ok=!errs.length&&r.open&&r.stays&&r.side==='r'&&r.right.join('|')==='🧭 Reisen und Ausflüge|Packlisten|🎵 Musik|🗃️ Sammlung|Alles Gemerkte|Recherchen'&&r.noAllar&&r.fits&&/Musik/.test(r.musik)&&r.closed
+    &&r.left.join()==='kind|,kita|,spiel|,privat|,privat|,geschenke|,amhaus|'&&r.lcls==='l'&&r.hot&&r.tab==='Kind'&&r.kind==='FAMILIE'&&r.closed2&&r.backClose&&r.backTab==='Kind'&&r.allar&&r.tile&&/Einkaufsliste|Einkauf/.test(r.shortTap)&&r.noFan&&r.off;
   console.error(ok?'FACHER OK':'FACHER FAIL');await b.close();srv.close();process.exit(0)});
