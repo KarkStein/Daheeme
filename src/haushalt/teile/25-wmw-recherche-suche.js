@@ -48,7 +48,7 @@ async function wmwTick(id,p){if(!S.me){toast("Wähle zuerst in den Einstellungen
   if(!key)return;try{await S.store.tick(wk,key,{by:t.owner==="both"&&(p==="p0"||p==="p1")?p:S.me,at:Date.now()});render()}catch(_){toast("Konnte nicht speichern. Bitte nochmal tippen.")}}
 // Aufräumen (17.11.2026): „Wer macht was“ hakte tägliche Aufgaben bis dahin am nächsten freien Tag ab, also auch an künftigen Tagen.
 // Haken einer täglichen Aufgabe an einem Tag nach dem Tag, an dem sie gesetzt wurden, nimmt das einmal je Sitzung wieder weg (nur laufende Woche).
-function migDayFuture(){if(S.migDayF||!S.me||!S.config)return;S.migDayF=true;const mon=mondayOf(new Date()),wk=wkKey(mon),tk=ticksOf(wk),ids=tasks().filter(t=>t.freq==="day").map(t=>t.id);
+function migDayFuture(){if(S.migDayF||!S.me||!S.config)return;S.migDayF=true;const mon=mondayOf(new Date()),wk=wkKey(mon),tk=ticksOf(wk),ids=tasks().filter(t=>t.freq==="day"&&t.owner!=="ho").map(t=>t.id);/* Hausdienst (owner ho) ist Einteilung, auch für künftige Tage: nie wegräumen */
   Object.keys(tk).forEach(k=>{const m=/^(.+)__(\d)(?:_p[01])?$/.exec(k),v=tk[k];if(!m||!ids.includes(m[1])||!v||!v.at||v.at<+mon)return;const set=Math.floor((v.at-+mon)/864e5);if(+m[2]>set&&set<7)S.store.tick(wk,k,null).catch(()=>{})})}
 // ---------- Recherchen (zentral, Quer durch alles; Entwurf 15.11.2026) ----------
 // Ergebnisdateien der festen Aufträge; ihr Feld "updated" ist der letzte Lauf. auftraege.json listet die Aufträge.
