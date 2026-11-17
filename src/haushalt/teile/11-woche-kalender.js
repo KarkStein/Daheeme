@@ -23,7 +23,7 @@ function ring(p){const r=36,c=2*Math.PI*r;const off=c*(1-Math.min(1,p));
 
 function scopeSwitch(extra){return `<div class="filters" role="group" aria-label="Ansicht"><button class="chipbtn neutral" data-filter="alle" aria-pressed="${S.filter==="alle"}">Alle</button><button class="chipbtn neutral" data-filter="meine" aria-pressed="${S.filter==="meine"}">Mein Bereich</button>${extra||""}</div>${S.filter==="meine"&&!S.me?`<div class="notice">Wähle oben aus, wer du bist, damit „Mein Bereich“ funktioniert.</div>`:""}`}
 const WEEK_PAGES=["Tag und Woche","Wer macht was","Wer macht was","Kalender"],WEEK_ORDER=[0,1];
-function weekPager(){const p=(S.weekPage|0)===2?1:S.weekPage|0,o=WEEK_ORDER.indexOf(p);return `<div class="pager" role="group" aria-label="Seiten in Woche"><div class="pdots">${WEEK_ORDER.map(i=>`<button class="pdot" data-wpage="${i}" aria-pressed="${i===p}" aria-label="${WEEK_PAGES[i]}"><b>${WEEK_PAGES[i]}</b></button>`).join("")}</div></div>`}
+function weekPager(){const p=(S.weekPage|0)===2?1:S.weekPage|0,o=WEEK_ORDER.indexOf(p);return `<div class="pager" role="group" aria-label="Seiten in Haushalt"><div class="pdots">${WEEK_ORDER.map(i=>`<button class="pdot" data-wpage="${i}" aria-pressed="${i===p}" aria-label="${WEEK_PAGES[i]}"><b>${WEEK_PAGES[i]}</b></button>`).join("")}</div></div>`}
 function setWeekPage(n){n=((n%4)+4)%4;if(n===2)n=1;if(n===(S.weekPage|0))return;if((S.weekPage|0)===1)S.draft=null;S.weekPage=n;render();window.scrollTo(0,0)}
 // Kalender (Woche › Kalender): sammelt Termine aus allen Quellen. Weitere Quellen (z. B. ein echter Kalender) kommen als Funktion in CAL_SRC dazu.
 const termine=()=>listOf(S.food&&S.food.termin);

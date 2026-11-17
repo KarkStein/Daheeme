@@ -63,7 +63,7 @@ const SEA_Y=92,LOW_SUN=72;
 function spotPos(x,y,w,h){const V=HVB;return `left:${((x-V[0])/V[2]*100).toFixed(1)}%;top:${((y-V[1])/V[3]*100).toFixed(1)}%;width:${(w/V[2]*100).toFixed(1)}%;height:${(h/V[3]*100).toFixed(1)}%`}
 // Antippbare Dinge im Bild, eine Quelle für Bild und Glossar (Florian 16.11.2026; Reihenfolge = Lage übereinander)
 // [x, y, Breite, Höhe, Ziel (data-go oder "tab|art:wert" für data-nav), Beschriftung (aria-label), Ding fürs Glossar, Motiv ("" beide, "meer", "stadt"), Filter Am Haus]
-const PIC_SPOTS=[[166,196,50,48,"woche","Woche: offene Aufträge","🧹 Besen an der Tür",""],[119,148,42,96,"essen","Essen","💨 Schornstein",""],[112,212,26,22,"einkauf","Einkauf: Korb mit Baguette","🧺 Korb mit Baguette am Fahrrad",""],
+const PIC_SPOTS=[[166,196,50,48,"woche","Haushalt: offene Aufträge","🧹 Besen an der Tür",""],[119,148,42,96,"essen","Essen","💨 Schornstein",""],[112,212,26,22,"einkauf","Einkauf: Korb mit Baguette","🧺 Korb mit Baguette am Fahrrad",""],
   [208,203,24,30,"kita","Kita","🎒 Rucksack an der Hauswand",""],[80,243,40,24,"ausflug","Ausflüge: Fahrrad","🚲 Fahrrad am Baum",""],[62,214,20,22,"woche|wp:3","Kalender: Aushang am Baum","📜 Aushang am Baumstamm",""],
   [330,80,34,44,"projekte","Sammlung: Kirchtürme","⛪ Zwei Kirchtürme","stadt"],[40,133,40,38,"privat","Partner: Bank im Garten","🌹 Bank unter dem Rosenbogen","stadt"],
   [318,80,34,64,"projekte","Sammlung","🗼 Leuchtturm","meer"],[38,122,70,42,"privat","Partner: Klippen","🪨 Klippen","meer"],

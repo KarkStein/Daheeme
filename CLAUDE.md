@@ -8,7 +8,7 @@ Live: https://karkstein.github.io/Daheeme/ (GitHub Pages aus `main`, Wurzel, bis
 
 - Direkt auf `main` veröffentlichen. Keine Subagenten. Nach sichtbaren Änderungen ein Bild unter `/mnt/project-files/<thema>/` ablegen und den Pfad nennen.
 - Einheitliche Namen (siehe unten) und Verlinkungen in beide Richtungen sind Florian wichtig ("Infrastruktur, Orchester": einzelne Projekte im Bereich, gemeinsame Sammlung/Übersicht mit Filtern).
-- Unten immer genau 4 Reiter: Start, Woche, Essen, Einkauf.
+- Unten immer genau 4 Reiter: Start, Haushalt, Essen, Einkauf. Reiter 2 heißt seit 17.11.2026 „Haushalt“ mit Besen-Symbol (Florian: „Erstmal nur den Besen und auf Haushalt wechseln“; nur Symbol und Name, Bild `/mnt/project-files/haushalt/reiter-haushalt-live.png`). Intern bleibt er Tab `woche`, die Seiten heißen weiter „Tag und Woche“ und „Wer macht was“; in dieser Notiz meint „Woche“ als Reiter-Name denselben Reiter. Über Inhalt, Dashboard und Startseite überlegt Florian noch (Entwurf `/mnt/project-files/design/reiter-kalender-haushalt.png`), dort nichts ohne sein Wort ändern.
 - Datenschutz: Handynummern, Buchungsnummern, Adressen nur in der Datenbank, nie im Repo; Nummern in der App immer versternt. Der geheime Schlüssel steht nur im Link (`#k=…`) und im localStorage `hq-key`. Das Repo ist öffentlich.
 - Keine Punkte, kein Wettkampf. Keine Blau/Rot-Farben für Mann/Frau.
 - Threads (Florian 17.11.2026): „App umbauen“ baut Struktur, neue Bereiche und Umbauten und veröffentlicht; „Entwürfe und Ideen“ macht Vorschläge mit Bild (unter `/mnt/project-files/design/`) und veröffentlicht nichts; „Fehler beheben“ erledigt kleine, klar umrissene Fehler. Größere Umbauten veröffentlicht immer nur ein Thread gleichzeitig. Vor jedem Push `git pull --rebase origin main`, danach mit `git ls-remote origin refs/heads/main` prüfen, dass der Commit oben ist.
@@ -201,7 +201,7 @@ node src/build-web.js http://localhost:8765   # danach wieder lokal bauen
 
 ## Einheitliche Namen
 
-Einkauf (Bereich) / Einkaufsliste (die Liste), Packliste(n), Wochenplan (nie Essensplan), Rezepte, Wichtig (enthält Erinnerungen), Kalender (enthält Termine), Sammlung (die eine Übersicht, Leuchtturm), Gemerkt (in Reisen, Am Haus, Spielen, Musik, Projekten), Spielen (nicht mehr „Sport und Spiel“), Familie (Gruppe mit Kind und Wir), Partner (Seite unter Wir), Recherchen (nur die zentrale Seite), Mitbringen (Kita), Alle Projekte, Geschenke. Symbole: Urlaube ⛵, Ausflüge 🚲, Einkauf 🧺, Mitbringen 📦, Adventskalender 🎄, Gemerkt 🔖, Sammlung 🗃️, Projekt 🧩, Sonstiges 📎. Stand-Leiter siehe oben.
+Haushalt (Reiter 2, früher „Woche“), Einkauf (Bereich) / Einkaufsliste (die Liste), Packliste(n), Wochenplan (nie Essensplan), Rezepte, Wichtig (enthält Erinnerungen), Kalender (enthält Termine), Sammlung (die eine Übersicht, Leuchtturm), Gemerkt (in Reisen, Am Haus, Spielen, Musik, Projekten), Spielen (nicht mehr „Sport und Spiel“), Familie (Gruppe mit Kind und Wir), Partner (Seite unter Wir), Recherchen (nur die zentrale Seite), Mitbringen (Kita), Alle Projekte, Geschenke. Symbole: Urlaube ⛵, Ausflüge 🚲, Einkauf 🧺, Mitbringen 📦, Adventskalender 🎄, Gemerkt 🔖, Sammlung 🗃️, Projekt 🧩, Sonstiges 📎. Stand-Leiter siehe oben.
 
 ## Offene Liste (Stand 17.11.2026)
 
