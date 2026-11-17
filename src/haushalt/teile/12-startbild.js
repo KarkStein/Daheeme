@@ -63,8 +63,8 @@ function spotPos(x,y,w,h){const V=HVB;return `left:${((x-V[0])/V[2]*100).toFixed
 // [x, y, Breite, Höhe, Ziel (data-go oder "tab|art:wert" für data-nav), Beschriftung (aria-label), Ding fürs Glossar, Motiv ("" beide, "meer", "stadt"), Filter Am Haus]
 const PIC_SPOTS=[[166,196,50,48,"woche","Woche: offene Aufträge","🧹 Besen an der Tür",""],[119,148,42,96,"essen","Essen","💨 Schornstein",""],[112,212,26,22,"einkauf","Einkauf: Korb mit Baguette","🧺 Korb mit Baguette am Fahrrad",""],
   [208,203,24,30,"kita","Kita","🎒 Rucksack an der Hauswand",""],[80,243,40,24,"ausflug","Ausflüge: Fahrrad","🚲 Fahrrad am Baum",""],[62,214,20,22,"woche|wp:3","Kalender: Aushang am Baum","📜 Aushang am Baumstamm",""],
-  [330,80,34,44,"projekte","Ideen: Kirchtürme","⛪ Zwei Kirchtürme","stadt"],[40,133,40,38,"privat","Partner: Bank im Garten","🌹 Bank unter dem Rosenbogen","stadt"],
-  [318,80,34,64,"projekte","Ideen","🗼 Leuchtturm","meer"],[38,122,70,42,"privat","Partner: Klippen","🪨 Klippen","meer"],
+  [330,80,34,44,"projekte","Sammlung: Kirchtürme","⛪ Zwei Kirchtürme","stadt"],[40,133,40,38,"privat","Partner: Bank im Garten","🌹 Bank unter dem Rosenbogen","stadt"],
+  [318,80,34,64,"projekte","Sammlung","🗼 Leuchtturm","meer"],[38,122,70,42,"privat","Partner: Klippen","🪨 Klippen","meer"],
   [24,244,18,26,"post","Briefkasten","📮 Briefkasten",""],[155,168,22,20,"amhaus","Am Haus: Lampe","🏮 Lampe über der Tür",""],[58,176,60,52,"amhaus","Garten: Baum","🌳 Baum","","garten"],
   [40,203,22,28,"kind","Kind: Schaukel","🪢 Schaukel am Baum",""],[15,205,18,14,"ausgaben","Ausgaben: Sparschwein","🐷 Sparschwein",""],[240,238,26,26,"spiel","Sport und Spiel","⚽ Ball am Steinweg",""],
   [270,52,44,26,"reisen","Urlaube: Flugzeug","✈️ Flugzeug","stadt"],[259,97,84,24,"ausflug","Ausflüge: Tram","🚋 Tram","stadt"],[322,196,56,66,"reisen","Urlaube: Segelboot","⛵ Segelboot","meer"],
@@ -199,7 +199,7 @@ function heuteDran(){const now=new Date(),mon=mondayOf(now),tk=ticksOf(wkKey(mon
   tasks().forEach(t=>{if(group(t.freq)!=="week")return;const o=t.owner==="rot"?ownerFor(t,mon,split):t.owner;if(o==="ho"||(S.me&&o!==S.me&&o!=="both"))return;
     if(t.freq==="day"){day.push([t,o,di]);return}
     const n=slotsOf(t);let c=0,first=-1;for(let i=0;i<n;i++){if(done(t,o,i))c++;else if(first<0)first=i}if(first>=0)wk.push([t,o,first,n>1?`diese Woche noch ${n-c} von ${n}`:"diese Woche"])});
-  const hm=hoMine(),hoRow=hm?`<div class="trow${hm.done?" tdone":""}"><button class="tchk" data-hodone="${hm.di}" aria-pressed="${hm.done}" aria-label="Hausdienst ${hm.done?"erledigt":"abhaken"}"><span class="box">${hm.done?"✓":""}</span></button><button class="ttx" data-act="gotasks"><span>🏠 ${esc(hm.t.name)}<i>Hausdienst${hm.part?" "+hm.part:""}${S.me?"":" · "+esc(pname(hm.me))}</i></span><em>›</em></button></div>`:"";
+  const hm=hoMine(),hoRow=hm?`<div class="trow${hm.done?" tdone":""}"><button class="tchk" data-hodone="${hm.di}" aria-pressed="${hm.done}" aria-label="Hausdienst ${hm.done?"erledigt":"abhaken"}"><span class="box">${hm.done?"✓":""}</span></button><button class="ttx" data-act="gotasks"><span>🔑 ${esc(hm.t.name)}<i>Hausdienst${hm.part?" "+hm.part:""}${S.me?"":" · "+esc(pname(hm.me))}</i></span><em>›</em></button></div>`:"";
   const open=day.filter(x=>!done(...x)).length+(hm&&!hm.done?1:0),nDay=day.length+(hm?1:0);let L=hoRow+day.map(x=>row(...x)).join("");
   if(wk.length)L+=`<div class="freq" style="margin-top:var(--sp2)">Diese Woche noch offen</div>`+wk.slice(0,4).map(x=>row(...x)).join("")+(wk.length>4?`<div class="trow"><span class="tic">…</span><button class="ttx" data-act="gotasks"><span>Noch ${wk.length-4} weitere</span><em>›</em></button></div>`:"");
   const sub=nDay?(open?`noch ${open} von ${nDay}`:"alles erledigt ✅"):"";

@@ -8,7 +8,7 @@ srv.listen(8765,async()=>{
   await A.goto('http://localhost:8765/');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');
   const key=/k=([^&]+)/.exec(A.url())[1];const db=()=>JSON.parse(JSON.stringify(get(['haushalt',key])||{}));
   await A.evaluate(k=>fetch('/haushalt/'+k+'/food/book/bsup.json',{method:'PUT',body:JSON.stringify({name:'Suppen',at:1})}),key);await A.waitForTimeout(300);
-  await A.click('[data-tab=essen]');await A.click('[data-food=rezepte]');await A.waitForTimeout(300);await A.click('[data-act=ideastog]');await A.waitForTimeout(200);
+  await A.click('[data-tab=essen]');await A.click('[data-food=rezepte]');{const _bt=await A.$('.bookcard .setsum[aria-expanded=false]');if(_bt){await _bt.click();await A.waitForTimeout(150)}}await A.waitForTimeout(300);await A.click('[data-act=ideastog]');await A.waitForTimeout(200);
   // 1) Tagesrezept übernehmen: Kochbuch „Suppen“ vorgewählt (Name), Tags vorgewählt, einen abwählen
   await A.click('li.tiprow:has-text("Kürbissuppe") [data-idea]');await A.waitForTimeout(300);
   const r={};r.box=!!(await A.$('#mbox [data-ebk=book]'));r.pre=await A.$eval('#mbox [data-ebk=book][data-ebv=bsup]',x=>x.getAttribute('aria-pressed'))==='true';

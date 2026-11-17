@@ -4,7 +4,7 @@ srv.listen(8765,async()=>{
   await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');await A.waitForTimeout(300);
   const key=/k=([^&]+)/.exec(A.url())[1];const db=()=>JSON.parse(JSON.stringify(get(['haushalt',key])||{}));
   const nav=async v=>{await A.evaluate(v=>{const b=document.createElement("button");b.dataset.nav=v;b.id="zz";document.getElementById("app").appendChild(b)},v);await A.click("#zz");await A.waitForTimeout(300)};
-  await nav('projekte|');r.tile=await A.$eval('[data-pfilter=advent]',e=>e.innerText.replace(/\n/g,' '));
+  await nav('geschenke|');r.tile=await A.$eval('[data-pfilter=advent]',e=>e.innerText.replace(/\n/g,' '));
   await A.click('[data-pfilter=advent]');await A.waitForTimeout(300);
   await A.click('[data-advnew="kid|selbst"]');await A.waitForTimeout(500);
   r.prio=Object.values(db().food.prio||{}).map(x=>x.name+'@'+x.due);

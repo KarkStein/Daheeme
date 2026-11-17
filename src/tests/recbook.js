@@ -10,7 +10,7 @@ srv.listen(8765,async()=>{
   await A.reload();await A.waitForTimeout(800);
   const nav=async v=>{await A.evaluate(v=>{const b=document.createElement("button");b.dataset.nav=v;b.id="zz";document.getElementById("app").appendChild(b)},v);await A.click("#zz");await A.waitForTimeout(300)};
   const shown=()=>A.$$eval('[data-rec]',l=>l.map(x=>x.innerText.split('\n')[0]));
-  await nav('essen|ft:rezepte');
+  await nav('essen|ft:rezepte');{const _bt=await A.$('.bookcard .setsum[aria-expanded=false]');if(_bt){await _bt.click();await A.waitForTimeout(150)}}
   // 1) Bearbeiten › Kochbuch: Linsensuppe von Unsere Rezepte nach Omas Küche
   await A.click('[data-rec=r1]');await A.waitForTimeout(150);await A.click('[data-recedit=r1]');await A.waitForTimeout(200);
   await A.click('[data-recbook=b1]');await A.waitForTimeout(150);r.pressed=await A.$eval('[data-recbook=b1]',e=>e.getAttribute('aria-pressed'));

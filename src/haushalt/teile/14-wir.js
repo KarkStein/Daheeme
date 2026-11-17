@@ -3,7 +3,7 @@ const briefe=()=>listOf(S.food&&S.food.brief).sort((a,b)=>(a.at||0)-(b.at||0));
 // ---------- Wir › Kind (Florian 15.11.2026): Seite 2 von Wir; Name nur aus der Datenbank (food/pref/kidname) ----------
 // Bringen und Abholen je Tag: Hand-Änderung (food/kid/bh/<wk>/d<i> {br?,ab?}) vor Homeoffice (Aufgabe owner "ho": ganzer Tag = beides, "2 von 2" = bringt, "1 von 2" = holt ab) vor fester Woche (food/kid/rule)
 const kidName=()=>((S.food&&S.food.pref&&S.food.pref.kidname)||"").trim()||"Kind";
-function wirPager(p){return `<div class="pager" role="group" aria-label="Seiten von Wir"><div class="pdots">${[["privat","Partner"],["kind",kidName()]].map((x,i)=>`<button class="pdot" data-go="${x[0]}" aria-pressed="${i===p}"><b>${esc(x[1])}</b></button>`).join("")}</div></div>`}
+function wirPager(p){return `<div class="pager" role="group" aria-label="Seiten von Wir"><div class="pdots">${[["privat","Partner"],["kind",kidName()],["geschenke","Geschenke"]].map((x,i)=>`<button class="pdot" data-go="${x[0]}" aria-pressed="${i===p}"><b>${esc(x[1])}</b></button>`).join("")}</div></div>`}
 const KID_RULE={br:["p0","p1","p0","p1","p0"],ab:["p1","p0","p1","p0","p1"]};
 const kidRule=()=>{const r=S.food&&S.food.kid&&S.food.kid.rule;return {br:(r&&r.br)||KID_RULE.br,ab:(r&&r.ab)||KID_RULE.ab}};
 const kitaZu=d=>kitas().find(x=>x.sec==="termine"&&x.kind==="zu"&&x.date===d)||null;
@@ -17,12 +17,12 @@ function bhDay(mon,i){const wk=wkKey(mon),d=addDays(mon,i),k=ymd(d),ov=(((S.food
   return {i,k,d,off,ho,hoT,br:pick("br"),ab:pick("ab")}}
 // Auswahl je Feld (Florian 15.11.2026: jedes Feld direkt wählen, mit Optionen): Person nur diese Woche, 📌 jede Woche, wie geplant, Homeoffice des Tages
 function kidPick(wk,i,f){S.mboxAt=Date.now();if(document.getElementById("mbox"))return;const mon=addDays(mondayOf(new Date()),7*(S.kidWk|0));if(wkKey(mon)!==wk)return;const x=bhDay(mon,i),y=x[f],DN=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag"],P=S.me==="p1"?["p1","p0"]:["p0","p1"],rl=kidRule();
-  const srcTxt=b=>b.src==="ho"?"🏠 Hausdienst":"feste Woche";
+  const srcTxt=b=>b.src==="ho"?"🔑 Hausdienst":"feste Woche";
   const hoOn=(p,half)=>x.ho&&x.ho.by===p&&!x.ho.part&&(x.ho.half||"")===half?' aria-pressed="true"':"";
   const el=document.createElement("div");el.id="mbox";el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="Bringen und Abholen"><div class="section-head"><h2>🚸 ${DN[i]} ${x.d.getDate()}.${x.d.getMonth()+1}.: wer ${f==="br"?"bringt":"holt ab"}?</h2></div><div class="quicklist"><div class="freq kidhoh" style="margin-top:0">Nur diese Woche oder 📌 jede Woche:</div>
     ${P.map(p=>`<div class="kidopt"><button class="quickbtn" data-kp="${p}"${y.p===p?' aria-pressed="true"':""}><span class="qi">${esc(pname(p).charAt(0))}</span><span>${esc(pname(p))}${p===y.base.p?` <small>(geplant: ${srcTxt(y.base)})</small>`:""}</span></button><button class="quickbtn kidall" data-kp="${p}|rule"${rl[f][i]===p?' aria-pressed="true"':""} aria-label="${esc(pname(p))} jeden ${DN[i]}">📌 jeden ${DN[i].slice(0,2)}</button></div>`).join("")}
     ${y.src==="hand"?`<button class="quickbtn" data-kp="reset"><span class="qi">↺</span><span>Wie geplant: ${esc(pname(y.base.p))} (${srcTxt(y.base)})</span></button>`:""}
-    ${x.hoT?`<div class="freq kidhoh">🏠 Hausdienst an diesem Tag (steht auch in der Woche; diese Person bringt und holt nicht):</div>${hoOpts(P).map(o=>`<button class="quickbtn" data-kh="${o[0]}"${hoOn(...o[0].split("|").concat([""]).slice(0,2))}><span class="qi">${o[1]}</span><span>${o[2]}</span></button>`).join("")}${x.ho?`<button class="quickbtn" data-kh="clear"><span class="qi">✕</span><span>Kein Hausdienst</span></button>`:""}`:""}
+    ${x.hoT?`<div class="freq kidhoh">🔑 Hausdienst an diesem Tag (steht auch in der Woche; diese Person bringt und holt nicht):</div>${hoOpts(P).map(o=>`<button class="quickbtn" data-kh="${o[0]}"${hoOn(...o[0].split("|").concat([""]).slice(0,2))}><span class="qi">${o[1]}</span><span>${o[2]}</span></button>`).join("")}${x.ho?`<button class="quickbtn" data-kh="clear"><span class="qi">✕</span><span>Kein Hausdienst</span></button>`:""}`:""}
     </div></div>`;
   document.body.appendChild(el);
   const ovp="food/kid/bh/"+wk+"/d"+i;
@@ -38,11 +38,11 @@ function kidPick(wk,i,f){S.mboxAt=Date.now();if(document.getElementById("mbox"))
 async function kidHoSync(wk,i){const mon=addDays(mondayOf(new Date()),7*(S.kidWk|0));if(wkKey(mon)!==wk)return;const x=bhDay(mon,i);if(!x.hoT||x.off)return;
   const br=x.br.p,ab=x.ab.p,ot=q=>q==="p0"?"p1":"p0",key=x.hoT.id+"__"+i;
   if(br!==ab){if(x.ho&&x.ho.by===ab&&x.ho.half==="vm"&&!x.ho.part)return;if(!x.ho&&x.br.src!=="hand"&&x.ab.src!=="hand")return;
-    await S.store.tick(wk,key,{by:ab,half:"vm",at:Date.now()});await S.store.setPath("food/kid/bh/"+wk+"/d"+i,null);toast("🏠 Hausdienst geteilt: vormittags "+pname(ab)+", nachmittags "+pname(br));return}
+    await S.store.tick(wk,key,{by:ab,half:"vm",at:Date.now()});await S.store.setPath("food/kid/bh/"+wk+"/d"+i,null);toast("🔑 Hausdienst geteilt: vormittags "+pname(ab)+", nachmittags "+pname(br));return}
   if(x.ho&&x.ho.by===ot(br)&&!x.ho.part&&!x.ho.half)return;
   // Ohne Hausdienst und ohne Hand-Änderung: nichts anlegen
   if(!x.ho&&x.br.src!=="hand"&&x.ab.src!=="hand")return;
-  await S.store.tick(wk,key,{by:ot(br),at:Date.now()});await S.store.setPath("food/kid/bh/"+wk+"/d"+i,null);toast("🏠 Hausdienst: "+pname(ot(br)))}
+  await S.store.tick(wk,key,{by:ot(br),at:Date.now()});await S.store.setPath("food/kid/bh/"+wk+"/d"+i,null);toast("🔑 Hausdienst: "+pname(ot(br)))}
 // Homeoffice geändert (Woche): Hand-Änderungen bei Bringen und Abholen an diesem Tag fallen weg, das Homeoffice ist die neuere Angabe
 async function hoKidSync(wk,key){const hoT=tasks().find(t=>t.owner==="ho");if(!hoT||!key.startsWith(hoT.id+"__"))return;const i=+key.slice(hoT.id.length+2);if(!(i>=0&&i<5))return;
   if(((((S.food&&S.food.kid&&S.food.kid.bh)||{})[wk])||{})["d"+i])try{await S.store.setPath("food/kid/bh/"+wk+"/d"+i,null)}catch(_){}}
@@ -57,8 +57,8 @@ function renderKind(){const now=new Date(),cm=mondayOf(now),off=S.kidWk|0,mon=ad
   if(nm==="Kind")h+=`<div class="freq">Den Namen tragt ihr unter <button class="linkbtn" data-go="settings">Einstellungen › Wir</button> ein. Er bleibt nur bei euch.</div>`;
   h+=`<section class="card kidbh"><div class="section-head"><h2>🚸 Bringen und Abholen</h2><span class="weeknav"><button class="iconbtn" data-kidwk="${off-1}" aria-label="Vorige Woche"${off<=-1?" disabled":""}>‹</button><span class="wkdate" style="margin:0">KW ${w}</span><button class="iconbtn" data-kidwk="${off+1}" aria-label="Nächste Woche"${off>=2?" disabled":""}>›</button></span></div>
     <ul class="kidlist">${kidBhRows(mon,off===0)}</ul>
-    <div class="freq">Tippen auf eine Person öffnet die Auswahl: nur diese Woche, 📌 jede Woche, wie geplant oder Hausdienst. Wer in der Woche 🏠 Hausdienst hat, bringt und holt nicht, das macht der andere. Änderst du hier, zieht die Woche mit.</div>
-    <div class="btnrow"><button class="ghost" data-kidrule="${off}">📌 Als feste Woche speichern</button>${Object.keys((((S.food&&S.food.kid&&S.food.kid.bh)||{})[wkKey(mon)])||{}).length?`<button class="ghost" data-kidreset="${off}">↺ Änderungen dieser Woche zurücknehmen</button>`:""}<button class="ghost" data-nav="woche|wp:0">🏠 Hausdienst ›</button></div></section>`;
+    <div class="freq">Tippen auf eine Person öffnet die Auswahl: nur diese Woche, 📌 jede Woche, wie geplant oder Hausdienst. Wer in der Woche 🔑 Hausdienst hat, bringt und holt nicht, das macht der andere. Änderst du hier, zieht die Woche mit.</div>
+    <div class="btnrow"><button class="ghost" data-kidrule="${off}">📌 Als feste Woche speichern</button>${Object.keys((((S.food&&S.food.kid&&S.food.kid.bh)||{})[wkKey(mon)])||{}).length?`<button class="ghost" data-kidreset="${off}">↺ Änderungen dieser Woche zurücknehmen</button>`:""}<button class="ghost" data-nav="woche|wp:0">🔑 Hausdienst ›</button></div></section>`;
   // Kita kurz
   const km=di<5?(kitaMeals(cm)["d"+di]||{}):{},kb=kitaBring(),nx=kitas().filter(x=>x.sec==="termine"&&x.date&&x.date>=today).sort((a,b)=>a.date<b.date?-1:1)[0];
   const row=(ic,t,sub,attr)=>`<div class="trow"><span class="tic">${ic}</span><button class="ttx" ${attr}><span>${t}${sub?`<i>${sub}</i>`:""}</span><em>›</em></button></div>`;
@@ -68,10 +68,10 @@ function renderKind(){const now=new Date(),cm=mondayOf(now),off=S.kidWk|0,mon=ad
     +row("📅",nx?esc(nx.name):"Kein Kita-Termin",nx?esc(dLabel(nx.date)):"",'data-nav="kita|ks:termine"')+`</section>`;
   // Verknüpft
   const kids=buys().filter(x=>!x.done&&x.for==="kid"),cnt=l=>kids.filter(x=>x.list===l).length+(l==="geschenke"?buyLinked("geschenke").filter(x=>x.kid).length:0);
-  h+=`<section class="card tagcard"><div class="section-head"><h2>🧸 Für ${esc(nm)}</h2></div>`
+  h+=`<section class="card tagcard"><div class="section-head"><h2>🧒 Für ${esc(nm)}</h2></div>`
     +row("👕","Kleidung",cnt("kleidung")?cnt("kleidung")+" offen":"",'data-nav="listen|bl:kleidung"')
     +row("🎁","Geschenke und Spielsachen",cnt("geschenke")?cnt("geschenke")+" offen":"",'data-nav="listen|bl:geschenke"')
-    +row("🎄","Adventskalender","",'data-nav="projekte|pf:advent"')
+    +row("🎄","Adventskalender","",'data-nav="geschenke|pf:advent"')
     +row("🚲","Ausflüge mit Kleinkind","",'data-nav="ausflug|tt:ideen"')
     +row("🛝","Spielplätze und Spielideen","",'data-nav="spiel|ps:spielplatz"')+`</section>`;
   return h}
@@ -124,7 +124,7 @@ function hoOpts(P){const o=q=>q==="p0"?"p1":"p0",n=q=>esc(pname(q)),c=q=>esc(pna
   return P.map(p=>[p,c(p),`${n(p)} hat Hausdienst <small>(${n(o(p))} bringt und holt)</small>`]).concat(P.map(p=>[p+"|vm",c(p)+"/"+c(o(p)),`Vormittags ${n(p)}, nachmittags ${n(o(p))} <small>(${n(o(p))} bringt, ${n(p)} holt)</small>`]))}
 function hoPick(btn){if(!hoCanEdit())return;S.mboxAt=Date.now();if(document.getElementById("mbox"))return;const t=tasks().find(x=>x.id===btn.dataset.task);if(!t)return;const wk=wkKey(S.view),key=t.id+"__"+btn.dataset.slot,cur=ticksOf(wk)[key];
   const set=async v=>{mboxClose();try{await S.store.tick(wk,key,v);await hoKidSync(wk,key)}catch(_){toast("Konnte nicht speichern. Bitte nochmal tippen.")}};
-  const el=document.createElement("div");el.id="mbox";el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="Hausdienst"><div class="section-head"><h2>🏠 ${esc(DAYS[+btn.dataset.slot]||"")}: wer hat Hausdienst?</h2></div><div class="quicklist">
+  const el=document.createElement("div");el.id="mbox";el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="Hausdienst"><div class="section-head"><h2>🔑 ${esc(DAYS[+btn.dataset.slot]||"")}: wer hat Hausdienst?</h2></div><div class="quicklist">
     ${hoOpts(S.me==="p1"?["p1","p0"]:["p0","p1"]).map(o=>{const [p,h]=o[0].split("|");return `<button class="quickbtn" data-hop="${o[0]}"${cur&&cur.by===p&&!cur.part&&(cur.half||"")===(h||"")?' aria-pressed="true"':""}><span class="qi">${o[1]}</span><span>${o[2]}</span></button>`}).join("")}
     ${cur?`<button class="quickbtn" data-hop="clear"><span class="qi">✕</span><span>Leeren</span></button>`:""}</div></div>`;
   document.body.appendChild(el);

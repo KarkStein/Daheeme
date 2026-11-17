@@ -15,7 +15,7 @@ srv.listen(8765,async()=>{
   // 2) Ausflug: eigene Art + Symbol
   await nav('ausflug|tt:ideen');await A.click('[data-act=tripnew]');await A.waitForTimeout(200);await A.click('[data-catman=trip]');await addCat('🏰','Burgen');await close();
   const tid=Object.keys((db().cats||{}).trip||{})[0];await A.fill('#tr-name','Burg Test');await A.fill('[data-tf=emo]','🏰');await A.click(`[data-tset][data-v="${tid}"], [data-v="${tid}"]`);await A.click('[data-act=tripsave]');await A.waitForTimeout(400);
-  const T=Object.values(db().trip||{}).find(x=>x.name==='Burg Test');r.trip=T&&[T.kind===tid,T.emo].join();r.tripTag=await A.$eval('#app',e=>/🏰 Burgen/.test(e.innerText)&&/🏰 Burg Test/.test(e.innerText));
+  const T=Object.values(db().trip||{}).find(x=>x.name==='Burg Test');r.trip=T&&[T.kind===tid,T.emo].join();r.tripTag=await A.$$eval('.rgcard .mk',l=>l.some(x=>/Burg Test/.test(x.innerText)&&x.querySelector('.mki').innerText.trim()==='🏰'&&/Burgen/.test(x.innerText)));
   // 3) Sammlung Reisen: eigene Art erscheint im Filter
   await nav('ausflug|tt:recherche');await A.click('[data-catman=fund]');await addCat('🧭','Souvenirs');await close();r.fund=await A.$eval('#app',e=>/Souvenirs/.test(e.innerText));
   // 4) Ideen: eigene Kachel, Geschenk-Idee mit Symbol

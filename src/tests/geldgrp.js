@@ -30,5 +30,5 @@ srv.listen(8765,async()=>{
   r.del=Object.keys(db('mgroup')).length===0&&Object.values(db('money')).every(x=>!x.grp);
   console.error(JSON.stringify(r),errs);
   const ok=!errs.length&&r.pre==='800'&&r.grp==='Bretagne,80000,urlaub:u1'&&r.h1==='Ausgaben'&&/Bretagne/.test(r.sel)&&r.defBy==='p0'&&r.defGrp===gid&&/Judith bekommt 170,00 € von dir/.test(r.gbal)&&/460,00 € von 800,00 €/.test(r.bud)
-    &&/Du bekommst 20,00 €/.test(r.hbal)&&/Über alle Gruppen: Judith bekommt 150,00 €/.test(r.all)&&r.settle==='17000,p0,true'&&r.closed&&/Haushalt/.test(r.after)&&!/Über alle/.test(r.hbal2)&&/460,00 €/.test(r.inU)&&/📦/.test(r.inU)&&/Bretagne/.test(r.jump)&&r.del;
+    &&/Du bekommst 20,00 €/.test(r.hbal)&&/Über alle Gruppen: Judith bekommt 150,00 €/.test(r.all)&&r.settle==='17000,p0,true'&&r.closed&&/Haushalt/.test(r.after)&&!/Über alle/.test(r.hbal2)&&/460,00 €/.test(r.inU)&&/🗄️/.test(r.inU)&&/Bretagne/.test(r.jump)&&r.del;
   console.error(ok?'GELDGRP OK':'GELDGRP FAIL');await b.close();srv.close();process.exit(0)});

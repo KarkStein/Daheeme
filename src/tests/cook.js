@@ -13,7 +13,7 @@ srv.listen(8765,async()=>{
   const P=()=>((db().food||{}).plan||{})['2026-W47']||{};r.d2=(P().d2||{}).text+'|'+(P().d2||{}).rec;r.h1=await A.$eval('.fdish',e=>e.innerText).catch(()=>'?');r.toast=await A.$eval('#toast',e=>e.innerText).catch(()=>'');
   await A.screenshot({path:out+'/essen-heute-gewaehlt.png'});
   // ohne Hinweis: Tag wählen (Morgen)
-  await nav('essen|ft:rezepte');r.nobanner=!(await A.$('.mealfor'));await A.click('[data-cook="rec|r2"] >> nth=0');await A.waitForTimeout(300);r.days=await A.$$eval('#mbox [data-cday]',l=>l.length);
+  await nav('essen|ft:rezepte');{const _bt=await A.$('.bookcard .setsum[aria-expanded=false]');if(_bt){await _bt.click();await A.waitForTimeout(150)}}r.nobanner=!(await A.$('.mealfor'));await A.click('[data-cook="rec|r2"] >> nth=0');await A.waitForTimeout(300);r.days=await A.$$eval('#mbox [data-cday]',l=>l.length);
   await A.screenshot({path:out+'/essen-tag-waehlen.png'});
   await A.click('#mbox [data-cday="1"]');await A.waitForTimeout(400);r.d3=(P().d3||{}).text;
   // Dashboard-Hinweis nach Leeren

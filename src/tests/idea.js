@@ -5,7 +5,7 @@ srv.listen(8765,async()=>{
   await A.route('**/ideen.json*',r=>r.fulfill({contentType:'application/json',body:JSON.stringify(ideas)}));
   await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');
   const key=/k=([^&]+)/.exec(A.url())[1];await fetch('http://localhost:8765/haushalt/'+key+'/food/rec/old1.json',{method:'PUT',body:JSON.stringify({name:'Altes Rezept',ing:'1 Zwiebel',at:1})});
-  await A.click('[data-tab=essen]');await A.click('[data-food=rezepte]');await A.waitForTimeout(300);
+  await A.click('[data-tab=essen]');await A.click('[data-food=rezepte]');{const _bt=await A.$('.bookcard .setsum[aria-expanded=false]');if(_bt){await _bt.click();await A.waitForTimeout(150)}}await A.waitForTimeout(300);
   const first=await A.$eval('#app section.card h2',e=>e.textContent);
   const closed=await A.$$eval('[data-idea]',l=>l.length)===0&&!!(await A.$('[data-act=ideastog][aria-expanded=false]'));await A.click('[data-act=ideastog]');await A.waitForTimeout(200);
   const cats=await A.$$eval('[data-idea]',l=>l.length);

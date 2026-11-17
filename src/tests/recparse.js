@@ -13,7 +13,7 @@ srv.listen(8765,async()=>{
     'Anleitungen','Champignons putzen und in Scheiben schneiden. Zwiebel fein würfeln.','Butter in der Pfanne erhitzen und die Pilze kräftig anbraten.','Sahne angießen, mit Stärke binden, abschmecken.',
     'Notizen','Statt Sahne geht auch Kochsahne.','Nährwerte','Kalorien: 250kcal',
     'Hast Du das Rezept ausprobiert?','Markiere @emmikochteinfach','12 Kommentare','Anna sagt: Super lecker!'].join('\n');
-  const tryIt=async txt=>{await nav('essen|ft:rezepte');const cx=await A.$('[data-act=reccancel]');if(cx){await cx.click();await A.waitForTimeout(200)}await A.click('[data-act=recpaste]');await A.waitForTimeout(200);await A.fill('#rec-paste',txt);await A.click('[data-act=recparse]');await A.waitForTimeout(300);
+  const tryIt=async txt=>{await nav('essen|ft:rezepte');{const _bt=await A.$('.bookcard .setsum[aria-expanded=false]');if(_bt){await _bt.click();await A.waitForTimeout(150)}}const cx=await A.$('[data-act=reccancel]');if(cx){await cx.click();await A.waitForTimeout(200)}await A.click('[data-act=recpaste]');await A.waitForTimeout(200);await A.fill('#rec-paste',txt);await A.click('[data-act=recparse]');await A.waitForTimeout(300);
     return {name:await A.$eval('#rec-name',e=>e.value),ing:await A.$eval('#rec-ing',e=>e.value.split('\n').filter(Boolean)),note:await A.$eval('#rec-note',e=>e.value.split('\n').filter(Boolean)),link:await A.$eval('[data-rf=link],#rec-link',e=>e.value).catch(()=>'')}};
   const a=await tryIt('https://emmikochteinfach.de/pilzragout/\n'+page);r.a=a;
   await A.screenshot({path:out+'/rezept-erkannt.png',fullPage:true});
@@ -21,7 +21,7 @@ srv.listen(8765,async()=>{
   const l=await tryIt('https://emmikochteinfach.de/pilzragout/');r.l=l;
   const w=await tryIt('Linsencurry\nZutaten\n200 g Linsen\n1 Dose Kokosmilch\nZubereitung\n1. Linsen kochen.\n2. Kokosmilch dazu.');r.w=w;
   // „📋 Einfügen“ liest die Zwischenablage und erkennt sofort; Knopf oben auf der Rezepte-Seite
-  await nav('essen|ft:rezepte');{const cx=await A.$('[data-act=reccancel]');if(cx){await cx.click();await A.waitForTimeout(200)}}r.top=!!(await A.$('.btnrow [data-act=recpaste]'));await A.click('[data-act=recpaste] >> nth=0');await A.waitForTimeout(200);
+  await nav('essen|ft:rezepte');{const _bt=await A.$('.bookcard .setsum[aria-expanded=false]');if(_bt){await _bt.click();await A.waitForTimeout(150)}}{const cx=await A.$('[data-act=reccancel]');if(cx){await cx.click();await A.waitForTimeout(200)}}r.top=!!(await A.$('.btnrow [data-act=recpaste]'));await A.click('[data-act=recpaste] >> nth=0');await A.waitForTimeout(200);
   await A.screenshot({path:out+'/rezept-link-maske.png'});
   await A.evaluate(t=>navigator.clipboard.writeText(t),'https://emmikochteinfach.de/pilzragout/\n'+page);await A.click('[data-act=recclip]');await A.waitForTimeout(400);r.clip=[await A.$eval('#rec-name',e=>e.value),(await A.$eval('#rec-ing',e=>e.value)).split('\n').length].join();
   console.log(JSON.stringify(r),errs);

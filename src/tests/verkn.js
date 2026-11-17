@@ -9,7 +9,7 @@ srv.listen(8765,async()=>{
   await put('food/urlaub/u1',{name:'Testurlaub',at:1});await put('food/packlist/u_u1',{name:'Testurlaub'});await put('food/pack/k1',{name:'Sonnencreme',list:'u_u1',at:1});await put('food/prio/w2',{name:'Pässe',from:'reise',ref:'u1',at:1});
   await put('food/split/s1',{name:'Gruppe',link:'splitwise.com/groups/9',ref:'urlaub:u1',at:1});await A.waitForTimeout(500);
   // Rezept über Bearbeiten löschen
-  await nav('essen|ft:rezepte');await A.click('[data-rec=r1]');await A.click('[data-recedit=r1]');await A.click('[data-act=recdel]');await A.click('[data-act=recdel]');await A.waitForTimeout(500);
+  await nav('essen|ft:rezepte');{const _bt=await A.$('.bookcard .setsum[aria-expanded=false]');if(_bt){await _bt.click();await A.waitForTimeout(150)}}await A.click('[data-rec=r1]');await A.click('[data-recedit=r1]');await A.click('[data-act=recdel]');await A.click('[data-act=recdel]');await A.waitForTimeout(500);
   r.rec=!!(F().rec||{}).r1;r.prio1=!!(F().prio||{}).w1;
   // Splitwise-Link ohne https
   await nav('ausgaben|');r.split=await A.$$eval('a.splitmain',l=>l.map(a=>a.href));

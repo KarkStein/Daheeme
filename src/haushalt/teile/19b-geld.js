@@ -2,7 +2,7 @@
 // Beträge nur in der Datenbank hinter dem Schlüssel. food/money/<id> {name,amt (Cent, ganzzahlig),date,by:p0|p1,split:"half"|"p0"|"p1"|"<Prozent für p0>",cat,ref?,note?,kind?:"settle",at,who}
 // split = für wen: half = beide je die Hälfte, p0/p1 = nur für diese Person, Zahl = Anteil von p0 in Prozent. Ausgleich: kind "settle", by zahlt an den anderen.
 // Stand (geldBal): > 0 heißt p1 schuldet p0. Splitwise-Links (food/split) bleiben unten für Gruppen mit anderen.
-const GELD_CAT=[["essen","🛒","Lebensmittel"],["drog","🧴","Drogerie und Haushalt"],["kind","🧸","Kind"],["kita","🎒","Kita"],["aus","🍽️","Essen gehen"],["frei","🎟️","Freizeit und Ausflüge"],["urlaub","⛵","Urlaub"],["geschenk","🎁","Geschenke"],["wohnen","🏠","Wohnen"],["mobil","🚆","Unterwegs"],["gesund","🩺","Gesundheit"],["kleid","👕","Kleidung"],["sonst","📦","Sonstiges"]];
+const GELD_CAT=[["essen","🛒","Lebensmittel"],["drog","🧴","Drogerie und Haushalt"],["kind","🧸","Kind"],["kita","🎒","Kita"],["aus","🍽️","Essen gehen"],["frei","🎟️","Freizeit und Ausflüge"],["urlaub","⛵","Urlaub"],["geschenk","🎁","Geschenke"],["wohnen","🏠","Wohnen"],["mobil","🚆","Unterwegs"],["gesund","🩺","Gesundheit"],["kleid","👕","Kleidung"],["sonst","📎","Sonstiges"]];
 const geldCats=()=>catsOf("geld",GELD_CAT);
 const geldCat=k=>geldCats().find(c=>c[0]===k)||GELD_CAT[GELD_CAT.length-1];
 const GELD_RX=[["drog",/\b(dm|rossmann|müller|drogerie)\b/i],["essen",/rewe|edeka|aldi|lidl|penny|netto|kaufland|tegut|denns|alnatura|bäcker|metzger|wochenmarkt|lebensmittel|supermarkt/i],["aus",/restaurant|crêpe|crepe|bistro|eisdiele|pizza|döner|café|cafe|essen gehen|lieferando|imbiss|biergarten|wirtshaus/i],["kita",/\bkita|krippe/i],["kind",/windel|spielzeug|kinder|spielsach/i],["urlaub",/hotel|ferienwohnung|airbnb|urlaub|flug|camping/i],["mobil",/tank|benzin|diesel|bahn|mvv|mvg|ticket|parken|taxi|werkstatt/i],["gesund",/apotheke|arzt|medikament|physio/i],["geschenk",/geschenk/i],["kleid",/kleidung|schuhe|jacke|hose|h&m|zara/i],["wohnen",/miete|strom|\bgas\b|internet|ikea|möbel|baumarkt|obi|hornbach|bauhaus/i],["frei",/kino|zoo|tierpark|museum|eintritt|schwimmbad|bad\b|ausflug|theater/i]];
@@ -88,7 +88,7 @@ app.addEventListener("click",async e=>{const b=e.target.closest("button");if(!b)
   if(D.gact==="grpnew"){grpEdit(null,D.ref?{name:D.name||"",emo:D.emo||"",ref:D.ref,budget:D.budget||""}:null);return}
   if(D.gact==="grpedit"){grpEdit(geldGrp());return}
   if(D.gact==="grpclosed"){S.geldShowClosed=!S.geldShowClosed;render();return}
-  if(D.gact==="grpclose"||D.gact==="grpopen"){const g=geldGrp();if(g){await S.store.setPath("food/mgroup/"+g+"/closed",D.gact==="grpclose"||null);if(D.gact==="grpclose"){S.geldGrp="";toast("Abgeschlossen. Unter „📦 Abgeschlossen“ zu finden.")}render()}return}
+  if(D.gact==="grpclose"||D.gact==="grpopen"){const g=geldGrp();if(g){await S.store.setPath("food/mgroup/"+g+"/closed",D.gact==="grpclose"||null);if(D.gact==="grpclose"){S.geldGrp="";toast("Abgeschlossen. Unter „🗄️ Abgeschlossen“ zu finden.")}render()}return}
   if(D.gact==="settle"){geldSettle();return}
   if(D.gact==="cancel"){const bk=d&&d.back,wp=d&&d.backWp;S.geldDraft=null;if(bk){S.tab=bk;if(wp!=null)S.weekPage=wp}render();return}
   if(D.geldsugg!=null&&d){const m=geldMemo()[D.geldsugg];if(m){d.name=m.name;d.cat=m.cat||"";const sp=m.split||"half",num=sp!=="half"&&sp!=="p0"&&sp!=="p1";d.split=num?"pct":sp;d.pct=num?String(+sp):"50";render();const a=document.querySelector("[data-gf=amt]");if(a&&!d.amt)a.focus()}return}
@@ -124,10 +124,10 @@ const grpOf=x=>x.grp&&mgroups().some(y=>y.id===x.grp)?x.grp:"";
 const grpName=g=>{if(!g)return "🏠 Haushalt";const x=mgroups().find(y=>y.id===g);return x?(x.emo||"👥")+" "+x.name:"Gruppe"};
 const grpByRef=ref=>mgroups().find(x=>x.ref===ref);
 function grpBar(g){const G=mgroups(),open=G.filter(x=>!x.closed||x.id===g),cl=G.filter(x=>x.closed&&x.id!==g);
-  return `<div class="unl scrollrow geldgrps" role="group" aria-label="Gruppe">${[{id:""}].concat(open).map(x=>`<button class="chipbtn neutral" data-geldgrp="${esc(x.id)}" aria-pressed="${g===x.id}">${esc(grpName(x.id))}</button>`).join("")}${S.geldShowClosed?cl.map(x=>`<button class="chipbtn neutral" data-geldgrp="${esc(x.id)}" aria-pressed="false">📦 ${esc(grpName(x.id))}</button>`).join(""):""}<button class="chipbtn neutral" data-gact="grpnew">＋ Gruppe</button>${cl.length?`<button class="chipbtn neutral" data-gact="grpclosed" aria-pressed="${!!S.geldShowClosed}">📦 Abgeschlossen (${cl.length})</button>`:""}</div>`}
+  return `<div class="unl scrollrow geldgrps" role="group" aria-label="Gruppe">${[{id:""}].concat(open).map(x=>`<button class="chipbtn neutral" data-geldgrp="${esc(x.id)}" aria-pressed="${g===x.id}">${esc(grpName(x.id))}</button>`).join("")}${S.geldShowClosed?cl.map(x=>`<button class="chipbtn neutral" data-geldgrp="${esc(x.id)}" aria-pressed="false">🗄️ ${esc(grpName(x.id))}</button>`).join(""):""}<button class="chipbtn neutral" data-gact="grpnew">＋ Gruppe</button>${cl.length?`<button class="chipbtn neutral" data-gact="grpclosed" aria-pressed="${!!S.geldShowClosed}">🗄️ Abgeschlossen (${cl.length})</button>`:""}</div>`}
 function grpPage(g,L){const x=mgroups().find(y=>y.id===g)||{},E=geldExp(L),sum=E.reduce((s,y)=>s+y.amt,0),b=geldBal(L),sh={p0:0,p1:0};E.forEach(y=>{const s=geldShare(y);sh.p0+=s.p0;sh.p1+=s.p1});
   const bud=x.budget||0,pc=bud?Math.round(sum*100/bud):0;
-  let h=`<section class="card geldbal"><div class="section-head"><h2>${esc(grpName(g))}</h2><button class="ghost" data-gact="grpedit">✎</button></div>${x.ref?`<div class="unl">${splitRefLink(x.ref)}</div>`:""}${x.closed?`<div class="freq">📦 Abgeschlossen</div>`:""}
+  let h=`<section class="card geldbal"><div class="section-head"><h2>${esc(grpName(g))}</h2><button class="ghost" data-gact="grpedit">✎</button></div>${x.ref?`<div class="unl">${splitRefLink(x.ref)}</div>`:""}${x.closed?`<div class="freq">🗄️ Abgeschlossen</div>`:""}
     <div class="geldbig">${esc(geldBalTxt(b))}</div>
     ${bud?`<div class="geldbud"><div class="gbar"><i style="width:${Math.min(100,pc)}%;${sum>bud?"background:var(--ochre)":""}"></i></div><div class="freq">${eur(sum)} von ${eur(bud)} Budget${sum>bud?` · ${eur(sum-bud)} drüber`:` · noch ${eur(bud-sum)}`}</div></div>`:`<div class="freq">Zusammen ${eur(sum)}. Ein Budget lässt sich mit ✎ setzen.</div>`}
     <div class="btnrow" style="margin-top:0">${x.closed?`<button class="ghost" data-gact="grpopen">↩ Wieder öffnen</button>`:`<button class="primary" data-gact="new">＋ Ausgabe</button>${b?`<button class="ghost" data-gact="settle">🤝 Ausgleichen</button>`:L.length?`<button class="ghost" data-gact="grpclose">✅ Abschließen</button>`:""}`}</div>
@@ -177,7 +177,7 @@ window.Geld={parseEur,geldShare,geldBal,eur,fixDue,fixMonthly,dropRef:r=>splitDr
 // Im Urlaub (und überall mit ref): Karte mit Stand der Gruppe oder Knopf zum Anlegen; Budget des Urlaubs wird übernommen
 function grpLinkHtml(ref,name,emo,budget){const g=grpByRef(ref);if(!g)return `<button class="chipbtn" data-gact="grpnew" data-ref="${esc(ref)}" data-name="${esc(name||"")}" data-emo="${esc(emo||"")}" data-budget="${budget?esc(String(budget)):""}">＋ Ausgaben-Gruppe anlegen</button>`;
   const L=monies().filter(x=>x.grp===g.id),sum=geldExp(L).reduce((s,x)=>s+x.amt,0),b=geldBal(L);
-  return `<button class="chipbtn neutral" data-go="ausgaben" data-geldgrp="${esc(g.id)}">💶 ${esc(grpName(g.id))}: ${eur(sum)}${g.budget?" von "+eur(g.budget):""}${g.closed?" · 📦":b?" · offen":""} ›</button>`}
+  return `<button class="chipbtn neutral" data-go="ausgaben" data-geldgrp="${esc(g.id)}">💶 ${esc(grpName(g.id))}: ${eur(sum)}${g.budget?" von "+eur(g.budget):""}${g.closed?" · 🗄️":b?" · offen":""} ›</button>`}
 // ---------- Verknüpfungen und Bedienung (Florian 16.11.2026, Punkte 1–12) ----------
 // Grundregel: nur feste Zahlungen buchen selbst. Sonst bietet die App an (vorausgefüllt, vor dem Speichern änderbar); danach bleibt alles änderbar.
 // Löscht man die Quelle, bleibt die Ausgabe stehen. ref = urlaub:|trip:|hproj:|ter:|buy:|idea:|fund:|adoor:<cal>_<tag>|advent:<id>|shop
@@ -209,8 +209,8 @@ function geldGoRef(ref){const [k,v]=String(ref).split(/:(.*)/);S.geldDraft=null;
   if(k==="fund"){const x=listOf(S.food&&S.food.fund).find(y=>y.id===v);if(x&&x.proj){S.tab="amhaus";S.hprojOpen=x.proj;render();window.scrollTo(0,0);return}goNav("ausflug|tt:sammlung");return}
   if(k==="urlaub"){S.tab="ausflug";S.tripTab="urlaub";S.reiseOpen=v;render();window.scrollTo(0,0);return}
   if(k==="buy"){goNav("listen|");return}
-  if(k==="idea"){goNav("projekte|pf:geschenk");return}
-  if(k==="adoor"||k==="advent"){goNav("projekte|pf:advent");return}}
+  if(k==="idea"){goNav("geschenke|");return}
+  if(k==="adoor"||k==="advent"){goNav("geschenke|pf:advent");return}}
 // Kleiner Baustein an der Quelle: Summe verknüpfter Ausgaben plus „💶 Ausgabe“
 function geldSrcRow(ref,o){const L=geldFor(ref),sum=geldSum(L);o=Object.assign({ref},o||{});
   return `<div class="unl geldsrc"><button type="button" class="chipbtn" data-geldoffer="${esc(JSON.stringify(o))}">💶 Ausgabe eintragen</button>${L.length?`<button type="button" class="chipbtn neutral" data-go="ausgaben" data-geldlist="${esc(ref)}">💶 ${eur(sum)} eingetragen ›</button>`:""}</div>`}

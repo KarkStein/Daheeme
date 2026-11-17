@@ -19,7 +19,7 @@ srv.listen(8765,async()=>{
   await nav('camp|sp:tag');await A.click('[data-act=ternewgo]');await A.waitForTimeout(300);r.terform=!!(await A.$('#terform'));r.rem=await A.$$eval('#terform [data-terrem]',l=>l.length);
   await A.fill('#ter-name','Elternabend');await A.click('#terform [data-terrem="1h"]');await A.click('#terform [type=submit]');await A.waitForTimeout(400);r.newrem=Object.values(F().termin||{}).filter(x=>x.name==='Elternabend').map(x=>x.remind).join();
   // 5 Glocke an einem Eintrag: Toast führt zur einen Maske
-  await put('food/rec/r1',{name:'Testsuppe',ing:'',at:1});await A.waitForTimeout(300);await nav('essen|ft:rezepte');await A.click('.bellbtn[data-prio="rezepte|r1"]');await A.waitForTimeout(300);r.toast=await A.$eval('#toast',e=>e.innerText);
+  await put('food/rec/r1',{name:'Testsuppe',ing:'',at:1});await A.waitForTimeout(300);await nav('essen|ft:rezepte');{const _bt=await A.$('.bookcard .setsum[aria-expanded=false]');if(_bt){await _bt.click();await A.waitForTimeout(150)}}await A.click('.bellbtn[data-prio="rezepte|r1"]');await A.waitForTimeout(300);r.toast=await A.$eval('#toast',e=>e.innerText);
   await A.click('#toast .toastbtn');await A.waitForTimeout(300);r.mask=await A.$eval('#app h1, #app h2',e=>e.innerText).catch(()=>'');r.maskname=await A.$eval('#app input',e=>e.value).catch(()=>'');
   console.error(JSON.stringify(r),errs);
   const ok=!errs.length&&r.buy==='Wintermütze|kid|geschenke'&&r.split==='Gruppe Urlaub|https://splitwise.com/groups/5'&&r.bellT.some(t=>/Zahnarzt/.test(t))&&!r.bellT.some(t=>/Friseur/.test(t))&&r.terform&&r.rem===4&&r.newrem==='1h'&&/Wichtig/.test(r.toast)&&/Testsuppe/.test(r.maskname);

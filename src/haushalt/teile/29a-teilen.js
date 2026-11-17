@@ -3,7 +3,7 @@
 // Geteilter Link/Text (manifest share_target, unverändert ?st&sx&su) fragt erst, wohin: Rezept, Spielidee, Ausflug, Geschenk-Idee, Am-Haus-Projekt oder eine der Weitere Listen.
 // Vorschlag nur bei bekannten Rezept-Seiten; Instagram und Unbekanntes ohne Vorwahl. Beschreibung optional; enthält sie eine Liste, lässt sie sich in einzelne Einträge aufteilen (jeder behält den Link).
 const SHARE_REC_RX=/(chefkoch|kitchenstories|emmikochteinfach|kptncook|eat-this|zuckerundjagdwurst|chiliundciabatta|essen-und-trinken|lecker\.de|springlane|eatsmarter|einfachbacken|gutekueche|kochbar|bbcgoodfood|allrecipes|hellofresh|cookidoo|kuechengoetter|rewe\.de\/rezepte|\/rezept|\/recipe)/i;
-const SHARE_FIX=[["rezept","📖","Rezept"],["spiel","🧩","Spielidee"],["ausflug","🚲","Ausflug"],["geschenk","🎁","Geschenk-Idee"]];
+const SHARE_FIX=[["rezept","📖","Rezept"],["spiel","🎲","Spielidee"],["ausflug","🚲","Ausflug"],["geschenk","🎁","Geschenk-Idee"]];
 function shareTargets(){return SHARE_FIX.map(x=>x.slice())
   .concat(hprojs().filter(x=>x.state!=="erledigt").map(x=>["proj:"+x.id,x.emo||"🛠️","Projekt: "+x.name]))
   .concat(buyLists().map(L=>["liste:"+L.id,L.emo,"Liste: "+L.name]))}
@@ -22,7 +22,7 @@ async function shareSave(to,name,link,note){const at=Date.now(),by=S.me||"",lk=s
   if(k==="proj")return S.store.setPath("food/fund/"+newId("f"),{name,link:lk,note:nt,area:"haus",proj:id,kind:kindGuessHaus(name,lk)||"sonst",st:"idee",at,by});
   if(k==="liste")return S.store.setPath("food/buy/"+newId("b"),{name,list:id,link:lk,note:nt,done:false,at,by})}
 function shareGo(to){const [k,id]=to.split(":");
-  if(to==="rezept")return goNav("essen|ft:rezepte");if(to==="spiel")return goNav("spiel|ps:zuhause");if(to==="ausflug")return goNav("ausflug|tt:ideen");if(to==="geschenk")return goNav("projekte|pf:geschenk");
+  if(to==="rezept")return goNav("essen|ft:rezepte");if(to==="spiel")return goNav("spiel|ps:zuhause");if(to==="ausflug")return goNav("ausflug|tt:ideen");if(to==="geschenk")return goNav("geschenke|");
   if(k==="liste")return goNav("einkauf|bl:"+id);
   if(k==="proj"){const x=hprojs().find(y=>y.id===id);S.tab="amhaus";S.projFilter=x?hprojCat(x):"";S.hprojOpen=id;S.hsamm=false;render();window.scrollTo(0,0)}}
 const shareTo=to=>(shareTargets().find(t=>t[0]===to)||[to,"",to]);

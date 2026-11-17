@@ -5,7 +5,7 @@ srv.listen(8765,async()=>{
   await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');
   const key=/k=([^&]+)/.exec(A.url())[1];const put=(pa,d)=>fetch('http://localhost:8765/haushalt/'+key+'/'+pa+'.json',{method:'PUT',body:JSON.stringify(d)});
   await put('food/rec/r1',{name:'Linsensuppe',ing:'250 g Linsen',at:1});await A.waitForTimeout(300);
-  await A.click('#tabs [data-tab=essen]');await A.click('[data-food=rezepte]');
+  await A.click('#tabs [data-tab=essen]');await A.click('[data-food=rezepte]');{const _bt=await A.$('.bookcard .setsum[aria-expanded=false]');if(_bt){await _bt.click();await A.waitForTimeout(150)}}
   await A.click('[data-act=booknew]');await A.fill('#bookinput','Omas Küche');await A.press('#bookinput','Enter');await A.waitForTimeout(400);
   const head=await A.$$eval('.section-head h2',l=>l.map(x=>x.textContent));
   await A.click('[data-act=recpaste]');
@@ -35,6 +35,6 @@ Zubereitung
   // Buch löschen
   const bid=await A.$$eval('[data-book]',l=>l.map(x=>x.dataset.book).find(x=>x!=='main'));await A.click(`[data-book="${bid}"]`);await A.click('[data-act=bookdel]');await A.waitForTimeout(400);const after=await A.$$eval('[data-rec]',l=>l.map(x=>x.innerText.split('\n')[0]));
   console.log({head,f,inBook,inMain,g,after,errs});
-  const ok=!errs.length&&head.includes('Omas Küche')&&f.name==='Omas Rindsrouladen'&&f.ing.split('\n').length===5&&/^4 Rinderrouladen/.test(f.ing)&&/flach klopfen/.test(f.note)&&!/Portionen/.test(f.ing+f.note)&&f.link==='https://example.org/rouladen'
+  const ok=!errs.length&&head.some(x=>/Omas Küche/.test(x))&&f.name==='Omas Rindsrouladen'&&f.ing.split('\n').length===5&&/^4 Rinderrouladen/.test(f.ing)&&/flach klopfen/.test(f.note)&&!/Portionen/.test(f.ing+f.note)&&f.link==='https://example.org/rouladen'
     &&inBook.length===1&&/Rindsrouladen/.test(inBook[0])&&inMain.length===1&&/Linsensuppe/.test(inMain[0])&&g.name==='Schnelle Nudeln'&&g.ing.split('\n').length===2&&/kochen/.test(g.note)&&after.length===2;
   console.log(ok?'BOOK OK':'BOOK FAIL');await b.close();srv.close();process.exit(0)});

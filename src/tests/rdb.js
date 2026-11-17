@@ -6,7 +6,7 @@ srv.listen(8765,async()=>{
   await put('food/rec/old1',{name:'Kürbissuppe mit Ingwer',ing:'800 g Hokkaido-Kürbis\n1 Zwiebel\n1 Stück Ingwer\n400 ml Kokosmilch',note:'',at:1});
   await put('food/rec/old2',{name:'Spaghetti Bolognese',ing:'500 g Spaghetti\n400 g Hackfleisch\n1 Dose Tomaten',note:'',at:2});
   await A.waitForTimeout(300);const r={};
-  await A.click('#tabs [data-tab=essen]');await A.click('[data-food=rezepte]');await A.waitForTimeout(200);
+  await A.click('#tabs [data-tab=essen]');await A.click('[data-food=rezepte]');{const _bt=await A.$('.bookcard .setsum[aria-expanded=false]');if(_bt){await _bt.click();await A.waitForTimeout(150)}}await A.waitForTimeout(200);
   await A.click('[data-act=recnew]');await A.fill('#rec-name','Linsen-Dal mit Reis');await A.fill('#rec-ing','250 g rote Linsen\n200 g Reis\n400 ml Kokosmilch\n1 Zwiebel');await A.press('#rec-ing','Tab');await A.waitForTimeout(200);
   r.pre=await A.$$eval('.tagbox [data-rtag][aria-pressed=true]',l=>l.map(x=>x.dataset.rtag));
   await A.click('[data-rtag="Region|asiatisch"]');await A.fill('#rtagown','Lieblingsessen');await A.click('[data-act=rtagown]');await A.waitForTimeout(200);

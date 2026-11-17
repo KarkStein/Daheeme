@@ -8,7 +8,7 @@ srv.listen(8765,async()=>{
   await put('food/rec/r2',{name:'Gulasch',ing:'Rindfleisch\nZwiebeln\nPaprika',at:2});
   await put('food/shop/x1',{name:'Milch',done:false,at:0});
   const B=await mk();await B.goto(link);await B.waitForSelector('[data-me=p1]');await B.click('[data-me=p1]');
-  await A.click('[data-tab=essen]');await A.click('[data-food=rezepte]');
+  await A.click('[data-tab=essen]');await A.click('[data-food=rezepte]');{const _bt=await A.$('.bookcard .setsum[aria-expanded=false]');if(_bt){await _bt.click();await A.waitForTimeout(150)}}
   // Rezepte aufklappen: Knopf data-recshop suchen
   const openRec=async n=>{const el=await A.$(`text=${n}`);await el.click();await A.waitForTimeout(200)};
   await openRec('Kürbis-Pasta');await A.click('[data-recshop=r1]');await A.click('[data-pickmode=alle]');await A.waitForTimeout(300);

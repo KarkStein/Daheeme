@@ -44,7 +44,7 @@ function renderWish(){const w=S.wish||(S.wish={lust:"",mit:"",ohne:"",wie:"",own
     ${fld("lust","Worauf habt ihr Lust?","z. B. cremig, schnell, Ofen, Suppe")}${fld("mit","Mit diesen Zutaten","z. B. Pilze, Sahne")}${fld("ohne","Ohne","z. B. Fleisch, Koriander")}${fld("wie","Ähnlich wie","Rezept aus eurer Sammlung",true)}
     <datalist id="wishrecs">${P.map(x=>`<option value="${esc(x.name)}"></option>`).join("")}</datalist><div id="wishres">${wishResHtml(w)}</div>`;
   h+=`<div class="wishweb"><div class="freq">Im Netz weitersuchen<span class="wishhint"${any?" hidden":""}> (erst oben etwas eintragen)</span>:</div><div class="unl"><button class="chipbtn neutral" data-act="wishown" aria-pressed="${!!w.own}">${w.own?"✓ ":""}Nur eure Quellen</button></div>
-    <div class="btnrow"><button class="primary" data-act="wishweb"${any?"":" disabled"}>🌐 Im Netz suchen</button><button class="ghost" data-act="wishprompt"${any?"":" disabled"}>📋 Als Prompt kopieren</button><button class="ghost" data-act="wishsave"${any?"":" disabled"}>💡 Als Recherche-Wunsch</button></div>
+    <div class="btnrow"><button class="primary" data-act="wishweb"${any?"":" disabled"}>🌐 Im Netz suchen</button><button class="ghost" data-act="wishprompt"${any?"":" disabled"}>📋 Als Prompt kopieren</button><button class="ghost" data-act="wishsave"${any?"":" disabled"}>🤖 Als Recherche-Wunsch</button></div>
     <div class="freq">Gefundenes Rezept speichern: auf der Seite alles kopieren, dann oben „🔗 Rezept aus Link oder Seite“.</div>${S.wishCopy?`<textarea class="wishcopy" rows="5" readonly>${esc(S.wishCopy)}</textarea>`:""}</div></section>`;
   return h}
 function wishResHtml(w){const any=w.lust||w.mit||w.ohne||w.wie;if(!any)return "";const L=wishHits(w);

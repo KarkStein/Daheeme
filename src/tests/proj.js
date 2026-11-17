@@ -8,9 +8,9 @@ srv.listen(8765,async()=>{
   await A.fill('#projinput','Fotobuch fürs Wohnzimmer');await A.press('#projinput','Enter');await A.waitForTimeout(200);
   await A.screenshot({path:out+'/leuchtturm.png',fullPage:true});
   // Werkzeugkoffer
-  await A.click('[data-tab=camp]');await A.click('.spot[data-go=amhaus]');await A.waitForSelector('.tiles');const ht=await A.$$eval('.tile',l=>l.map(x=>x.dataset.pfilter));
+  await A.click('[data-tab=camp]');await A.click('.spot[data-go=amhaus]');await A.waitForSelector('.tiles');const ht=await A.$$eval('.tile',l=>l.filter(x=>x.dataset.pfilter).map(x=>x.dataset.pfilter));
   const quick=!!(await A.$('#projinput'));
-  await A.click('.tile[data-pfilter=ordnung]');await A.fill('#projinput','Keller: Regale ausmisten');await A.press('#projinput','Enter');await A.waitForTimeout(200);
+  await A.click('.tile[data-pfilter=garten]');await A.fill('#projinput','Beet umgraben');await A.press('#projinput','Enter');await A.waitForTimeout(200);
   await A.click('[data-pfilter=""]');await A.waitForTimeout(200);await A.screenshot({path:out+'/amhaus.png',fullPage:true});
   // Lampe springt direkt zu Einrichtung
   await A.click('[data-tab=camp]');await A.click('.spot[data-go=amhaus]');await A.waitForSelector('.tiles');await A.click('.tile[data-pfilter=wohnen]');const h2=await A.$eval('h2',e=>e.textContent);
@@ -24,5 +24,5 @@ srv.listen(8765,async()=>{
   const mapHref=await B.$eval('ul.shop a.catbtn',e=>e.href);
   await B.screenshot({path:out+'/spielplatz-karte.png',fullPage:true});
   console.log({lt,ht,quick,h2,cnt,ifr,mapHref,errs});
-  const ok=!errs.length&&lt.join()==='geschenk,sonst,advent,alle'&&ht.join()==='wohnen,ordnung,haus,garten'&&!quick&&/Einrichtung/.test(h2)&&cnt[0]==='1 offen'&&cnt[1]==='1 offen'&&ifr&&/maps\/search/.test(mapHref);
+  const ok=!errs.length&&lt.join()==='sonst,alle'&&ht.join()==='wohnen,garten'&&!quick&&/Einrichtung/.test(h2)&&cnt[0]==='1 offen'&&cnt[1]==='1 offen'&&ifr&&/maps\/search/.test(mapHref);
   console.log(ok?'PROJ OK':'PROJ FAIL');await b.close();srv.close();process.exit(0)});

@@ -9,7 +9,7 @@ srv.listen(8765,async()=>{
   await A.click('[data-prio^="kita|"]');await A.waitForTimeout(300);const pressed=await A.$eval('[data-prio^="kita|"]',e=>e.getAttribute('aria-pressed'));
   const W=async P=>{await P.evaluate(()=>{const b=document.createElement('button');b.dataset.go='wichtig';document.getElementById('app').appendChild(b);b.click()});await P.waitForTimeout(300)};
   // Idee am Haus mit Glocke
-  await A.click('[data-tab=camp]');await A.click('.spot[data-go=amhaus]');await A.click('.tile[data-pfilter=haus]');await A.fill('#projinput','Dachrinne reinigen');await A.press('#projinput','Enter');await A.waitForTimeout(300);
+  await A.click('[data-tab=camp]');await A.click('.spot[data-go=amhaus]');await A.click('.tile[data-pfilter=wohnen]');await A.fill('#projinput','Dachrinne reinigen');await A.press('#projinput','Enter');await A.waitForTimeout(300);
   await A.click('[data-prio^="amhaus|"]');await A.waitForTimeout(300);
   // Startseite: freie Notiz und Erinnerung
   await W(A);await A.waitForSelector('#prioinput');await A.fill('#prioinput','Steuer abgeben');await A.press('#prioinput','Enter');await A.waitForTimeout(300);
@@ -25,7 +25,7 @@ srv.listen(8765,async()=>{
   // Tippen auf Kita-Eintrag springt in Kita
   await A.click('.prow .pnm[data-go=kita]');const h1=await A.$eval('h1',e=>e.textContent);
   const key=/k=([^&]+)/.exec(A.url())[1];await fetch('http://localhost:8765/haushalt/'+key+'/food/rec/r1.json',{method:'PUT',body:JSON.stringify({name:'Linsensuppe',ing:'Linsen',at:1})});await A.waitForTimeout(400);
-  await A.click('#tabs [data-tab=essen]');await A.click('[data-food=rezepte]');await A.click('[data-prio="rezepte|r1"]');await A.waitForTimeout(300);
+  await A.click('#tabs [data-tab=essen]');await A.click('[data-food=rezepte]');{const _bt=await A.$('.bookcard .setsum[aria-expanded=false]');if(_bt){await _bt.click();await A.waitForTimeout(150)}}await A.click('[data-prio="rezepte|r1"]');await A.waitForTimeout(300);
   await A.click('.bellnav');const wh=await A.$eval('h1',e=>e.textContent);const secs=await A.$$eval('.section-head h2',l=>l.map(x=>x.textContent));
   await A.click('[data-priosort=bereich]');const secs2=await A.$$eval('.section-head h2',l=>l.map(x=>x.textContent));
   await A.screenshot({path:out+'/prio-liste.png',fullPage:true});

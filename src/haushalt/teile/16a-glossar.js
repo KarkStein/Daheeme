@@ -1,10 +1,20 @@
-// ---------- Glossar (Florian 16.11.2026): Einstellungen › 📖 Glossar ----------
+// ---------- Glossar (Florian 16.11.2026): Einstellungen › ❓ Glossar ----------
+// Begriffe und Symbole vereinheitlicht (Florian 17.11.2026): acht Grundbegriffe oben, jedes Symbol hat nur eine Bedeutung.
 // Gespeist aus den Listen der App, damit es nicht veraltet: Bereiche, Seiten und "Kurz erklärt" aus AREAS/AREA_GROUPS,
 // Dinge im Bild aus PIC_SPOTS (12-startbild.js), Schnellmenüs aus QUICK, Seiten der 4 Reiter aus TAB_PAGES, Schalter aus S.gest.
 // Fest stehen hier nur Begriffe, Symbole und Gesten. Neuer Begriff = eine Zeile in GLOS_TERMS ([Begriff, Erklärung, Sprung-Attribut]).
 // Die Suche (Lupe) findet Begriffe und Dinge im Bild und öffnet das Glossar mit dem Wort im Filter (data-glosq).
 const TAB_PAGES={camp:["Haus","Kalender","Wichtig"],woche:WEEK_ORDER.map(i=>WEEK_PAGES[i]),essen:["Heute und Wochenplan","Rezepte"],einkauf:["Listen","Ausgaben"]};
 const GLOS_TERMS=[
+  ["Bereich","Ein Thema der App mit eigenem Symbol und Ding im Bild, z. B. Essen, Reisen und Ausflüge, Am Haus, Geschenke.","data-allar"],
+  ["Projekt","🧩 Etwas mit Ziel und Ende, z. B. ein Urlaub, das Kinderzimmer oder der Adventskalender. Sammelt, was ihr euch dafür merkt.",'data-nav="projekte|pf:alle"'],
+  ["Gemerkt","🔖 Alles, was ihr euch für später merkt: Ausflugsziel, Unterkunft, Möbel, Geschenk, Spielidee, Playlist. Jeder Eintrag hat eine Art, einen Stand und auf Wunsch ein Projekt.",'data-nav="projekte|"'],
+  ["Art","Was für ein Ding etwas ist, z. B. Unterkunft, Möbel, Spielplatz. Jede Art hat ein Symbol, Sonstiges ist überall 📎.",""],
+  ["Stand","Wie weit etwas ist, überall dieselbe Leiter: 💡 Idee, ⭐ Favorit, 📅 Geplant, ▶️ Läuft, ✅ Erledigt. Ein Tipp aufs Schild schaltet weiter.",""],
+  ["Sammlung","🗃️ Am Leuchtturm: alles Gemerkte aus allen Bereichen auf einen Blick, mit Filtern nach Bereich und Stand. Dazu Sonstiges und Alle Projekte.",'data-nav="projekte|"'],
+  ["Vorschlag","✨ Was die App oder die Recherche anbietet, z. B. Tagesrezepte oder Was ist los. Ein Tipp übernimmt oder merkt es.",""],
+  ["Liste","Zum Abhaken: Einkaufsliste, Weitere Listen, Packliste, Mitbringen.",'data-nav="einkauf|"'],
+  ["Geschenke","🎁 Eigener Bereich unter Wir: Geschenke für alle mit Stand und für wen, dazu der Adventskalender. Auf 📅 Geplant erscheinen sie bei Einkauf › Weitere Listen › Geschenke.",'data-nav="geschenke|"'],
   ["Hausdienst","Wer an einem Tag Hausdienst hat, ist für zu Hause da und bringt und holt das Kind nicht, das macht der andere. Geht auch geteilt: vormittags der eine, nachmittags der andere. Eintragen in Woche.",'data-nav="woche|wp:0"'],
   ["Wichtig","Der eine Ort für alle Erinnerungen. Die 🔔 oben links zählt, was in den nächsten 24 Stunden fällig oder schon überfällig ist, dazu Termine mit 🔔.",'data-nav="wichtig|"'],
   ["Erinnerung","Etwas, woran die App erinnert, mit Tag und Uhrzeit, auf Wunsch wiederholt. Steht unter Wichtig.",'data-nav="wichtig|"'],
@@ -39,12 +49,9 @@ const GLOS_TERMS=[
   ["Gruppe","Ausgaben für einen Anlass, z. B. einen Urlaub, mit eigenem Stand und Budget. Standard ist „Haushalt“.",'data-go="ausgaben"'],
   ["Gemeinsames Konto","Als Zahler wählbar. Zählt bei den Ausgaben, aber nicht im Stand zwischen euch.",'data-go="ausgaben"'],
   ["Alle Projekte","Alle laufenden Projekte aus Am Haus, Urlaube und Adventskalender auf einer Seite. Die Projekte selbst bleiben in ihrem Bereich.",'data-nav="projekte|pf:alle"'],
-  ["Lose Ideen","Einfälle für Am Haus, die noch kein Projekt sind. 🧩 macht ein Projekt daraus.",'data-nav="amhaus|"'],
-  ["Fund","Etwas Gefundenes mit Link, Preis oder Stand, in einem Am-Haus-Projekt oder in der Sammlung.",'data-nav="amhaus|"'],
-  ["Sammlung","Gefundenes mit Link, eine für Reisen und Ausflüge und eine für Am Haus, mit Stand Idee, Favorit, Gekauft.",'data-nav="ausflug|tt:recherche"'],
-  ["Adventskalender","24 Türchen fürs Kind, von beiden gefüllt. Kleinigkeiten stehen bei Weitere Listen › Geschenke.",'data-nav="projekte|pf:advent"'],
+  ["Lose gemerkt","Am Haus: Gemerktes, das noch zu keinem Projekt gehört. 🧩 macht ein Projekt daraus.",'data-nav="amhaus|"'],
+  ["Adventskalender","24 Türchen fürs Kind, von beiden gefüllt. Kleinigkeiten stehen bei Weitere Listen › Geschenke.",'data-nav="geschenke|pf:advent"'],
   ["Packliste","Was auf eine Reise mitmuss, gemeinsam oder je Urlaub.",'data-nav="ausflug|tt:pack"'],
-  ["Gemerkt","Ausflüge, die ihr euch vorgemerkt habt, oben in Ausflüge.",'data-nav="ausflug|tt:ideen"'],
   ["Geht immer","Feste Ausflugsziele für jede Zeit, z. B. Tierpark. Darunter, was zur Jahreszeit passt.",'data-nav="ausflug|tt:ideen"'],
   ["Was ist los","Aktuelle Tipps für die Stadt und das Umland, jede Woche neu aus der Recherche.",'data-nav="ausflug|tt:ideen"'],
   ["Recherchen","Feste Suchaufträge, die Claude regelmäßig erledigt, und eure Wünsche dafür. Neues zeigt „🤖 neu“.",'data-nav="recherchen|"'],
@@ -52,12 +59,12 @@ const GLOS_TERMS=[
   ["Schnellmenü","Lange auf ein Ding im Bild drücken: die häufigsten Handgriffe dieses Bereichs.",""],
   ["Alle Bereiche","Das Kachel-Symbol oben rechts: alle Bereiche und Seiten auf einem Bildschirm, je Gruppe in einer Farbe, oben Angeheftetes oder zuletzt Genutztes.","data-allar"],
   ["Morgen-Briefing","Meldung aufs Handy um 7 Uhr mit Terminen, Kita, Erinnerungen und Abendessen. Einschalten unter Benachrichtigungen.",'data-setgo="push"']];
-const GLOS_SYM=[["🔔","Erinnern. Oben links: zählt, was in 24 Stunden fällig oder überfällig ist."],["❗","Heute nötig (Einkaufsliste)."],["✅","Erledigt. Am To-do auf Start: alles geschafft."],["⬜","Noch offen. Ein Tipp hakt ab."],
-  ["🏠","Hausdienst."],["🚆","Verbindung mit Bahn und MVV in Google Maps, von hier oder von zu Hause."],["📍","Ort wählen. Steht es allein am Termin, fehlt noch ein Ort."],["📞","Anrufen. Die Nummer bleibt versternt."],
+const GLOS_SYM=[["🔔","Erinnern. Oben links: zählt, was in 24 Stunden fällig oder überfällig ist."],["❗","Heute nötig (Einkaufsliste)."],["✅","Stand Erledigt (gebucht, gekauft, gemacht). Am To-do auf Start: alles geschafft."],["⬜","Noch offen. Ein Tipp hakt ab."],
+  ["🏠","Start und Zuhause."],["🔑","Hausdienst."],["🚆","Verbindung mit Bahn und MVV in Google Maps, von hier oder von zu Hause."],["📍","Ort. Steht es allein am Termin, fehlt noch ein Ort."],["📞","Anrufen. Die Nummer bleibt versternt."],
   ["✎","Bearbeiten."],["✕","Entfernen."],["↩","Rückgängig."],["↺","Zurückholen oder wie geplant."],["↪","Verschieben in einen anderen Bereich oder eine andere Liste."],
   ["🍲","Kochen: für einen Tag in den Wochenplan."],["⚡","Geht schnell, gut für volle Tage. Im Wochenplan: Schnellwahl."],["📖","Rezept öffnen."],["🔗","Link öffnen."],["🛒","Auf die Einkaufsliste."],
-  ["📌","Fest: jede Woche so (Kind) oder oben angeheftet (Alle Bereiche)."],["⭐","Gemerkt, Favorit oder Spielplatz der Woche."],["💛","Passt zu dem, was das Kind gerade mag."],["🗳️","Termin mit mehreren Möglichkeiten: bitte wählen."],
-  ["🤖","Neu aus der Recherche. Bei „Saugen komplett“: der Saugroboter."],["✨","Vorschlag."],["📅","In den Kalender."],["💶","Ausgabe eintragen oder verknüpfte Ausgaben ansehen."],["🧩","Projekt, oder aus einer losen Idee ein Projekt machen."],
+  ["📌","Fest: jede Woche so (Kind) oder oben angeheftet (Alle Bereiche)."],["💡","Stand Idee: gemerkt, noch unverbindlich."],["⭐","Stand Favorit: engere Wahl oder Liebling."],["📅","Stand Geplant, oder: in den Kalender."],["▶️","Stand Läuft: gerade dabei."],["🔖","Gemerkt, oder etwas merken."],["🗃️","Die Sammlung: alles Gemerkte auf einen Blick."],["📎","Sonstiges."],["💛","Passt zu dem, was das Kind gerade mag."],["🗳️","Termin mit mehreren Möglichkeiten: bitte wählen."],
+  ["🤖","Neu aus der Recherche. Bei „Saugen komplett“: der Saugroboter."],["✨","Vorschlag (auch Spielplatz der Woche)."],["💶","Ausgabe eintragen oder verknüpfte Ausgaben ansehen."],["🧩","Projekt, oder aus Gemerktem ein Projekt machen."],["🗄️","Archiv: Vorjahre, Abgeschlossenes, vergangene Wochen."],["🛠️","Am Haus."],["🎁","Geschenke."],["❓","Glossar."],
   ["👪","Kommt aus Familywall."],["🙈","In der App ausblenden (Familywall)."],["⏳","Noch nicht dran, oder noch so viele Tage."],["🏷️","Kategorien bearbeiten, im Bild: Beschriftungen."],["👕","Packlisten-Eintrag auch auf Weitere Listen › Kleidung."]];
 const areaName=t=>{const a=AREAS.find(x=>x[2]===t);return a?a[1]:t};
 // Wohin ein Ding im Bild führt, als Bereich (Kalender steht unter Start, Urlaube unter Reisen, Ausgaben unter Einkauf)
@@ -65,7 +72,7 @@ const picArea=go=>go==="woche|wp:3"?"camp":({reisen:"ausflug",ausgaben:"einkauf"
 function glosGest(){const G=S.gest||{},T=Object.keys(TAB_PAGES),pg=n=>T.filter(t=>TAB_PAGES[t][n]).map(t=>areaName(t)+" › "+TAB_PAGES[t][n]).join(", ");
   return [["Tipp auf einen anderen Reiter","Öffnet dessen erste Seite.",""],["Tipp auf den Reiter, in dem du bist","Blättert eine Seite weiter, nach der letzten wieder zur ersten.","tap"],
     ["Doppeltipp auf einen Reiter",pg(1)+".","tap"],["Dreifachtipp auf einen Reiter",pg(2)+".","tap"],["Lange auf den Reiter Start","Öffnet Alle Bereiche.","ring"],
-    ["Wischen nach links oder rechts","Wechselt den Bereich: erst die vier Reiter, dann die übrigen.","swipe"],["Lange auf ein Ding im Bild","Schnellmenü mit den häufigsten Handgriffen (siehe Im Bild).",""],
+    ["Wischen nach links oder rechts","Blättert die Seiten der Leiste oben (z. B. Haus, Kalender, Wichtig). Wechselt nie den Bereich. Auf Zeilen, die seitlich scrollen, bewegt es nur die Zeile.","swipe"],["Lange auf ein Ding im Bild","Schnellmenü mit den häufigsten Handgriffen (siehe Im Bild).",""],
     ["Tipp auf Sonne oder Mond","Klappt das Wetter auf: Sonnenzeiten, Mond, heute stündlich, 6 Tage.",""],["Tipp auf eine freie Stelle im Bild","Öffnet Tag und Woche.",""],
     ["Tipp auf den Doppelring","Deine Aufgaben von heute. Lange drücken: die Aufgaben der Woche.",""],["Lange auf einen Tag im Kalender","Neuer Termin an diesem Tag.",""],
     ["Lange auf eine eigene Termin-Art","Löscht die Art, mit Rückfrage.",""],["Lange auf eine Ausgabe","Andere Gruppe, nochmal eintragen oder löschen.",""],

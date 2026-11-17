@@ -12,7 +12,7 @@ srv.listen(8765,async()=>{
   await A.click(`[data-planrm=${k}]`);await A.waitForTimeout(500);
   const plan=await A.$$eval('ul.meals .dish',l=>l.map(x=>x.innerText).filter(x=>/Kürbissuppe/.test(x)));
   await A.click('#tabs [data-tab=einkauf]');const shop=await A.$$eval('.shop .nm',l=>l.map(x=>x.innerText));
-  await A.click('[data-tab=essen]');await A.click('[data-food=rezepte]');await A.click('[data-rec]');await A.click('[data-recrm]');await A.waitForTimeout(400);const recs=await A.$$eval('[data-rec]',l=>l.length);
+  await A.click('[data-tab=essen]');await A.click('[data-food=rezepte]');{const _bt=await A.$('.bookcard .setsum[aria-expanded=false]');if(_bt){await _bt.click();await A.waitForTimeout(150)}}await A.click('[data-rec]');await A.click('[data-recrm]');await A.waitForTimeout(400);const recs=await A.$$eval('[data-rec]',l=>l.length);
   console.log({recRow,plan,shop,recs,errs});
   const ok=!errs.length&&recRow.length===1&&/Rezept/.test(recRow[0])&&plan.length===0&&!shop.some(x=>/Kürbis/.test(x))&&recs===0;
   console.log(ok?'RM OK':'RM FAIL');await b.close();srv.close();process.exit(0)});

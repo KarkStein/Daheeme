@@ -7,7 +7,7 @@ srv.listen(8765,async()=>{
   await put('food/rec/r1',{name:'Gemüse mit Lachs aus dem Ofen',ing:'Lachsfilet\nKartoffeln\nFenchel\nRosmarin',at:1});
   await put('food/plan/2026-W46/d3',{text:'Gemüse mit Lachs aus dem Ofen',ing:'Lachsfilet\nKartoffeln\nFenchel',at:1});
   await A.waitForTimeout(400);
-  await A.click('[data-tab=essen]');await A.click('[data-food=rezepte]');await A.waitForTimeout(300);
+  await A.click('[data-tab=essen]');await A.click('[data-food=rezepte]');{const _bt=await A.$('.bookcard .setsum[aria-expanded=false]');if(_bt){await _bt.click();await A.waitForTimeout(150)}}await A.waitForTimeout(300);
   await A.reload();await A.waitForTimeout(800);
   const t1=await A.$eval('[data-food=rezepte]',e=>e.getAttribute('aria-selected')||e.className).catch(()=>'none');const h1a=await A.$eval('h1',e=>e.textContent);const hasRec=!!(await A.$('[data-rec=r1]'));
   await A.click('[data-rec=r1]');await A.click('[data-recshop]');await A.click('[data-pickmode=alle]');await A.waitForTimeout(500);

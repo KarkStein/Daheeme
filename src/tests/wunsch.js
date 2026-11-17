@@ -13,7 +13,7 @@ srv.listen(8765,async()=>{
   setAt(['haushalt',key,'food','rec','r3'],{name:'Rahmschwammerl mit Knödel',ing:'400 g Pfifferlinge\n150 ml Sahne\n4 Semmelknödel',at:3});
   await A.reload();await A.waitForTimeout(800);
   const nav=async v=>{await A.evaluate(v=>{const b=document.createElement("button");b.dataset.nav=v;b.id="zz";document.getElementById("app").appendChild(b)},v);await A.click("#zz");await A.waitForTimeout(300)};
-  await nav('essen|ft:rezepte');await A.click('[data-act=wishopen]');await A.waitForTimeout(300);
+  await nav('essen|ft:rezepte');{const _bt=await A.$('.bookcard .setsum[aria-expanded=false]');if(_bt){await _bt.click();await A.waitForTimeout(150)}}await A.click('[data-act=wishopen]');await A.waitForTimeout(300);
   r.pool=await A.evaluate(()=>['Gulasch','Pilzragout'].map(n=>document.body.innerText.includes(n)));r.card=!!(await A.$('.wishcard'));r.disabled=await A.$eval('[data-act=wishweb]',e=>e.disabled);
   // Mit Pilze, ohne Fleisch → Pilzragout, Rahmschwammerl (Synonym Pfifferling), Pilzrisotto (Idee); kein Gulasch
   await A.type('[data-wish=mit]','Pilze');await A.type('[data-wish=ohne]','Fleisch');await A.waitForTimeout(200);

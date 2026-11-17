@@ -13,7 +13,7 @@ srv.listen(8765,async()=>{
   await A.click('[data-pack]');await A.waitForTimeout(300);
   await A.screenshot({path:out+'/pack.png',fullPage:true});
   // Ideen-Maske
-  await A.click('[data-trip=ideen]');await A.click('[data-act=tripnew]');
+  await A.click('[data-trip=urlaub]');await A.click('[data-act=tripnew]');
   await A.fill('#tr-name','Strand von Kerlouan');await A.click('[data-tset=kind][data-v=wasser]');await A.click('[data-tset=dur][data-v=ganz]');
   await A.fill('#tr-drive','40');await A.click('[data-ttog=kid][data-v=wagen]');await A.click('[data-ttog=kid][data-v=einkehr]');await A.click('[data-tset=cost][data-v="0"]');
   await A.click('[data-ttog=season][data-v=summer]');
@@ -23,8 +23,8 @@ srv.listen(8765,async()=>{
   await A.click('[data-act=tripsave]');await A.waitForTimeout(400);
   await A.click('[data-act=tripnew]');await A.fill('#tr-name','Aquarium Brest');await A.click('[data-tset=kind][data-v=tiere]');await A.click('[data-tset=wx][data-v=egal]');await A.click('[data-tset=dur][data-v=halb]');await A.click('[data-tset=cost][data-v="2"]');await A.click('[data-act=tripsave]');await A.waitForTimeout(400);
   if(!(await B.$('.camp')))await B.click('[data-tab=camp]');await B.click('.spot[data-go=ausflug]');await B.waitForSelector('text=Aquarium Brest');await B.waitForSelector('text=Strand von Kerlouan');
-  await B.click('[data-tfilter=regen]');const shown=await B.$$eval('ul.shop .nm',l=>l.map(x=>x.textContent));console.log('regen',shown);
-  await B.click('[data-tfilter=""]');await B.waitForTimeout(200);
+  await B.click('[data-rgf="w|regen"]');await B.waitForTimeout(200);const shown=await B.$$eval('.rgcard .mk .mkt b',l=>l.map(x=>x.textContent));console.log('regen',shown);
+  await B.click('[data-rgf="w|regen"]');await B.waitForTimeout(200);
   await B.screenshot({path:out+'/ideen.png',fullPage:true});
   await B.click('[data-gopack]');const pl=await B.$eval('[data-packlist][aria-pressed=true]',e=>e.textContent);console.log('gopack',pl);
   // Essen-Reiter mit Einkauf
