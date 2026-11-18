@@ -95,3 +95,35 @@ document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.cl
   ["pointerup","pointercancel"].forEach(k=>app.addEventListener(k,clear));
   app.addEventListener("click",e=>{if(fired){fired=false;e.stopPropagation();e.preventDefault()}},true);
   app.addEventListener("contextmenu",e=>{if(e.target.closest("[data-calday]"))e.preventDefault()})})();
+// Lange drücken zum Löschen (Florian 18.11.2026: „Im Kalender möchte ich mit lang Klicken Termine löschen können“, „Lang drücken nur löschen vorschlagen, mit x bestätigen“, „einfach x ist sauberer“):
+// lange (500 ms) auf eine Kalender-Zeile zeigt rechts den Knopf .lpx „✕ Löschen“, ein Tipp darauf löscht (mit „↩ Rückgängig“ im Toast), ein Tipp woandershin nimmt ihn wieder weg.
+// Geht bei eigenen Terminen, Kita-Terminen, Erinnerungen und Gesundheit; Familywall-Termine lassen sich nur ausblenden („✕ Ausblenden“). Kein Menü, kein Wischen.
+async function delUndo(path,msg){const keep=path.split("/").reduce((o,k)=>o&&o[k],S);if(keep==null)return;const c=JSON.parse(JSON.stringify(keep));await S.store.setPath(path,null);render();toastAct(msg,"↩ Rückgängig",async()=>{await S.store.setPath(path,c);render()})}
+async function terDelUndo(id){const x=(S.food&&S.food.termin||{})[id];if(!x)return;const keep=JSON.parse(JSON.stringify(x)),P=prios().filter(p=>p.ref&&[id,"ter:"+id].includes(p.ref)).map(p=>[p.id,JSON.parse(JSON.stringify((S.food.prio||{})[p.id]))]);
+  await S.store.setPath("food/termin/"+id,null);await prioDropRef([id,"ter:"+id]);if(S.terDraft&&S.terDraft.id===id)S.terDraft=null;render();
+  toastAct("Termin gelöscht","↩ Rückgängig",async()=>{await S.store.setPath("food/termin/"+id,keep);for(const p of P)await S.store.setPath("food/prio/"+p[0],p[1]);toast("Termin ist wieder da");render()})}
+const calLpKind=b=>b.dataset.teredit?["ter",b.dataset.teredit]:b.dataset.fwpick?["fw",b.dataset.fwpick]:b.dataset.caled?b.dataset.caled.split("|"):null;
+async function calLpDel(kind,id){
+  if(kind==="ter")return terDelUndo(id);
+  if(kind==="fw"){const fw=S.food&&S.food.ext&&S.food.ext.fw,x=fw&&fw.items&&fw.items[id];if(!x)return;const k=fwHideKey(x.name);await S.store.setPath("food/ext/fwhide/"+k,{name:String(x.name).slice(0,80),at:Date.now()});render();
+    toastAct("Ausgeblendet. Löschen geht nur in Familywall.","↩ Rückgängig",async()=>{await S.store.setPath("food/ext/fwhide/"+k,null);render()});return}
+  if(kind==="kita")return delUndo("food/kita/"+id,"Kita-Termin gelöscht");
+  if(kind==="prio")return delUndo("food/prio/"+id,"Erinnerung gelöscht");
+  if(kind==="kidmed")return delUndo("food/kid/med/"+id,"Eintrag gelöscht")}
+// Einfacher Tipp auf einen Termin aus einem anderen Bereich öffnet gleich das Bearbeiten dort (Florian 18.11.2026: „mit einem einfachen Klick bearbeiten“)
+function calEdOpen(kind,id){
+  if(kind==="kidmed"){kidMedEdit(id);return}
+  if(kind==="kita"){const x=kitas().find(y=>y.id===id);goNav("kita|ks:termine");if(x){S.kitaDraft={id:x.id,sec:x.sec||"termine",name:x.name||"",date:x.date||"",kind:x.kind||"",note:x.note||""};render();window.scrollTo(0,0)}return}
+  if(kind==="prio"){goNav("wichtig|");const n=document.querySelector(`#app [data-prioedit="${CSS.escape(id)}"]`);if(n)n.click()}}
+(()=>{const SEL=".evlist .ev[data-teredit],.evlist .ev[data-fwpick],.evlist .ev[data-caled]";let t=null,x0=0,y0=0,fired=0;const clr=()=>{clearTimeout(t);t=null};
+  const disarm=()=>{document.querySelectorAll("#app li.lparm").forEach(li=>{li.classList.remove("lparm");const x=li.querySelector(".lpx");if(x)x.remove()})};
+  const arm=b=>{const li=b.closest("li"),k=calLpKind(b);if(!li||!k)return;disarm();li.classList.add("lparm");const x=document.createElement("button");x.type="button";x.className="lpx";x.dataset.lpx=k.join("|");x.textContent=k[0]==="fw"?"✕ Ausblenden":"✕ Löschen";li.appendChild(x)};
+  app.addEventListener("pointerdown",e=>{const b=e.target.closest&&e.target.closest(SEL);if(!b)return;x0=e.clientX;y0=e.clientY;clr();t=setTimeout(()=>{t=null;fired=Date.now();try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}arm(b)},500)});
+  app.addEventListener("pointermove",e=>{if(t&&Math.abs(e.clientX-x0)+Math.abs(e.clientY-y0)>12)clr()});
+  ["pointerup","pointercancel"].forEach(n=>app.addEventListener(n,clr));
+  document.addEventListener("click",e=>{const T=e.target.closest?e.target:null;if(!T)return;
+    if(fired&&Date.now()-fired<900&&T.closest(SEL)){fired=0;e.stopPropagation();e.preventDefault();return}
+    const x=T.closest(".lpx");if(x){e.stopPropagation();e.preventDefault();const k=x.dataset.lpx.split("|");disarm();calLpDel(k[0],k.slice(1).join("|")).catch(()=>toast("Konnte nicht speichern."));return}
+    if(document.querySelector("#app li.lparm")){const inRow=T.closest("li.lparm");disarm();if(inRow){e.stopPropagation();e.preventDefault()}return}
+    const c=T.closest("#app .ev[data-caled]");if(c){e.stopPropagation();e.preventDefault();const k=c.dataset.caled.split("|");calEdOpen(k[0],k.slice(1).join("|"))}},true);
+  app.addEventListener("contextmenu",e=>{if(e.target.closest&&e.target.closest(SEL))e.preventDefault()})})();
