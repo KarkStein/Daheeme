@@ -227,7 +227,10 @@ function renderWeek(){
     const lt=xs.filter(x=>x.later),op=xs.filter(x=>!x.done&&!x.later),dn=xs.filter(x=>x.done);if(!op.length&&!dn.length&&!lt.length)return;
     const lim=id==="week"&&!S.wkMore?6:99,all=op.concat(dn),shown=all.slice(0,lim),rest=all.length-shown.length;
     const so=shown.filter(x=>!x.done),sdn=shown.filter(x=>x.done);
-    const nlab=op.length+dn.length?(id==="day"&&isCur?`${op.length+dn.length}, heute ${op.some(x=>x.sl[today]&&!/aria-pressed="true"/.test(x.sl[today]))?"offen":"erledigt"}`:`${op.length+dn.length}, ${dn.length} erledigt`)+(lt.length?`, ${lt.length} erst ab Mitte`:""):`${lt.length}, erst ab Mitte`;
+    // Jeder Haken zählt (Florian 18.11.2026: „3 von 9 statt 0 von 3“)
+    const hk=v=>v%1?String(v).replace(".",","):v,cur0=op.concat(dn),hD=cur0.reduce((a,x)=>a+(x.t.freq==="day"||x.t.freq==="week"?x.c:x.done?1:0),0),hN=cur0.reduce((a,x)=>a+x.n,0),
+      tD=cur0.filter(x=>x.sl[today]&&/aria-pressed="true"/.test(x.sl[today])).length;
+    const nlab=op.length+dn.length?(id==="day"&&isCur?`heute ${tD} von ${cur0.length} erledigt`:`${hk(hD)} von ${hN} erledigt`)+(lt.length?`, ${lt.length} erst ab Mitte`:""):`${lt.length}, erst ab Mitte`;
     const body=`${so.map(row).join("")}${sdn.length?`<div class="donesep">Erledigt</div>`+sdn.map(row).join(""):""}${rest>0?`<button class="linkish" data-act="wkmore">Noch ${rest} weitere zeigen</button>`:""}${lt.length?`<div class="laterline freq">⏳ Erst ab Mitte des Zeitraums: ${lt.map(x=>esc(x.t.name)+" (ab "+fmt(x.later,{day:"numeric",month:"numeric"})+")").join(", ")}</div>`:""}`;
     h+=wkFold(id,title,nlab,body,def)});
   h+=`<div class="freq wkhint">Kreise antippen hakt ab. Tipp auf den Namen zeigt alle Tage. Abschnitte bleiben auf diesem Handy auf oder zu.</div>`;
