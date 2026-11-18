@@ -10,6 +10,10 @@ function hoMine(){const now=new Date(),mon=mondayOf(now),di=(now.getDay()+6)%7,t
 function hoChkRows(t,v,di){if(!v||!(v.by==="p0"||v.by==="p1"))return `<div class="hochk none"><span class="freq">✅ Abhaken: Heute ist noch niemand eingeteilt. Unten eintragen, dann steht hier das Feld zum Abhaken.</span></div>`;
   const oth=v.by==="p0"?"p1":"p0",P=v.half==="vm"?[[v.by,"vormittags"],[oth,"nachmittags"]]:[[v.by,""]];
   return `<div class="hochk"><b class="hochkh">Heute abhaken</b>${P.map(([p,part])=>{const dn=!!(v.ok&&v.ok[p]);return `<div class="wt${dn?" done":""}"><div class="wtl"><b class="hochkn">${esc(t.name)}</b><div class="wtm">${wkWho(p)}<span class="freq">heute${part?" "+part:""}${dn?" · erledigt":""}</span></div></div><span class="wtc"><button class="slot wsl${dn?" on chk":""}" data-hodone="${di}|${p}" aria-pressed="${dn}" aria-label="Hausdienst heute${part?" "+part:""}, ${esc(pname(p))}: ${dn?"erledigt":"abhaken"}">${dn?"✓":""}</button></span></div>`}).join("")}</div>`}
+// Äußerer Ring (Florian 18.11.2026): alle meine Wochen-Aufgaben dieser Woche (Wechsel bei mir, feste, gemeinsame), zurück auf null erst Montag früh. Ohne „Ich bin“ wie bisher die Wechsel-Aufgaben von beiden.
+function weekMine(){if(!S.me)return rotCount(mondayOf(new Date()));const mon=mondayOf(new Date()),tk=ticksOf(wkKey(mon)),split=rotSplit();let d=0,n=0;
+  tasks().forEach(t=>{if(t.freq!=="week")return;const o=t.owner==="rot"?ownerFor(t,mon,split):t.owner;if(o!==S.me&&o!=="both")return;
+    for(let i=0;i<slotsOf(t);i++){n++;const leg=tk[t.id+"__"+i];if(o==="both"?(tk[t.id+"__"+i+"_"+S.me]||(leg&&leg.by===S.me)):leg)d++}});return [d,n]}
 function tasksToday(){const r=tasksCount(true);return r.total?r:tasksCount(false)}
 // day=true: nur tägliche Aufgaben von heute; sonst alle Wochen-Aufgaben
 function tasksCount(day){const mon=mondayOf(new Date()),tk=ticksOf(wkKey(mon)),split=rotSplit(),di=(new Date().getDay()+6)%7;let open=0,total=0;
