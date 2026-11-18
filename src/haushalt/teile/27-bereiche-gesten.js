@@ -99,31 +99,57 @@ document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.cl
 // lange (500 ms) auf eine Kalender-Zeile zeigt rechts den Knopf .lpx „✕ Löschen“, ein Tipp darauf löscht (mit „↩ Rückgängig“ im Toast), ein Tipp woandershin nimmt ihn wieder weg.
 // Geht bei eigenen Terminen, Kita-Terminen, Erinnerungen und Gesundheit; Familywall-Termine lassen sich nur ausblenden („✕ Ausblenden“). Kein Menü, kein Wischen.
 async function delUndo(path,msg){const keep=path.split("/").reduce((o,k)=>o&&o[k],S);if(keep==null)return;const c=JSON.parse(JSON.stringify(keep));await S.store.setPath(path,null);render();toastAct(msg,"↩ Rückgängig",async()=>{await S.store.setPath(path,c);render()})}
+async function setUndo(path,val,msg){const old=path.split("/").reduce((o,k)=>o&&o[k],S);if(old==null)return;await S.store.setPath(path,val);render();toastAct(msg,"↩ Rückgängig",async()=>{await S.store.setPath(path,old);render()})}
+function calFire(attr){const w=document.createElement("span");w.innerHTML="<button "+attr+" hidden></button>";const b=w.firstChild;app.appendChild(b);b.click();b.remove()}
 async function terDelUndo(id){const x=(S.food&&S.food.termin||{})[id];if(!x)return;const keep=JSON.parse(JSON.stringify(x)),P=prios().filter(p=>p.ref&&[id,"ter:"+id].includes(p.ref)).map(p=>[p.id,JSON.parse(JSON.stringify((S.food.prio||{})[p.id]))]);
   await S.store.setPath("food/termin/"+id,null);await prioDropRef([id,"ter:"+id]);if(S.terDraft&&S.terDraft.id===id)S.terDraft=null;render();
   toastAct("Termin gelöscht","↩ Rückgängig",async()=>{await S.store.setPath("food/termin/"+id,keep);for(const p of P)await S.store.setPath("food/prio/"+p[0],p[1]);toast("Termin ist wieder da");render()})}
-const calLpKind=b=>b.dataset.teredit?["ter",b.dataset.teredit]:b.dataset.fwpick?["fw",b.dataset.fwpick]:b.dataset.caled?b.dataset.caled.split("|"):null;
+const calLpKind=b=>b.dataset.lpter?["ter",b.dataset.lpter]:b.dataset.teredit?["ter",b.dataset.teredit]:b.dataset.fwpick?["fw",b.dataset.fwpick]:b.dataset.caled?b.dataset.caled.split("|"):null;
 async function calLpDel(kind,id){
   if(kind==="ter")return terDelUndo(id);
   if(kind==="fw"){const fw=S.food&&S.food.ext&&S.food.ext.fw,x=fw&&fw.items&&fw.items[id];if(!x)return;const k=fwHideKey(x.name);await S.store.setPath("food/ext/fwhide/"+k,{name:String(x.name).slice(0,80),at:Date.now()});render();
     toastAct("Ausgeblendet. Löschen geht nur in Familywall.","↩ Rückgängig",async()=>{await S.store.setPath("food/ext/fwhide/"+k,null);render()});return}
   if(kind==="kita")return delUndo("food/kita/"+id,"Kita-Termin gelöscht");
+  // Einträge aus anderen Bereichen (Florian 18.11.2026: „alle Termine im Kalender … einheitlich“): gelöscht wird, was den Eintrag in den Kalender bringt
+  if(kind==="food"){const d=ymdD(id);calFire('data-planrm="d'+((d.getDay()+6)%7)+'" data-pday="'+esc(id)+'"');return}
+  if(kind==="reise"){reiseMenu(id);return}
+  if(kind==="ctrip")return setUndo("food/trip/"+id+"/date",null,"Aus dem Kalender genommen. Das Ziel bleibt gemerkt.");
+  if(kind==="cplay")return setUndo("food/play/"+id+"/when",null,"Kurs steht nicht mehr im Kalender. Er bleibt unter Spielen.");
+  if(kind==="advent")return delUndo("food/adoor/"+id,"Türchen geleert");
   if(kind==="prio")return delUndo("food/prio/"+id,"Erinnerung gelöscht");
-  if(kind==="kidmed")return delUndo("food/kid/med/"+id,"Eintrag gelöscht")}
+  if(kind==="kidmed")return delUndo("food/kid/med/"+id,"Eintrag gelöscht");
+  if(kind==="buy")return delUndo("food/buy/"+id,"Eintrag gelöscht");
+  if(kind==="pack"){await buyDropRef("pack:"+id);return delUndo("food/pack/"+id,"Eintrag gelöscht")}
+  if(kind==="play")return delUndo("food/play/"+id,"Gelöscht");
+  if(kind==="music")return delUndo("food/music/"+id,"Gelöscht");
+  if(kind==="idea")return delUndo("food/idea/"+id,"Gelöscht");
+  if(kind==="fund"){fundRmAsk(id);return}
+  if(kind==="trip"){await splitDropRef("trip:"+id);await prioDropRef([id]);const AD=(S.food&&S.food.adoor)||{};for(const k of Object.keys(AD))if(AD[k]&&AD[k].trip===id)await S.store.setPath("food/adoor/"+k+"/trip",null);return delUndo("food/trip/"+id,"Gelöscht")}
+  if(kind==="rec"){const r=recs().find(x=>x.id===id);if(!r)return;const c=JSON.parse(JSON.stringify((S.food.rec||{})[id]));await recDrop(r);render();toastAct("Rezept entfernt","↩ Rückgängig",async()=>{await S.store.setPath("food/rec/"+id,c);render()})}}
+// Dasselbe an allen Listen-Zeilen (Florian 18.11.2026: „Alle“): die Art einer Zeile ergibt sich aus ihren vorhandenen Knöpfen (LP_ROWS), neue Liste = eine Zeile dort.
+const LP_ROWS=[["[data-priodone]","prio","priodone"],["[data-buyrm]","buy","buyrm"],["[data-packrm]","pack","packrm"],["[data-recrm]","rec","recrm"],["[data-kitarm]","kita","kitarm"],["[data-kitaedit]","kita","kitaedit"],["[data-fundrm]","fund","fundrm"],["[data-fundedit]","fund","fundedit"],["[data-tripedit]","trip","tripedit"],["[data-playedit]","play","playedit"],["[data-musedit]","music","musedit"],["[data-projedit]","idea","projedit"],["[data-kidmed]","kidmed","kidmed"]];
+function lpRowOf(t){if(!t||!t.closest||t.closest("input,textarea,select,.evlist,.gmg,#mbox"))return null;const R=t.closest("li,.prow,.recbar");if(!R||!app.contains(R))return null;
+  for(const d of LP_ROWS){const n=R.querySelector(d[0]);if(n&&n.closest("li,.prow,.recbar")===R&&n.dataset[d[2]])return {R,k:[d[1],n.dataset[d[2]]]}}return null}
 // Einfacher Tipp auf einen Termin aus einem anderen Bereich öffnet gleich das Bearbeiten dort (Florian 18.11.2026: „mit einem einfachen Klick bearbeiten“)
+const CAL_ED={kita:["Kita","✎ Bearbeiten"],prio:["Wichtig","✎ Bearbeiten"],kidmed:["Kind › Gesundheit","✎ Bearbeiten"],food:["Essen › Wochenplan","📂 Im Wochenplan öffnen"],reise:["Urlaub","📂 Urlaub öffnen"],ctrip:["Ausflüge","📂 Bei den Ausflügen öffnen"],cplay:["Spielen","📂 Bei Spielen öffnen"],advent:["Adventskalender","📂 Adventskalender öffnen"]};
+// Einfacher Tipp auf einen Eintrag aus einem anderen Bereich (Florian 18.11.2026: „Das Springen zu anderen Bereichen muss anders gelöst werden“): kleines Fenster calInfo, der Weg in den Bereich ist ein eigener Knopf
+function calInfo(ed){const k=ed.split("|"),kind=k[0],id=k.slice(1).join("|"),x=(S._calEd||{})[ed],C=CAL_ED[kind];if(!x||!C||document.getElementById("mbox"))return;S.mboxAt=Date.now();const el=document.createElement("div");el.id="mbox";
+  el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="${esc(x.name)}"><div class="section-head"><h2>${x.icon?esc(x.icon)+" ":""}${esc(x.name)}</h2></div><div class="freq">${esc(dLabel(x.d))}${x.t?" · "+esc(x.t):""} · gehört zu ${esc(C[0])}</div><div class="chlist"><button type="button" class="chipbtn neutral" data-ci="go">${esc(C[1])} ›</button></div><div class="freq">Löschen: lange auf den Eintrag drücken.</div><div class="btnrow"><button class="ghost" type="button" data-ci="x">Schließen</button></div></div>`;
+  document.body.appendChild(el);
+  el.addEventListener("click",e=>{const b=e.target.closest("[data-ci]");if(!b){if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose();return}mboxClose();if(b.dataset.ci!=="go")return;if(["kita","prio","kidmed"].includes(kind))calEdOpen(kind,id);else calFire(x.go)})}
 function calEdOpen(kind,id){
   if(kind==="kidmed"){kidMedEdit(id);return}
   if(kind==="kita"){const x=kitas().find(y=>y.id===id);goNav("kita|ks:termine");if(x){S.kitaDraft={id:x.id,sec:x.sec||"termine",name:x.name||"",date:x.date||"",kind:x.kind||"",note:x.note||""};render();window.scrollTo(0,0)}return}
   if(kind==="prio"){goNav("wichtig|");const n=document.querySelector(`#app [data-prioedit="${CSS.escape(id)}"]`);if(n)n.click()}}
-(()=>{const SEL=".evlist .ev[data-teredit],.evlist .ev[data-fwpick],.evlist .ev[data-caled]";let t=null,x0=0,y0=0,fired=0;const clr=()=>{clearTimeout(t);t=null};
-  const disarm=()=>{document.querySelectorAll("#app li.lparm").forEach(li=>{li.classList.remove("lparm");const x=li.querySelector(".lpx");if(x)x.remove()})};
-  const arm=b=>{const li=b.closest("li"),k=calLpKind(b);if(!li||!k)return;disarm();li.classList.add("lparm");const x=document.createElement("button");x.type="button";x.className="lpx";x.dataset.lpx=k.join("|");x.textContent=k[0]==="fw"?"✕ Ausblenden":"✕ Löschen";li.appendChild(x)};
-  app.addEventListener("pointerdown",e=>{const b=e.target.closest&&e.target.closest(SEL);if(!b)return;x0=e.clientX;y0=e.clientY;clr();t=setTimeout(()=>{t=null;fired=Date.now();try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}arm(b)},500)});
+(()=>{const SEL=".evlist .ev[data-teredit],.evlist .ev[data-fwpick],.evlist .ev[data-caled],.evlist .ev[data-lpter]";let t=null,x0=0,y0=0,fired=0;const clr=()=>{clearTimeout(t);t=null};
+  const disarm=()=>{document.querySelectorAll("#app .lparm").forEach(li=>{li.classList.remove("lparm");const x=li.querySelector(".lpx");if(x)x.remove()})};
+  const arm=(b,row)=>{const li=row?row.R:b.closest("li"),k=row?row.k:calLpKind(b);if(!li||!k)return;disarm();li.classList.add("lparm");const x=document.createElement("button");x.type="button";x.className="lpx";x.dataset.lpx=k.join("|");x.textContent=k[0]==="fw"?"✕ Ausblenden":"✕ Löschen";li.appendChild(x)};
+  app.addEventListener("pointerdown",e=>{const b=e.target.closest&&e.target.closest(SEL),row=b?null:lpRowOf(e.target);if(!b&&!row)return;x0=e.clientX;y0=e.clientY;clr();t=setTimeout(()=>{t=null;fired=Date.now();try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}arm(b,row)},500)});
   app.addEventListener("pointermove",e=>{if(t&&Math.abs(e.clientX-x0)+Math.abs(e.clientY-y0)>12)clr()});
   ["pointerup","pointercancel"].forEach(n=>app.addEventListener(n,clr));
   document.addEventListener("click",e=>{const T=e.target.closest?e.target:null;if(!T)return;
-    if(fired&&Date.now()-fired<900&&T.closest(SEL)){fired=0;e.stopPropagation();e.preventDefault();return}
+    if(fired&&Date.now()-fired<900&&T.closest("#app .lparm")&&!T.closest(".lpx")){fired=0;e.stopPropagation();e.preventDefault();return}
     const x=T.closest(".lpx");if(x){e.stopPropagation();e.preventDefault();const k=x.dataset.lpx.split("|");disarm();calLpDel(k[0],k.slice(1).join("|")).catch(()=>toast("Konnte nicht speichern."));return}
-    if(document.querySelector("#app li.lparm")){const inRow=T.closest("li.lparm");disarm();if(inRow){e.stopPropagation();e.preventDefault()}return}
-    const c=T.closest("#app .ev[data-caled]");if(c){e.stopPropagation();e.preventDefault();const k=c.dataset.caled.split("|");calEdOpen(k[0],k.slice(1).join("|"))}},true);
-  app.addEventListener("contextmenu",e=>{if(e.target.closest&&e.target.closest(SEL))e.preventDefault()})})();
+    if(document.querySelector("#app .lparm")){const inRow=T.closest(".lparm");disarm();if(inRow){e.stopPropagation();e.preventDefault()}return}
+    const c=T.closest("#app .ev[data-caled]");if(c){e.stopPropagation();e.preventDefault();const k=c.dataset.caled.split("|");calInfo(c.dataset.caled)}},true);
+  app.addEventListener("contextmenu",e=>{if(e.target.closest&&(e.target.closest(SEL)||lpRowOf(e.target)))e.preventDefault()})})();
