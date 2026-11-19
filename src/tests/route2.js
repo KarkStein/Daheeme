@@ -30,11 +30,17 @@ srv.listen(8765,async()=>{
   // ohne Zeit: wie bisher
   await A.click('#mbox [data-routeearly="x"]');await A.waitForTimeout(200);await A.click('#mbox [data-routefrom=home]');await A.waitForTimeout(200);
   // Termin mit Tag, ohne Uhrzeit: Fenster wie bisher
-  await A.click('[data-route^="Marktplatz"]');await A.waitForSelector('#mbox');r.plain=!(await A.$('#mbox .routearr'))&&!(await A.$('#mbox [data-routeearly]'));await A.click('#mbox [data-routefrom=home]');await A.waitForTimeout(200);
+  await A.click('[data-route^="Marktplatz"]');await A.waitForSelector('#mbox');r.plain=await A.$eval('#mbox',e=>e.innerText.replace(/\s+/g,' '));r.pchips=await A.$$eval('#mbox [data-routeearly]',l=>l.map(x=>x.innerText.trim()+(x.getAttribute('aria-pressed')==='true'?'*':'')));await A.click('#mbox [data-routefrom=home]');await A.waitForTimeout(200);
+  // Selbst wählen (Florian 19.11.2026: „Tag und Uhrzeit eintragen“), auch ohne Uhrzeit am Termin
+  await A.click('[data-route^="Marktplatz"]');await A.waitForSelector('#mbox');await A.click('#mbox [data-routeearly=own]');await A.waitForTimeout(200);
+  r.ownD=await A.$eval('#routed',e=>e.value);await A.fill('#routet','11:05');await A.waitForTimeout(100);r.ownTxt=await A.$eval('#mbox .routearr',e=>e.innerText.replace(/\s+/g,' '));
+  if(out)await A.screenshot({path:out+'/route-selbst-waehlen.png'});
+  await A.click('#mbox [data-routefrom=hier]');await A.waitForTimeout(200);
   r.open=await A.evaluate(()=>window.__open);
   console.error(JSON.stringify(r),errs);
   const path=s=>'https://www.google.com/maps/dir/'+encodeURIComponent('Beispielweg 2, Testdorf')+'/'+encodeURIComponent('Musterstraße 1, Musterstadt')+'/data=!4m6!4m5!2m3!6e1!7e2!8j'+s+'!3e3';
-  const ok=!errs.length&&r.calc===1795271400&&/Weg zu Musterstraße/.test(r.txt)&&/Termin: Kindergeburtstag/.test(r.txt)&&/Ankunft spätestens .*, 14:20/.test(r.txt)&&r.chips.join()==='pünktlich,10 Min früher*,20 Min früher,ohne Zeit'
-    &&r.open.length===5&&r.open[0]===path(sec-600)&&/api=1/.test(r.open[1])&&!/origin=|data=/.test(r.open[1])&&/, 14:30/.test(r.txt0)&&r.open[2]===path(sec)&&r.keep==='0'
-    &&/api=1/.test(r.open[3])&&/origin=Beispielweg/.test(r.open[3])&&r.plain&&/api=1/.test(r.open[4])&&/destination=Marktplatz/.test(r.open[4]);
+  const hier=(s,d)=>'https://www.google.com/maps/dir//'+encodeURIComponent(d||'Musterstraße 1, Musterstadt')+'/data=!4m6!4m5!2m3!6e1!7e2!8j'+s+'!3e3';
+  const ok=!errs.length&&r.calc===1795271400&&/Weg zu Musterstraße/.test(r.txt)&&/Termin: Kindergeburtstag/.test(r.txt)&&/Ankunft spätestens .*, 14:20/.test(r.txt)&&r.chips.join()==='pünktlich,10 Min früher*,20 Min früher,ohne Zeit,✏️ Selbst wählen'
+    &&r.open.length===6&&r.open[0]===path(sec-600)&&r.open[1]===hier(sec-600)&&/, 14:30/.test(r.txt0)&&r.open[2]===path(sec)&&r.keep==='0'
+    &&/api=1/.test(r.open[3])&&/origin=Beispielweg/.test(r.open[3])&&/Ohne Ankunftszeit/.test(r.plain)&&r.pchips.join()==='ohne Zeit*,✏️ Selbst wählen'&&r.ownD===day(5)&&/Ankunft spätestens .*, 11:05/.test(r.ownTxt)&&r.open[5]===hier(Date.UTC(...day(5).split('-').map((x,i)=>i===1?x-1:+x),11,5)/1000,'Marktplatz, Musterstadt')&&/api=1/.test(r.open[4])&&/destination=Marktplatz/.test(r.open[4]);
   console.error(ok?'ROUTE2 OK':'ROUTE2 FAIL');await b.close();srv.close();process.exit(0)});

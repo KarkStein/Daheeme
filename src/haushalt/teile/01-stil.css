@@ -641,6 +641,7 @@ a.mkb{text-decoration:none;color:var(--fg)}.muslk[aria-pressed=false]{filter:gra
 .routeearly{display:flex;flex-wrap:wrap;gap:var(--sp2)}
 .routeearly button{border:1px solid var(--line,currentColor);background:none;color:inherit;font:inherit;font-size:var(--fs-s);border-radius:999px;padding:var(--sp1) var(--sp3);min-height:32px;cursor:pointer}
 .routeearly button[aria-pressed=true]{background:var(--navy-a);border-color:var(--navy-a);color:#fff}
+.routeown{display:flex;gap:var(--sp2);margin-bottom:var(--sp2)}.routeown input{flex:1;min-width:0;font:inherit;font-size:var(--fs-m);padding:var(--sp2);border:1px solid var(--line,currentColor);border-radius:var(--r-s);background:var(--paper,#fff);color:inherit}
 /* Lange drücken zum Löschen (18.11.2026) */
 .lparm{background:var(--line);border-radius:var(--r-s)}.prow.lparm,.recbar.lparm{display:flex;align-items:center}.lparm>.lpx{margin-left:auto}li.lparm:not(.mk)>.catbtn,li.lparm>.stbadge,.recbar.lparm>.catbtn,.prow.lparm>.catbtn{display:none}.evlist li.lparm .catbtn,.evlist li.lparm>.freq,.evlist li.lparm>a{display:none}.lparm [data-buyrm],.lparm [data-packrm],.lparm [data-kitarm],.lparm [data-recrm],.lparm [data-fundrm],.lparm [data-buyedit],.lparm [data-packedit]{display:none}
 .lpx{flex:none;border:none;border-radius:999px;background:#b3402a;color:#fff;font:inherit;font-size:var(--fs-s);font-weight:600;padding:var(--sp2) var(--sp3);min-height:36px;cursor:pointer}
