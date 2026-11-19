@@ -6,7 +6,7 @@
 // Die Suche (Lupe) findet Begriffe und Dinge im Bild und öffnet das Glossar mit dem Wort im Filter (data-glosq).
 const TAB_PAGES={camp:["Haus","Kalender","Wichtig"],woche:WEEK_ORDER.map(i=>WEEK_PAGES[i]),essen:["Heute und Wochenplan","Rezepte"],einkauf:["Einkaufsliste","Ausgaben","Weitere Listen"]};
 const GLOS_TERMS=[
-  ["Bereich","Ein Thema der App mit eigenem Symbol und Ding im Bild, z. B. Essen, Reisen und Ausflüge, Am Haus, Geschenke.","data-allar"],
+  ["Bereich","Ein Thema der App mit eigenem Symbol und Ding im Bild, z. B. Essen, Ausflüge und Reisen, Am Haus, Geschenke.","data-allar"],
   ["Projekt","🧩 Etwas mit Ziel und Ende, z. B. ein Urlaub, das Kinderzimmer oder der Adventskalender. Sammelt, was ihr euch dafür merkt.",'data-nav="projekte|pf:alle"'],
   ["Gemerkt","🔖 Alles, was ihr euch für später merkt: Ausflugsziel, Unterkunft, Möbel, Geschenk, Spielidee, Playlist. Jeder Eintrag hat eine Art, einen Stand und auf Wunsch ein Projekt.",'data-nav="projekte|"'],
   ["Art","Was für ein Ding etwas ist, z. B. Unterkunft, Möbel, Spielplatz. Jede Art hat ein Symbol, Sonstiges ist überall 📎.",""],

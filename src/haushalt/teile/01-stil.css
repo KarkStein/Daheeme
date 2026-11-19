@@ -299,7 +299,7 @@ details.reisemap summary{cursor:pointer;font-weight:600}
 .tabrow{display:flex;align-items:center;justify-content:space-between;gap:var(--sp2)}.tabrow .uwtabs{margin:0}
 .urow{display:flex;gap:var(--sp2);overflow-x:auto;scrollbar-width:none;padding:var(--sp1) var(--sp4) var(--sp2);margin:0 calc(-1*var(--sp4))}.urow::-webkit-scrollbar{display:none}
 .ut{display:flex;align-items:center;gap:var(--sp2);flex:none;max-width:78%;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:var(--sp2) var(--sp3);box-shadow:var(--shadow);color:var(--fg);text-align:left;font:inherit}
-.ut .te{font-size:var(--fs-xl);line-height:1}.ut b{display:block;font-weight:700}.ut .freq{display:block}.ut.add{border-style:dashed;box-shadow:none}.ut.st-erledigt{opacity:.75}
+.ut .te{font-size:var(--fs-xl);line-height:1}.ut b{display:block;font-weight:700}.ut .freq{display:block}.ut.add{border-style:dashed;box-shadow:none;align-self:center;padding:var(--sp1) var(--sp3);border-radius:999px;font-size:var(--fs-s);color:var(--muted)}.ausnew{display:block;width:100%;margin:var(--sp3) 0 0;font-size:var(--fs-m)}.ut.st-erledigt{opacity:.75}
 .rgcard .section-head h2{margin:0}
 /* Kochbücher-Karte mit den Rezepten darin (Florian 17.11.2026) */
 .bookcard>.setsum h2{margin:0;font-size:var(--fs-l)}.bookcard .tiles.books{margin-top:var(--sp3)}.bookcard .linkish{margin-top:var(--sp2)}

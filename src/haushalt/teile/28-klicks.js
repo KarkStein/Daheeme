@@ -320,6 +320,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.tset){const d=S.tripDraft;if(d){const f=b.dataset.tset;d[f]=d[f]===b.dataset.v?"":b.dataset.v;render()}return}
   if(b.dataset.ttog){const d=S.tripDraft;if(d){const f=b.dataset.ttog,a=csv(d[f]),v=b.dataset.v;d[f]=(a.includes(v)?a.filter(x=>x!==v):a.concat(v)).join(",");render()}return}
   if(b.dataset.rgf){const [k,v]=b.dataset.rgf.split("|"),F=S.rgF||(S.rgF={k:"",u:"",s:""});if(k==="more")F.more=true;else{F[k]=F[k]===v?"":v;F.more=false}render();return}
+  if(b.dataset.act==="ausflugnew"){merkenOpen({u:"",kind:"ausflug"});return}
   if(b.dataset.act==="merken"){merkenOpen(b.dataset.u?{u:b.dataset.u,kind:""}:{u:""});return}
   if(b.dataset.rguf){const [k,v]=b.dataset.rguf.split("|"),F=S.rgUF||(S.rgUF={k:"",s:""});if(k==="more")F.more=true;else{F[k]=F[k]===v?"":v;F.more=false}render();return}
   if(b.dataset.act==="bkopen"){S.bkOpen=S.bkOpen===S.reiseOpen?null:S.reiseOpen;render();setTimeout(()=>{const el=document.getElementById("bk-name");if(el)el.focus()},30);return}

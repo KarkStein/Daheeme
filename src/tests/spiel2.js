@@ -24,7 +24,7 @@ srv.listen(8765,async()=>{
   const P=Object.values(db().play).find(x=>x.name==='Kastanien sammeln');r.neu=P&&[P.sec,P.st,P.fav].join('|');
   // Bearbeiten über den Namen zeigt den Stand und die Glocke
   await A.click('[data-playsec=""]');await A.waitForTimeout(200);await A.click('[data-playedit=s3]');await A.waitForTimeout(200);r.editSt=await A.$eval('[data-plset=st][aria-pressed=true]',e=>e.dataset.v);r.bell=!!(await A.$('.tripform [data-prio]'));await A.click('[data-act=playcancel]');
-  // Spielplätze stehen unter Reisen und Ausflüge (Link unten in der Karte), keine eigene Karte mehr
+  // Spielplätze stehen unter Ausflüge und Reisen (Link unten in der Karte), keine eigene Karte mehr
   r.spLink=!!(await A.$('.playcard [data-nav="ausflug|rk:spielplatz"]'));r.noMap=!(await A.$('[data-act=plmapshow]'));
   await A.screenshot({path:out+'/spiel2.png',fullPage:true});
   // Sprung mit Art, Sammlung zeigt den Stand

@@ -1,6 +1,6 @@
 srv.listen(8765,async()=>{
   // Bündelung (Florian 17.11.2026, „A neu“, Sport aufgelöst): Seiten-Leisten Kind | Kita | Spielen, Partner | Geschenke, Alles Gemerkte | Recherchen;
-  // Spielplätze ziehen aus Spielen nach Reisen und Ausflüge (food/trip/tpl_<id>, Art spiel), Original bleibt mit moved; Fächer mit je drei Bereichen und Seiten
+  // Spielplätze ziehen aus Spielen nach Ausflüge und Reisen (food/trip/tpl_<id>, Art spiel), Original bleibt mit moved; Fächer mit je drei Bereichen und Seiten
   const b=await chromium.launch();const errs=[];const out=process.argv[2];const r={};
   const c=await b.newContext({viewport:{width:360,height:740},deviceScaleFactor:1,timezoneId:'Europe/Berlin',locale:'de-DE'});const A=await c.newPage();A.setDefaultTimeout(8000);A.on('pageerror',e=>errs.push(e.message));
   await A.goto('http://localhost:8765/');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');await A.waitForTimeout(500);
@@ -30,5 +30,5 @@ srv.listen(8765,async()=>{
   console.error(JSON.stringify(r),errs);
   const ok=!errs.length&&r.moved==='trip:tpl_pa,trip:tpl_pb,,'&&r.trip==='spiel,true,true'&&r.trips.includes('tpl_pb')&&r.h1==='Spielen'&&r.pSpiel==='Kind|Kita|*Spielen|Minispiele'&&r.spielRows.split('|').sort().join('|')==='Höhle aus Decken|Kinderturnen'&&!r.spielArts.includes('spielplatz')
     &&r.pKita==='Kind|*Kita|Spielen|Minispiele'&&r.pGesch==='Partner|*Geschenke'&&r.pRech==='Alles Gemerkte|*Recherchen'&&r.kitaH1==='Kita'&&r.rg==='Spielplatz am Bach|Wasserspielplatz am Park'&&r.rgChip==='true'&&r.newTrip==='spiel'
-    &&r.fan_camp==='🧒 Kind|Kita|Spielen|Minispiele|🫶 Wir|Partner|Geschenke|🛠️ Am Haus'&&/Reisen und Ausflüge\|Packlisten\|🎵 Musik\|🗃️ Sammlung\|Alles Gemerkte\|Recherchen/.test(r.fan_einkauf)&&/Kind/.test(r.arMain)&&!/Kita|Spielen|Geschenke/.test(r.arMain)&&/^Kita\|Spielen/.test(r.arKind);
+    &&r.fan_camp==='🧒 Kind|Kita|Spielen|Minispiele|🫶 Wir|Partner|Geschenke|🛠️ Am Haus'&&/Ausflüge und Reisen\|Packlisten\|🎵 Musik\|🗃️ Sammlung\|Alles Gemerkte\|Recherchen/.test(r.fan_einkauf)&&/Kind/.test(r.arMain)&&!/Kita|Spielen|Geschenke/.test(r.arMain)&&/^Kita\|Spielen/.test(r.arKind);
   console.error(ok?'BUENDEL OK':'BUENDEL FAIL');await b.close();srv.close();process.exit(0)});

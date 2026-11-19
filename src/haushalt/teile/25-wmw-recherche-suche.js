@@ -54,10 +54,10 @@ function migDayFuture(){if(S.migDayF||!S.me||!S.config)return;S.migDayF=true;con
 // Ergebnisdateien der festen Aufträge; ihr Feld "updated" ist der letzte Lauf. auftraege.json listet die Aufträge.
 const RSRC=[{key:"ideen",file:"ideen.json",get:()=>S.ideas,lab:"📖 Tagesrezepte",nav:"essen|ft:rezepte",n:j=>(j.items||[]).length+(j.emmi||[]).length},
   {key:"woche",file:"wochenideen.json",get:()=>S.wideas,lab:"✨ Wochenrezepte",nav:"essen|ft:rezepte",n:j=>(j.items||[]).length},
-  {key:"reise",file:"reisefunde.json",get:()=>S.rfunde,lab:"🧭 Reisen und Ausflüge",nav:"ausflug|tt:recherche",n:j=>(j.items||[]).length},
+  {key:"reise",file:"reisefunde.json",get:()=>S.rfunde,lab:"🧭 Ausflüge und Reisen",nav:"ausflug|tt:recherche",n:j=>(j.items||[]).length},
   {key:"atipp",file:"ausflugtipps.json",get:()=>S.atipps,lab:"🗓️ Was ist los (Ausflüge)",nav:"ausflug|tt:ideen",n:j=>(j.items||[]).length},
   {key:"haus",file:"hausfunde.json",get:()=>S.hfunde,lab:"🛠️ Am Haus",nav:"amhaus|",n:j=>(j.items||[]).length}];
-const RAREA=[["rezepte","📖","Rezepte"],["reisen","🧭","Reisen und Ausflüge"],["haus","🛠️","Am Haus"],["spiel","⚽","Spielen"],["musik","🎵","Musik"],["kita","🎒","Kita"],["sonst","🔎","Sonstiges"]];
+const RAREA=[["rezepte","📖","Rezepte"],["reisen","🧭","Ausflüge und Reisen"],["haus","🛠️","Am Haus"],["spiel","⚽","Spielen"],["musik","🎵","Musik"],["kita","🎒","Kita"],["sonst","🔎","Sonstiges"]];
 const RRHY=[["taeglich","täglich"],["woechentlich","wöchentlich"],["monatlich","monatlich"],["einmal","einmal"]];
 const rArea=k=>RAREA.find(a=>a[0]===k)||RAREA[RAREA.length-1];
 const rDate=u=>{const m=String(u||"").match(/(\d{4})-(\d\d)-(\d\d)/);return m?`${+m[3]}.${+m[2]}.`:""};
@@ -117,21 +117,21 @@ function searchHits(q){const W=sNorm(q).split(/\s+/).filter(Boolean);if(!W.lengt
   prios().forEach(x=>{if(x.from==="mittag")return;add("Wichtig","🔔",x.name,"Erinnerung"+(x.due?" · "+x.due.split("-").reverse().slice(0,2).join("."):""),'data-go="wichtig"',x.note)});
   listOf(F.idea).forEach(x=>{const c=projCat(x),haus=!!HCAT[c],gs=c==="geschenk",pc=projCats().find(p=>p[0]===c);add(gs?"Geschenke":haus?"Am Haus":"Sammlung",x.emo||(pc?pc[1]:"📎"),x.name,gs?(giftFor(x)||"Geschenk"):pc?pc[2]:"",gs?'data-nav="geschenke|"':`data-nav="${haus?"amhaus":"projekte"}|pf:${esc(c)}"`,x.note)});
   hprojs().forEach(x=>add("Am Haus",x.emo||"🛋️",x.name,"Projekt",`data-hproj="${esc(x.id)}"`,x.note));
-  urlaube().forEach(x=>add("Reisen und Ausflüge",x.emo||"⛵",x.name,"Urlaub"+(x.place?" · "+x.place:""),`data-reise="${esc(x.id)}"`,x.note));
-  trips().forEach(x=>add("Reisen und Ausflüge","🚲",x.name,"Ausflug",'data-nav="ausflug|tt:ideen"',x.note));
+  urlaube().forEach(x=>add("Ausflüge und Reisen",x.emo||"⛵",x.name,"Urlaub"+(x.place?" · "+x.place:""),`data-reise="${esc(x.id)}"`,x.note));
+  trips().forEach(x=>add("Ausflüge und Reisen","🚲",x.name,"Ausflug",'data-nav="ausflug|tt:ideen"',x.note));
   listOf(F.fund).forEach(x=>{const h=x.area==="haus";add(h?"Am Haus":"Reisen",fundKind(x.kind,h?"haus":"reise")[1],x.name,(h?"Gemerkt Am Haus":"Gemerkt für unterwegs")+(x.place?" · "+x.place:""),h?(x.proj?`data-hproj="${esc(x.proj)}"`:'data-nav="amhaus|hs:wohnen"'):(x.reise?`data-reise="${esc(x.reise)}"`:'data-nav="ausflug|tt:recherche"'),x.note)});
   plays().forEach(x=>add("Spielen","⚽",x.name,(playSecs().find(p=>p[0]===playSecOf(x))||[0,0,"Sonstiges"])[2],`data-nav="spiel|ps:${esc(playSecOf(x))}"`,x.note));
   musics().forEach(x=>{const a=musArt(x);add("Musik",x.emo||a[1],x.name,a[2],`data-nav="musik|ma:${a[0]}"`,[x.note,x.txt].filter(Boolean).join(" "))});
   return H}
 function renderSearch(){const q=S.sq||"",H=searchHits(q);
   let h=`<div><div class="eyebrow">Quer durch alles</div><h1>🔍 Suche</h1></div><section class="card"><input id="sq" type="search" value="${esc(q)}" placeholder="Rezept, Termin, Idee, Einstellung …" autocomplete="off" enterkeyhint="search" aria-label="Suchen" style="width:100%"></section>`;
-  if(!q.trim())return h+`<div class="freq" style="margin:0 4px">Sucht in Bereichen, Einstellungen, Glossar, Rezepten, Wochenplan, Einkaufsliste, Packlisten, Kita, Kalender, Wichtig, Ideen, Am Haus, Reisen und Ausflüge, Sport und Spiel und Musik. Partner bleibt privat.</div>`;
+  if(!q.trim())return h+`<div class="freq" style="margin:0 4px">Sucht in Bereichen, Einstellungen, Glossar, Rezepten, Wochenplan, Einkaufsliste, Packlisten, Kita, Kalender, Wichtig, Ideen, Am Haus, Ausflüge und Reisen, Sport und Spiel und Musik. Partner bleibt privat.</div>`;
   if(!H.length)return h+`<div class="empty"><h2>Nichts gefunden</h2><div>Probiert ein anderes Wort.</div></div>`;
   const G=[];H.forEach(x=>{let g=G.find(y=>y[0]===x.grp);if(!g)G.push(g=[x.grp,[]]);g[1].push(x)});
   return h+G.map(g=>`<section class="card"><div class="section-head"><h2>${esc(g[0])}</h2><span class="freq num">${g[1].length}</span></div>${g[1].slice(0,12).map(x=>`<button class="todayrow" ${x.attr}><span>${x.ic}</span><span>${esc(x.name)}${x.sub?`<span class="freq"> · ${esc(x.sub)}</span>`:""}</span><i>›</i></button>`).join("")}${g[1].length>12?`<div class="freq">und ${g[1].length-12} weitere, genauer suchen</div>`:""}</section>`).join("")}
 function render(){
   if(S.mode==="loading")return;
-  if(S.tab==="reisen"){S.tab="ausflug";S.tripTab="urlaub"} // Reisen und Ausflüge sind ein Bereich
+  if(S.tab==="reisen"){S.tab="ausflug";S.tripTab="urlaub"} // Ausflüge und Reisen sind ein Bereich
   // Umbau 16.11.2026 (Florian): Start = Haus | Kalender | Wichtig; Woche = Tag und Woche | Wer macht was. Kalender bleibt intern Woche/Seite 3.
   if(S.tab==="tag"){S.tab="woche";S.weekPage=0;S.view=mondayOf(new Date());S.wkEdit=null}
   if(S.tab==="kalender"){S.tab="woche";S.weekPage=3}

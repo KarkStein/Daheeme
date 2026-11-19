@@ -17,7 +17,7 @@ srv.listen(8765,async()=>{
   await A.fill('#projinput','Lampe im Flur tauschen');await A.press('#projinput','Enter');await A.waitForTimeout(200);
   await B.click('.spot[data-go=amhaus]');await B.waitForSelector('.tiles');const cnt=await B.$$eval('.tile .tc',l=>l.map(x=>x.textContent));
   await B.goBack();await B.waitForTimeout(200);
-  // Spielplätze (seit der Bündelung 17.11.2026 unter Reisen und Ausflüge): die alte Spielplatz-Karte steht als Link in „Alle Ziele auf einer Karte“, neue Spielplätze kommen über ＋ Merken
+  // Spielplätze (seit der Bündelung 17.11.2026 unter Ausflüge und Reisen): die alte Spielplatz-Karte steht als Link in „Alle Ziele auf einer Karte“, neue Spielplätze kommen über ＋ Merken
   await B.evaluate(()=>{const k=/k=([^&]+)/.exec(location.href)[1];return fetch('/haushalt/'+k+'/food/playmap.json',{method:'PUT',body:JSON.stringify('https://www.google.com/maps/d/viewer?mid=1AbCdEfGhIjKlMnOpQ')})});await B.waitForTimeout(400);
   await B.evaluate(()=>{const b=document.createElement("button");b.dataset.nav="ausflug|rk:spielplatz";b.id="zz";document.getElementById("app").appendChild(b)});await B.click("#zz");await B.waitForTimeout(400);
   await B.click('[data-tfold=rmap]');await B.waitForTimeout(200);const ifr=!!(await B.$('a[href*="maps/d/viewer"]'));

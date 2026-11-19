@@ -5,7 +5,7 @@ srv.listen(8765,async()=>{
   const left=await A.$('.appleft .bellnav');await A.evaluate(()=>{const b=document.createElement('button');b.dataset.go='settings';document.getElementById('app').appendChild(b);b.click()});const h1=await A.$eval('h1',e=>e.textContent);
   await A.screenshot({path:out+'/einstellungen.png',fullPage:true});
   await A.evaluate(()=>{const b=document.createElement("button");b.dataset.nav="bereiche|";document.getElementById("app").appendChild(b);b.click()});const tiles=await A.$$eval('[data-nav]',l=>l.length);await A.screenshot({path:out+'/bereiche.png',fullPage:true});
-  await A.click('[data-nav="ausflug|tt:recherche"]');const urlaub=(await A.$eval('h1',e=>e.textContent))==='Reisen und Ausflüge'&&!!(await A.$('#fundform'))?'true':'false';
+  await A.click('[data-nav="ausflug|tt:recherche"]');const urlaub=(await A.$eval('h1',e=>e.textContent))==='Ausflüge und Reisen'&&!!(await A.$('#fundform'))?'true':'false';
   await A.evaluate(()=>{const b=document.createElement("button");b.dataset.nav="bereiche|";document.getElementById("app").appendChild(b);b.click()});await A.click('[data-nav="woche|wp:1"]');const wp=await A.$$eval('.weekpager [aria-pressed=true], [data-wpage][aria-pressed=true]',l=>l.map(x=>x.innerText)).catch(()=>[]);
   await A.evaluate(()=>{const b=document.createElement('button');b.dataset.go='settings';document.getElementById('app').appendChild(b);b.click()});await A.click('#tabs [data-tab=einkauf]');await A.click('[data-act=pantrytoggle]');await A.fill('#pantryinput','Zimt');await A.press('#pantryinput','Enter');await A.waitForTimeout(300);const zimt=!!(await A.$('[data-pantryrm="Zimt"]'));
   await A.click('.appleft .bellnav');const wh=await A.$eval('h1',e=>e.textContent);

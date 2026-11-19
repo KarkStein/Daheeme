@@ -2,7 +2,7 @@
 // Ein Eintrag bleibt in seinem Speicher (food/fund, trip, idea, play, music). Das Feld show ("geschenke,spiel") sagt, wo er zusätzlich steht;
 // who (p0|p1|kid) sagt, für wen. Die anderen Bereiche zeigen denselben Eintrag als Zeile (gmRow), mit demselben Stand und demselben Fenster (gmEdit).
 // Neuer Ort = eine Zeile in GM_PLACES plus gmGuests(<ort>) in der Liste dort.
-const GM_PLACES=[["geschenke","🎁","Geschenke","geschenke|"],["spiel","⚽","Spielen","spiel|"],["hoer","🎧","Hörspiele und Tonies","musik|ma:hoer"],["kind","🧒","Kind","kind|kf:kid_gm"],["haus","🛠️","Am Haus","amhaus|hs:wohnen"],["reise","🧭","Reisen und Ausflüge","ausflug|tt:ideen"]];
+const GM_PLACES=[["geschenke","🎁","Geschenke","geschenke|"],["spiel","⚽","Spielen","spiel|"],["hoer","🎧","Hörspiele und Tonies","musik|ma:hoer"],["kind","🧒","Kind","kind|kf:kid_gm"],["haus","🛠️","Am Haus","amhaus|hs:wohnen"],["reise","🧭","Ausflüge und Reisen","ausflug|tt:ideen"]];
 const GM_PATH={fund:"food/fund/",trip:"food/trip/",idea:"food/idea/",play:"food/play/",mus:"food/music/"};
 const gmPlace=k=>GM_PLACES.find(p=>p[0]===k);
 const gmShow=x=>csv(x&&x.show).filter(k=>gmPlace(k));

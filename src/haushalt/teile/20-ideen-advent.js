@@ -52,7 +52,7 @@ function projOverview(){const L=projAll();
 function projAllTile(){const L=projAll();return `<button class="tile" data-pfilter="alle"><span class="te">🧩</span><span class="tn">Alle Projekte</span><span class="tc">${L.length?L.length+" laufen":"noch keins"}</span></button>`}
 // Sammlung am Leuchtturm (Florian 17.11.2026): alles Gemerkte aus allen Bereichen auf einen Blick, mit Filtern nach Bereich und Stand.
 // Nur Ansicht: die Einträge bleiben in ihren Bereichen (food/fund, food/idea, food/trip, food/play, food/music, food/rec). Neue Datenart = eine Zeile in sammAll.
-const SAMM_AREAS=[["reise","🧭","Reisen und Ausflüge"],["haus","🛠️","Am Haus"],["geschenke","🎁","Geschenke"],["spiel","⚽","Spielen"],["musik","🎵","Musik"],["sonst","📎","Sonstiges"],["rezepte","📖","Rezepte"]];
+const SAMM_AREAS=[["reise","🧭","Ausflüge und Reisen"],["haus","🛠️","Am Haus"],["geschenke","🎁","Geschenke"],["spiel","⚽","Spielen"],["musik","🎵","Musik"],["sonst","📎","Sonstiges"],["rezepte","📖","Rezepte"]];
 const SAMM_ST=[["idee","💡","Idee"],["favorit","⭐","Favorit"],["geplant","📅","Geplant"],["erledigt","✅","Erledigt"]];
 function sammAll(){const L=[],add=(ar,o)=>L.push(Object.assign({ar,at:0},o)),fst=s=>s==="gebucht"?"erledigt":s||"idee";
   funde("reise").forEach(f=>{const k=fundKind(f.kind,"reise"),u=f.reise&&urlaube().find(y=>y.id===f.reise);add("reise",{ic:k[1],name:f.name,sub:k[2]+(u?" · "+(u.emo||"⛵")+" "+u.name:"")+(f.st==="gebucht"?" · gebucht":""),st:fst(f.st),attr:u?`data-reise="${esc(u.id)}"`:`data-nav="ausflug|tt:recherche"`,at:f.at})});
