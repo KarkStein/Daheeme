@@ -15,5 +15,5 @@ srv.listen(8765,async()=>{
   const last=await A.$$('.editrow[data-i] input[data-f=name]');await last[last.length-1].fill('Testaufgabe');await A.click('[data-act=save]');await A.waitForTimeout(400);
   const db=JSON.parse(JSON.stringify(get(['haushalt',key])));r.saved=(db.config.tasks||[]).some(t=>t.name==='Testaufgabe');const w=Object.values(db.weeks||{})[0];r.ticks=w&&w.ticks?Object.keys(w.ticks).length:0;
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&r.pager.length===2&&/Wer macht was/.test(r.h1)&&r.secs.length>=4&&r.ticks===1&&r.saved&&r.opened>=4&&r.rh.length>=2;
+  const ok=!errs.length&&r.pager.length===3&&r.pager[2]==="Rückblick"&&/Wer macht was/.test(r.h1)&&r.secs.length>=4&&r.ticks===1&&r.saved&&r.opened>=4&&r.rh.length>=2;
   console.error(ok?'WMW OK':'WMW FAIL');await b.close();srv.close();process.exit(0)});

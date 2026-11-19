@@ -135,6 +135,12 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .slot.split.h0{--L:var(--p0)}
 .slot.split.h1{--R:var(--p1)}
 .slot.split.h0.h1{color:var(--surface);border-color:transparent;font-size:var(--fs-m)}
+.rbnav{display:flex;align-items:center;gap:var(--sp1);margin:0 0 var(--sp3)}.rbnav>.chipbtn{padding:4px 10px;flex:none}.rblbl{flex:1;min-width:0;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rbmodes{display:flex;gap:var(--sp1);flex:none}.rbmodes .chipbtn{padding:4px 8px;font-size:var(--fs-s)}.rbtop{display:flex;gap:var(--sp3);align-items:center;margin:var(--sp2) 0 var(--sp3)}.rbring{width:96px;height:96px;flex:none}.rbring text{font:700 var(--fs-l) Fraunces,serif;fill:var(--ink)}
+.rbbar{display:flex;height:8px;border-radius:999px;overflow:hidden;background:var(--line);margin-top:var(--sp2)}.rbbarl{display:flex;justify-content:space-between;gap:var(--sp2);margin-bottom:var(--sp1)}
+.rblist{list-style:none;margin:0;padding:0}.rblist li{padding:var(--sp2) 0;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:2px}.rblist li:last-child{border-bottom:none}
+.rbwk{border-bottom:1px solid var(--line)}.rbwk:last-child{border-bottom:none}.rbwkh{display:flex;justify-content:space-between;align-items:center;gap:var(--sp2);width:100%;background:none;border:none;font:inherit;color:var(--fg);text-align:left;padding:var(--sp2) 0;cursor:pointer}
+.rbwkb{padding-bottom:var(--sp2)}.rbday{color:var(--ochre);font-weight:700;font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.04em;margin-top:var(--sp2)}.rbent{display:flex;align-items:center;flex-wrap:wrap;gap:var(--sp1);padding:var(--sp1) 0}
+.rbtook{font-size:var(--fs-xs);background:var(--done-soft);border-radius:999px;padding:2px var(--sp2)}.rbopen{margin-top:var(--sp2)}
 .slot.on.took{font-weight:700}.subbtn.took.p0{border-color:var(--p0);background:var(--p0-soft)}.subbtn.took.p1{border-color:var(--p1);background:var(--p1-soft)}.tookb{margin-left:var(--sp1)}.subbtn.took.p0 .tookb{color:var(--p0)}.subbtn.took.p1 .tookb{color:var(--p1)}.tookinfo{padding-top:2px}
 .slot.on.chk{background:var(--done);border-color:var(--done);font-size:var(--fs-m)}
 :root[data-theme="dark"] .slot.on{color:#0d1514}
