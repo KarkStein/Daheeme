@@ -52,7 +52,7 @@ function bringDone(wk,i){const tk=ticksOf(wk);for(const t of bringTasks())for(le
 // Seite Kind, Wochen-Tafel Bringen und Abholen, Größen und Gesundheit: 14a-kind.js (Umbau Florian 17.11.2026)
 function renderPrivat(){const sec=S.privSec==="briefe"?"briefe":"lunch";
   let h=`<div><div class="eyebrow">Nur ihr zwei</div><h1>Partner</h1></div><div class="unl privtabs" style="margin:4px 0 12px">${[["lunch","🍽️ Mittagessen"],["briefe","✉️ Briefe"+(briefe().length?" ("+briefe().length+")":"")]].map(x=>`<button class="chipbtn${sec===x[0]?"":" neutral"}" data-priv="${x[0]}" aria-pressed="${sec===x[0]}">${x[1]}</button>`).join("")}</div>`;
-  h+=sec==="briefe"?briefCard():`<section data-fk="f_lunch|1" class="foldwrap"><div class="section-head"><h2>🍽️ Mittagessen</h2></div>`+renderLunch()+`</section>`;
+  h+=sec==="briefe"?briefCard()+flascheArchive():`<section data-fk="f_lunch|1" class="foldwrap"><div class="section-head"><h2>🍽️ Mittagessen</h2></div>`+renderLunch()+`</section>`;
   return h+contactCard()}
 // ---------- Briefkasten: WhatsApp zum anderen und Briefe ----------
 function waNum(n){let d=String(n||"").replace(/[^\d+]/g,"");if(d.startsWith("+"))d=d.slice(1);else if(d.startsWith("00"))d=d.slice(2);else if(d.startsWith("0"))d="49"+d.slice(1);return d.length>=8?d:""}

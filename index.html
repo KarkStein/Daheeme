@@ -714,6 +714,48 @@ a.mkb{text-decoration:none;color:var(--fg)}.muslk[aria-pressed=false]{filter:gra
 .medback .mdots{position:absolute;right:0;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:var(--sp1)}.medback .mdots i{width:6px;height:6px;border-radius:999px;background:rgba(240,210,140,.35)}.medback .mdots i.on{background:#f0d28c}
 .medback .mdays{flex:1;min-height:0;overflow-y:auto}
 .medback .mfoot{display:flex;justify-content:space-between;border-top:1px solid rgba(240,210,140,.25);padding-top:var(--sp1)}
+.medback .bline .btl{display:inline-grid;width:auto;max-width:100%}.medback .bline li{display:block}
+/* Minispiele (21a-minispiele.js) */
+.minis{display:grid;gap:var(--sp2);margin-top:var(--sp3)}
+.minitile{display:flex;align-items:center;gap:var(--sp3);text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:var(--sp3) var(--sp4);color:var(--fg);font:inherit;cursor:pointer;box-shadow:var(--shadow)}
+.minitile .mic{font-size:30px;line-height:1}
+.minitile span:nth-child(2){display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.minitile b{font-family:var(--f-display);font-size:var(--fs-l)}
+.minitile i{font-style:normal;color:var(--muted);font-size:var(--fs-s)}
+.minitile em{font-style:normal;color:var(--muted);font-size:var(--fs-l)}
+.minib{margin:0 0 var(--sp2)}
+.flut,.garden{margin-top:var(--sp2)}
+.fluth,.gardenh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:var(--sp2);font-family:var(--f-display);font-size:var(--fs-l)}
+#flutt{font-variant-numeric:tabular-nums;color:var(--navy-a)}
+.flutsc{position:relative;height:min(62vh,440px);border-radius:var(--r);overflow:hidden;background:linear-gradient(#bfe3f2 0,#e9f5fa 42%,#f3dfae 42%,#e8cd8f 100%);border:1px solid var(--line)}
+.flutsc h2{position:absolute;top:var(--sp3);left:0;right:0;margin:0;text-align:center;font-family:var(--f-display);font-size:var(--fs-xl);color:#1d3557;z-index:3}
+.flutcastle{position:absolute;left:4%;top:24%;font-size:52px;z-index:2;transition:transform 1.2s,opacity 1.2s}
+.flutkorb{position:absolute;right:3%;top:30%;font-size:52px;z-index:2}
+.fluttoy{position:absolute;transform:translate(-50%,-50%);font-size:40px;background:none;border:0;padding:6px;cursor:pointer;z-index:4;transition:left .6s,top .6s,transform .6s,opacity .6s;line-height:1}
+.fluttoy.in{transform:translate(-50%,-50%) scale(.45);opacity:.85;pointer-events:none}
+.flutsea{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(#5fb2d6,#2d7fa8);opacity:.88;z-index:3;transition:height .4s linear;border-top:3px solid #e8f6fb}
+.flut.end.flut .flutcastle{transform:translateY(30px) scale(.6);opacity:0}
+.flut.end.ok .flutsea{height:10%!important}
+.flutend p{font-size:var(--fs-m);margin:var(--sp3) 0 var(--sp2)}
+.flut .btnrow{margin-top:var(--sp3);flex-wrap:wrap}
+.gardensc{position:relative;border-radius:var(--r);background:linear-gradient(#e6f2dc,#cfe4bd);border:1px solid var(--line);padding:var(--sp4) var(--sp3) var(--sp3);text-align:center}
+.gardenhouse{font-size:40px;display:block}
+.gardengrid{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--sp1);margin:var(--sp2) 0;font-size:26px;line-height:1.1}
+.gardengrid .seed{color:#7a6a4a}
+.gardengrid .more{font-size:var(--fs-s);align-self:center;color:#3c5a2a}
+.gardenn{font-family:var(--f-display);font-size:var(--fs-l);color:#2f4f22}
+.garden .freq{margin-top:var(--sp2)}
+.flq h3{font-family:var(--f-display);font-size:var(--fs-l);margin:var(--sp1) 0 var(--sp3)}
+.flst{list-style:none;padding:0;margin:0 0 var(--sp3)}
+.flst li{padding:var(--sp1) 0}
+.flopen{display:grid;gap:var(--sp2)}
+.fla{background:var(--bg);border:1px solid var(--line);border-radius:var(--r-s);padding:var(--sp2) var(--sp3);margin-bottom:var(--sp2)}
+.fla p{margin:var(--sp1) 0 0;white-space:pre-wrap}
+.fla small{color:var(--muted)}
+.flasche textarea{width:100%;box-sizing:border-box}
+.flarch{list-style:none;padding:0;margin:0}
+.flarch li{padding:var(--sp2) 0;border-bottom:1px solid var(--line)}
+.flarch li:last-child{border-bottom:0}
 </style>
 
 <div class="app" id="app">
@@ -1262,7 +1304,9 @@ function startHead(sea){const g=greetTxt(new Date().getHours()),w=wxToday();
 function wxKind(code){if(code==null||code==="")return "";code=+code;if(isNaN(code))return "";if(code>=95)return "gewitter";if(code>=71&&code<=77||code===85||code===86)return "schnee";if(code>=51&&code<=67||code>=80&&code<=82)return "regen";if(code===45||code===48)return "nebel";if(code===3)return "bedeckt";if(code===2)return "wolkig";return ""}
 // Ausschnitt des Hausbilds (Florian 15.11.2026: weniger Himmel, Haus und Wiese größer). Spots rechnen damit.
 // Florian 19.11.2026 (Start A): Bild flacher, oben weniger Himmel; Datum, Wetter und Ring liegen im Himmel (skyHead)
-const HVB=[4,32,352,228];
+let HVB=[4,32,352,228];
+// Medaille (Florian 19.11.2026: „Vergrößere das Bild. Fokus auf das Meer oberhalb des Hauses“): das Bild füllt den freien Platz bis zu den Reitern; es wächst nur nach oben (mehr Himmel und Meer), die Breite bleibt, nichts wird gestreckt. S.hvbH = Höhe des Ausschnitts (228 bis 420), gemessen in medFit
+const hvbSet=()=>{const vh=Math.max(228,Math.min(480,S.hvbH||228));HVB=[4,260-vh,352,vh]};
 // Meereslinie im Haus am Meer (Florian 17.11.2026: „B“, Meer höher, das Haus steht ganz vor dem Meer; vorher 118 = Höhe des Dachfirsts). LOW_SUN = Höhe der tiefen Sonne (Morgen/Abend), halb im Meer.
 const SEA_Y=92,LOW_SUN=72;
 function spotPos(x,y,w,h){const V=HVB;return `left:${((x-V[0])/V[2]*100).toFixed(1)}%;top:${((y-V[1])/V[3]*100).toFixed(1)}%;width:${(w/V[2]*100).toFixed(1)}%;height:${(h/V[3]*100).toFixed(1)}%`}
@@ -1287,7 +1331,10 @@ function houseScene(has,light,night,extras,sea,guests,dots,amb){dots=dots||{};am
   if(grey&&night)Object.assign(C,{sky1:"#1b2633",sky2:"#334253"});
   const lit=night||ph==="dusk"?"#ffd66b":"#f6e7b0",dot=(x,y)=>`<circle cx="${x}" cy="${y}" r="5.5" fill="#f25f5c" stroke="#fff" stroke-width="2"/>`;
   let g=`<defs><linearGradient id="hsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${C.sky1}"/><stop offset="1" stop-color="${C.sky2}"/></linearGradient><linearGradient id="hsea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${C.sea1}"/><stop offset="1" stop-color="${C.sea2}"/></linearGradient><radialGradient id="hglow"><stop offset="0" stop-color="#ffe08a" stop-opacity=".9"/><stop offset="1" stop-color="#ffe08a" stop-opacity="0"/></radialGradient><linearGradient id="hbeam" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#fff3b0" stop-opacity=".85"/><stop offset="1" stop-color="#fff3b0" stop-opacity="0"/></linearGradient>${styDefs(st,C,night,ph,city)}</defs>
-  <rect width="360" height="260" fill="url(#hsky)"/><g transform="translate(0 13)">`;
+  <rect y="${Math.min(0,HVB[1])}" width="360" height="${260-Math.min(0,HVB[1])}" fill="url(#hsky)"/><g transform="translate(0 13)">`;
+  // Höherer Himmel (Medaille): ein paar Wolken oder Sterne mehr, damit er nicht leer wirkt
+  if(HVB[1]<-20){const y0=HVB[1];if(night){for(let i=0;i<Math.round(-y0/12);i++)g+=`<circle class="twinkle" style="animation-delay:${(i%7)*0.4}s" cx="${(i*83+29)%350+5}" cy="${Math.round(y0+8+(i*47)%(-y0))}" r="${i%3?1.1:1.6}" fill="#fff" opacity=".85"/>`}
+    else if(!grey){const cy=[Math.round(y0*0.35),Math.round(y0*0.7)];g+=`<path d="M236 ${cy[0]}h54a14 14 0 0 0-26-9 11 11 0 0 0-28 9z M150 ${cy[1]}h40a11 11 0 0 0-20-7 9 9 0 0 0-20 7z" fill="#fff" opacity=".7"/>`}}
   if(night){if(!grey)g+=moonSvg(52,40,13,amb.moon!=null?amb.moon:moonPhase(new Date()),"#f3ecd2",C.sky1);
     [[110,24],[150,52],[196,18],[236,44],[22,78],[88,70],[180,84],[268,22]].forEach((p,i)=>{g+=`<circle class="twinkle" style="animation-delay:${i*0.3}s" cx="${p[0]}" cy="${city||p[1]<60?p[1]:p[1]-18}" r="1.5" fill="#fff"/>`})}
   else{const low=ph==="dusk"||ph==="dawn",ly=city?98:LOW_SUN;if(!grey||wk==="nebel")g+=low?`<circle cx="56" cy="${ly}" r="24" fill="#ffb27a" opacity=".35"/><circle cx="56" cy="${ly}" r="15" fill="#f4895a"/>`:`<circle cx="56" cy="44" r="17" fill="#ffd66b"${wk==="nebel"?' opacity=".45"':""}/>`;
@@ -1372,10 +1419,11 @@ function houseScene(has,light,night,extras,sea,guests,dots,amb){dots=dots||{};am
     <path d="M171 233 v-4 q0 -2 2 -2 h12 q2 0 2 2 v4" fill="none" stroke="#2c3138" stroke-width="1.8"/><rect x="166" y="232" width="25" height="12" rx="2" fill="${night?"#4a5058":"#3a3f47"}"/><circle cx="172" cy="238.5" r="3.6" fill="#1e2228" stroke="#9aa3ad" stroke-width=".8"/><circle cx="185" cy="238.5" r="3.6" fill="#1e2228" stroke="#9aa3ad" stroke-width=".8"/><rect x="176.5" y="234" width="4" height="2.4" rx=".5" fill="${on?"#ffd66b":"#6b737c"}"/><circle cx="178.5" cy="240.5" r=".9" fill="#c7442f"/>
     ${on?`<g class="notes" fill="${night?"#f3ecd2":"#2c3138"}"><path class="n1" d="M193 226 v-6 l4 -1 v6" stroke="${night?"#f3ecd2":"#2c3138"}" stroke-width=".9"/><circle class="n1" cx="192" cy="226.5" r="1.6"/><circle class="n2" cx="163" cy="224" r="1.5"/><path class="n2" d="M164.4 224 v-6" stroke="${night?"#f3ecd2":"#2c3138"}" stroke-width=".9"/></g>`:""}</g></g>`}
   g+=styTop(st,night);g=styCloud(st,g);
-  if(wk==="nebel")g+=`<rect x="0" y="96" width="360" height="70" fill="#eef1f2" opacity=".55"/><rect x="0" y="0" width="360" height="260" fill="#eef1f2" opacity=".18"/>`;
-  if(wk==="regen"||wk==="gewitter"){let r="";for(let i=0;i<46;i++){const x=(i*97+i*i*13+5)%360,y=(i*61+i*i*29+3)%240;r+=`M${x} ${y}l-3 9`}g+=`<path class="rain" d="${r}" stroke="${night?"#9fb3c6":"#6f8aa0"}" stroke-width="1.1" stroke-linecap="round" opacity=".7"/>`}
+  if(amb.garden)g+=gardenSvg(amb.garden);
+  if(wk==="nebel")g+=`<rect x="0" y="96" width="360" height="70" fill="#eef1f2" opacity=".55"/><rect x="0" y="${HVB[1]}" width="360" height="${260-HVB[1]}" fill="#eef1f2" opacity=".18"/>`;
+  if(wk==="regen"||wk==="gewitter"){let r="";for(let i=0;i<46+Math.round(-Math.min(0,HVB[1])/5);i++){const x=(i*97+i*i*13+5)%360,y=HVB[1]+(i*61+i*i*29+3)%(240-HVB[1]);r+=`M${x} ${y}l-3 9`}g+=`<path class="rain" d="${r}" stroke="${night?"#9fb3c6":"#6f8aa0"}" stroke-width="1.1" stroke-linecap="round" opacity=".7"/>`}
   if(wk==="gewitter")g+=`<path class="bolt" d="M232 30 l-10 22 h8 l-8 20 l18 -26 h-8 l8 -16z" fill="#ffe27a"/>`;
-  if(wk==="schnee"){let r="";for(let i=0;i<40;i++){const x=(i*97+i*i*13+11)%360,y=(i*61+i*i*29+7)%250;r+=`<circle cx="${x}" cy="${y}" r="${1.2+(i%3)*.5}"/>`}g+=`<g class="snow" fill="#fff" opacity=".9">${r}</g>`}
+  if(wk==="schnee"){let r="";for(let i=0;i<40;i++){const x=(i*97+i*i*13+11)%360,y=HVB[1]+(i*61+i*i*29+7)%(250-HVB[1]);r+=`<circle cx="${x}" cy="${y}" r="${1.2+(i%3)*.5}"/>`}g+=`<g class="snow" fill="#fff" opacity=".9">${r}</g>`}
   if(st==="aquarell"){const k=g.indexOf("</defs>")+7;g=g.slice(0,k)+`<g filter="url(#sAq)">`+g.slice(k)+"</g>"}
   return `<svg viewBox="${HVB.join(" ")}" role="img" aria-label="Euer Haus ${city?"in der Stadt":"am Meer"}"${styCss(st)}>${g}</svg>`}
 function campTotal(){let n=0;for(const wk in S.weeks){const tk=ticksOf(wk);for(const k in tk)if(tk[k])n++}return n}
@@ -1430,7 +1478,7 @@ function renderTag(){loadWx();const now=new Date(),today=ymd(now),tmw=ymd(addDay
   let h="";
   // Die Woche darunter kommt aus renderWeek (Umbau 16.11.2026: Tag und Woche und Diese Woche sind eine Seite)
   return h}
-function renderCamp(){S.flip=false;loadWx();
+function renderCamp(){S.flip=false;loadWx();hvbSet();
   const total=campTotal(),mon=mondayOf(new Date()),tk=ticksOf(wkKey(mon));
   let d=0,n=0;tasks().forEach(t=>{if(group(t.freq)!=="week"||t.owner!=="rot")return;const m=slotsOf(t);for(let i=0;i<m;i++){n++;if(tk[t.id+"__"+i])d++}});
   const fire=n?d/n:0,skyPh=skyPhase(),night=skyPh==="night";
@@ -1442,7 +1490,7 @@ function renderCamp(){S.flip=false;loadWx();
   const openS=shopItems().filter(i=>!i.done).length,meal=planDays(mon)["d"+di],mealTxt=meal?(meal.text||""):"";
   const spot=(x,y,w,hh,go,label,ft,pf)=>`<button class="spot" style="${spotPos(x,y,w,hh)}" ${go.includes("|")?`data-nav="${go}"`:`data-go="${go}"${pf?` data-pf="${pf}"`:""}`}${ft?` data-ft="${ft}"`:""} aria-label="${label}">${S.labels?`<span class="lab">${label.split(":")[0].replace(" mit dem Bus","").replace("Einkaufsliste","Einkauf")}</span>`:""}</button>`;
   const city=motiv()==="stadt";let h=`${startPager(0)}${S.me?"":meChooser()}
-   <div class="medal${S.medFlip?" flipped":""}"><div class="medin"><div class="medfront" aria-hidden="${!!S.medFlip}"><div class="camp">${(houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:false,shop:openS>0,post:briefe().length>0},{ph:skyPh,wx:S.wx&&S.wx.cur!=null&&Date.now()-S.wx.at<3*3600e3?wxKind(S.wx.cur):"",city})+skyHead(night,false)+picSpots(city).map(p=>spot(p[0],p[1],p[2],p[3],p[4],p[5],p[4]==="essen"&&mealTxt?"plan":"",p[8])).join(""))+(()=>{const y=(night?40:(skyPh==="dusk"||skyPh==="dawn")?(city?98:LOW_SUN):44)+13,x=night?52:56;return `<button class="spot" style="${spotPos(x,y,46,46)}" data-act="wxpop" aria-expanded="${!!S.wxPop}" aria-label="${night?"Mond":"Sonne"}: Wetter">${S.labels?`<span class="lab">Wetter</span>`:""}</button>`})()+"</div>"}<section class="card today"><h2>Heute</h2>
+   <div class="medal${S.medFlip?" flipped":""}"><div class="medin"><div class="medfront" aria-hidden="${!!S.medFlip}"><div class="camp">${(houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:false,shop:openS>0,post:briefe().length>0},{ph:skyPh,wx:S.wx&&S.wx.cur!=null&&Date.now()-S.wx.at<3*3600e3?wxKind(S.wx.cur):"",city,garden:gardenPlants().length})+skyHead(night,false)+picSpots(city).map(p=>spot(p[0],p[1],p[2],p[3],p[4],p[5],p[4]==="essen"&&mealTxt?"plan":"",p[8])).join(""))+(()=>{const y=(night?40:(skyPh==="dusk"||skyPh==="dawn")?(city?98:LOW_SUN):44)+13,x=night?52:56;return `<button class="spot" style="${spotPos(x,y,46,46)}" data-act="wxpop" aria-expanded="${!!S.wxPop}" aria-label="${night?"Mond":"Sonne"}: Wetter">${S.labels?`<span class="lab">Wetter</span>`:""}</button>`})()+"</div>"}<section class="card today"><h2>Heute</h2>
      <button class="todayrow" data-act="gotasks"><span>🧹</span><span>${openW?"Offene Aufträge":"Alles erledigt, was gerade ansteht ✅"}</span><i>›</i></button>
      <button class="todayrow" data-go="essen" data-ft="${mealTxt?"heute":"rezepte"}"${!mealTxt?' data-mealfor="1"':""}><span>🍲</span><span>${mealTxt?"Es gibt "+esc(mealTxt):"Für heute ist noch kein Essen geplant"}</span><i>›</i></button>${(l=>{if(!l.length)return "";const u=l.filter(i=>i.urg).length,r=l.length-u;return `<button class="todayrow minialarm" data-shopview="${SHOP_TODAY}"><span>🧺</span><span>Heute einkaufen: ${l.length}${u&&r?` · ${r} fürs Abendessen, ${u} mit ❗`:""}</span><i>›</i></button>`})(shopToday())}
      ${prioLinkRow()}</section></div>${renderBack(night,"medal")}</div></div>
@@ -1972,7 +2020,7 @@ function bringDone(wk,i){const tk=ticksOf(wk);for(const t of bringTasks())for(le
 // Seite Kind, Wochen-Tafel Bringen und Abholen, Größen und Gesundheit: 14a-kind.js (Umbau Florian 17.11.2026)
 function renderPrivat(){const sec=S.privSec==="briefe"?"briefe":"lunch";
   let h=`<div><div class="eyebrow">Nur ihr zwei</div><h1>Partner</h1></div><div class="unl privtabs" style="margin:4px 0 12px">${[["lunch","🍽️ Mittagessen"],["briefe","✉️ Briefe"+(briefe().length?" ("+briefe().length+")":"")]].map(x=>`<button class="chipbtn${sec===x[0]?"":" neutral"}" data-priv="${x[0]}" aria-pressed="${sec===x[0]}">${x[1]}</button>`).join("")}</div>`;
-  h+=sec==="briefe"?briefCard():`<section data-fk="f_lunch|1" class="foldwrap"><div class="section-head"><h2>🍽️ Mittagessen</h2></div>`+renderLunch()+`</section>`;
+  h+=sec==="briefe"?briefCard()+flascheArchive():`<section data-fk="f_lunch|1" class="foldwrap"><div class="section-head"><h2>🍽️ Mittagessen</h2></div>`+renderLunch()+`</section>`;
   return h+contactCard()}
 // ---------- Briefkasten: WhatsApp zum anderen und Briefe ----------
 function waNum(n){let d=String(n||"").replace(/[^\d+]/g,"");if(d.startsWith("+"))d=d.slice(1);else if(d.startsWith("00"))d=d.slice(2);else if(d.startsWith("0"))d="49"+d.slice(1);return d.length>=8?d:""}
@@ -2190,7 +2238,7 @@ const AREAS=[["🏠","Start","camp","","",()=>[["Kalender","sp:kalender"],["Wich
   ["🧺","Einkauf","einkauf","Einkauf","einkauf|",()=>[["Einkaufsliste",""],["Weitere Listen","bl:"],["Ausgaben","sp:ausgaben"]],"essen","Die Einkaufsliste, Weitere Listen (Kleidung, Geschenke, Baumarkt) und Ausgaben."],
   ["🛠️","Am Haus","amhaus","Am Haus","amhaus|",()=>PROJ_CATS.filter(c=>["wohnen","garten"].includes(c[0])).map(c=>[c[2],"pf:"+c[0]]).concat([["Gemerkt","hs:wohnen"]]),"zuhause","Projekte fürs Haus und was ihr euch dafür merkt: Einrichtung und Garten."],
   ["🧭","Reisen und Ausflüge","ausflug","Reisen","ausflug|tt:urlaub",()=>[["Urlaube","tt:urlaub"],["Ausflüge","tt:ideen"],["Packlisten","tt:pack"],["Gemerkt","tt:recherche"]],"freizeit","Urlaube, Ausflüge mit „Was ist los“, Packlisten und was ihr euch für unterwegs merkt."],
-  ["⚽","Spielen","spiel","Spielen","spiel|",()=>playSecs().map(p=>[p[2],"ps:"+p[0]]),"wir","Seite unter Kind: Spielideen für zu Hause, Sport und Kurse. Spielplätze stehen unter Reisen und Ausflüge."],["🎵","Musik","musik","Musik","musik|",()=>[],"freizeit","Playlist-Links nach Anlass, z. B. Kochen, Autofahrt, Kinder."],
+  ["⚽","Spielen","spiel","Spielen","spiel|",()=>playSecs().map(p=>[p[2],"ps:"+p[0]]),"wir","Seite unter Kind: Spielideen für zu Hause, Sport und Kurse. Spielplätze stehen unter Reisen und Ausflüge."],["🎲","Minispiele","minis","Minispiele","minis|",()=>[],"wir","Seite unter Kind: Aufräum-Flut, Flaschenpost für zwei, Garten der Woche. Ohne Punkte, miteinander."],["🎵","Musik","musik","Musik","musik|",()=>[],"freizeit","Playlist-Links nach Anlass, z. B. Kochen, Autofahrt, Kinder."],
   ["🧒","Kind","kind","Kind","kind|",()=>[["Größen","kf:kid_size"],["Gesundheit","kf:kid_med"]],"wir","Der Tag des Kindes auf einen Blick, Gerade beliebt, Besorgen, Größen und Gesundheit, dazu die Seiten Kita und Spielen."],
   ["🫶","Partner","privat","Partner","privat|",()=>[["Mittagessen","pv:lunch"],["Briefe","pv:briefe"],["Kontakte","pv:kontakte"]],"wir","Bereich Wir, erste Seite. Nur für euch zwei: Mittagessen, Briefe, Kontakt."],
   ["🎁","Geschenke","geschenke","Geschenke","geschenke|",()=>[["Geschenk-Ideen",""],["Adventskalender","pf:advent"]],"wir","Seite unter Wir: Geschenke für alle, mit Stand und für wen, dazu der Adventskalender."],
@@ -2198,7 +2246,7 @@ const AREAS=[["🏠","Start","camp","","",()=>[["Kalender","sp:kalender"],["Wich
   ["🔔","Wichtig","wichtig","Wichtig","wichtig|",()=>[],"quer","Alle Erinnerungen an einem Ort. Die Glocke oben links zählt sie."],["🤖","Recherchen","recherchen","","",()=>[],"quer","Seite unter Sammlung: was Claude regelmäßig sucht (Rezepte, Ausflüge) und eure Wünsche dafür."],["⚙️","Einstellungen","settings","","",()=>[],"quer","Aussehen, Bedienung, Ort und Wetter, Namen, Benachrichtigungen, Sicherung und dieses Glossar."]];
 // Bündelung (Florian 17.11.2026, „A neu“): Bereiche mit Seiten. [Symbol, Name, [[Tab, Seitenname], …]], erste Seite = Hauptseite.
 // Daraus: Seiten-Leiste oben (areaPager, Wischen blättert), Alle Bereiche (Seiten als Unterpunkte) und Fächer (Seiten als kleine Knöpfe).
-const AREA_PAGES={kind:["🧒","Kind",[["kind","Kind"],["kita","Kita"],["spiel","Spielen"]]],privat:["🫶","Wir",[["privat","Partner"],["geschenke","Geschenke"]]],projekte:["🗃️","Sammlung",[["projekte","Alles Gemerkte"],["recherchen","Recherchen"]]]};
+const AREA_PAGES={kind:["🧒","Kind",[["kind","Kind"],["kita","Kita"],["spiel","Spielen"],["minis","Minispiele"]]],privat:["🫶","Wir",[["privat","Partner"],["geschenke","Geschenke"]]],projekte:["🗃️","Sammlung",[["projekte","Alles Gemerkte"],["recherchen","Recherchen"]]]};
 // Seiten unter dem Bereich für Fächer und Alle Bereiche: die erste Seite nur, wenn sie anders heißt als der Bereich (Wir › Partner, Sammlung › Alles Gemerkte; Florian 17.11.2026: Partner fehlte)
 const areaSubPages=m=>{const P=AREA_PAGES[m];return P[2].filter((p,i)=>i||p[1]!==P[1]).map(p=>[p[1],p[0]+"|"])};
 const areaMain=t=>Object.keys(AREA_PAGES).find(k=>AREA_PAGES[k][2].some(p=>p[0]===t))||"";
@@ -2225,7 +2273,7 @@ function focusApply(m){if(!m)return;const cm=mondayOf(new Date()),cur=+m===+cm,n
   if((S.tab==="essen"&&S.foodTab==="plan")||(S.tab==="kita"&&S.kitaSec==="essen"))S.foodWeek=cur?null:m;
   if(S.tab==="kita")S.kidWk=Math.max(-1,Math.min(2,n))}
 function goNav(v){const fw=focusWeek(),[tab,sub]=v.split("|"),[k,val]=(sub||"").split(":");S.prev=S.tab;S.tab=tab;S.weekPage=0;if(tab==="essen")S.foodTab="heute";if(PROJ_TABS.includes(tab)){S.projFilter="";S.hsamm=false;S.hprojOpen=null}
-  if(k==="wp")S.weekPage=+val||0;if(k==="ft")S.foodTab=val;if(tab==="kita")S.kitaSec=k==="ks"?val:"termine";if(tab==="spiel"){S.playSec=k==="ps"?val:"";S.playF=""}if(tab==="musik"){S.musFilter=k==="mf"?val:"";S.musArtF=k==="ma"?val:""}if(tab==="ausflug"||tab==="reisen"){S.reiseOpen=null;S.tripTab=tab==="reisen"?"urlaub":"ideen"}if(k==="tt")S.tripTab=val;if(k==="pf")S.projFilter=HCAT_OLD[val]||val;if(k==="hs"){S.projFilter=val;S.hsamm=true}if(k==="sp")S.tab=val;if(k==="bl"){S.tab="listen";if(val)(S.buyOpen||(S.buyOpen={}))[val]=true;setTimeout(()=>{const el=document.getElementById("buy-"+val);if(el)el.scrollIntoView({block:"start"})},40)}if(k==="ps")S.playSec=val;if(k==="rk"){S.tab="ausflug";S.tripTab="ideen";S.rgF={k:val,u:"",s:""};setTimeout(()=>{const el=document.querySelector(".rgcard");if(el)el.scrollIntoView({block:"start"})},40)}if(k==="gl"){(S.setOpen||(S.setOpen={})).glossar=true;S.glosQ="";setTimeout(()=>{const el=document.getElementById("set-glossar");if(el)el.scrollIntoView({block:"start"})},40)}if(k==="kf"){S.tFold=S.tFold||{};S.tFold[val]=true;setTimeout(()=>{const el=document.querySelector('[data-tfold="'+val+'"]');if(el)el.scrollIntoView({block:"start"})},40)}if(tab==="privat")S.privSec=k==="pv"&&val!=="kontakte"?val:"";focusApply(fw);render();if(k&&!["wp","ft","sp","ks","tt","bl"].includes(k)){const cl=[...document.querySelectorAll("#app .foldh[aria-expanded=false]")];if(cl.length){S.tFold=S.tFold||{};cl.forEach(b=>S.tFold[b.dataset.tfold]=true);render()}}window.scrollTo(0,0);if(k==="pv"&&val==="kontakte")setTimeout(()=>{const el=document.getElementById("kontakte");if(el)el.scrollIntoView({block:"start"})},30)}
+  if(k==="wp")S.weekPage=+val||0;if(k==="ft")S.foodTab=val;if(tab==="kita")S.kitaSec=k==="ks"?val:"termine";if(tab==="spiel"){S.playSec=k==="ps"?val:"";S.playF=""}if(tab==="minis"){S.miniGame=k==="mg"?val:"";if(!S.flut||S.flut.end){clearInterval(S.flutT);S.flut=null}}if(tab==="musik"){S.musFilter=k==="mf"?val:"";S.musArtF=k==="ma"?val:""}if(tab==="ausflug"||tab==="reisen"){S.reiseOpen=null;S.tripTab=tab==="reisen"?"urlaub":"ideen"}if(k==="tt")S.tripTab=val;if(k==="pf")S.projFilter=HCAT_OLD[val]||val;if(k==="hs"){S.projFilter=val;S.hsamm=true}if(k==="sp")S.tab=val;if(k==="bl"){S.tab="listen";if(val)(S.buyOpen||(S.buyOpen={}))[val]=true;setTimeout(()=>{const el=document.getElementById("buy-"+val);if(el)el.scrollIntoView({block:"start"})},40)}if(k==="ps")S.playSec=val;if(k==="rk"){S.tab="ausflug";S.tripTab="ideen";S.rgF={k:val,u:"",s:""};setTimeout(()=>{const el=document.querySelector(".rgcard");if(el)el.scrollIntoView({block:"start"})},40)}if(k==="gl"){(S.setOpen||(S.setOpen={})).glossar=true;S.glosQ="";setTimeout(()=>{const el=document.getElementById("set-glossar");if(el)el.scrollIntoView({block:"start"})},40)}if(k==="kf"){S.tFold=S.tFold||{};S.tFold[val]=true;setTimeout(()=>{const el=document.querySelector('[data-tfold="'+val+'"]');if(el)el.scrollIntoView({block:"start"})},40)}if(tab==="privat")S.privSec=k==="pv"&&val!=="kontakte"?val:"";focusApply(fw);render();if(k&&!["wp","ft","sp","ks","tt","bl"].includes(k)){const cl=[...document.querySelectorAll("#app .foldh[aria-expanded=false]")];if(cl.length){S.tFold=S.tFold||{};cl.forEach(b=>S.tFold[b.dataset.tfold]=true);render()}}window.scrollTo(0,0);if(k==="pv"&&val==="kontakte")setTimeout(()=>{const el=document.getElementById("kontakte");if(el)el.scrollIntoView({block:"start"})},30)}
 // Offene Aufgaben (Florian 16.11.2026): Sprung auf Woche › Tag und Woche, gescrollt an den Anfang der Aufgaben (erster Abschnitt, z. B. Hausdienst), erste offene Aufgabe kurz hervorgehoben
 // Doppelring (Florian 16.11.2026): Tipp = heutige Aufgaben (Täglich), lange = Wochenaufgaben (Diese Woche bzw. Wechsel)
 function goTasks0(w){if(!w){const hd=document.querySelector(".wkheute");if(hd){window.scrollTo(0,0);const t=hd.querySelector(".hrow:not(.hdone)")||hd;t.classList.add("hlflash");setTimeout(()=>t.classList.remove("hlflash"),1600);return}}const id=w==="week"?(S.groupBy==="art"?"rot":"week"):(S.groupBy==="art"?"fix":"day");let sec=(w&&document.getElementById("sec-"+id))||document.querySelector('section[id^="sec-"]');if(!sec)return;
@@ -3632,6 +3680,103 @@ function renderPlay(){const d=S.playDraft,PS=playSecs(),F=S.playF||"",cur=PS.fin
   if(cur&&cur[0]==="zuhause")h+=musLinks("kinder",3);
   h+=`<div class="freq">Ein Tipp auf den Namen ändert den Eintrag, das Schild rechts schaltet den Stand weiter: 💡 Idee, ⭐ Favorit, 📅 Geplant, ✅ Erledigt.</div><div class="btnrow"><button class="ghost" data-nav="ausflug|rk:spielplatz">🛝 Spielplätze stehen unter Reisen und Ausflüge ›</button></div></section>`;
   return h}
+// ---------- Minispiele (Florian 19.11.2026: „2, 4, 5“, Entwurf /mnt/project-files/design/minispiele-ideen.png) ----------
+// Seite „Minispiele“ unter Kind (Tab minis, nach Spielen): Aufräum-Flut, Flaschenpost für zwei, Garten der Woche. Keine Punkte, kein Gegeneinander.
+
+// 🌱 Garten der Woche: jeder Haken der Woche (beide zusammen) pflanzt etwas. Nur gerechnet aus weeks/<wk>/ticks, nichts gespeichert.
+// Hausdienst-Einträge sind Einteilungen, keine Haken; dort zählt nur das Abhaken (ok).
+function gardenPlants(mon){mon=mon||mondayOf(new Date());const tk=ticksOf(wkKey(mon)),ho=(tasks().find(t=>t.owner==="ho")||{}).id,L=[];
+  Object.keys(tk).forEach(k=>{const v=tk[k];if(!v)return;if(ho&&k.startsWith(ho+"__")){Object.keys(v.ok||{}).forEach(p=>L.push({at:+v.ok[p]||v.at||0}));return}L.push({at:v.at||0})});
+  return L.sort((a,b)=>a.at-b.at)}
+const GARDEN_FLOWERS=["🌷","🌻","🌼","🌸","🌺","💐"];
+// Heute gepflanztes ist noch ein Keimling, älteres blüht; sonntags blüht alles
+function gardenGrid(mon){const L=gardenPlants(mon),t0=+startOfDay(new Date()),sun=new Date().getDay()===0;
+  return L.map((p,i)=>!sun&&p.at>=t0&&+mondayOf(new Date())===+(mon||mondayOf(new Date()))?"🌱":GARDEN_FLOWERS[(i*7+3)%GARDEN_FLOWERS.length])}
+// Kleine Blumen im Startbild am Haus (vorne am Weg und an der Hauswand), höchstens 18
+const GARDEN_POS=[[132,236],[140,240],[226,236],[234,240],[150,252],[160,255],[172,251],[184,256],[196,252],[208,255],[220,251],[128,250],[242,252],[146,244],[230,246],[138,258],[248,246],[204,246]];
+function gardenSvg(n){const C=["#f25f8c","#ffc53d","#ffffff","#ff8a5c","#c58cf0","#f7a8c4"];let g='<g class="garden" aria-hidden="true">';
+  GARDEN_POS.slice(0,Math.min(n,GARDEN_POS.length)).forEach((p,i)=>{const c=C[i%C.length];g+=`<path d="M${p[0]} ${p[1]+5}v-5" stroke="#4d7a3a" stroke-width=".9"/><circle cx="${p[0]-1.4}" cy="${p[1]}" r="1.4" fill="${c}"/><circle cx="${p[0]+1.4}" cy="${p[1]}" r="1.4" fill="${c}"/><circle cx="${p[0]}" cy="${p[1]-1.4}" r="1.4" fill="${c}"/><circle cx="${p[0]}" cy="${p[1]+1.2}" r="1.2" fill="${c}"/><circle cx="${p[0]}" cy="${p[1]}" r=".9" fill="#ffd66b"/>`});
+  return g+"</g>"}
+
+// 🍾 Flaschenpost für zwei: food/flasche/<JJJJ-MM-TT> {q, p0:{t,at}, p1:{t,at}}. Erst wenn beide geantwortet haben, öffnet sich die Flasche.
+const FLASCHE_Q=["Was hat dich heute zum Lachen gebracht?","Was war heute dein schönster Moment?","Wohin möchtest du als Nächstes mit uns?","Wofür bist du heute dankbar?","Was hat dich heute überrascht?","Welcher Moment mit unserem Kind war heute besonders?","Was möchtest du diese Woche unbedingt noch machen?","Was hat dir heute Kraft gegeben?","Woran hast du heute gedacht, als du an mich gedacht hast?","Was würdest du morgen gern anders machen?","Welches Essen wünschst du dir diese Woche?","Was war heute schwer, und was hat geholfen?","Welche Erinnerung an uns kam dir heute in den Sinn?","Was möchtest du am Wochenende mit uns erleben?","Welches Lied passt zu deinem Tag?","Was hast du heute Neues gelernt?","Wo würdest du jetzt gern sitzen, mit einem Tee in der Hand?","Was hat heute gut geklappt?","Worauf freust du dich morgen?","Was soll ich dir mal wieder kochen?","Welcher kleine Moment heute war schön?","Was wünschst du dir für unseren nächsten Urlaub?","Was hat unser Kind heute Lustiges gesagt oder getan?","Was würdest du gern öfter zusammen machen?","Was war heute dein Lieblingsgeräusch oder Lieblingsgeruch?","Wofür möchtest du dich heute bei mir bedanken?","Was steht auf deiner Liste für einen freien Tag?","Was hat dich heute geärgert, und ist es jetzt besser?"];
+const flascheDay=k=>((S.food&&S.food.flasche)||{})[k]||{};
+const flascheQ=k=>flascheDay(k).q||FLASCHE_Q[Math.floor(Date.parse(k+"T12:00:00Z")/864e5)%FLASCHE_Q.length];
+const flascheOpen=x=>!!(x&&x.p0&&x.p0.t&&x.p1&&x.p1.t);
+const flascheAll=()=>Object.keys((S.food&&S.food.flasche)||{}).filter(k=>flascheOpen(flascheDay(k))).sort().reverse();
+function flascheCard(full){const k=ymd(new Date()),x=flascheDay(k),q=flascheQ(k),me=S.me,oth=me==="p0"?"p1":"p0",op=flascheOpen(x);
+  const st=p=>x[p]&&x[p].t?`<li>✅ ${esc(pname(p))} hat geantwortet</li>`:`<li class="dim">⏳ ${esc(pname(p))} noch nicht</li>`;
+  let h=`<div class="flq"><div class="eyebrow">Frage von heute</div><h3>${esc(q)}</h3>`;
+  if(op)h+=`<div class="flopen" aria-label="Die Flasche ist offen">${["p0","p1"].map(p=>`<div class="fla"><b>${esc(pname(p))}</b><p>${esc(x[p].t)}</p></div>`).join("")}</div>`;
+  else{h+=`<ul class="flst">${st("p0")}${st("p1")}</ul>`;
+    if(!me)h+=`<div class="freq">Wählt unter Einstellungen › Wir, wer ihr seid, dann könnt ihr antworten.</div>`;
+    else if(full)h+=x[me]&&x[me].t?`<div class="fla mine"><b>Deine Antwort</b><p>${esc(x[me].t)}</p><button class="ghost" data-act="flascheedit">✎ Ändern</button></div><div class="freq">Die Flasche öffnet sich, sobald ${esc(pname(oth))} auch geantwortet hat.</div>`
+      :`<textarea id="flaschein" rows="3" maxlength="400" placeholder="Deine Antwort, nur ihr zwei seht sie" aria-label="Deine Antwort"></textarea><div class="btnrow"><button class="primary" data-act="flaschesave">✍️ Meine Antwort</button></div><div class="freq">${esc(pname(oth))} sieht deine Antwort erst, wenn beide geantwortet haben.</div>`}
+  return h+`</div>`}
+// Geöffnete Flaschen sammeln sich bei Partner › Briefe
+function flascheArchive(){const L=flascheAll();if(!L.length)return "";
+  return `<section data-fk="f_flasche|1" class="card"><div class="section-head"><h2>🍾 Flaschenpost</h2><span class="freq num">${L.length}</span></div><ul class="flarch">${L.slice(0,30).map(k=>{const x=flascheDay(k);return `<li><div class="freq">${esc(dLabel(k))}</div><b>${esc(flascheQ(k))}</b>${["p0","p1"].map(p=>`<div class="fla"><small>${esc(pname(p))}</small> ${esc(x[p].t)}</div>`).join("")}</li>`}).join("")}</ul></section>`}
+
+// 🌊 Aufräum-Flut: S.flut {toys:[{e,x,y,in}], t0, dur, end:""|"ok"|"flut"}; die Welle steigt über die Zeit, nichts wird gespeichert
+const FLUT_TOYS=["🧸","🚒","🧱","📚","⚽","🦆","🚗","🧩","🪀","🎨"];
+function flutNew(n,min){const pos=[[14,58],[34,64],[56,57],[76,63],[22,73],[46,72],[68,74],[86,70]],T=FLUT_TOYS.slice().sort(()=>Math.random()-.5);
+  S.flut={toys:pos.slice(0,n).map((p,i)=>({e:T[i],x:p[0],y:p[1],in:false})),t0:Date.now(),dur:min*60000,end:""};flutTimer()}
+const flutLeft=()=>S.flut?S.flut.toys.filter(t=>!t.in).length:0;
+const flutFrac=()=>S.flut?Math.min(1,(Date.now()-S.flut.t0)/S.flut.dur):0;
+function flutTimer(){clearInterval(S.flutT);S.flutT=setInterval(()=>{const f=S.flut;if(!f||f.end){clearInterval(S.flutT);return}
+  const sea=document.querySelector(".flutsea"),tt=document.getElementById("flutt");if(!sea){return}const fr=flutFrac();sea.style.height=(14+fr*56).toFixed(1)+"%";
+  if(tt){const s=Math.max(0,Math.ceil((f.dur-(Date.now()-f.t0))/1000));tt.textContent=Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
+  if(fr>=1){f.end="flut";clearInterval(S.flutT);render()}},400)}
+function flutTask(){const now=new Date(),di=(now.getDay()+6)%7,tk=ticksOf(wkKey(mondayOf(now))),t=tasks().find(x=>/aufr[äa]um/i.test(x.name||"")&&(x.freq==="day"||x.freq==="week"));if(!t)return "";
+  const slot=t.freq==="day"?di:[...Array(slotsOf(t)).keys()].find(i=>!tk[t.id+"__"+i]);if(slot==null||tk[t.id+"__"+slot])return "";
+  return `<button class="ghost" data-task="${esc(t.id)}" data-slot="${slot}">🧹 „${esc(t.name)}“ abhaken</button>`}
+function flutHtml(){const f=S.flut;
+  if(!f)return `<section class="card flutset"><h2>🌊 Aufräum-Flut</h2><div class="freq">Die Flut kommt: Ihr räumt echt auf, euer Kind tippt jedes Teil in den Korb. Ist alles drin, bevor die Welle die Sandburg erreicht, bleibt die Burg stehen.</div>
+    <div class="fld"><span>Wie lange?</span><div class="unl">${[2,3,5].map(m=>`<button class="chipbtn neutral" data-flutmin="${m}" aria-pressed="${(S.flutMin||3)===m}">${m} Minuten</button>`).join("")}</div></div>
+    <div class="fld"><span>Wie viele Sachen?</span><div class="unl">${[4,6,8].map(m=>`<button class="chipbtn neutral" data-flutn="${m}" aria-pressed="${(S.flutN||6)===m}">${m}</button>`).join("")}</div></div>
+    <div class="btnrow"><button class="primary" data-act="flutgo">🌊 Los geht’s</button></div></section>`;
+  const left=flutLeft(),fr=f.end==="flut"?1:f.end?flutFrac():flutFrac(),s=Math.max(0,Math.ceil((f.dur-(Date.now()-f.t0))/1000));
+  const msg=f.end==="ok"?"Die Burg bleibt stehen!":f.end==="flut"?"Die Welle hat die Burg mitgenommen.":left?`Noch ${left} ${left===1?"Sache":"Sachen"}!`:"";
+  return `<section class="flut${f.end?" end "+f.end:""}"><div class="fluth"><b>🌊 Aufräum-Flut</b><span id="flutt">${f.end?"":Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}</span></div>
+    <div class="flutsc"><h2 id="flutn">${msg}</h2><span class="flutcastle" aria-hidden="true">🏰</span><span class="flutkorb" aria-hidden="true">🧺</span>
+      ${f.toys.map((t,i)=>`<button class="fluttoy${t.in?" in":""}" data-fluttoy="${i}" style="left:${t.in?88:t.x}%;top:${t.in?40:t.y}%" aria-label="In den Korb"${t.in?" disabled":""}>${t.e}</button>`).join("")}
+      <div class="flutsea" style="height:${(14+fr*56).toFixed(1)}%"></div></div>
+    ${f.end?`<div class="flutend"><p>${f.end==="ok"?"Super aufgeräumt, die Burg steht noch.":"Macht nichts. Morgen baut ihr eine neue Burg."}</p><div class="btnrow"><button class="primary" data-act="flutgo">🌊 Nochmal</button>${flutTask()}<button class="ghost" data-mini="">‹ Minispiele</button></div></div>`
+      :`<div class="btnrow"><button class="primary" data-act="flutdone">✓ Alles weg, Flut darf kommen</button><button class="ghost" data-act="flutstop">Abbrechen</button></div>`}</section>`}
+
+function gardenHtml(){const mon=mondayOf(new Date()),G=gardenGrid(mon),last=gardenPlants(addDays(mon,-7)).length,sun=new Date().getDay()===0;
+  return `<section class="garden"><div class="gardenh"><b>🌱 Garten der Woche</b><span>KW ${isoWeek(mon).w}</span></div><div class="gardensc"><span class="gardenhouse" aria-hidden="true">🏡</span>
+    <div class="gardengrid">${G.slice(0,48).map(e=>`<span>${e}</span>`).join("")}${G.length>48?`<span class="more">+${G.length-48}</span>`:""}${G.length?"":`<span class="seed">·</span><span class="seed">·</span><span class="seed">·</span>`}</div>
+    <div class="gardenn">${G.length?`${G.length} ${G.length===1?"Pflanze":"Pflanzen"} diese Woche`:"Noch ist alles Saat"}</div></div>
+    <div class="freq">Jeder Haken von euch beiden pflanzt etwas, gezählt wird nur gemeinsam. ${sun?"Heute blüht der ganze Garten, morgen beginnt eine neue Saat.":"Heutiges ist noch ein Keimling, am Sonntag blüht alles. Am Montag beginnt eine neue Saat."}${last?` Letzte Woche: ${last} Pflanzen.`:""}</div>
+    <div class="freq">Die Blumen wachsen auch im Bild am Haus.</div></section>`}
+
+function renderMinis(){const g=S.miniGame||"";const back=`<button class="ghost minib" data-mini="">‹ Minispiele</button>`;
+  if(g==="flut")return (S.flut&&!S.flut.end?"":back)+flutHtml();
+  if(g==="flasche")return back+`<section class="card flasche"><h2>🍾 Flaschenpost für zwei</h2>${flascheCard(true)}${flascheAll().length?`<button class="linkish" data-nav="privat|pv:briefe">Alle geöffneten Flaschen bei Partner › Briefe ›</button>`:""}</section>`;
+  if(g==="garten")return back+gardenHtml();
+  const k=ymd(new Date()),x=flascheDay(k),n=gardenPlants().length;
+  const tile=(id,ic,t,sub)=>`<button class="minitile" data-mini="${id}"><span class="mic">${ic}</span><span><b>${t}</b><i>${sub}</i></span><em>›</em></button>`;
+  return `<div><div class="eyebrow">Miteinander, ohne Punkte</div><h1>Minispiele</h1></div><div class="minis">`
+    +tile("flut","🌊","Aufräum-Flut","Fürs Kind mit euch: alles in den Korb, bevor die Welle kommt")
+    +tile("flasche","🍾","Flaschenpost für zwei",flascheOpen(x)?"Heute geöffnet":["p0","p1"].map(p=>(x[p]&&x[p].t?"✅ ":"⏳ ")+pname(p)).join(" · "))
+    +tile("garten","🌱","Garten der Woche",n?`${n} ${n===1?"Pflanze":"Pflanzen"} diese Woche`:"Jeder Haken pflanzt etwas")+`</div>`}
+
+// Klicks (aus 28-klicks.js)
+async function miniClick(b){const d=b.dataset;
+  if(d.mini!=null){S.miniGame=d.mini;if(d.mini!=="flut"){clearInterval(S.flutT);S.flut=null}render();window.scrollTo(0,0);return true}
+  if(d.flutmin){S.flutMin=+d.flutmin;render();return true}
+  if(d.flutn){S.flutN=+d.flutn;render();return true}
+  if(d.act==="flutgo"){flutNew(S.flutN||6,S.flutMin||3);render();window.scrollTo(0,0);return true}
+  if(d.act==="flutstop"){clearInterval(S.flutT);S.flut=null;render();return true}
+  if(d.act==="flutdone"&&S.flut){S.flut.toys.forEach(t=>t.in=true);S.flut.end="ok";clearInterval(S.flutT);render();return true}
+  if(d.fluttoy!=null&&S.flut&&!S.flut.end){const t=S.flut.toys[+d.fluttoy];if(!t||t.in)return true;t.in=true;b.classList.add("in");b.disabled=true;b.style.left="88%";b.style.top="40%";
+    const left=flutLeft(),n=document.getElementById("flutn");if(n)n.textContent=left?`Noch ${left} ${left===1?"Sache":"Sachen"}!`:"Alles drin!";
+    if(!left){S.flut.end="ok";clearInterval(S.flutT);setTimeout(render,700)}return true}
+  if(d.act==="flaschesave"){const el=document.getElementById("flaschein"),t=String(el&&el.value||"").trim().slice(0,400);if(!t){toast("Schreib erst eine Antwort.");return true}if(!S.me)return true;
+    const k=ymd(new Date());try{await S.store.setPath("food/flasche/"+k+"/q",flascheQ(k));await S.store.setPath("food/flasche/"+k+"/"+S.me,{t,at:Date.now()});const x=flascheDay(k);toast(flascheOpen(x)?"🍾 Die Flasche ist offen!":"In die Flasche gesteckt")}catch(_){toast("Konnte nicht speichern.")}render();return true}
+  if(d.act==="flascheedit"){const k=ymd(new Date()),old=(flascheDay(k)[S.me]||{}).t||"";await S.store.setPath("food/flasche/"+k+"/"+S.me,null);render();setTimeout(()=>{const el=document.getElementById("flaschein");if(el){el.value=old;el.focus()}},30);return true}
+  return false}
 // ---------- Kita (Rucksack) ----------
 const KITA_SECS=[["termine","📅","Termine"],["essen","🍽️","Essen"],["tasche","📦","Mitbringen"],["infos","📝","Infos"]];
 // Mitbringen (Florian 15.11.2026): offen = muss mit, done = liegt in der Kita; verbunden mit Einkaufsliste (Block KITA_SRC), Erinnerung "morgen früh", Wochenaufgabe Bringen, Rückseite
@@ -3952,9 +4097,9 @@ function render(){
   if(!S.config&&!S.cfgConfirmed&&!S.timedOut){app.innerHTML=h+`<div class="empty">Plan wird geladen …</div>`;return}
   if(!S.config){h+=`<div class="empty"><h2>Noch kein Haushaltsplan hinterlegt</h2><div>Legt euren Plan aus der Vorlage an (eure Liste mit Müll, Saugen, Wäsche und Co.). Danach könnt ihr alles unter „Plan“ anpassen.</div><button class="primary" data-act="template">Plan aus Vorlage anlegen</button></div>`;app.innerHTML=h;return}
   h+=`<div class="appbar"><span class="appleft"><button class="iconbtn bellnav" data-go="wichtig" aria-label="Wichtig: alle Erinnerungen">🔔${(n=>n?`<b class="badge">${n}</b>`:"")(bellItems().n)}</button></span><span class="appleft"><button class="iconbtn" data-go="suche" aria-label="Suche"${S.tab==="suche"?' aria-pressed="true"':""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button><button class="iconbtn" data-go="settings" aria-label="Einstellungen"${S.tab==="settings"?' aria-pressed="true"':""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button><button class="iconbtn" data-allar aria-label="Alle Bereiche"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></svg></button></span></div>`;
-  h+=S.tab==="ausgaben"?shopPager(1)+renderGeld():S.tab==="listen"?shopPager(2)+renderBuy():S.tab==="wichtig"&&!S.prioDraft?startPager(2)+renderWichtig():S.tab==="bereiche"?renderAreas():S.tab==="settings"?renderSettings():S.tab==="wichtig"?renderWichtig():S.tab==="woche"?((S.weekPage|0)===3?startPager(1)+renderCal():weekPager()+((S.weekPage|0)===0?(+S.view===+mondayOf(new Date())?renderTag():"")+renderWeek():(S.weekPage|0)===4?renderRueck():renderWmw())):S.tab==="camp"?renderCamp():S.tab==="essen"||S.tab==="einkauf"?renderFood():S.tab==="ausflug"?renderTrips():PROJ_TABS.includes(S.tab)?renderProjects():S.tab==="spiel"?areaPager("spiel")+renderPlay():S.tab==="musik"?renderMusic():S.tab==="recherchen"?areaPager("recherchen")+renderResearch():S.tab==="suche"?renderSearch():S.tab==="kita"?areaPager("kita")+renderKita():S.tab==="privat"?wirPager(0)+renderPrivat():S.tab==="kind"?areaPager("kind")+renderKind():S.tab==="post"?(S.tab="privat",S.privSec="briefe",wirPager(0)+renderPrivat()):S.tab==="reisen"?renderTrips():renderCamp();
+  h+=S.tab==="ausgaben"?shopPager(1)+renderGeld():S.tab==="listen"?shopPager(2)+renderBuy():S.tab==="wichtig"&&!S.prioDraft?startPager(2)+renderWichtig():S.tab==="bereiche"?renderAreas():S.tab==="settings"?renderSettings():S.tab==="wichtig"?renderWichtig():S.tab==="woche"?((S.weekPage|0)===3?startPager(1)+renderCal():weekPager()+((S.weekPage|0)===0?(+S.view===+mondayOf(new Date())?renderTag():"")+renderWeek():(S.weekPage|0)===4?renderRueck():renderWmw())):S.tab==="camp"?renderCamp():S.tab==="essen"||S.tab==="einkauf"?renderFood():S.tab==="ausflug"?renderTrips():PROJ_TABS.includes(S.tab)?renderProjects():S.tab==="spiel"?areaPager("spiel")+renderPlay():S.tab==="minis"?areaPager("minis")+renderMinis():S.tab==="musik"?renderMusic():S.tab==="recherchen"?areaPager("recherchen")+renderResearch():S.tab==="suche"?renderSearch():S.tab==="kita"?areaPager("kita")+renderKita():S.tab==="privat"?wirPager(0)+renderPrivat():S.tab==="kind"?areaPager("kind")+renderKind():S.tab==="post"?(S.tab="privat",S.privSec="briefe",wirPager(0)+renderPrivat()):S.tab==="reisen"?renderTrips():renderCamp();
   const y=window.scrollY,ae=document.activeElement,fid=ae&&app.contains(ae)&&ae.id?ae.id:null,sel=fid&&ae.selectionStart!=null?[ae.selectionStart,ae.selectionEnd]:null;
-  h+=renderPick();app.innerHTML=foldAll(h);window.scrollTo(0,y);syncNav();if(S.tab==="camp"){medSync();medDots()}
+  h+=renderPick();app.innerHTML=foldAll(h);window.scrollTo(0,y);syncNav();if(S.tab==="camp"){medSync();medDots();medFit()}
   if(fid){const el=document.getElementById(fid);if(el){el.focus({preventScroll:true});if(sel){try{el.setSelectionRange(sel[0],sel[1])}catch(_){}}}}
 }
 
@@ -4047,6 +4192,10 @@ function medFlip(v){v=!!v;S.medFlip=v;try{localStorage.setItem("hq-medal",v?"1":
   try{if(v)medSync();else if(history.state&&history.state.med){S.medPop=1;history.back()}}catch(_){}}
 window.hqMedal=v=>medFlip(v);// für Prüfskripte
 function medSync(){try{if(S.tab==="camp"&&S.medFlip&&!navBusy&&history.state&&!history.state.med&&!history.state.ov)history.pushState(Object.assign({},history.state,{med:1}),"")}catch(_){}}
+// Bild so hoch, dass die Medaille bis kurz über die Reiter reicht (einmal je Bildschirmgröße, danach nur bei Größenänderung)
+function medFit(){const m=app.querySelector(".medal"),c=app.querySelector(".medfront .camp"),t=document.getElementById("tabs");if(!m||!c||!t)return;  const free=t.getBoundingClientRect().top-m.getBoundingClientRect().bottom-8,cr=c.getBoundingClientRect();if(!cr.width)return;const vh=Math.max(228,Math.min(480,Math.round(HVB[3]*(cr.height+free)/cr.height)));
+  if(Math.abs(vh-(S.hvbH||228))>2){S.hvbH=vh;const y=window.scrollY;render();window.scrollTo(0,y)}}
+window.addEventListener("resize",()=>{if(S.tab!=="camp")return;clearTimeout(S.fitT);S.fitT=setTimeout(medFit,250)});
 // Pünktchen rechts im Zeitstrahl: eine Seite je Bildschirmhöhe des Zeitstrahls
 function medDots(){const l=app.querySelector(".medback ul.mtl"),d=app.querySelector(".medback .mdots");if(!l||!d)return;const n=Math.max(1,Math.ceil((l.scrollHeight-4)/Math.max(1,l.clientHeight))),i=Math.min(n-1,Math.round(l.scrollTop/Math.max(1,l.clientHeight)));
   d.innerHTML=n>1?Array.from({length:n},(_,j)=>`<i${j===i?' class="on"':""}></i>`).join(""):""}
@@ -4540,6 +4689,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="projdel"){try{await S.store.setPath("food/idea/"+S.projDraft.id,null);S.projDraft=null;toast("Gelöscht");render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.priv){S.privSec=b.dataset.priv;S.lunchDraft=null;render();return}
   if(kidClick(b))return;
+  if(await miniClick(b))return;
   if(b.dataset.kidwk!=null){S.kidWk=Math.max(-1,Math.min(2,+b.dataset.kidwk));render();return}
   if(b.dataset.kidset){const [wk,i,f]=b.dataset.kidset.split("|");kidPick(wk,+i,f);return}
   if(b.dataset.kidbrought!=null){const i=+b.dataset.kidbrought,cm=mondayOf(new Date()),wk=wkKey(cm),dn=bringDone(wk,i);
@@ -5248,8 +5398,8 @@ function styHouse(st,H,C,night){if(!st||st==="aquarell")return H;
    +[[116,170],[178,170]].map(w=>`<path d="M${w[0]} ${w[1]+18} V${w[1]} H${w[0]+16}" fill="none" stroke="#000" stroke-opacity=".22" stroke-width="1.4"/>`).join("")}
 // Ganz oben: Licht der Sonne (oder des Monds) und dunkle Ränder
 function styTop(st,night){if(!st)return "";
-  if(st==="aquarell")return `<rect x="0" y="0" width="360" height="260" fill="url(#sPaper)"/>`;
-  return `<rect x="0" y="0" width="360" height="260" fill="url(#sLite)" style="mix-blend-mode:screen" opacity="${night?1:.55}"/><rect x="0" y="0" width="360" height="260" fill="url(#sVig)"/>`}
+  if(st==="aquarell")return `<rect x="0" y="${HVB[1]}" width="360" height="${260-HVB[1]}" fill="url(#sPaper)"/>`;
+  return `<rect x="0" y="${HVB[1]}" width="360" height="${260-HVB[1]}" fill="url(#sLite)" style="mix-blend-mode:screen" opacity="${night?1:.55}"/><rect x="0" y="${HVB[1]}" width="360" height="${260-HVB[1]}" fill="url(#sVig)"/>`}
 // Rundungen: Baumkrone, Sonne, Ball bekommen Licht oben links und Schatten unten rechts
 function styRound(st,svg){if(!st)return svg;return svg.replace(/<circle cx="([\d.]+)" cy="([\d.]+)" r="([\d.]+)" fill="(#[0-9a-fA-F]{3,6})"( opacity="[^"]*")?\/>/g,(m,x,y,r,f,o)=>+r>=6.5?m+`<circle cx="${x}" cy="${y}" r="${r}" fill="url(#sBall)"${o||""}/>`:m)}
 function styCloud(st,g){if(!st)return g;return g.replace(/(<path d="M(?:120 46|30 40)h[^"]*") fill="#fff"/g,'$1 fill="url(#sCloud)"')}

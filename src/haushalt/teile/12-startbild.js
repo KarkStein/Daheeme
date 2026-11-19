@@ -58,7 +58,9 @@ function startHead(sea){const g=greetTxt(new Date().getHours()),w=wxToday();
 function wxKind(code){if(code==null||code==="")return "";code=+code;if(isNaN(code))return "";if(code>=95)return "gewitter";if(code>=71&&code<=77||code===85||code===86)return "schnee";if(code>=51&&code<=67||code>=80&&code<=82)return "regen";if(code===45||code===48)return "nebel";if(code===3)return "bedeckt";if(code===2)return "wolkig";return ""}
 // Ausschnitt des Hausbilds (Florian 15.11.2026: weniger Himmel, Haus und Wiese größer). Spots rechnen damit.
 // Florian 19.11.2026 (Start A): Bild flacher, oben weniger Himmel; Datum, Wetter und Ring liegen im Himmel (skyHead)
-const HVB=[4,32,352,228];
+let HVB=[4,32,352,228];
+// Medaille (Florian 19.11.2026: „Vergrößere das Bild. Fokus auf das Meer oberhalb des Hauses“): das Bild füllt den freien Platz bis zu den Reitern; es wächst nur nach oben (mehr Himmel und Meer), die Breite bleibt, nichts wird gestreckt. S.hvbH = Höhe des Ausschnitts (228 bis 420), gemessen in medFit
+const hvbSet=()=>{const vh=Math.max(228,Math.min(480,S.hvbH||228));HVB=[4,260-vh,352,vh]};
 // Meereslinie im Haus am Meer (Florian 17.11.2026: „B“, Meer höher, das Haus steht ganz vor dem Meer; vorher 118 = Höhe des Dachfirsts). LOW_SUN = Höhe der tiefen Sonne (Morgen/Abend), halb im Meer.
 const SEA_Y=92,LOW_SUN=72;
 function spotPos(x,y,w,h){const V=HVB;return `left:${((x-V[0])/V[2]*100).toFixed(1)}%;top:${((y-V[1])/V[3]*100).toFixed(1)}%;width:${(w/V[2]*100).toFixed(1)}%;height:${(h/V[3]*100).toFixed(1)}%`}
@@ -83,7 +85,10 @@ function houseScene(has,light,night,extras,sea,guests,dots,amb){dots=dots||{};am
   if(grey&&night)Object.assign(C,{sky1:"#1b2633",sky2:"#334253"});
   const lit=night||ph==="dusk"?"#ffd66b":"#f6e7b0",dot=(x,y)=>`<circle cx="${x}" cy="${y}" r="5.5" fill="#f25f5c" stroke="#fff" stroke-width="2"/>`;
   let g=`<defs><linearGradient id="hsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${C.sky1}"/><stop offset="1" stop-color="${C.sky2}"/></linearGradient><linearGradient id="hsea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${C.sea1}"/><stop offset="1" stop-color="${C.sea2}"/></linearGradient><radialGradient id="hglow"><stop offset="0" stop-color="#ffe08a" stop-opacity=".9"/><stop offset="1" stop-color="#ffe08a" stop-opacity="0"/></radialGradient><linearGradient id="hbeam" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#fff3b0" stop-opacity=".85"/><stop offset="1" stop-color="#fff3b0" stop-opacity="0"/></linearGradient>${styDefs(st,C,night,ph,city)}</defs>
-  <rect width="360" height="260" fill="url(#hsky)"/><g transform="translate(0 13)">`;
+  <rect y="${Math.min(0,HVB[1])}" width="360" height="${260-Math.min(0,HVB[1])}" fill="url(#hsky)"/><g transform="translate(0 13)">`;
+  // Höherer Himmel (Medaille): ein paar Wolken oder Sterne mehr, damit er nicht leer wirkt
+  if(HVB[1]<-20){const y0=HVB[1];if(night){for(let i=0;i<Math.round(-y0/12);i++)g+=`<circle class="twinkle" style="animation-delay:${(i%7)*0.4}s" cx="${(i*83+29)%350+5}" cy="${Math.round(y0+8+(i*47)%(-y0))}" r="${i%3?1.1:1.6}" fill="#fff" opacity=".85"/>`}
+    else if(!grey){const cy=[Math.round(y0*0.35),Math.round(y0*0.7)];g+=`<path d="M236 ${cy[0]}h54a14 14 0 0 0-26-9 11 11 0 0 0-28 9z M150 ${cy[1]}h40a11 11 0 0 0-20-7 9 9 0 0 0-20 7z" fill="#fff" opacity=".7"/>`}}
   if(night){if(!grey)g+=moonSvg(52,40,13,amb.moon!=null?amb.moon:moonPhase(new Date()),"#f3ecd2",C.sky1);
     [[110,24],[150,52],[196,18],[236,44],[22,78],[88,70],[180,84],[268,22]].forEach((p,i)=>{g+=`<circle class="twinkle" style="animation-delay:${i*0.3}s" cx="${p[0]}" cy="${city||p[1]<60?p[1]:p[1]-18}" r="1.5" fill="#fff"/>`})}
   else{const low=ph==="dusk"||ph==="dawn",ly=city?98:LOW_SUN;if(!grey||wk==="nebel")g+=low?`<circle cx="56" cy="${ly}" r="24" fill="#ffb27a" opacity=".35"/><circle cx="56" cy="${ly}" r="15" fill="#f4895a"/>`:`<circle cx="56" cy="44" r="17" fill="#ffd66b"${wk==="nebel"?' opacity=".45"':""}/>`;
@@ -168,10 +173,11 @@ function houseScene(has,light,night,extras,sea,guests,dots,amb){dots=dots||{};am
     <path d="M171 233 v-4 q0 -2 2 -2 h12 q2 0 2 2 v4" fill="none" stroke="#2c3138" stroke-width="1.8"/><rect x="166" y="232" width="25" height="12" rx="2" fill="${night?"#4a5058":"#3a3f47"}"/><circle cx="172" cy="238.5" r="3.6" fill="#1e2228" stroke="#9aa3ad" stroke-width=".8"/><circle cx="185" cy="238.5" r="3.6" fill="#1e2228" stroke="#9aa3ad" stroke-width=".8"/><rect x="176.5" y="234" width="4" height="2.4" rx=".5" fill="${on?"#ffd66b":"#6b737c"}"/><circle cx="178.5" cy="240.5" r=".9" fill="#c7442f"/>
     ${on?`<g class="notes" fill="${night?"#f3ecd2":"#2c3138"}"><path class="n1" d="M193 226 v-6 l4 -1 v6" stroke="${night?"#f3ecd2":"#2c3138"}" stroke-width=".9"/><circle class="n1" cx="192" cy="226.5" r="1.6"/><circle class="n2" cx="163" cy="224" r="1.5"/><path class="n2" d="M164.4 224 v-6" stroke="${night?"#f3ecd2":"#2c3138"}" stroke-width=".9"/></g>`:""}</g></g>`}
   g+=styTop(st,night);g=styCloud(st,g);
-  if(wk==="nebel")g+=`<rect x="0" y="96" width="360" height="70" fill="#eef1f2" opacity=".55"/><rect x="0" y="0" width="360" height="260" fill="#eef1f2" opacity=".18"/>`;
-  if(wk==="regen"||wk==="gewitter"){let r="";for(let i=0;i<46;i++){const x=(i*97+i*i*13+5)%360,y=(i*61+i*i*29+3)%240;r+=`M${x} ${y}l-3 9`}g+=`<path class="rain" d="${r}" stroke="${night?"#9fb3c6":"#6f8aa0"}" stroke-width="1.1" stroke-linecap="round" opacity=".7"/>`}
+  if(amb.garden)g+=gardenSvg(amb.garden);
+  if(wk==="nebel")g+=`<rect x="0" y="96" width="360" height="70" fill="#eef1f2" opacity=".55"/><rect x="0" y="${HVB[1]}" width="360" height="${260-HVB[1]}" fill="#eef1f2" opacity=".18"/>`;
+  if(wk==="regen"||wk==="gewitter"){let r="";for(let i=0;i<46+Math.round(-Math.min(0,HVB[1])/5);i++){const x=(i*97+i*i*13+5)%360,y=HVB[1]+(i*61+i*i*29+3)%(240-HVB[1]);r+=`M${x} ${y}l-3 9`}g+=`<path class="rain" d="${r}" stroke="${night?"#9fb3c6":"#6f8aa0"}" stroke-width="1.1" stroke-linecap="round" opacity=".7"/>`}
   if(wk==="gewitter")g+=`<path class="bolt" d="M232 30 l-10 22 h8 l-8 20 l18 -26 h-8 l8 -16z" fill="#ffe27a"/>`;
-  if(wk==="schnee"){let r="";for(let i=0;i<40;i++){const x=(i*97+i*i*13+11)%360,y=(i*61+i*i*29+7)%250;r+=`<circle cx="${x}" cy="${y}" r="${1.2+(i%3)*.5}"/>`}g+=`<g class="snow" fill="#fff" opacity=".9">${r}</g>`}
+  if(wk==="schnee"){let r="";for(let i=0;i<40;i++){const x=(i*97+i*i*13+11)%360,y=HVB[1]+(i*61+i*i*29+7)%(250-HVB[1]);r+=`<circle cx="${x}" cy="${y}" r="${1.2+(i%3)*.5}"/>`}g+=`<g class="snow" fill="#fff" opacity=".9">${r}</g>`}
   if(st==="aquarell"){const k=g.indexOf("</defs>")+7;g=g.slice(0,k)+`<g filter="url(#sAq)">`+g.slice(k)+"</g>"}
   return `<svg viewBox="${HVB.join(" ")}" role="img" aria-label="Euer Haus ${city?"in der Stadt":"am Meer"}"${styCss(st)}>${g}</svg>`}
 function campTotal(){let n=0;for(const wk in S.weeks){const tk=ticksOf(wk);for(const k in tk)if(tk[k])n++}return n}
@@ -226,7 +232,7 @@ function renderTag(){loadWx();const now=new Date(),today=ymd(now),tmw=ymd(addDay
   let h="";
   // Die Woche darunter kommt aus renderWeek (Umbau 16.11.2026: Tag und Woche und Diese Woche sind eine Seite)
   return h}
-function renderCamp(){S.flip=false;loadWx();
+function renderCamp(){S.flip=false;loadWx();hvbSet();
   const total=campTotal(),mon=mondayOf(new Date()),tk=ticksOf(wkKey(mon));
   let d=0,n=0;tasks().forEach(t=>{if(group(t.freq)!=="week"||t.owner!=="rot")return;const m=slotsOf(t);for(let i=0;i<m;i++){n++;if(tk[t.id+"__"+i])d++}});
   const fire=n?d/n:0,skyPh=skyPhase(),night=skyPh==="night";
@@ -238,7 +244,7 @@ function renderCamp(){S.flip=false;loadWx();
   const openS=shopItems().filter(i=>!i.done).length,meal=planDays(mon)["d"+di],mealTxt=meal?(meal.text||""):"";
   const spot=(x,y,w,hh,go,label,ft,pf)=>`<button class="spot" style="${spotPos(x,y,w,hh)}" ${go.includes("|")?`data-nav="${go}"`:`data-go="${go}"${pf?` data-pf="${pf}"`:""}`}${ft?` data-ft="${ft}"`:""} aria-label="${label}">${S.labels?`<span class="lab">${label.split(":")[0].replace(" mit dem Bus","").replace("Einkaufsliste","Einkauf")}</span>`:""}</button>`;
   const city=motiv()==="stadt";let h=`${startPager(0)}${S.me?"":meChooser()}
-   <div class="medal${S.medFlip?" flipped":""}"><div class="medin"><div class="medfront" aria-hidden="${!!S.medFlip}"><div class="camp">${(houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:false,shop:openS>0,post:briefe().length>0},{ph:skyPh,wx:S.wx&&S.wx.cur!=null&&Date.now()-S.wx.at<3*3600e3?wxKind(S.wx.cur):"",city})+skyHead(night,false)+picSpots(city).map(p=>spot(p[0],p[1],p[2],p[3],p[4],p[5],p[4]==="essen"&&mealTxt?"plan":"",p[8])).join(""))+(()=>{const y=(night?40:(skyPh==="dusk"||skyPh==="dawn")?(city?98:LOW_SUN):44)+13,x=night?52:56;return `<button class="spot" style="${spotPos(x,y,46,46)}" data-act="wxpop" aria-expanded="${!!S.wxPop}" aria-label="${night?"Mond":"Sonne"}: Wetter">${S.labels?`<span class="lab">Wetter</span>`:""}</button>`})()+"</div>"}<section class="card today"><h2>Heute</h2>
+   <div class="medal${S.medFlip?" flipped":""}"><div class="medin"><div class="medfront" aria-hidden="${!!S.medFlip}"><div class="camp">${(houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:false,shop:openS>0,post:briefe().length>0},{ph:skyPh,wx:S.wx&&S.wx.cur!=null&&Date.now()-S.wx.at<3*3600e3?wxKind(S.wx.cur):"",city,garden:gardenPlants().length})+skyHead(night,false)+picSpots(city).map(p=>spot(p[0],p[1],p[2],p[3],p[4],p[5],p[4]==="essen"&&mealTxt?"plan":"",p[8])).join(""))+(()=>{const y=(night?40:(skyPh==="dusk"||skyPh==="dawn")?(city?98:LOW_SUN):44)+13,x=night?52:56;return `<button class="spot" style="${spotPos(x,y,46,46)}" data-act="wxpop" aria-expanded="${!!S.wxPop}" aria-label="${night?"Mond":"Sonne"}: Wetter">${S.labels?`<span class="lab">Wetter</span>`:""}</button>`})()+"</div>"}<section class="card today"><h2>Heute</h2>
      <button class="todayrow" data-act="gotasks"><span>🧹</span><span>${openW?"Offene Aufträge":"Alles erledigt, was gerade ansteht ✅"}</span><i>›</i></button>
      <button class="todayrow" data-go="essen" data-ft="${mealTxt?"heute":"rezepte"}"${!mealTxt?' data-mealfor="1"':""}><span>🍲</span><span>${mealTxt?"Es gibt "+esc(mealTxt):"Für heute ist noch kein Essen geplant"}</span><i>›</i></button>${(l=>{if(!l.length)return "";const u=l.filter(i=>i.urg).length,r=l.length-u;return `<button class="todayrow minialarm" data-shopview="${SHOP_TODAY}"><span>🧺</span><span>Heute einkaufen: ${l.length}${u&&r?` · ${r} fürs Abendessen, ${u} mit ❗`:""}</span><i>›</i></button>`})(shopToday())}
      ${prioLinkRow()}</section></div>${renderBack(night,"medal")}</div></div>

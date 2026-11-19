@@ -695,3 +695,45 @@ a.mkb{text-decoration:none;color:var(--fg)}.muslk[aria-pressed=false]{filter:gra
 .medback .mdots{position:absolute;right:0;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:var(--sp1)}.medback .mdots i{width:6px;height:6px;border-radius:999px;background:rgba(240,210,140,.35)}.medback .mdots i.on{background:#f0d28c}
 .medback .mdays{flex:1;min-height:0;overflow-y:auto}
 .medback .mfoot{display:flex;justify-content:space-between;border-top:1px solid rgba(240,210,140,.25);padding-top:var(--sp1)}
+.medback .bline .btl{display:inline-grid;width:auto;max-width:100%}.medback .bline li{display:block}
+/* Minispiele (21a-minispiele.js) */
+.minis{display:grid;gap:var(--sp2);margin-top:var(--sp3)}
+.minitile{display:flex;align-items:center;gap:var(--sp3);text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:var(--sp3) var(--sp4);color:var(--fg);font:inherit;cursor:pointer;box-shadow:var(--shadow)}
+.minitile .mic{font-size:30px;line-height:1}
+.minitile span:nth-child(2){display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.minitile b{font-family:var(--f-display);font-size:var(--fs-l)}
+.minitile i{font-style:normal;color:var(--muted);font-size:var(--fs-s)}
+.minitile em{font-style:normal;color:var(--muted);font-size:var(--fs-l)}
+.minib{margin:0 0 var(--sp2)}
+.flut,.garden{margin-top:var(--sp2)}
+.fluth,.gardenh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:var(--sp2);font-family:var(--f-display);font-size:var(--fs-l)}
+#flutt{font-variant-numeric:tabular-nums;color:var(--navy-a)}
+.flutsc{position:relative;height:min(62vh,440px);border-radius:var(--r);overflow:hidden;background:linear-gradient(#bfe3f2 0,#e9f5fa 42%,#f3dfae 42%,#e8cd8f 100%);border:1px solid var(--line)}
+.flutsc h2{position:absolute;top:var(--sp3);left:0;right:0;margin:0;text-align:center;font-family:var(--f-display);font-size:var(--fs-xl);color:#1d3557;z-index:3}
+.flutcastle{position:absolute;left:4%;top:24%;font-size:52px;z-index:2;transition:transform 1.2s,opacity 1.2s}
+.flutkorb{position:absolute;right:3%;top:30%;font-size:52px;z-index:2}
+.fluttoy{position:absolute;transform:translate(-50%,-50%);font-size:40px;background:none;border:0;padding:6px;cursor:pointer;z-index:4;transition:left .6s,top .6s,transform .6s,opacity .6s;line-height:1}
+.fluttoy.in{transform:translate(-50%,-50%) scale(.45);opacity:.85;pointer-events:none}
+.flutsea{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(#5fb2d6,#2d7fa8);opacity:.88;z-index:3;transition:height .4s linear;border-top:3px solid #e8f6fb}
+.flut.end.flut .flutcastle{transform:translateY(30px) scale(.6);opacity:0}
+.flut.end.ok .flutsea{height:10%!important}
+.flutend p{font-size:var(--fs-m);margin:var(--sp3) 0 var(--sp2)}
+.flut .btnrow{margin-top:var(--sp3);flex-wrap:wrap}
+.gardensc{position:relative;border-radius:var(--r);background:linear-gradient(#e6f2dc,#cfe4bd);border:1px solid var(--line);padding:var(--sp4) var(--sp3) var(--sp3);text-align:center}
+.gardenhouse{font-size:40px;display:block}
+.gardengrid{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--sp1);margin:var(--sp2) 0;font-size:26px;line-height:1.1}
+.gardengrid .seed{color:#7a6a4a}
+.gardengrid .more{font-size:var(--fs-s);align-self:center;color:#3c5a2a}
+.gardenn{font-family:var(--f-display);font-size:var(--fs-l);color:#2f4f22}
+.garden .freq{margin-top:var(--sp2)}
+.flq h3{font-family:var(--f-display);font-size:var(--fs-l);margin:var(--sp1) 0 var(--sp3)}
+.flst{list-style:none;padding:0;margin:0 0 var(--sp3)}
+.flst li{padding:var(--sp1) 0}
+.flopen{display:grid;gap:var(--sp2)}
+.fla{background:var(--bg);border:1px solid var(--line);border-radius:var(--r-s);padding:var(--sp2) var(--sp3);margin-bottom:var(--sp2)}
+.fla p{margin:var(--sp1) 0 0;white-space:pre-wrap}
+.fla small{color:var(--muted)}
+.flasche textarea{width:100%;box-sizing:border-box}
+.flarch{list-style:none;padding:0;margin:0}
+.flarch li{padding:var(--sp2) 0;border-bottom:1px solid var(--line)}
+.flarch li:last-child{border-bottom:0}

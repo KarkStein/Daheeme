@@ -71,8 +71,8 @@ function styHouse(st,H,C,night){if(!st||st==="aquarell")return H;
    +[[116,170],[178,170]].map(w=>`<path d="M${w[0]} ${w[1]+18} V${w[1]} H${w[0]+16}" fill="none" stroke="#000" stroke-opacity=".22" stroke-width="1.4"/>`).join("")}
 // Ganz oben: Licht der Sonne (oder des Monds) und dunkle Ränder
 function styTop(st,night){if(!st)return "";
-  if(st==="aquarell")return `<rect x="0" y="0" width="360" height="260" fill="url(#sPaper)"/>`;
-  return `<rect x="0" y="0" width="360" height="260" fill="url(#sLite)" style="mix-blend-mode:screen" opacity="${night?1:.55}"/><rect x="0" y="0" width="360" height="260" fill="url(#sVig)"/>`}
+  if(st==="aquarell")return `<rect x="0" y="${HVB[1]}" width="360" height="${260-HVB[1]}" fill="url(#sPaper)"/>`;
+  return `<rect x="0" y="${HVB[1]}" width="360" height="${260-HVB[1]}" fill="url(#sLite)" style="mix-blend-mode:screen" opacity="${night?1:.55}"/><rect x="0" y="${HVB[1]}" width="360" height="${260-HVB[1]}" fill="url(#sVig)"/>`}
 // Rundungen: Baumkrone, Sonne, Ball bekommen Licht oben links und Schatten unten rechts
 function styRound(st,svg){if(!st)return svg;return svg.replace(/<circle cx="([\d.]+)" cy="([\d.]+)" r="([\d.]+)" fill="(#[0-9a-fA-F]{3,6})"( opacity="[^"]*")?\/>/g,(m,x,y,r,f,o)=>+r>=6.5?m+`<circle cx="${x}" cy="${y}" r="${r}" fill="url(#sBall)"${o||""}/>`:m)}
 function styCloud(st,g){if(!st)return g;return g.replace(/(<path d="M(?:120 46|30 40)h[^"]*") fill="#fff"/g,'$1 fill="url(#sCloud)"')}

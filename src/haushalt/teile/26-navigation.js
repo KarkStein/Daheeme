@@ -31,6 +31,10 @@ function medFlip(v){v=!!v;S.medFlip=v;try{localStorage.setItem("hq-medal",v?"1":
   try{if(v)medSync();else if(history.state&&history.state.med){S.medPop=1;history.back()}}catch(_){}}
 window.hqMedal=v=>medFlip(v);// für Prüfskripte
 function medSync(){try{if(S.tab==="camp"&&S.medFlip&&!navBusy&&history.state&&!history.state.med&&!history.state.ov)history.pushState(Object.assign({},history.state,{med:1}),"")}catch(_){}}
+// Bild so hoch, dass die Medaille bis kurz über die Reiter reicht (einmal je Bildschirmgröße, danach nur bei Größenänderung)
+function medFit(){const m=app.querySelector(".medal"),c=app.querySelector(".medfront .camp"),t=document.getElementById("tabs");if(!m||!c||!t)return;  const free=t.getBoundingClientRect().top-m.getBoundingClientRect().bottom-8,cr=c.getBoundingClientRect();if(!cr.width)return;const vh=Math.max(228,Math.min(480,Math.round(HVB[3]*(cr.height+free)/cr.height)));
+  if(Math.abs(vh-(S.hvbH||228))>2){S.hvbH=vh;const y=window.scrollY;render();window.scrollTo(0,y)}}
+window.addEventListener("resize",()=>{if(S.tab!=="camp")return;clearTimeout(S.fitT);S.fitT=setTimeout(medFit,250)});
 // Pünktchen rechts im Zeitstrahl: eine Seite je Bildschirmhöhe des Zeitstrahls
 function medDots(){const l=app.querySelector(".medback ul.mtl"),d=app.querySelector(".medback .mdots");if(!l||!d)return;const n=Math.max(1,Math.ceil((l.scrollHeight-4)/Math.max(1,l.clientHeight))),i=Math.min(n-1,Math.round(l.scrollTop/Math.max(1,l.clientHeight)));
   d.innerHTML=n>1?Array.from({length:n},(_,j)=>`<i${j===i?' class="on"':""}></i>`).join(""):""}

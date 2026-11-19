@@ -286,6 +286,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="projdel"){try{await S.store.setPath("food/idea/"+S.projDraft.id,null);S.projDraft=null;toast("Gelöscht");render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.priv){S.privSec=b.dataset.priv;S.lunchDraft=null;render();return}
   if(kidClick(b))return;
+  if(await miniClick(b))return;
   if(b.dataset.kidwk!=null){S.kidWk=Math.max(-1,Math.min(2,+b.dataset.kidwk));render();return}
   if(b.dataset.kidset){const [wk,i,f]=b.dataset.kidset.split("|");kidPick(wk,+i,f);return}
   if(b.dataset.kidbrought!=null){const i=+b.dataset.kidbrought,cm=mondayOf(new Date()),wk=wkKey(cm),dn=bringDone(wk,i);
