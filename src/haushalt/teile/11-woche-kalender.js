@@ -152,8 +152,10 @@ function renderCal(){if(S.terDraft)return renderTerForm();const today=ymd(new Da
     h+=`<button data-calday="${k}" class="${d.getMonth()!==m0.getMonth()?"out ":""}${k===today?"today ":""}${u?"urlaub ":""}${feiertag(k)?"ft ":ferienAt(k)?"fe":""}" aria-pressed="${k===sel}" aria-label="${d.getDate()}. ${MN[d.getMonth()]}${u?", Urlaub":""}${l.length?", "+l.length+" Einträge":""}"><span>${d.getDate()}</span><span class="dots">${ws.slice(0,4).map(x=>l.filter(e=>(e.who||"both")===x).every(e=>e.tent)?`<i class="tent" style="border-color:${PCOL[x]}"></i>`:`<i style="background:${PCOL[x]}"></i>`).join("")}</span></button>`}
   h+=`</div></section>`;
   h+=calDayCard(sel,MN);
-  const up=calShown(today,ymd(addDays(new Date(),21))).filter(e=>e.src!=="food"&&e.src!=="reise"&&e.d!==sel).slice(0,12);
-  if(up.length)h+=`<section class="card"><div class="section-head"><h2>Demnächst</h2></div><ul class="evlist">${up.map(e=>evRow(e,true)).join("")}</ul></section>`;
+  // Demnächst geht mit dem gewählten Tag mit (Florian 19.11.2026: „Ich klicke am 10.11 auf den 6.1. dann soll demnächst auch ab da Anzeigen“); früher als heute zählt als heute
+  const upF=sel&&sel>today?sel:today,upD=ymdD(upF),up=calShown(upF,ymd(addDays(upD,21))).filter(e=>e.src!=="food"&&e.src!=="reise"&&e.d!==sel).slice(0,12);
+  const upT=upF===today?"Demnächst":`Demnächst ab ${upD.getDate()}. ${MN[upD.getMonth()].slice(0,3)}.`,upBack=upF===today?"":`<button class="ghost" data-calday="${today}" data-calview="1">↺ Ab heute</button>`;
+  if(up.length||upBack)h+=`<section class="card calup"><div class="section-head"><h2>${upT}</h2>${upBack}</div>${up.length?`<ul class="evlist">${up.map(e=>evRow(e,true)).join("")}</ul>`:`<div class="freq">In den drei Wochen danach steht nichts.</div>`}</section>`;
   h+=`<div class="freq" style="text-align:center">Ein Handy-Kalender kann später hier andocken.</div>`;
   return h}
 // Woche kompakt (Florian 17.11.2026, „Alle drei nacheinander“, Bild /mnt/project-files/design/woche-kompakt-live.png): Wochenstand als schlichte Karte,
