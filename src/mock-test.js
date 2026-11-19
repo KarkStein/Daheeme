@@ -31,9 +31,9 @@ srv.listen(8765,async()=>{
   await A.click('[data-me=p0]');await B.click('[data-me=p1]');await A.click('[data-tab=woche]');await B.click('[data-tab=woche]');
   await A.click('#sec-week [data-act=wkmore]');await B.click('#sec-week [data-act=wkmore]');
   await A.click('[data-task=einkaufen][data-slot="0"]');
-  await B.waitForSelector('[data-task=einkaufen][data-slot="0"].on.chk');
+  await B.waitForSelector('[data-task=einkaufen][data-slot="0"].on');
   await B.click('[data-task=bad][data-slot="0"]');
-  await A.waitForSelector('[data-task=bad][data-slot="0"].on.chk');
+  await A.waitForSelector('[data-task=bad][data-slot="0"].on');
   await B.click('[data-task=einkaufen][data-slot="0"]');
   await A.waitForSelector('[data-task=einkaufen][data-slot="0"]:not(.on)');
   await A.evaluate(()=>{const b=document.createElement('button');b.dataset.nav='woche|wp:1';b.id='zznav';document.getElementById('app').appendChild(b);b.click()});await A.waitForTimeout(300);await A.click('[data-wmwsec=pakete]');await A.click('[data-act=swap]');await B.waitForTimeout(300);

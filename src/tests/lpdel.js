@@ -8,7 +8,7 @@ srv.listen(8765,async()=>{
   const day=n=>{const d=new Date(Date.now()+n*864e5);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
   await put('termin/t1',{name:'Zahnarzt',date:day(2),time:'09:00',remind:true,at:1});await put('termin/t2',{name:'Friseur',date:day(3),at:2});
   await put('prio/p1',{name:'An Zahnarzt denken',from:'frei',ref:'t1',at:3});await put('prio/p2',{name:'Pass abholen',from:'frei',due:day(3),at:4});
-  await put('kita/k1',{name:'Laternenfest',sec:'termine',date:day(2),at:5});await put('trip/x1',{name:'Wildpark',date:day(4),at:6});await put('rec/r1',{name:'Linsensuppe',ing:'Linsen',at:7});
+  await put('kita/k1',{name:'Laternenfest',sec:'termine',date:day(2),at:5});await put('trip/x1',{name:'Wildpark',date:day(4),at:6});await put('trip/x2',{name:'Rodelhügel',date:day(5),at:6});await put('rec/r1',{name:'Linsensuppe',ing:'Linsen',at:7});
   await put('ext/fw',{at:1,n:1,items:{f1:{name:'Chorprobe',date:day(3),time:'19:00'}}});
   await A.waitForTimeout(3200);
   const nav=async v=>{await A.evaluate(v=>{const o=document.getElementById("zz");if(o)o.remove();const b=document.createElement("button");b.dataset.nav=v;b.id="zz";document.getElementById("app").appendChild(b)},v);await A.click("#zz");await A.waitForTimeout(400)};
@@ -30,11 +30,13 @@ srv.listen(8765,async()=>{
   // Erinnerung im Kalender: lange drücken löscht, Rückgängig holt sie zurück
   await lp('.ev[data-caled="prio|p2"]');await A.click('#app .lpx');await A.waitForTimeout(500);r.pgone=!(db().prio||{}).p2;await A.click('#toast .toastbtn');await A.waitForTimeout(500);r.pback=!!(db().prio||{}).p2;
   // Ausflug mit Tag: lange drücken nimmt nur den Tag weg, das Ziel bleibt
-  await lp('.ev[data-caled="ctrip|x1"]');await A.click('#app .lpx');await A.waitForTimeout(500);r.trip=!!db().trip.x1&&!db().trip.x1.date;
+  await lp('.ev[data-caled="ctrip|x1"]');await A.click('#app .lpx');await A.waitForTimeout(400);r.ask=await A.$$eval('#mbox [data-la]',l=>l.length);if(out)await A.screenshot({path:out+'/kalender-ausflug-loeschen.png'});await A.click('#mbox [data-la="0"]');await A.waitForTimeout(500);r.trip=r.ask===3&&!!db().trip.x1&&!db().trip.x1.date;
+  // … oder ganz löschen
+  await lp('.ev[data-caled="ctrip|x2"]');await A.click('#app .lpx');await A.waitForTimeout(400);await A.click('#mbox [data-la="1"]');await A.waitForTimeout(500);r.tripall=!db().trip.x2;
   // kurzer Tipp springt nicht mehr weg: kleines Fenster, von dort ins Bearbeiten in der Kita
   await A.click('.ev[data-caled="kita|k1"]');await A.waitForTimeout(400);r.info=/gehört zu Kita/.test(await A.$eval('#mbox',e=>e.innerText))&&/Kalender/.test(await A.$eval('.pager [aria-pressed=true], .pager .on',e=>e.innerText).catch(()=>'Kalender'));
   if(out){await A.evaluate(()=>{const t=document.getElementById('toast');if(t)t.style.visibility='hidden'});await A.screenshot({path:out+'/kalender-tipp-fenster.png'})}await A.click('#mbox [data-ci=go]');await A.waitForTimeout(500);r.kita=await A.evaluate(()=>[...document.querySelectorAll('#app input')].some(i=>i.value==='Laternenfest'));
   await nav('woche|wp:3');await A.click('.ev[data-caled="prio|p2"]');await A.waitForTimeout(400);await A.click('#mbox [data-ci=go]');await A.waitForTimeout(500);r.prio=await A.evaluate(()=>[...document.querySelectorAll('#app input')].some(i=>i.value==='Pass abholen'));
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&r.x.join()==='✕ Löschen'&&r.noMask&&r.off&&r.gone&&/Rückgängig/.test(r.toast)&&r.back&&r.tap&&r.fwx==='✕ Ausblenden'&&r.hid&&/nur in Familywall/.test(r.fwtoast)&&r.unhid&&r.pgone&&r.pback&&r.trip&&r.info&&r.kita&&r.prio;
+  const ok=!errs.length&&r.x.join()==='✕ Löschen'&&r.noMask&&r.off&&r.gone&&/Rückgängig/.test(r.toast)&&r.back&&r.tap&&r.fwx==='✕ Ausblenden'&&r.hid&&/nur in Familywall/.test(r.fwtoast)&&r.unhid&&r.pgone&&r.pback&&r.trip&&r.tripall&&r.info&&r.kita&&r.prio;
   console.error(ok?'LPDEL OK':'LPDEL FAIL');await b.close();srv.close();process.exit(0)});

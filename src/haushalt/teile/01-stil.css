@@ -135,6 +135,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .slot.split.h0{--L:var(--p0)}
 .slot.split.h1{--R:var(--p1)}
 .slot.split.h0.h1{color:var(--surface);border-color:transparent;font-size:var(--fs-m)}
+.slot.on.took{font-weight:700}.subbtn.took.p0{border-color:var(--p0);background:var(--p0-soft)}.subbtn.took.p1{border-color:var(--p1);background:var(--p1-soft)}.tookb{margin-left:var(--sp1)}.subbtn.took.p0 .tookb{color:var(--p0)}.subbtn.took.p1 .tookb{color:var(--p1)}.tookinfo{padding-top:2px}
 .slot.on.chk{background:var(--done);border-color:var(--done);font-size:var(--fs-m)}
 :root[data-theme="dark"] .slot.on{color:#0d1514}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .slot.on{color:#0d1514}}

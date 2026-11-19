@@ -113,8 +113,9 @@ async function calLpDel(kind,id){
   // Einträge aus anderen Bereichen (Florian 18.11.2026: „alle Termine im Kalender … einheitlich“): gelöscht wird, was den Eintrag in den Kalender bringt
   if(kind==="food"){const d=ymdD(id);calFire('data-planrm="d'+((d.getDay()+6)%7)+'" data-pday="'+esc(id)+'"');return}
   if(kind==="reise"){reiseMenu(id);return}
-  if(kind==="ctrip")return setUndo("food/trip/"+id+"/date",null,"Aus dem Kalender genommen. Das Ziel bleibt gemerkt.");
-  if(kind==="cplay")return setUndo("food/play/"+id+"/when",null,"Kurs steht nicht mehr im Kalender. Er bleibt unter Spielen.");
+  // Ausflug und Kurs fragen (Florian 19.11.2026: „Ja, wäre gut“): nur den Tag wegnehmen oder ganz löschen
+  if(kind==="ctrip"){const x=(S.food&&S.food.trip||{})[id];if(!x)return;lpAsk("🚲 "+(x.name||"Ausflug"),"Was soll weg?",[["📅 Nur den Tag wegnehmen, das Ziel bleibt gemerkt",()=>setUndo("food/trip/"+id+"/date",null,"Aus dem Kalender genommen. Das Ziel bleibt gemerkt.")],["🗑 Ausflug ganz löschen",()=>calLpDel("trip",id)]]);return}
+  if(kind==="cplay"){const x=(S.food&&S.food.play||{})[id];if(!x)return;lpAsk("🤸 "+(x.name||"Kurs"),"Was soll weg?",[["📅 Nur aus dem Kalender nehmen, der Kurs bleibt unter Spielen",()=>setUndo("food/play/"+id+"/when",null,"Kurs steht nicht mehr im Kalender. Er bleibt unter Spielen.")],["🗑 Kurs ganz löschen",()=>calLpDel("play",id)]]);return}
   if(kind==="advent")return delUndo("food/adoor/"+id,"Türchen geleert");
   if(kind==="prio")return delUndo("food/prio/"+id,"Erinnerung gelöscht");
   if(kind==="kidmed")return delUndo("food/kid/med/"+id,"Eintrag gelöscht");
@@ -126,6 +127,10 @@ async function calLpDel(kind,id){
   if(kind==="fund"){fundRmAsk(id);return}
   if(kind==="trip"){await splitDropRef("trip:"+id);await prioDropRef([id]);const AD=(S.food&&S.food.adoor)||{};for(const k of Object.keys(AD))if(AD[k]&&AD[k].trip===id)await S.store.setPath("food/adoor/"+k+"/trip",null);return delUndo("food/trip/"+id,"Gelöscht")}
   if(kind==="rec"){const r=recs().find(x=>x.id===id);if(!r)return;const c=JSON.parse(JSON.stringify((S.food.rec||{})[id]));await recDrop(r);render();toastAct("Rezept entfernt","↩ Rückgängig",async()=>{await S.store.setPath("food/rec/"+id,c);render()})}}
+function lpAsk(title,note,opts){if(document.getElementById("mbox"))return;S.mboxAt=Date.now();const el=document.createElement("div");el.id="mbox";
+  el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="${esc(title)}"><div class="section-head"><h2>${esc(title)}</h2></div><div class="freq">${esc(note)}</div><div class="chlist">${opts.map((o,i)=>`<button type="button" class="chipbtn neutral" data-la="${i}">${esc(o[0])}</button>`).join("")}</div><div class="btnrow"><button class="ghost" type="button" data-la="x">Abbrechen</button></div></div>`;
+  document.body.appendChild(el);
+  el.addEventListener("click",e=>{const b=e.target.closest("[data-la]");if(!b){if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose();return}mboxClose();const o=opts[+b.dataset.la];if(o)Promise.resolve(o[1]()).catch(()=>toast("Konnte nicht speichern."))})}
 // Dasselbe an allen Listen-Zeilen (Florian 18.11.2026: „Alle“): die Art einer Zeile ergibt sich aus ihren vorhandenen Knöpfen (LP_ROWS), neue Liste = eine Zeile dort.
 const LP_ROWS=[["[data-priodone]","prio","priodone"],["[data-buyrm]","buy","buyrm"],["[data-packrm]","pack","packrm"],["[data-recrm]","rec","recrm"],["[data-kitarm]","kita","kitarm"],["[data-kitaedit]","kita","kitaedit"],["[data-fundrm]","fund","fundrm"],["[data-fundedit]","fund","fundedit"],["[data-tripedit]","trip","tripedit"],["[data-playedit]","play","playedit"],["[data-musedit]","music","musedit"],["[data-projedit]","idea","projedit"],["[data-kidmed]","kidmed","kidmed"]];
 function lpRowOf(t){if(!t||!t.closest||t.closest("input,textarea,select,.evlist,.gmg,#mbox"))return null;const R=t.closest("li,.prow,.recbar");if(!R||!app.contains(R))return null;

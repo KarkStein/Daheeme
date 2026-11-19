@@ -153,13 +153,15 @@ async function toggle(btn){
   {const cm=mondayOf(new Date());const isHO=(tasks().find(x=>x.id===btn.dataset.task)||{}).owner==="ho";if(+S.view>+cm&&!isHO){toast("Vorschau: abhaken geht erst in der Woche selbst. Hausdienst kannst du schon eintragen.");return}if(+S.view<+cm&&S.wkEdit!==wkKey(S.view)){toast("Archiv: erst „✏️ Nachtragen“ antippen.");return}}
   const t=tasks().find(x=>x.id===btn.dataset.task);if(!t)return;
   let wk=wkKey(S.view),key,cur;
-  if(btn.dataset.sub!=null&&hasSubs(t)){const base=t.id+"__"+btn.dataset.slot,sk=base+"_s"+btn.dataset.sub,tk=ticksOf(wk),nv=tk[sk]?null:{by:S.me,at:Date.now()};
-    try{await S.store.tick(wk,sk,nv);const all=t.subs.every((_,j)=>j===+btn.dataset.sub?!!nv:!!tk[base+"_s"+j]);if(all&&!tk[base])await S.store.tick(wk,base,{by:S.me,at:Date.now()});if(!all&&tk[base])await S.store.tick(wk,base,null)}catch(e){toast("Konnte nicht speichern. Bitte nochmal tippen.")}return}
+  // Übernehmen (Florian 19.11.2026): hakt jemand die Aufgabe des anderen ab, bleibt die Zuteilung, am Haken steht own = wem sie gehört hätte (by = wer es gemacht hat), für eine spätere Auswertung
+  const ow=ownerFor(t,S.view),took=(ow==="p0"||ow==="p1")&&ow!==S.me?{own:ow}:{},tookMsg=()=>{if(took.own)toast("Für "+pname(ow)+" übernommen. Der Haken trägt deinen Namen.")};
+  if(btn.dataset.sub!=null&&hasSubs(t)){const base=t.id+"__"+btn.dataset.slot,sk=base+"_s"+btn.dataset.sub,tk=ticksOf(wk),nv=tk[sk]?null:Object.assign({by:S.me,at:Date.now()},took);
+    try{await S.store.tick(wk,sk,nv);if(nv)tookMsg();const all=t.subs.every((_,j)=>j===+btn.dataset.sub?!!nv:!!tk[base+"_s"+j]);if(all&&!tk[base])await S.store.tick(wk,base,{by:S.me,at:Date.now()});if(!all&&tk[base])await S.store.tick(wk,base,null)}catch(e){toast("Konnte nicht speichern. Bitte nochmal tippen.")}return}
   if(btn.dataset.slot==="p"){const pt=periodTick(t,S.view);key=t.id+"__p";if(pt){wk=pt.wk;cur=pt.v}}
   else if(btn.dataset.split){const base=t.id+"__"+btn.dataset.slot,tk=ticksOf(wk),leg=tk[base];
     if(leg&&leg.by===S.me&&!tk[base+"_"+S.me]){key=base;cur=leg}else{key=base+"_"+S.me;cur=tk[key]}}
   else{key=t.id+"__"+btn.dataset.slot;cur=ticksOf(wk)[key]}
-  const val=cur?null:{by:S.me,at:Date.now()};
-  try{await S.store.tick(wk,key,val);if(t.owner==="ho")await hoKidSync(wk,key)}catch(e){toast(e&&e.code==="invalid_argument"?"Speichern nicht erlaubt: Du brauchst Bearbeitungsrechte.":"Konnte nicht speichern. Bitte nochmal tippen.")}
+  const val=cur?null:Object.assign({by:S.me,at:Date.now()},btn.dataset.split?{}:took);
+  try{await S.store.tick(wk,key,val);if(val&&!btn.dataset.split)tookMsg();if(t.owner==="ho")await hoKidSync(wk,key)}catch(e){toast(e&&e.code==="invalid_argument"?"Speichern nicht erlaubt: Du brauchst Bearbeitungsrechte.":"Konnte nicht speichern. Bitte nochmal tippen.")}
 }
 

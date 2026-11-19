@@ -154,6 +154,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .slot.split.h0{--L:var(--p0)}
 .slot.split.h1{--R:var(--p1)}
 .slot.split.h0.h1{color:var(--surface);border-color:transparent;font-size:var(--fs-m)}
+.slot.on.took{font-weight:700}.subbtn.took.p0{border-color:var(--p0);background:var(--p0-soft)}.subbtn.took.p1{border-color:var(--p1);background:var(--p1-soft)}.tookb{margin-left:var(--sp1)}.subbtn.took.p0 .tookb{color:var(--p0)}.subbtn.took.p1 .tookb{color:var(--p1)}.tookinfo{padding-top:2px}
 .slot.on.chk{background:var(--done);border-color:var(--done);font-size:var(--fs-m)}
 :root[data-theme="dark"] .slot.on{color:#0d1514}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .slot.on{color:#0d1514}}
@@ -860,14 +861,16 @@ async function toggle(btn){
   {const cm=mondayOf(new Date());const isHO=(tasks().find(x=>x.id===btn.dataset.task)||{}).owner==="ho";if(+S.view>+cm&&!isHO){toast("Vorschau: abhaken geht erst in der Woche selbst. Hausdienst kannst du schon eintragen.");return}if(+S.view<+cm&&S.wkEdit!==wkKey(S.view)){toast("Archiv: erst „✏️ Nachtragen“ antippen.");return}}
   const t=tasks().find(x=>x.id===btn.dataset.task);if(!t)return;
   let wk=wkKey(S.view),key,cur;
-  if(btn.dataset.sub!=null&&hasSubs(t)){const base=t.id+"__"+btn.dataset.slot,sk=base+"_s"+btn.dataset.sub,tk=ticksOf(wk),nv=tk[sk]?null:{by:S.me,at:Date.now()};
-    try{await S.store.tick(wk,sk,nv);const all=t.subs.every((_,j)=>j===+btn.dataset.sub?!!nv:!!tk[base+"_s"+j]);if(all&&!tk[base])await S.store.tick(wk,base,{by:S.me,at:Date.now()});if(!all&&tk[base])await S.store.tick(wk,base,null)}catch(e){toast("Konnte nicht speichern. Bitte nochmal tippen.")}return}
+  // Übernehmen (Florian 19.11.2026): hakt jemand die Aufgabe des anderen ab, bleibt die Zuteilung, am Haken steht own = wem sie gehört hätte (by = wer es gemacht hat), für eine spätere Auswertung
+  const ow=ownerFor(t,S.view),took=(ow==="p0"||ow==="p1")&&ow!==S.me?{own:ow}:{},tookMsg=()=>{if(took.own)toast("Für "+pname(ow)+" übernommen. Der Haken trägt deinen Namen.")};
+  if(btn.dataset.sub!=null&&hasSubs(t)){const base=t.id+"__"+btn.dataset.slot,sk=base+"_s"+btn.dataset.sub,tk=ticksOf(wk),nv=tk[sk]?null:Object.assign({by:S.me,at:Date.now()},took);
+    try{await S.store.tick(wk,sk,nv);if(nv)tookMsg();const all=t.subs.every((_,j)=>j===+btn.dataset.sub?!!nv:!!tk[base+"_s"+j]);if(all&&!tk[base])await S.store.tick(wk,base,{by:S.me,at:Date.now()});if(!all&&tk[base])await S.store.tick(wk,base,null)}catch(e){toast("Konnte nicht speichern. Bitte nochmal tippen.")}return}
   if(btn.dataset.slot==="p"){const pt=periodTick(t,S.view);key=t.id+"__p";if(pt){wk=pt.wk;cur=pt.v}}
   else if(btn.dataset.split){const base=t.id+"__"+btn.dataset.slot,tk=ticksOf(wk),leg=tk[base];
     if(leg&&leg.by===S.me&&!tk[base+"_"+S.me]){key=base;cur=leg}else{key=base+"_"+S.me;cur=tk[key]}}
   else{key=t.id+"__"+btn.dataset.slot;cur=ticksOf(wk)[key]}
-  const val=cur?null:{by:S.me,at:Date.now()};
-  try{await S.store.tick(wk,key,val);if(t.owner==="ho")await hoKidSync(wk,key)}catch(e){toast(e&&e.code==="invalid_argument"?"Speichern wurde abgelehnt. Bitte den Einladungs-Link prüfen.":"Keine Verbindung. Bitte nochmal tippen, sobald du online bist.")}
+  const val=cur?null:Object.assign({by:S.me,at:Date.now()},btn.dataset.split?{}:took);
+  try{await S.store.tick(wk,key,val);if(val&&!btn.dataset.split)tookMsg();if(t.owner==="ho")await hoKidSync(wk,key)}catch(e){toast(e&&e.code==="invalid_argument"?"Speichern wurde abgelehnt. Bitte den Einladungs-Link prüfen.":"Keine Verbindung. Bitte nochmal tippen, sobald du online bist.")}
 }
 
 // ---------- Rendering ----------
@@ -1059,32 +1062,32 @@ function renderWeek(){
   if(sn&&sd>=sn)h+=`<div class="celebrate">${mine?"Du hast alle deine Aufgaben für diese Woche erledigt.":"Alle Wechsel-Aufgaben dieser Woche sind erledigt."}</div>`;
 
   const FO={day:0,week:1,month:2,half:3,year:4};
-  const card=t=>{const f=t.freq,o=ownerFor(t,mon,split),isRot=t.owner==="rot";let html,doneAll,pct;const sl=[];let c=0,n=1,pb="",pinfo="";
+  const card=t=>{const f=t.freq,o=ownerFor(t,mon,split),isRot=t.owner==="rot";let html,doneAll,pct;const sl=[];let c=0,n=1,pb="",pinfo="";const TK={},isTk=v=>!!v&&(o==="p0"||o==="p1")&&(v.by==="p0"||v.by==="p1")&&v.by!==o,tkTxt=()=>Object.keys(TK).map(p=>`↔ ${esc(pname(p))} hat ${TK[p]}× übernommen`).join(" · ");
     if(f==="day"||f==="week"){n=slotsOf(t);const isHO=t.owner==="ho",isBoth=t.owner==="both";let slots="";
-      for(let i=0;i<n;i++){const k=t.id+"__"+i;const cls=["slot"];let lbl=f==="day"?DAYS[i]:"",aria="",on=false;
+      for(let i=0;i<n;i++){const k=t.id+"__"+i;const cls=["slot"];let lbl=f==="day"?DAYS[i]:"",aria="",on=false,tl="";
         if(isBoth){const leg=tk[k],a=tk[k+"_p0"]||(leg&&leg.by==="p0"?leg:null),b=tk[k+"_p1"]||(leg&&leg.by==="p1"?leg:null);
           c+=(a?0.5:0)+(b?0.5:0);cls.push("split");if(a)cls.push("h0");if(b)cls.push("h1");if(a&&b)lbl="✓";on=!!(a&&b);
           aria=(a?" "+esc(pname("p0"))+" erledigt":"")+(b?" "+esc(pname("p1"))+" erledigt":"")}
-        else{const v=tk[k];if(v){c++;on=true;cls.push("on",isHO?(v.by==="x"?"x":v.by):"chk");lbl=isHO?(v.half==="vm"?`<span class="hohalf">${esc(pname(v.by).charAt(0))}/${esc(pname(v.by==="p0"?"p1":"p0").charAt(0))}</span>`:`<span>${esc(v.by==="x"?(v.lbl||"X").slice(0,2):pname(v.by).charAt(0))}${v.part?`<sup>${v.part==="ab"?1:2}</sup>`:""}</span>`):"✓";aria=" erledigt von "+esc(v.by==="x"?(v.lbl||"X"):pname(v.by))+(v.half==="vm"?" vormittags, "+esc(pname(v.by==="p0"?"p1":"p0"))+" nachmittags":v.part==="ab"?", holt nachmittags ab":v.part==="br"?", bringt morgens":"")}}
+        else{const v=tk[k];if(!isHO&&!hasSubs(t)&&isTk(v)){c++;on=true;TK[v.by]=(TK[v.by]||0)+1;cls.push("on",v.by,"took");tl=lbl=`<span>${esc(pname(v.by).charAt(0))}</span>`;aria=" übernommen von "+esc(pname(v.by))}else if(v){c++;on=true;cls.push("on",isHO?(v.by==="x"?"x":v.by):"chk");lbl=isHO?(v.half==="vm"?`<span class="hohalf">${esc(pname(v.by).charAt(0))}/${esc(pname(v.by==="p0"?"p1":"p0").charAt(0))}</span>`:`<span>${esc(v.by==="x"?(v.lbl||"X").slice(0,2):pname(v.by).charAt(0))}${v.part?`<sup>${v.part==="ab"?1:2}</sup>`:""}</span>`):"✓";aria=" erledigt von "+esc(v.by==="x"?(v.lbl||"X"):pname(v.by))+(v.half==="vm"?" vormittags, "+esc(pname(v.by==="p0"?"p1":"p0"))+" nachmittags":v.part==="ab"?", holt nachmittags ab":v.part==="br"?", bringt morgens":"")}}
         if(f==="day"){if(i===today)cls.push("today");if(i>today)cls.push("future");if(isHO)cls.push("hoslot")}
-        if(hasSubs(t)&&!isBoth&&!isHO){const g=`<div class="subgrp${on?" all":""}" role="group" aria-label="${esc(t.name)} ${f==="day"?DAYS[i]:(i+1)+". Mal"}">${n>1?`<span class="subn">${f==="day"?DAYS[i]:(i+1)+"."}</span>`:""}${t.subs.map((sn,j)=>{const sv=tk[k+"_s"+j];return `<button class="subbtn${sv?" on":""}" data-task="${esc(t.id)}" data-slot="${i}" data-sub="${j}" aria-pressed="${!!sv}" aria-label="${esc(sn)}${sv?" erledigt von "+esc(pname(sv.by)):""}">${sv?"✓ ":""}${esc(sn)}</button>`}).join("")}</div>`;slots+=g;sl.push(g);continue}
+        if(hasSubs(t)&&!isBoth&&!isHO){const g=`<div class="subgrp${on?" all":""}" role="group" aria-label="${esc(t.name)} ${f==="day"?DAYS[i]:(i+1)+". Mal"}">${n>1?`<span class="subn">${f==="day"?DAYS[i]:(i+1)+"."}</span>`:""}${t.subs.map((sn,j)=>{const sv=tk[k+"_s"+j],st=isTk(sv);if(st)TK[sv.by]=(TK[sv.by]||0)+1;return `<button class="subbtn${sv?" on":""}${st?" took "+sv.by:""}" data-task="${esc(t.id)}" data-slot="${i}" data-sub="${j}" aria-pressed="${!!sv}" aria-label="${esc(sn)}${sv?(st?" übernommen von ":" erledigt von ")+esc(pname(sv.by)):""}">${sv?"✓ ":""}${esc(sn)}${st?` <b class="tookb">${esc(pname(sv.by).charAt(0))}</b>`:""}</button>`}).join("")}</div>`;slots+=g;sl.push(g);continue}
         const btn=(extra,l)=>`<button class="${cls.join(" ")}${extra}" data-task="${esc(t.id)}" data-slot="${i}" ${isBoth?'data-split="1"':""} ${f==="day"&&i>today&&!isHO?"disabled":""} aria-pressed="${on}" aria-label="${esc(t.name)} ${f==="day"?DAYS[i]:(i+1)+". Mal"}${aria}">${l}</button>`;
-        slots+=isHO?`<span class="hocol${i===today?" today":""}"><small>${DAYS[i]}</small>${btn("",on?lbl:"＋")}</span>`:btn("",lbl);sl.push(btn(" wsl",on?(isHO?lbl:"✓"):""))}
+        slots+=isHO?`<span class="hocol${i===today?" today":""}"><small>${DAYS[i]}</small>${btn("",on?lbl:"＋")}</span>`:btn("",lbl);sl.push(btn(" wsl",on?(isHO?lbl:tl||"✓"):""))}
       doneAll=c>=n;pct=n?c/n:0;const cs=(c%1?String(c).replace(".",","):c);
-      html=`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${f==="day"?"täglich":n+"× pro Woche"} · ${cs}/${n}</span></div></div></div><div class="slots">${slots}</div>${taskLink(t)}${isBoth?`<div class="freq">Jeder hakt seine Hälfte ab: links ${esc(pname("p0"))}, rechts ${esc(pname("p1"))}.</div>`:""}</article>`;
-    }else{const pt=periodTick(t,mon);doneAll=!!pt;pct=doneAll?1:0;if(!pt&&!periodDue(t,mon))return {t,o,html:"",done:false,later:periodMid(f,mon),pct:0,times:1,sl,c:0,n:1};
-      const lbl=pt?`✓ Erledigt von ${esc(pname(pt.v.by))} am ${fmt(new Date(pt.v.at),{day:"numeric",month:"short"})}`:"○ Als erledigt markieren";
+      html=`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${f==="day"?"täglich":n+"× pro Woche"} · ${cs}/${n}</span></div>${tkTxt()?`<div class="freq tookinfo">${tkTxt()}</div>`:""}</div></div><div class="slots">${slots}</div>${taskLink(t)}${isBoth?`<div class="freq">Jeder hakt seine Hälfte ab: links ${esc(pname("p0"))}, rechts ${esc(pname("p1"))}.</div>`:""}</article>`;
+    }else{const pt=periodTick(t,mon);doneAll=!!pt;const ptk=pt&&isTk(pt.v);pct=doneAll?1:0;if(!pt&&!periodDue(t,mon))return {t,o,html:"",done:false,later:periodMid(f,mon),pct:0,times:1,sl,c:0,n:1};
+      const lbl=pt?`✓ ${ptk?"Übernommen":"Erledigt"} von ${esc(pname(pt.v.by))} am ${fmt(new Date(pt.v.at),{day:"numeric",month:"short"})}`:"○ Als erledigt markieren";
       pb=`<button class="slot wsl${pt?" on chk":""}" data-task="${esc(t.id)}" data-slot="p" aria-pressed="${doneAll}" aria-label="${esc(t.name)}${pt?" erledigt":" als erledigt markieren"}">${pt?"✓":""}</button>`;
-      pinfo=pt?`${esc(pname(pt.v.by))}, ${fmt(new Date(pt.v.at),{day:"numeric",month:"short"})}`:"";
+      pinfo=pt?`${ptk?"↔ ":""}${esc(pname(pt.v.by))}, ${fmt(new Date(pt.v.at),{day:"numeric",month:"short"})}`:"";
       html=`<article class="task${doneAll?" done":""}"><div class="task-top"><div><div class="task-title">${esc(t.name)}</div><div class="meta">${ownerChip(o,isRot)}<span class="freq">${FREQ_LABEL[f]}</span></div></div></div><div><button class="bigcheck${pt?" on chk":""}" data-task="${esc(t.id)}" data-slot="p" aria-pressed="${doneAll}">${lbl}</button></div>${taskLink(t)}</article>`}
-    return {t,o,isRot,html,done:doneAll,pct,times:slotsOf(t),sl,c,n,pb,pinfo,subs:hasSubs(t)&&t.owner!=="both"&&t.owner!=="ho"}};
+    return {t,o,isRot,html,done:doneAll,pct,times:slotsOf(t),sl,c,n,pb,pinfo,took:tkTxt(),subs:hasSubs(t)&&t.owner!=="both"&&t.owner!=="ho"}};
   // Eine Zeile: Name (Tipp klappt die ganze Aufgabe auf), wer, Kreise
   const row=x=>{const t=x.t,op=S.wtOpen===t.id,f=t.freq;let circ="",info="";
     if(f==="day"){if(today>=0&&today<7)circ=x.sl[today]||"";else circ=`<span class="freq num">${x.c%1?String(x.c).replace(".",","):x.c}/7</span>`}
     else if(f==="week"){if(!x.subs)circ=x.sl.join("")}
     else{circ=x.pb;info=x.pinfo}
     const subs=x.subs&&!op?`<div class="wtsubs">${x.sl.join("")}</div>`:"";
-    return `<div class="wt${x.done?" done":""}${op?" open":""}"><div class="wtl"><button class="wtn" data-wtopen="${esc(t.id)}" aria-expanded="${op}"><b>${esc(t.name)}</b></button><div class="wtm">${wkWho(x.o,x.isRot)}${info?`<span class="freq">${info}</span>`:""}${taskLink(t,true)}</div>${subs}</div>${op?"":`<span class="wtc">${circ}</span>`}</div>${op?`<div class="wtx">${x.html}<button class="linkish" data-wtopen="${esc(t.id)}">Zuklappen</button></div>`:""}`};
+    return `<div class="wt${x.done?" done":""}${op?" open":""}"><div class="wtl"><button class="wtn" data-wtopen="${esc(t.id)}" aria-expanded="${op}"><b>${esc(t.name)}</b></button><div class="wtm">${wkWho(x.o,x.isRot)}${info?`<span class="freq">${info}</span>`:""}${taskLink(t,true)}</div>${x.took&&!op?`<div class="freq tookinfo">${x.took}</div>`:""}${subs}</div>${op?"":`<span class="wtc">${circ}</span>`}</div>${op?`<div class="wtx">${x.html}<button class="linkish" data-wtopen="${esc(t.id)}">Zuklappen</button></div>`:""}`};
   const vis=x=>!(S.filter==="meine"&&S.me&&!(x.o===S.me||x.o==="both"||x.o==="ho"))&&!(S.hideDone&&x.done);
   const order=(a,b)=>FO[a.t.freq]-FO[b.t.freq]||b.times-a.times||a.pct-b.pct;
   const secs=S.groupBy==="art"
@@ -3729,7 +3732,7 @@ function renderWmw(){const d=S.draft||(S.draft=JSON.parse(JSON.stringify(S.confi
 async function wmwTick(id,p){if(!S.me){toast("Wähle zuerst in den Einstellungen, wer du bist.");return}const t=tasks().find(x=>x.id===id);if(!t)return;const mon=mondayOf(new Date()),wk=wkKey(mon),tk=ticksOf(wk);let key=null;
   if(group(t.freq)!=="week"){if(!periodTick(t,mon))key=t.id+"__p"}
   else{const di=(new Date().getDay()+6)%7,i0=t.freq==="day"?di:0,n=t.freq==="day"?di+1:slotsOf(t),q=p==="p0"||p==="p1"?p:S.me;for(let i=i0;i<n&&!key;i++){const b=t.id+"__"+i;if(t.owner==="both"){if(!tk[b+"_"+q]&&!(tk[b]&&tk[b].by===q))key=b+"_"+q}else if(!tk[b])key=b}}
-  if(!key)return;try{await S.store.tick(wk,key,{by:t.owner==="both"&&(p==="p0"||p==="p1")?p:S.me,at:Date.now()});render()}catch(_){toast("Konnte nicht speichern. Bitte nochmal tippen.")}}
+  if(!key)return;const ow=ownerFor(t,mon),own=t.owner!=="both"&&(ow==="p0"||ow==="p1")&&ow!==S.me?{own:ow}:{};try{await S.store.tick(wk,key,Object.assign({by:t.owner==="both"&&(p==="p0"||p==="p1")?p:S.me,at:Date.now()},own));if(own.own)toast("Für "+pname(ow)+" übernommen. Der Haken trägt deinen Namen.");render()}catch(_){toast("Konnte nicht speichern. Bitte nochmal tippen.")}}
 // Aufräumen (17.11.2026): „Wer macht was“ hakte tägliche Aufgaben bis dahin am nächsten freien Tag ab, also auch an künftigen Tagen.
 // Haken einer täglichen Aufgabe an einem Tag nach dem Tag, an dem sie gesetzt wurden, nimmt das einmal je Sitzung wieder weg (nur laufende Woche).
 function migDayFuture(){if(S.migDayF||!S.me||!S.config)return;S.migDayF=true;const mon=mondayOf(new Date()),wk=wkKey(mon),tk=ticksOf(wk),ids=tasks().filter(t=>t.freq==="day"&&t.owner!=="ho").map(t=>t.id);/* Hausdienst (owner ho) ist Einteilung, auch für künftige Tage: nie wegräumen */
@@ -4010,8 +4013,9 @@ async function calLpDel(kind,id){
   // Einträge aus anderen Bereichen (Florian 18.11.2026: „alle Termine im Kalender … einheitlich“): gelöscht wird, was den Eintrag in den Kalender bringt
   if(kind==="food"){const d=ymdD(id);calFire('data-planrm="d'+((d.getDay()+6)%7)+'" data-pday="'+esc(id)+'"');return}
   if(kind==="reise"){reiseMenu(id);return}
-  if(kind==="ctrip")return setUndo("food/trip/"+id+"/date",null,"Aus dem Kalender genommen. Das Ziel bleibt gemerkt.");
-  if(kind==="cplay")return setUndo("food/play/"+id+"/when",null,"Kurs steht nicht mehr im Kalender. Er bleibt unter Spielen.");
+  // Ausflug und Kurs fragen (Florian 19.11.2026: „Ja, wäre gut“): nur den Tag wegnehmen oder ganz löschen
+  if(kind==="ctrip"){const x=(S.food&&S.food.trip||{})[id];if(!x)return;lpAsk("🚲 "+(x.name||"Ausflug"),"Was soll weg?",[["📅 Nur den Tag wegnehmen, das Ziel bleibt gemerkt",()=>setUndo("food/trip/"+id+"/date",null,"Aus dem Kalender genommen. Das Ziel bleibt gemerkt.")],["🗑 Ausflug ganz löschen",()=>calLpDel("trip",id)]]);return}
+  if(kind==="cplay"){const x=(S.food&&S.food.play||{})[id];if(!x)return;lpAsk("🤸 "+(x.name||"Kurs"),"Was soll weg?",[["📅 Nur aus dem Kalender nehmen, der Kurs bleibt unter Spielen",()=>setUndo("food/play/"+id+"/when",null,"Kurs steht nicht mehr im Kalender. Er bleibt unter Spielen.")],["🗑 Kurs ganz löschen",()=>calLpDel("play",id)]]);return}
   if(kind==="advent")return delUndo("food/adoor/"+id,"Türchen geleert");
   if(kind==="prio")return delUndo("food/prio/"+id,"Erinnerung gelöscht");
   if(kind==="kidmed")return delUndo("food/kid/med/"+id,"Eintrag gelöscht");
@@ -4023,6 +4027,10 @@ async function calLpDel(kind,id){
   if(kind==="fund"){fundRmAsk(id);return}
   if(kind==="trip"){await splitDropRef("trip:"+id);await prioDropRef([id]);const AD=(S.food&&S.food.adoor)||{};for(const k of Object.keys(AD))if(AD[k]&&AD[k].trip===id)await S.store.setPath("food/adoor/"+k+"/trip",null);return delUndo("food/trip/"+id,"Gelöscht")}
   if(kind==="rec"){const r=recs().find(x=>x.id===id);if(!r)return;const c=JSON.parse(JSON.stringify((S.food.rec||{})[id]));await recDrop(r);render();toastAct("Rezept entfernt","↩ Rückgängig",async()=>{await S.store.setPath("food/rec/"+id,c);render()})}}
+function lpAsk(title,note,opts){if(document.getElementById("mbox"))return;S.mboxAt=Date.now();const el=document.createElement("div");el.id="mbox";
+  el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="${esc(title)}"><div class="section-head"><h2>${esc(title)}</h2></div><div class="freq">${esc(note)}</div><div class="chlist">${opts.map((o,i)=>`<button type="button" class="chipbtn neutral" data-la="${i}">${esc(o[0])}</button>`).join("")}</div><div class="btnrow"><button class="ghost" type="button" data-la="x">Abbrechen</button></div></div>`;
+  document.body.appendChild(el);
+  el.addEventListener("click",e=>{const b=e.target.closest("[data-la]");if(!b){if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose();return}mboxClose();const o=opts[+b.dataset.la];if(o)Promise.resolve(o[1]()).catch(()=>toast("Konnte nicht speichern."))})}
 // Dasselbe an allen Listen-Zeilen (Florian 18.11.2026: „Alle“): die Art einer Zeile ergibt sich aus ihren vorhandenen Knöpfen (LP_ROWS), neue Liste = eine Zeile dort.
 const LP_ROWS=[["[data-priodone]","prio","priodone"],["[data-buyrm]","buy","buyrm"],["[data-packrm]","pack","packrm"],["[data-recrm]","rec","recrm"],["[data-kitarm]","kita","kitarm"],["[data-kitaedit]","kita","kitaedit"],["[data-fundrm]","fund","fundrm"],["[data-fundedit]","fund","fundedit"],["[data-tripedit]","trip","tripedit"],["[data-playedit]","play","playedit"],["[data-musedit]","music","musedit"],["[data-projedit]","idea","projedit"],["[data-kidmed]","kidmed","kidmed"]];
 function lpRowOf(t){if(!t||!t.closest||t.closest("input,textarea,select,.evlist,.gmg,#mbox"))return null;const R=t.closest("li,.prow,.recbar");if(!R||!app.contains(R))return null;
