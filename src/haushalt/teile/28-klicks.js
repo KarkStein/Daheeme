@@ -1,5 +1,7 @@
 app.addEventListener("click",async e=>{
   const b=e.target.closest("span[data-srclink]")||e.target.closest("button");if(!b)return;
+  // Filter überall gleich (Florian 19.11.2026): Tipp auf den aktiven Filter hebt ihn auf (= „Alle“)
+  {const r=b.parentNode;if(r&&r.classList&&r.classList.contains("fl")&&b.getAttribute("aria-pressed")==="true"&&b!==r.firstElementChild&&flSame(b,r.firstElementChild)){r.firstElementChild.click();return}}
   if(b.dataset.mealfor){S.mealFor=ymd(new Date());S.booksOpen=true}
   if(b.dataset.allar!=null){arOpen(false);return}
   if(gmClick(b))return;
@@ -186,7 +188,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.terrep!=null&&S.terDraft){S.terDraft.rep=b.dataset.terrep;render();return}
   if(b.dataset.act==="tercancel"){S.terDraft=null;render();return}
   if(b.dataset.terbell){const x=termine().find(y=>y.id===b.dataset.terbell);if(x){try{await S.store.setPath("food/termin/"+x.id+"/remind",x.remind?null:true);toast(x.remind?"Keine Erinnerung mehr":"Die Glocke erinnert daran")}catch(_){toast("Konnte nicht speichern.")}}return}
-  if(b.dataset.terrm){if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Löschen?";return}try{await S.store.setPath("food/termin/"+b.dataset.terrm,null);await prioDropRef([b.dataset.terrm]);if(S.terDraft&&S.terDraft.id===b.dataset.terrm)S.terDraft=null;toast("Termin gelöscht")}catch(_){toast("Konnte nicht speichern.")}render();return}
+  if(b.dataset.terrm){if(linkRef((S.food.termin||{})[b.dataset.terrm])){const t=b.dataset.terrm;S.terDraft=null;render();linkDel(t);return}if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Löschen?";return}try{await S.store.setPath("food/termin/"+b.dataset.terrm,null);await prioDropRef([b.dataset.terrm]);if(S.terDraft&&S.terDraft.id===b.dataset.terrm)S.terDraft=null;toast("Termin gelöscht")}catch(_){toast("Konnte nicht speichern.")}render();return}
   if(b.dataset.prio){const [from,id]=b.dataset.prio.split("|"),ex=prioOf(from,id);try{if(ex){await S.store.setPath("food/prio/"+ex.id,null);toast("Nicht mehr auf der Startseite")}else{const x=prioSrc(from,id);if(!x)return;const nid=newId("w"),v=Object.assign({name:String(x.name).slice(0,80),from,ref:id,at:Date.now(),by:S.me||""},(from==="kita"||from==="kind")&&x.date?Object.assign({due:x.date},x.time?{time:x.time}:{},from==="kind"?{who:"kid"}:{}):{});await S.store.setPath("food/prio/"+nid,v);toastAct("🔔 Steht jetzt bei Wichtig.","⏰ Tag und Zeit",()=>prioNew(PRIO_FROM[from]?(from==="rezepte"||from==="mittag"?"essen":from):"frei",{id:nid,name:v.name,ref:id,due:v.due||"",time:"",rep:"",note:"",at:v.at,by:v.by}))}}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.priodone){const x=prios().find(y=>y.id===b.dataset.priodone);if(x&&x.rep&&x.due){const base=new Date(x.due+"T12:00:00");let nx=repNext(base,x.rep);const t0=startOfDay(new Date());while(nx<t0)nx=repNext(nx,x.rep);try{await S.store.setPath("food/prio/"+x.id+"/due",ymd(nx));toast("Erledigt. Nächstes Mal: "+dLabel(ymd(nx)))}catch(_){toast("Konnte nicht speichern.")}return}try{await S.store.setPath("food/prio/"+b.dataset.priodone,null);if(S.prioEdit===b.dataset.priodone)S.prioEdit=null;toast("Erledigt")}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.prioedit){const x=prios().find(y=>y.id===b.dataset.prioedit);if(!x)return;prioNew(x.from&&PRIO_FROM[x.from]?(x.from==="rezepte"||x.from==="mittag"?"essen":x.from):"frei",{id:x.id,name:x.name,ref:x.ref||"",due:x.due||"",time:x.time||"",rep:x.rep||"",note:x.note||"",who:x.who||"",at:x.at,by:x.by});return}
@@ -197,6 +199,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.kitasec){S.kitaDraft=null;S.kitaSec=b.dataset.kitasec;render();return}
   if(b.dataset.kset){const d=S.kitaDraft;if(d){const f=b.dataset.kset;d[f]=d[f]===b.dataset.v?"":b.dataset.v;render()}return}
   if(await kimpClick(b))return;
+  if(verkClick(b))return;
   if(b.dataset.act==="kitaimp"){S.kitaImp=S.kitaImp?null:{text:"",list:null};render();return}
   if(b.dataset.act==="kimpcancel"){S.kitaImp=null;render();return}
   if(b.dataset.act==="kimpback"&&S.kitaImp){S.kitaImp.list=null;render();return}
@@ -476,6 +479,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.nav){const n=+b.dataset.nav;S.view=n===0?mondayOf(new Date()):addDays(S.view,7*n);render();return}
   if(b.dataset.hodone!=null){const [d0,p0]=b.dataset.hodone.split("|"),hm0=p0?null:hoMine(),hoT=tasks().find(x=>x.owner==="ho");if(!hoT||(!p0&&!hm0))return;const wk=wkKey(mondayOf(new Date())),hv=ticksOf(wk)[hoT.id+"__"+(p0?+d0:hm0.di)];if(!hv)return;const hm=p0?{t:hoT,di:+d0,me:p0,v:hv}:hm0,k=hm.t.id+"__"+hm.di,ok=Object.assign({},hm.v.ok||{});if(ok[hm.me])delete ok[hm.me];else ok[hm.me]=Date.now();
     try{await S.store.tick(wk,k,Object.assign({},hm.v,{ok:Object.keys(ok).length?ok:null}))}catch(_){toast("Konnte nicht speichern.")}return}
+  if(b.dataset.need){needTick(b.dataset.need).catch(()=>toast("Konnte nicht speichern."));return}
   if(b.dataset.task){toggle(b);return}
   if(b.dataset.del){S.draft.tasks.splice(+b.dataset.del,1);render();return}
   const act=b.dataset.act;
@@ -486,6 +490,6 @@ app.addEventListener("click",async e=>{
   if(act==="reset"){S.draft=null;render()}
   if(act==="swap"){const c=JSON.parse(JSON.stringify(S.config));c.rotOffset=((c.rotOffset|0)+1)%2;try{await S.store.saveConfig(c);S.draft=null;toast("Pakete getauscht")}catch(_){toast("Konnte nicht speichern.")}}
   if(act==="save"){const d=S.draft;const n0=document.getElementById("pn0"),n1=document.getElementById("pn1");if(n0&&n1)d.persons=[n0.value.trim()||"Person 1",n1.value.trim()||"Person 2"];
-    d.tasks.forEach(t=>{t.name=(t.name||"").trim()||"Aufgabe";t.pts=Math.max(0,Math.min(50,t.pts|0));if(t.freq==="week")t.times=Math.max(1,Math.min(14,t.times|0||1));else delete t.times;if(t.owner!=="rot"||(t.pack!=="A"&&t.pack!=="B"))delete t.pack;if(!hasSubs(t)||t.owner==="ho"||t.owner==="both")delete t.subs});
+    d.tasks.forEach(t=>{t.name=(t.name||"").trim()||"Aufgabe";t.pts=Math.max(0,Math.min(50,t.pts|0));if(t.freq==="week")t.times=Math.max(1,Math.min(14,t.times|0||1));else delete t.times;if(t.freq==="need"){t.every=+t.every||28;if(!["alt","p0","p1","both"].includes(t.owner))t.owner="alt";if(!t.since)t.since=Date.now();delete t.subs}else{delete t.every;delete t.since;if(t.owner==="alt")t.owner="rot"}if(t.owner!=="rot"||(t.pack!=="A"&&t.pack!=="B"))delete t.pack;if(!hasSubs(t)||t.owner==="ho"||t.owner==="both")delete t.subs});
     try{await S.store.saveConfig(JSON.parse(JSON.stringify(d)));S.draft=null;toast("Plan gespeichert")}catch(_){toast("Speichern nicht möglich. Du brauchst Bearbeitungsrechte.")}}
 });

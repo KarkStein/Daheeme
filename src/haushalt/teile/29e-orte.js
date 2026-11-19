@@ -17,10 +17,10 @@ function placeChips(cur){const L=places(),f=placeFind(cur);
 function placeList(){const L=places();
   return `<div class="freq" style="margin-top:var(--sp3)"><b>📍 Gespeicherte Orte</b> · stehen im Termin zur Auswahl, 🚆 nimmt die Adresse.</div>${L.length?`<ul class="shop">${L.map(p=>`<li><span class="nm">📍 ${esc(p.name)}${p.addr?"":` <span class="freq">(ohne Adresse)</span>`}</span><button type="button" class="ghost small" data-placeedit="${esc(p.id)}">✎</button></li>`).join("")}</ul>`:""}<div class="btnrow"><button type="button" class="ghost small" data-placenew="">＋ Ort</button></div>`}
 // Arten von Terminen: Symbol im Kalender statt 📅; Kita-Termine laufen beim Bereich Kita mit (Filter); eigene Arten über „＋ Eigene“
-const TER_TAGS=[["kita","🎒","Kita"],["arzt","🩺","Arzt"],["familie","👪","Familie"],["feier","🎉","Feier"],["sport","⚽","Sport"],["arbeit","💼","Arbeit"]];
+const TER_TAGS=[["kita","🎒","Kita"],["arzt","🩺","Arzt"],["familie","👪","Familie"],["feier","🎉","Feier"],["sport","⚽","Sport"],["ausflug","🚲","Ausflug"],["arbeit","💼","Arbeit"]];
 const terTags=()=>catsOf("ter",TER_TAGS);
 const terTag=x=>x&&x.tag?terTags().find(t=>t[0]===x.tag)||null:null;
-const terIcon=x=>{if(x&&x.tag==="arzt"&&x.mk){const m=KID_MED.find(k=>k[0]===x.mk);if(m)return m[1]}const t=terTag(x);return t?t[1]:"📅"};
+const terIcon=x=>{if(x&&/^adoor:/.test(x.ref||""))return "🎄";if(x&&x.tag==="arzt"&&x.mk){const m=KID_MED.find(k=>k[0]===x.mk);if(m)return m[1]}const t=terTag(x);return t?t[1]:"📅"};
 function terTagHtml(d){return `<div class="fld"><span>Art</span><div class="unl">${[["","Keine"]].concat(terTags().map(t=>[t[0],t[1]+" "+t[2]])).map(o=>`<button type="button" class="chipbtn neutral" data-tertag="${esc(o[0])}" aria-pressed="${(d.tag||"")===o[0]}">${esc(o[1])}</button>`).join("")}${catBtn("ter")}</div>${ownCats("ter").length?`<div class="freq">Eigene Art lange drücken = löschen.</div>`:""}</div>`}
 // Vorschlag bei Terminen ohne Ort (Florian 16.11.2026): Arten, bei denen ein Ort Sinn hat, oder ein gespeicherter Ort steckt im Namen → 📍 in der Zeile
 const PLACE_TAGS=["kita","arzt","feier","familie","sport"];

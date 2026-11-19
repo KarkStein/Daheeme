@@ -106,7 +106,7 @@ async function terDelUndo(id){const x=(S.food&&S.food.termin||{})[id];if(!x)retu
   toastAct("Termin gelöscht","↩ Rückgängig",async()=>{await S.store.setPath("food/termin/"+id,keep);for(const p of P)await S.store.setPath("food/prio/"+p[0],p[1]);toast("Termin ist wieder da");render()})}
 const calLpKind=b=>b.dataset.lpter?["ter",b.dataset.lpter]:b.dataset.teredit?["ter",b.dataset.teredit]:b.dataset.fwpick?["fw",b.dataset.fwpick]:b.dataset.caled?b.dataset.caled.split("|"):null;
 async function calLpDel(kind,id){
-  if(kind==="ter")return terDelUndo(id);
+  if(kind==="ter"){if(linkDel(id))return;return terDelUndo(id)}
   if(kind==="fw"){const fw=S.food&&S.food.ext&&S.food.ext.fw,x=fw&&fw.items&&fw.items[id];if(!x)return;const k=fwHideKey(x.name);await S.store.setPath("food/ext/fwhide/"+k,{name:String(x.name).slice(0,80),at:Date.now()});render();
     toastAct("Ausgeblendet. Löschen geht nur in Familywall.","↩ Rückgängig",async()=>{await S.store.setPath("food/ext/fwhide/"+k,null);render()});return}
   if(kind==="kita")return delUndo("food/kita/"+id,"Kita-Termin gelöscht");
@@ -132,7 +132,7 @@ function lpAsk(title,note,opts){if(document.getElementById("mbox"))return;S.mbox
   document.body.appendChild(el);
   el.addEventListener("click",e=>{const b=e.target.closest("[data-la]");if(!b){if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose();return}mboxClose();const o=opts[+b.dataset.la];if(o)Promise.resolve(o[1]()).catch(()=>toast("Konnte nicht speichern."))})}
 // Dasselbe an allen Listen-Zeilen (Florian 18.11.2026: „Alle“): die Art einer Zeile ergibt sich aus ihren vorhandenen Knöpfen (LP_ROWS), neue Liste = eine Zeile dort.
-const LP_ROWS=[["[data-priodone]","prio","priodone"],["[data-buyrm]","buy","buyrm"],["[data-packrm]","pack","packrm"],["[data-recrm]","rec","recrm"],["[data-kitarm]","kita","kitarm"],["[data-kitaedit]","kita","kitaedit"],["[data-fundrm]","fund","fundrm"],["[data-fundedit]","fund","fundedit"],["[data-tripedit]","trip","tripedit"],["[data-playedit]","play","playedit"],["[data-musedit]","music","musedit"],["[data-projedit]","idea","projedit"],["[data-kidmed]","kidmed","kidmed"]];
+const LP_ROWS=[["[data-need]","need","need"],["[data-priodone]","prio","priodone"],["[data-buyrm]","buy","buyrm"],["[data-packrm]","pack","packrm"],["[data-recrm]","rec","recrm"],["[data-kitarm]","kita","kitarm"],["[data-kitaedit]","kita","kitaedit"],["[data-fundrm]","fund","fundrm"],["[data-fundedit]","fund","fundedit"],["[data-tripedit]","trip","tripedit"],["[data-playedit]","play","playedit"],["[data-musedit]","music","musedit"],["[data-projedit]","idea","projedit"],["[data-kidmed]","kidmed","kidmed"]];
 function lpRowOf(t){if(!t||!t.closest||t.closest("input,textarea,select,.evlist,.gmg,#mbox"))return null;const R=t.closest("li,.prow,.recbar");if(!R||!app.contains(R))return null;
   for(const d of LP_ROWS){const n=R.querySelector(d[0]);if(n&&n.closest("li,.prow,.recbar")===R&&n.dataset[d[2]])return {R,k:[d[1],n.dataset[d[2]]]}}return null}
 // Einfacher Tipp auf einen Termin aus einem anderen Bereich öffnet gleich das Bearbeiten dort (Florian 18.11.2026: „mit einem einfachen Klick bearbeiten“)
@@ -150,13 +150,13 @@ function calEdOpen(kind,id){
   if(kind==="prio"){goNav("wichtig|");const n=document.querySelector(`#app [data-prioedit="${CSS.escape(id)}"]`);if(n)n.click()}}
 (()=>{const SEL=".evlist .ev[data-teredit],.evlist .ev[data-fwpick],.evlist .ev[data-caled],.evlist .ev[data-lpter]";let t=null,x0=0,y0=0,fired=0;const clr=()=>{clearTimeout(t);t=null};
   const disarm=()=>{document.querySelectorAll("#app .lparm").forEach(li=>{li.classList.remove("lparm");const x=li.querySelector(".lpx");if(x)x.remove()})};
-  const arm=(b,row)=>{const li=row?row.R:b.closest("li"),k=row?row.k:calLpKind(b);if(!li||!k)return;disarm();li.classList.add("lparm");const x=document.createElement("button");x.type="button";x.className="lpx";x.dataset.lpx=k.join("|");x.textContent=k[0]==="fw"?"✕ Ausblenden":"✕ Löschen";li.appendChild(x)};
+  const arm=(b,row)=>{const li=row?row.R:b.closest("li"),k=row?row.k:calLpKind(b);if(!li||!k)return;disarm();li.classList.add("lparm");const x=document.createElement("button");x.type="button";x.className="lpx";x.dataset.lpx=k.join("|");x.textContent=k[0]==="fw"?"✕ Ausblenden":k[0]==="need"?"⏭ Später":"✕ Löschen";if(k[0]==="need")x.classList.add("lplater");li.appendChild(x)};
   app.addEventListener("pointerdown",e=>{const b=e.target.closest&&e.target.closest(SEL),row=b?null:lpRowOf(e.target);if(!b&&!row)return;x0=e.clientX;y0=e.clientY;clr();t=setTimeout(()=>{t=null;fired=Date.now();try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}arm(b,row)},500)});
   app.addEventListener("pointermove",e=>{if(t&&Math.abs(e.clientX-x0)+Math.abs(e.clientY-y0)>12)clr()});
   ["pointerup","pointercancel"].forEach(n=>app.addEventListener(n,clr));
   document.addEventListener("click",e=>{const T=e.target.closest?e.target:null;if(!T)return;
     if(fired&&Date.now()-fired<900&&T.closest("#app .lparm")&&!T.closest(".lpx")){fired=0;e.stopPropagation();e.preventDefault();return}
-    const x=T.closest(".lpx");if(x){e.stopPropagation();e.preventDefault();const k=x.dataset.lpx.split("|");disarm();calLpDel(k[0],k.slice(1).join("|")).catch(()=>toast("Konnte nicht speichern."));return}
+    const x=T.closest(".lpx");if(x){e.stopPropagation();e.preventDefault();const k=x.dataset.lpx.split("|");disarm();if(k[0]==="need"){needLater(k[1]).catch(()=>toast("Konnte nicht speichern."));return}calLpDel(k[0],k.slice(1).join("|")).catch(()=>toast("Konnte nicht speichern."));return}
     if(document.querySelector("#app .lparm")){const inRow=T.closest(".lparm");disarm();if(inRow){e.stopPropagation();e.preventDefault()}return}
     const c=T.closest("#app .ev[data-caled]");if(c){e.stopPropagation();e.preventDefault();const k=c.dataset.caled.split("|");calInfo(c.dataset.caled,c.dataset.cald)}},true);
   app.addEventListener("contextmenu",e=>{if(e.target.closest&&(e.target.closest(SEL)||lpRowOf(e.target)))e.preventDefault()})})();

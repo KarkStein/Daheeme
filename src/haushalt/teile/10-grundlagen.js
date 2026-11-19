@@ -26,7 +26,7 @@ const TEMPLATE={persons:["Florian","Judith"],rotOffset:0,tasks:[
  {id:"grossputz",name:"Großputz (langes Wochenende)",owner:"p0",freq:"half",pts:48},
  {id:"center",name:"Center putzen",owner:"rot",freq:"year",pts:18}
 ]};
-const FREQ_LABEL={day:"täglich",week:"pro Woche",month:"monatlich",half:"halbjährlich",year:"jährlich"};
+const FREQ_LABEL={day:"täglich",week:"pro Woche",month:"monatlich",half:"halbjährlich",year:"jährlich",need:"nach Bedarf"};
 const OWNER_LABEL={rot:"Im Wechsel",both:"Beide",ho:"Hausdienst"};
 const LEVELS=["Chaos-Höhle","Studi-Bude","Ordentliche WG","Gemütliches Nest","Blitzblank-Wohnung","Wohlfühl-Zuhause","Hausmeister-Palast","Glanz-Villa","Putz-Schloss","Legendäres Heim"];
 const DAYS=["Mo","Di","Mi","Do","Fr","Sa","So"];
@@ -82,7 +82,7 @@ function localStore(){
 }
 
 // ---------- Logik ----------
-function tasks(){return (S.config&&S.config.tasks)||[]}
+function tasks(){return ((S.config&&S.config.tasks)||[]).filter(t=>t.freq!=="need")}
 function pname(p){const ps=(S.config&&S.config.persons)||TEMPLATE.persons;return p==="p0"?ps[0]:ps[1]}
 function slotsOf(t){return t.freq==="day"?7:t.freq==="week"?Math.max(1,t.times|0||1):1}
 function load(t){return (t.pts||0)*slotsOf(t)}

@@ -20,10 +20,10 @@ srv.listen(8765,async()=>{
   if(out)await A.screenshot({path:out+'/kalender-doppelt-zusammen.png'});
   await A.click('[data-fwsplit]');await A.waitForTimeout(600);await A.click('[data-act=tercancel]');await A.waitForTimeout(400);r.r2=(await rows()).filter(x=>/Laternen/.test(x));r.split=get(['haushalt',key,'food','ext','fwsplit','a1']);
   // Kurs: Uhrzeit ändern
-  await A.click('.evlist .ev[data-caled^="cplay|"]');await A.waitForSelector('#mbox');r.ct=await A.$eval('#citime',e=>e.value);
-  await A.fill('#citime','17:15');if(out)await A.screenshot({path:out+'/kalender-kurs-uhrzeit.png'});await A.click('#mbox [data-ci=time]');await A.waitForTimeout(600);
-  r.when=get(['haushalt',key,'food','play','p1','when']);r.r3=(await rows()).filter(x=>/Turnen/.test(x))[0];
+  await A.click('.evlist .ev[data-teredit^="c_p1"] >> nth=0');await A.waitForSelector('#terform');r.ct=await A.$eval('[data-terf=time]',e=>e.value);r.verk=await A.$eval('#terform .verk',e=>e.innerText).catch(()=>'');
+  await A.fill('[data-terf=time]','17:15');if(out)await A.screenshot({path:out+'/kalender-kurs-uhrzeit.png'});await A.click('#terform button[type=submit]');await A.waitForTimeout(900);
+  r.when=get(['haushalt',key,'food','play','p1','when']);r.terc=JSON.stringify(Object.entries(get(['haushalt',key,'food','termin'])||{}).filter(e=>/^c_/.test(e[0])));r.r3=(await rows()).filter(x=>/Turnen/.test(x))[0];
   console.error(JSON.stringify(r),errs);
   const ok=!errs.length&&r.r1.length===2&&r.mig&&r.mig.tag==='kita'&&r.mig.who==='kid'&&r.moved==='ter:k_k1'&&r.r1.some(x=>/^🎒 Laternenfest|Laternenfest/.test(x))&&/17:00/.test(r.row17)&&/Kita-Art/.test(r.info)&&r.r1.some(x=>/Zahnarzt/.test(x))&&/auch in Familywall/i.test(r.info)&&/Doch getrennt/.test(r.info)
-    &&r.r2.length===2&&r.split===1&&r.ct==='16:00'&&r.when===WD+' 17:15 Uhr'&&/Turnen/.test(r.r3||'');
+    &&r.r2.length===2&&r.split===1&&r.ct==='16:00'&&/Turnen/.test(r.verk)&&r.when===WD+' 17:15 Uhr'&&/Turnen/.test(r.r3||'');
   console.error(ok?'CALDUP OK':'CALDUP FAIL');await b.close();srv.close();process.exit(0)});

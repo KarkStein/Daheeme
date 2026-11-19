@@ -6,7 +6,7 @@ function rbWeeks(){const mode=S.rbMode||"monat",off=S.rbOff|0,cur=mondayOf(new D
   else if(mode==="jahr"){const y=new Date().getFullYear()+off;lbl=String(y);from=mondayOf(new Date(y,0,4));to=mondayOf(new Date(y,11,28))}
   else{const b=new Date(),d=new Date(b.getFullYear(),b.getMonth()+off,1),y=d.getFullYear(),m=d.getMonth();lbl=fmt(d,{month:"long"})+(y!==b.getFullYear()?" "+y:"");
     from=mondayOf(new Date(y,m,1));if(th(from).getMonth()!==m)from=addDays(from,7);to=mondayOf(new Date(y,m+1,0));if(th(to).getMonth()!==m)to=addDays(to,-7)}
-  if(+to>+cur)to=cur;const L=[];for(let m=to;+m>=+from;m=addDays(m,-7))if(+m===+cur||S.weeks[wkKey(m)])L.push(m);return {L,lbl,mode,off}}
+  if(+to>+cur)to=cur;const L=[];for(let m=to;+m>=+from;m=addDays(m,-7))if(+m===+cur||S.weeks[wkKey(m)]||needWeekTicks(m).length)L.push(m);return {L,lbl,mode,off}}
 // Eine Woche auswerten: erledigt/geplant (täglich und wöchentlich; die laufende Woche bis heute), Einträge fürs Logbuch, Übernommenes, Offenes, Hausdienst
 function rbWeek(mon){const wk=wkKey(mon),tk=ticksOf(wk),cur=mondayOf(new Date()),isCur=+mon===+cur,today=isCur?(new Date().getDay()+6)%7:6,split=rotSplit();
   const R={wk,mon,isCur,c:0,n:0,log:[],took:[],open:[],per:{p0:0,p1:0},ho:{p0:0,p1:0,half:0},miss:{}};
@@ -21,6 +21,7 @@ function rbWeek(mon){const wk=wkKey(mon),tk=ticksOf(wk),cur=mondayOf(new Date())
       const v=tk[k];if(v){c++;add(t,v,null,v.own);if(R.per[v.by]!=null)R.per[v.by]+=t.pts||1}}
     if(hasSubs(t))t.subs.forEach((sn,j)=>{for(let i=0;i<n;i++){const sv=tk[t.id+"__"+i+"_s"+j];if(sv&&R.per[sv.by]!=null)R.per[sv.by]+=(t.pts||1)/t.subs.length}});
     R.c+=c;R.n+=m;if(m&&c<m&&!(isCur)){R.open.push(t.name);R.miss[t.id]=1}else if(m&&c<m)R.miss[t.id]=0});
+  needWeekTicks(mon).forEach(({t,v})=>{add(t,v,"nach Bedarf",v.own);if(R.per[v.by]!=null)R.per[v.by]+=t.pts||1});
   R.log.sort((a,b)=>(a.v.at||0)-(b.v.at||0));R.took.sort((a,b)=>(b.v.at||0)-(a.v.at||0));return R}
 const rbNum=x=>(Math.round(x*10)/10).toString().replace(".",",");
 const rbDot=p=>`<span class="kz" style="background:${PCOL[p]||"var(--muted)"}" aria-hidden="true">${esc(pInit(p))}</span>`;

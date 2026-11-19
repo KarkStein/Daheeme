@@ -85,7 +85,7 @@ function renderProjects(){const d=S.projDraft;
     <label class="fld"><span>Link (Shop, Anleitung, Bild)</span><input type="url" id="pj-link" data-pf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off"></label>
     <label class="fld"><span>Notiz</span><textarea id="pj-note" data-pf="note" rows="4" placeholder="Maße, Preis, nächste Schritte">${esc(d.note)}</textarea></label>
     ${gmMaskRow("idea",d.id)}
-    <div class="btnrow"><button class="primary" data-act="projsave">Speichern</button><button class="ghost" data-act="projcancel">Abbrechen</button>${d.id?`<button class="ghost" data-move="idea|${esc(d.id)}">↪ Verschieben</button><button class="ghost danger" data-act="projdel">Löschen</button>`:""}</div></section>`}
+    ${d.id?verkHtml("idea",d.id,projs().find(x=>x.id===d.id)):""}<div class="btnrow"><button class="primary" data-act="projsave">Speichern</button><button class="ghost" data-act="projcancel">Abbrechen</button>${d.id?`<button class="ghost" data-move="idea|${esc(d.id)}">↪ Verschieben</button><button class="ghost danger" data-act="projdel">Löschen</button>`:""}</div></section>`}
   const all=projs();let F=S.projFilter||"";if(S.tab==="geschenke"&&F!=="advent")F="geschenk";
   if(F==="advent")return h+renderAdvent();
   if(F==="alle")return h+projOverview();
@@ -219,7 +219,7 @@ async function fundSetLinks(f,want,o){const L=Object.assign({},f.links||{});
   await S.store.setPath("food/fund/"+f.id+"/links",Object.keys(L).length?L:null)}
 async function fundDropAll(f){for(const k of fundLinked(f))await FUND_LINKS[k].drop(f.links[k]);await S.store.setPath("food/fund/"+f.id,null)}
 function fundEdit(id){const f=listOf(S.food&&S.food.fund).find(y=>y.id===id);if(!f)return;const ar=f.area||"reise",A=FAREA[ar],sg=fundSugg(f).concat(gmSugg(gmItem("fund",f))),lk=fundLinked(f).concat(gmShow(f));
-  editBox(f.name,[{k:"name",label:"Name",type:"text",val:f.name},{k:"link",label:"Link",type:"url",val:f.link||""},
+  S.verkNext=["fund",id,f];editBox(f.name,[{k:"name",label:"Name",type:"text",val:f.name},{k:"link",label:"Link",type:"url",val:f.link||""},
     {k:"kind",label:"Art",type:"chips",opts:A.kinds.map(c=>[c[0],c[1]+" "+c[2]]),val:f.kind||"sonst"},
     {k:"st",label:"Stand",type:"chips",opts:A.st.map(s=>[s[0],s[1]+" "+s[2]]),val:f.st||"idee"},
     {k:"price",label:"Preis in €",type:"text",val:f.price||""}].concat(ar==="reise"?[{k:"ref",label:"Buchungsnummer (nur in euren Daten, in Listen versternt)",type:"text",val:f.ref||""},{k:"addr",label:"Adresse oder Anfahrt",type:"text",val:f.addr||""}]:[]).concat([

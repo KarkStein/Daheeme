@@ -741,3 +741,33 @@ a.mkb{text-decoration:none;color:var(--fg)}.muslk[aria-pressed=false]{filter:gra
 .kimpext ol{margin:var(--sp2) 0 0;padding-left:var(--sp5)}
 .kimpext li{margin:var(--sp1) 0}
 .kimpext textarea{width:100%;box-sizing:border-box;margin-top:var(--sp2)}
+/* Verknüpft mit (29g-verknuepft.js) */
+.verk{border-top:1px solid var(--line);margin-top:var(--sp3);padding-top:var(--sp2)}
+.verkh{font-size:var(--fs-xs);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:var(--sp1)}
+.verk .unl{flex-wrap:wrap}
+.fl>.chipbtn[aria-pressed="true"]:not(:first-child)::after{content:" ✕";opacity:.75}
+.fl{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+.fl::-webkit-scrollbar{display:none}
+.fl>*{flex:none}
+
+/* 🫧 Nach Bedarf (25b-nachbedarf.js) */
+.needlist{list-style:none;margin:0;padding:0}
+.needrow{display:flex;align-items:center;gap:var(--sp3);padding:var(--sp2) 0;border-bottom:1px solid var(--line)}
+.needrow:last-child{border-bottom:none}
+.needl{flex:1;min-width:0;display:grid;gap:var(--sp1)}
+.needl b{font-weight:600}
+.needbar{display:block;height:8px;border-radius:999px;background:var(--line);overflow:hidden}
+.needbar i{display:block;height:100%;background:var(--navy-a);border-radius:999px}
+.needbar.bald i{background:var(--ochre)}
+.needbar.voll i{background:#b3402a}
+.needst{font-style:normal;font-size:var(--fs-xs);font-weight:600;color:var(--ochre);margin-left:var(--sp1)}
+.needst.voll{color:#b3402a}
+.needrow .hchk{flex:none;width:32px;height:32px;border-radius:999px;border:2px solid var(--navy-a);background:none;color:#fff;font:inherit;font-weight:700;cursor:pointer}
+.needrow.hdone .hchk{background:#2e8b74;border-color:#2e8b74}
+.needrow.hdone .needl b{opacity:.6}
+.lpx.lplater{background:var(--navy-a)}
+/* 📅 Kalender in der Kopfzeile (Florian 19.11.2026: „A und B“) */
+.calnav{padding:0}
+.calic{display:inline-grid;grid-template-rows:auto 1fr;width:26px;height:26px;border:1.5px solid currentColor;border-radius:6px;overflow:hidden;line-height:1;text-align:center}
+.calic i{display:block;height:6px;background:var(--ochre)}
+.calic b{font-size:var(--fs-xs);font-weight:700;display:grid;place-items:center}
