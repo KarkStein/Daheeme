@@ -6,10 +6,10 @@ srv.listen(8765,async()=>{
   await put('food/rec/r1',{name:'Kürbissuppe',ing:'500 g Hokkaido-Kürbis\n2 Zwiebeln\n400 ml Kokosmilch',at:1});
   await put('food/plan/2026-W46/d5',{text:'Kürbissuppe',rec:'r1',at:1});
   await put('food/shop/s1',{name:'500 g Hokkaido-Kürbis',done:false,at:1,src:'Kürbissuppe'});await put('food/shop/s2',{name:'2 Zwiebeln',done:false,at:2});await put('food/shop/s3',{name:'Milch',done:false,at:3});await put('food/shop/s4',{name:'400 ml Kokosmilch',done:true,at:4,src:'Kürbissuppe'});
-  await A.waitForTimeout(600);const t=await A.$eval('.startdash .bcnt[data-shopview]',e=>e.innerText).catch(()=>null);
+  await A.waitForTimeout(600);const t=await A.$eval('.medback .bcnt[data-shopview]',e=>e.innerText).catch(()=>null);
   await A.screenshot({path:out+'/minialarm.png'});
-  await A.click('.startdash .bcnt[data-shopview]');const h1=await A.$eval('h1',e=>e.textContent);
-  await put('food/shop/s1/done',true);await put('food/shop/s2/done',true);await A.click('[data-tab=camp]');await A.waitForTimeout(400);const gone=!(await A.$('.startdash .bcnt[data-shopview]'));
+  await A.evaluate(()=>window.hqMedal&&window.hqMedal(true));await A.waitForTimeout(800);await A.click('.medback .bcnt[data-shopview]');const h1=await A.$eval('h1',e=>e.textContent);
+  await put('food/shop/s1/done',true);await put('food/shop/s2/done',true);await A.click('[data-tab=camp]');await A.waitForTimeout(400);const gone=!(await A.$('.medback .bcnt[data-shopview]'));
   console.log({t,h1,gone,errs});
   const ok=!errs.length&&/^2\n.*Einkauf heute/.test(t||'')&&/Einkauf/.test(h1)&&gone;
   console.log(ok?'MINI OK':'MINI FAIL');await b.close();srv.close();process.exit(0)});

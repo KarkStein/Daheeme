@@ -698,6 +698,22 @@ a.mkb{text-decoration:none;color:var(--fg)}.muslk[aria-pressed=false]{filter:gra
 .skyring{margin-right:10%}
 .skyhead{z-index:1}.skyl{flex:0 1 auto}.skyhead .skyring{margin-left:auto}
 .wkheute .hmore{flex:none;border:1px solid rgba(240,210,140,.6);background:rgba(255,255,255,.1);color:#fdf7ea;border-radius:999px;padding:var(--sp1) var(--sp2);font:inherit;font-size:var(--fs-s);font-weight:700;cursor:pointer}
+/* Start als Medaille (Florian 19.11.2026): vorne Bild und Karte Heute, hinten das Dashboard in gleicher Größe */
+.medal{perspective:1400px}.medin{position:relative;transition:transform .7s cubic-bezier(.3,.1,.2,1);transform-style:preserve-3d}.medal.flipped .medin{transform:rotateY(180deg)}
+.medfront,.campback.medback{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.medal.flipped .medfront,.medal.flipped .medfront *,.medal:not(.flipped) .medback,.medal:not(.flipped) .medback *{pointer-events:none!important}
+.medfront .card.today{margin-bottom:0}
+.campback.medback{position:absolute;inset:0;transform:rotateY(180deg);margin:0;gap:var(--sp2);padding:var(--sp3) var(--sp4) var(--sp2);cursor:default}
+.medback .skyhead.inback{position:static;background:none;color:#fdf7ea;padding:0;align-items:center}
+.medback .skyhead.inback .skyday{color:#f0d28c}.medback .skyhead.inback .skywx{background:rgba(255,255,255,.14)}.medback .skyhead.inback .skyfun{background:rgba(255,255,255,.14)}
+.medback .skyhead.inback .skyring{margin-right:0}
+.medback .mtlw{position:relative;flex:1;min-height:0;display:flex}
+.medback ul.mtl{flex:1;min-height:0;overflow-y:auto;scroll-snap-type:y proximity;scrollbar-width:none;padding-right:var(--sp3)}.medback ul.mtl::-webkit-scrollbar{display:none}
+.medback ul.mtl li{scroll-snap-align:start;flex:none}
+.medback .msep{font-size:var(--fs-xs);letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:#f0d28c;padding:var(--sp2) 0 var(--sp1)}.medback .bline li.msep::after{display:none}
+.medback .mdots{position:absolute;right:0;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:var(--sp1)}.medback .mdots i{width:6px;height:6px;border-radius:999px;background:rgba(240,210,140,.35)}.medback .mdots i.on{background:#f0d28c}
+.medback .mdays{flex:1;min-height:0;overflow-y:auto}
+.medback .mfoot{display:flex;justify-content:space-between;border-top:1px solid rgba(240,210,140,.25);padding-top:var(--sp1)}
 </style>
 
 <div class="app" id="app">
@@ -1246,7 +1262,7 @@ function startHead(sea){const g=greetTxt(new Date().getHours()),w=wxToday();
 function wxKind(code){if(code==null||code==="")return "";code=+code;if(isNaN(code))return "";if(code>=95)return "gewitter";if(code>=71&&code<=77||code===85||code===86)return "schnee";if(code>=51&&code<=67||code>=80&&code<=82)return "regen";if(code===45||code===48)return "nebel";if(code===3)return "bedeckt";if(code===2)return "wolkig";return ""}
 // Ausschnitt des Hausbilds (Florian 15.11.2026: weniger Himmel, Haus und Wiese größer). Spots rechnen damit.
 // Florian 19.11.2026 (Start A): Bild flacher, oben weniger Himmel; Datum, Wetter und Ring liegen im Himmel (skyHead)
-const HVB=[4,62,352,198];
+const HVB=[4,32,352,228];
 // Meereslinie im Haus am Meer (Florian 17.11.2026: „B“, Meer höher, das Haus steht ganz vor dem Meer; vorher 118 = Höhe des Dachfirsts). LOW_SUN = Höhe der tiefen Sonne (Morgen/Abend), halb im Meer.
 const SEA_Y=92,LOW_SUN=72;
 function spotPos(x,y,w,h){const V=HVB;return `left:${((x-V[0])/V[2]*100).toFixed(1)}%;top:${((y-V[1])/V[3]*100).toFixed(1)}%;width:${(w/V[2]*100).toFixed(1)}%;height:${(h/V[3]*100).toFixed(1)}%`}
@@ -1254,8 +1270,8 @@ function spotPos(x,y,w,h){const V=HVB;return `left:${((x-V[0])/V[2]*100).toFixed
 // [x, y, Breite, Höhe, Ziel (data-go oder "tab|art:wert" für data-nav), Beschriftung (aria-label), Ding fürs Glossar, Motiv ("" beide, "meer", "stadt"), Filter Am Haus]
 const PIC_SPOTS=[[166,196,50,48,"woche","Haushalt: offene Aufträge","🧹 Besen an der Tür",""],[119,148,42,96,"essen","Essen","💨 Schornstein",""],[112,212,26,22,"einkauf","Einkauf: Korb mit Baguette","🧺 Korb mit Baguette am Fahrrad",""],
   [208,203,24,30,"kita","Kita","🎒 Rucksack an der Hauswand",""],[80,243,40,24,"ausflug","Ausflüge: Fahrrad","🚲 Fahrrad am Baum",""],[62,214,20,22,"woche|wp:3","Kalender: Aushang am Baum","📜 Aushang am Baumstamm",""],
-  [330,80,34,44,"projekte","Sammlung: Kirchtürme","⛪ Zwei Kirchtürme","stadt"],[40,140,40,31,"privat","Partner: Bank im Garten","🌹 Bank unter dem Rosenbogen","stadt"],
-  [318,80,34,64,"projekte","Sammlung","🗼 Leuchtturm","meer"],[38,136,70,28,"privat","Partner: Klippen","🪨 Klippen","meer"],
+  [330,80,34,44,"projekte","Sammlung: Kirchtürme","⛪ Zwei Kirchtürme","stadt"],[40,133,40,38,"privat","Partner: Bank im Garten","🌹 Bank unter dem Rosenbogen","stadt"],
+  [318,80,34,64,"projekte","Sammlung","🗼 Leuchtturm","meer"],[38,122,70,42,"privat","Partner: Klippen","🪨 Klippen","meer"],
   [24,244,18,26,"post","Briefkasten","📮 Briefkasten",""],[155,168,22,20,"amhaus","Am Haus: Lampe","🏮 Lampe über der Tür",""],[58,176,60,52,"amhaus","Garten: Baum","🌳 Baum","","garten"],
   [40,203,22,28,"kind","Kind: Schaukel","🪢 Schaukel am Baum",""],[15,205,18,14,"ausgaben","Ausgaben: Sparschwein","🐷 Sparschwein",""],[240,238,26,26,"spiel","Spielen","⚽ Ball am Steinweg",""],
   [270,52,44,26,"reisen","Urlaube: Flugzeug","✈️ Flugzeug","stadt"],[259,97,84,24,"ausflug","Ausflüge: Tram","🚋 Tram","stadt"],[322,196,56,66,"reisen","Urlaube: Segelboot","⛵ Segelboot","meer"],
@@ -1398,12 +1414,12 @@ function heuteList(){const now=new Date(),mon=mondayOf(now),tk=ticksOf(wkKey(mon
   return L}
 function heuteRows(L){return L.map(x=>`<li class="hrow${x.done?" hdone":""}"><span class="hn">${esc(x.t.name)}<i> · ${esc(x.sub)}</i></span>${x.done&&x.more>=0&&x.more!=null?`<button class="hmore" data-task="${esc(x.t.id)}" data-slot="${x.more}"${x.o==="both"?' data-split="1"':""} aria-label="${esc(x.t.name)}: noch eine Runde abhaken">＋1</button>`:""}<button class="hchk" ${x.ho?`data-hodone="${x.slot}"`:`data-task="${esc(x.t.id)}" data-slot="${x.slot}"${x.o==="both"?' data-split="1"':""}`} aria-pressed="${x.done}" aria-label="${esc(x.t.name)} ${x.done?"erledigt, Tipp nimmt den Haken von heute zurück":"abhaken"}">${x.done?"✓":""}</button></li>`).join("")}
 // Kopf im Himmel (Florian 19.11.2026, „A: Bild und Dashboard zusammen“): Wochentag, Datum, Wetter mit Sonnenzeiten, Hausdienst; rechts der Doppelring. Tipp aufs Datum öffnet das Wetter
-function skyHead(night){const now=new Date(),pl=S.food&&S.food.wxplace,lat=pl&&pl.lat!=null?+pl.lat:51.0,lon=pl&&pl.lon!=null?+pl.lon:10.4,t=sunTimes(now,lat,lon),hm=m=>{m=Math.round(m);return Math.floor(m/60)+":"+String(m%60).padStart(2,"0")};
+function skyHead(night,ring,cls){const now=new Date(),pl=S.food&&S.food.wxplace,lat=pl&&pl.lat!=null?+pl.lat:51.0,lon=pl&&pl.lon!=null?+pl.lon:10.4,t=sunTimes(now,lat,lon),hm=m=>{m=Math.round(m);return Math.floor(m/60)+":"+String(m%60).padStart(2,"0")};
   const DN=["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"],MN=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
   const WI={"":night?"🌙":"☀️",wolkig:"⛅",bedeckt:"☁️",nebel:"🌫️",regen:"🌧️",schnee:"🌨️",gewitter:"⛈️"},w=wxToday(),hr=S.wx&&S.wx.hours;
   let T=null;if(hr&&hr.time){const k=ymd(now)+"T"+String(now.getHours()).padStart(2,"0"),i=hr.time.findIndex(x=>x.slice(0,13)===k);if(i>=0)T=Math.round(hr.temperature_2m[i])}
   const I=S.wx&&S.wx.cur!=null?WI[wxKind(S.wx.cur)]||"⛅":"",F=w?wxFun():null;
-  return `<div class="skyhead${night?" night":""}"><button class="skyl" data-act="wxpop" aria-expanded="${!!S.wxPop}" aria-label="${esc(greetTxt(now.getHours()))}. Tippen zeigt das Wetter${w&&w.hint?". "+esc(w.hint):""}"><span class="skyday">${DN[now.getDay()]} · Heute</span><span class="skydate">${now.getDate()}. ${MN[now.getMonth()]}</span><span class="skywx">${T!=null?`${I} ${T}° · `:""}🌅 ${hm(t.rise)} · 🌇 ${hm(t.set)}${w&&w.hint?` · ${w.pre?w.pre+": ":""}${esc(w.hint)}`:""}${hoToday()}</span></button>${F?`<button class="skyfun" data-wxfun="${F.k}" aria-label="${esc(F.n)}: ${esc(F.t)}. Tippen zeigt passende Ausflüge">${F.e}</button>`:""}<span class="skyring">${bweekRing()}</span></div>`}
+  return `<div class="skyhead${night?" night":""}${cls?" "+cls:""}"><button class="skyl" data-act="wxpop" aria-expanded="${!!S.wxPop}" aria-label="${esc(greetTxt(now.getHours()))}. Tippen zeigt das Wetter${w&&w.hint?". "+esc(w.hint):""}"><span class="skyday">${DN[now.getDay()]} · Heute</span><span class="skydate">${now.getDate()}. ${MN[now.getMonth()]}</span><span class="skywx">${T!=null?`${I} ${T}° · `:""}🌅 ${hm(t.rise)} · 🌇 ${hm(t.set)}${w&&w.hint?` · ${w.pre?w.pre+": ":""}${esc(w.hint)}`:""}${hoToday()}</span></button>${F?`<button class="skyfun" data-wxfun="${F.k}" aria-label="${esc(F.n)}: ${esc(F.t)}. Tippen zeigt passende Ausflüge">${F.e}</button>`:""}${ring?`<span class="skyring">${bweekRing()}</span>`:""}</div>`}
 function renderTag(){loadWx();const now=new Date(),today=ymd(now),tmw=ymd(addDays(startOfDay(now),1)),D=backDay(now),mon=mondayOf(now),sun=ymd(addDays(mon,6));
   const DN=["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"],O=S.tagOpen||(S.tagOpen={}),night=skyPhase()==="night";
   const row=(ic,txt,sub,attr,chk)=>`<div class="trow">${chk?`<button class="tchk" ${chk}><span class="box"></span></button>`:`<span class="tic">${ic}</span>`}<button class="ttx" ${attr||""}><span>${chk?ic+" ":""}${txt}${sub?`<i>${sub}</i>`:""}</span><em>›</em></button></div>`;
@@ -1426,9 +1442,11 @@ function renderCamp(){S.flip=false;loadWx();
   const openS=shopItems().filter(i=>!i.done).length,meal=planDays(mon)["d"+di],mealTxt=meal?(meal.text||""):"";
   const spot=(x,y,w,hh,go,label,ft,pf)=>`<button class="spot" style="${spotPos(x,y,w,hh)}" ${go.includes("|")?`data-nav="${go}"`:`data-go="${go}"${pf?` data-pf="${pf}"`:""}`}${ft?` data-ft="${ft}"`:""} aria-label="${label}">${S.labels?`<span class="lab">${label.split(":")[0].replace(" mit dem Bus","").replace("Einkaufsliste","Einkauf")}</span>`:""}</button>`;
   const city=motiv()==="stadt";let h=`${startPager(0)}${S.me?"":meChooser()}
-   <div class="flipbox"><div class="flipin${S.flip?" flipped":""}"><div class="camp">${(houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:false,shop:openS>0,post:briefe().length>0},{ph:skyPh,wx:S.wx&&S.wx.cur!=null&&Date.now()-S.wx.at<3*3600e3?wxKind(S.wx.cur):"",city})+skyHead(night)+picSpots(city).map(p=>spot(p[0],p[1],p[2],p[3],p[4],p[5],p[4]==="essen"&&mealTxt?"plan":"",p[8])).join(""))+(()=>{const y=(night?40:(skyPh==="dusk"||skyPh==="dawn")?(city?98:LOW_SUN):44)+13,x=night?52:56;return `<button class="spot" style="${spotPos(x,y,46,46)}" data-act="wxpop" aria-expanded="${!!S.wxPop}" aria-label="${night?"Mond":"Sonne"}: Wetter">${S.labels?`<span class="lab">Wetter</span>`:""}</button>`})()+"</div></div>"}</div>
-   ${S.wxPop?wxPanel(night):""}
-   ${renderBack(night,"start")}`;
+   <div class="medal${S.medFlip?" flipped":""}"><div class="medin"><div class="medfront" aria-hidden="${!!S.medFlip}"><div class="camp">${(houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:false,shop:openS>0,post:briefe().length>0},{ph:skyPh,wx:S.wx&&S.wx.cur!=null&&Date.now()-S.wx.at<3*3600e3?wxKind(S.wx.cur):"",city})+skyHead(night,false)+picSpots(city).map(p=>spot(p[0],p[1],p[2],p[3],p[4],p[5],p[4]==="essen"&&mealTxt?"plan":"",p[8])).join(""))+(()=>{const y=(night?40:(skyPh==="dusk"||skyPh==="dawn")?(city?98:LOW_SUN):44)+13,x=night?52:56;return `<button class="spot" style="${spotPos(x,y,46,46)}" data-act="wxpop" aria-expanded="${!!S.wxPop}" aria-label="${night?"Mond":"Sonne"}: Wetter">${S.labels?`<span class="lab">Wetter</span>`:""}</button>`})()+"</div>"}<section class="card today"><h2>Heute</h2>
+     <button class="todayrow" data-act="gotasks"><span>🧹</span><span>${openW?"Offene Aufträge":"Alles erledigt, was gerade ansteht ✅"}</span><i>›</i></button>
+     <button class="todayrow" data-go="essen" data-ft="${mealTxt?"heute":"rezepte"}"${!mealTxt?' data-mealfor="1"':""}><span>🍲</span><span>${mealTxt?"Es gibt "+esc(mealTxt):"Für heute ist noch kein Essen geplant"}</span><i>›</i></button>${(l=>{if(!l.length)return "";const u=l.filter(i=>i.urg).length,r=l.length-u;return `<button class="todayrow minialarm" data-shopview="${SHOP_TODAY}"><span>🧺</span><span>Heute einkaufen: ${l.length}${u&&r?` · ${r} fürs Abendessen, ${u} mit ❗`:""}</span><i>›</i></button>`})(shopToday())}
+     ${prioLinkRow()}</section></div>${renderBack(night,"medal")}</div></div>
+   ${S.wxPop?wxPanel(night):""}`;
   // "Als Nächstes" und "Ausstattung" sind gestrichen (Florian 15.11.2026); Leuchtturm und Gäste im Bild bleiben, weil sie den Wochenstand zeigen
   return h}
 const FOODTABS=[["plan","Wochenplan"],["kita","🎒 Kita-Essen ›"]];
@@ -2279,6 +2297,17 @@ function renderBack(night,dash){const now=new Date(),today=ymd(now),D=backDay(no
   // Blick voraus
   const ahead=[1,2,3].map(i=>{const d=addDays(startOfDay(now),i),x=backDay(d),e=x.ev[0];return `<div class="bday3"><b>${i===1?"Morgen":DN[d.getDay()].slice(0,2)}</b><span>🍲 ${x.meal?esc(x.meal.name):"–"}</span>${e?`<span>${e.icon||"📅"} ${esc(e.name)}</span>`:""}</div>`}).join("");
   // Start (Florian 19.11.2026, „A: Bild und Dashboard zusammen“): unter dem Bild nur Zeitstrahl, drei Zähler und zugeklappt die nächsten Tage; Datum, Wetter und Ring stehen im Himmel (skyHead)
+  // Start als Medaille (Florian 19.11.2026: „Nur als umgedrehte Medaille“, Vorlage Variante B): Rückseite des Bildes, gleich groß. Datumsfeld und Ring, drei Zähler, Zeitstrahl zum Wischen (Pünktchen rechts), ab 19 Uhr hängt morgen an
+  if(dash==="medal"){const srow=x=>x.now?row(x):x.sep?`<li class="msep">${esc(x.sep)}</li>`:`<li><button class="btl${x.dim?" dim":""}" ${x.nav?`data-nav="${esc(x.nav)}"`:`data-go="${x.go}"${x.ft?` data-ft="${x.ft}"`:""}${x.dim?' data-mealfor="1"':""}`}><span class="bt">${esc(x.t||"ganztägig")}</span><span class="bdot"></span><span class="bn">${x.ic} ${esc(x.n)}</span></button></li>`;
+    const ni=rows.findIndex(x=>x.now),L=untimed.concat(rows.slice(Math.max(0,ni-1)));
+    if(now.getHours()>=19){const d=addDays(startOfDay(now),1),M=backDay(d),U=[];if(M.di<5){const bh=bhDay(mondayOf(d),M.di);if(!bh.off){U.push({t:"08:00",ic:"🚸",n:pname(bh.br.p)+" bringt",nav:"kita|"});U.push({t:"16:00",ic:"🚸",n:pname(bh.ab.p)+" holt ab",nav:"kita|"})}}
+      if(M.km&&M.km.text)U.push({t:"12:00",ic:"🎒",n:"Kita: "+M.km.text,nav:"kita|ks:essen"});M.ev.forEach(e=>U.push({t:e.t||"",ic:e.icon||"📅",n:e.name,nav:e.nav||"woche|wp:3"}));if(M.meal)U.push({t:"18:30",ic:"🍲",n:M.meal.name,go:"essen",ft:"plan"});
+      L.push({sep:"Morgen, "+DN[d.getDay()]+" "+d.getDate()+"."});L.push(...U.filter(x=>!x.t),...U.filter(x=>x.t).sort((a,b)=>a.t<b.t?-1:1))}
+    const op=tFoldOn("st_more",false),foot=`<div class="bfoot"><button class="bcal" data-nav="woche|wp:3" data-calopen="monat">📅 Kalender ›</button><button class="bcal" data-act="ternewgo">＋ Termin</button>${(n=>n?`<button class="bcal" data-go="recherchen">🤖 ${n} neu</button>`:"")(rNew().length)}</div>`;
+    return `<div class="campback dash medback${night?" night":""}" aria-label="Der Tag auf einen Blick" aria-hidden="${!S.medFlip}"><div class="brim"></div>${skyHead(night,true,"inback")}
+    <div class="bcnts">${cnt(heuteList().filter(x=>!x.done).length,"🧹 Heute dran",'data-act="gotasks"')}${cnt(bellItems().n,due.length?"🔔 fällig":"🔔 in 24 Std.",'data-go="wichtig"')}${(L=>cnt(L.length,"🧺 Einkauf heute",L.length?`data-shopview="${SHOP_TODAY}" aria-label="Heute nötig: ${esc(L.map(i=>i.name).join(", "))}"`:'data-go="einkauf"'))(shopToday())}</div>
+    ${op?`<div class="mtl mdays"><div class="b3">${ahead}</div>${foot}</div>`:`<div class="mtlw"><ul class="bline mtl">${L.map(srow).join("")}</ul><div class="mdots" aria-hidden="true"></div></div>`}
+    <div class="mfoot"><button class="bmore" data-tfold="st_more" aria-expanded="${op}">${op?"▴ Zeitstrahl":"▾ Nächste Tage"}</button><button class="bmore" data-act="medflip">↻ Bild</button></div></div>`}
   if(dash==="start"){const srow=x=>x.now?row(x):`<li><button class="btl${x.dim?" dim":""}" ${x.nav?`data-nav="${esc(x.nav)}"`:`data-go="${x.go}"${x.ft?` data-ft="${x.ft}"`:""}${x.dim?' data-mealfor="1"':""}`}><span class="bt">${esc(x.t||"")}</span><span class="bdot"></span><span class="bn">${x.ic} ${esc(x.n)}</span></button></li>`,op=tFoldOn("st_more",false),foot=`<div class="bfoot"><button class="bcal" data-nav="woche|wp:3" data-calopen="monat">📅 Kalender ›</button><button class="bcal" data-act="ternewgo">＋ Termin</button>${(n=>n?`<button class="bcal" data-go="recherchen">🤖 ${n} neu</button>`:"")(rNew().length)}</div>`;
     return `<div class="campback dash startdash${night?" night":""}" aria-label="Der Tag auf einen Blick"><div class="brim"></div><ul class="bline">${untimed.slice(0,1).map(srow).join("")}${(ni=>rows.slice(Math.max(0,ni-1)).slice(0,untimed.length?5:6))(rows.findIndex(x=>x.now)).map(srow).join("")}</ul>
     <div class="bcnts">${cnt(heuteList().filter(x=>!x.done).length,"🧹 Heute dran",'data-act="gotasks"')}${cnt(bellItems().n,due.length?"🔔 fällig":"🔔 in 24 Std.",'data-go="wichtig"')}${(L=>cnt(L.length,"🧺 Einkauf heute",L.length?`data-shopview="${SHOP_TODAY}" aria-label="Heute nötig: ${esc(L.map(i=>i.name).join(", "))}"`:'data-go="einkauf"'))(shopToday())}</div>
@@ -3925,7 +3954,7 @@ function render(){
   h+=`<div class="appbar"><span class="appleft"><button class="iconbtn bellnav" data-go="wichtig" aria-label="Wichtig: alle Erinnerungen">🔔${(n=>n?`<b class="badge">${n}</b>`:"")(bellItems().n)}</button></span><span class="appleft"><button class="iconbtn" data-go="suche" aria-label="Suche"${S.tab==="suche"?' aria-pressed="true"':""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button><button class="iconbtn" data-go="settings" aria-label="Einstellungen"${S.tab==="settings"?' aria-pressed="true"':""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button><button class="iconbtn" data-allar aria-label="Alle Bereiche"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></svg></button></span></div>`;
   h+=S.tab==="ausgaben"?shopPager(1)+renderGeld():S.tab==="listen"?shopPager(2)+renderBuy():S.tab==="wichtig"&&!S.prioDraft?startPager(2)+renderWichtig():S.tab==="bereiche"?renderAreas():S.tab==="settings"?renderSettings():S.tab==="wichtig"?renderWichtig():S.tab==="woche"?((S.weekPage|0)===3?startPager(1)+renderCal():weekPager()+((S.weekPage|0)===0?(+S.view===+mondayOf(new Date())?renderTag():"")+renderWeek():(S.weekPage|0)===4?renderRueck():renderWmw())):S.tab==="camp"?renderCamp():S.tab==="essen"||S.tab==="einkauf"?renderFood():S.tab==="ausflug"?renderTrips():PROJ_TABS.includes(S.tab)?renderProjects():S.tab==="spiel"?areaPager("spiel")+renderPlay():S.tab==="musik"?renderMusic():S.tab==="recherchen"?areaPager("recherchen")+renderResearch():S.tab==="suche"?renderSearch():S.tab==="kita"?areaPager("kita")+renderKita():S.tab==="privat"?wirPager(0)+renderPrivat():S.tab==="kind"?areaPager("kind")+renderKind():S.tab==="post"?(S.tab="privat",S.privSec="briefe",wirPager(0)+renderPrivat()):S.tab==="reisen"?renderTrips():renderCamp();
   const y=window.scrollY,ae=document.activeElement,fid=ae&&app.contains(ae)&&ae.id?ae.id:null,sel=fid&&ae.selectionStart!=null?[ae.selectionStart,ae.selectionEnd]:null;
-  h+=renderPick();app.innerHTML=foldAll(h);window.scrollTo(0,y);syncNav();
+  h+=renderPick();app.innerHTML=foldAll(h);window.scrollTo(0,y);syncNav();if(S.tab==="camp"){medSync();medDots()}
   if(fid){const el=document.getElementById(fid);if(el){el.focus({preventScroll:true});if(sel){try{el.setSelectionRange(sel[0],sel[1])}catch(_){}}}}
 }
 
@@ -4005,10 +4034,23 @@ function syncNav(){if(!S.config)return;arSeen();if(!NAV.length&&!S.navRestored){
 window.addEventListener("popstate",e=>{const st=e.state;
   // Offenes Fenster: Zurück schließt nur das Fenster (Florian 16.11.2026)
   if(ovlOpen()){S.ovl=false;navBusy=false;ovlCloseAll();return}
+  // Medaille: Zurück dreht aufs Bild
+  if(S.medPop){S.medPop=0;return}if(S.tab==="camp"&&S.medFlip&&!(st&&st.med)){medFlip(false);return}
   if(st&&st.ov){history.back();return}
   if(navBusy){navBusy=false;return}if(!st||typeof st.k!=="string")return;
   applyNav(st.k);S.tripDraft=null;S.projDraft=null;S.playDraft=null;S.kitaDraft=null;S.recDraft=S.planEdit=S.lunchDraft=null;S.lunchMapEdit=false;S.draft=null;
   NAV.length=Math.min(NAV.length,st.i);NAV[st.i]=navKey();render();window.scrollTo(0,0)});
+// ---------- Start als Medaille (Florian 19.11.2026): Bild vorne, Dashboard hinten; zuletzt offene Seite je Handy (hq-medal); die Rückseite hat einen eigenen Verlaufsschritt {med:1} ----------
+try{S.medFlip=localStorage.getItem("hq-medal")==="1"}catch(_){}
+function medFlip(v){v=!!v;S.medFlip=v;try{localStorage.setItem("hq-medal",v?"1":"")}catch(_){}const m=app.querySelector(".medal");
+  if(m){m.classList.toggle("flipped",v);const f=m.querySelector(".medfront"),b=m.querySelector(".medback");if(f)f.setAttribute("aria-hidden",String(v));if(b)b.setAttribute("aria-hidden",String(!v));medDots()}
+  try{if(v)medSync();else if(history.state&&history.state.med){S.medPop=1;history.back()}}catch(_){}}
+window.hqMedal=v=>medFlip(v);// für Prüfskripte
+function medSync(){try{if(S.tab==="camp"&&S.medFlip&&!navBusy&&history.state&&!history.state.med&&!history.state.ov)history.pushState(Object.assign({},history.state,{med:1}),"")}catch(_){}}
+// Pünktchen rechts im Zeitstrahl: eine Seite je Bildschirmhöhe des Zeitstrahls
+function medDots(){const l=app.querySelector(".medback ul.mtl"),d=app.querySelector(".medback .mdots");if(!l||!d)return;const n=Math.max(1,Math.ceil((l.scrollHeight-4)/Math.max(1,l.clientHeight))),i=Math.min(n-1,Math.round(l.scrollTop/Math.max(1,l.clientHeight)));
+  d.innerHTML=n>1?Array.from({length:n},(_,j)=>`<i${j===i?' class="on"':""}></i>`).join(""):""}
+document.addEventListener("scroll",e=>{if(e.target&&e.target.classList&&e.target.classList.contains("mtl"))medDots()},true);
 // ---------- Events ----------
 // Wischen links/rechts (Florian 17.11.2026, „Seiten im Reiter“): blättert nur die Seiten der Leiste oben (.pager: Start, Woche, Essen, Einkauf, Wir;
 // sonst die Reiter-Zeile .tabrow, z. B. Reisen Übersicht | Packlisten). Kein Sprung in andere Bereiche, kein Umlauf. Der Wechsel läuft über den Knopf selbst (gleicher Weg wie ein Tipp).
@@ -4035,7 +4077,10 @@ const hScrollIn=t=>{for(let el=t;el&&el!==app&&el.nodeType===1;el=el.parentEleme
  // Kurzer Tipp auf eine freie Stelle im Bild: Dashboard auf/zu
  // Tipp in den Hintergrund der Karte Heute dreht das Bild auf die Rückseite (Florian 15.11.2026)
  app.addEventListener("click",e=>{if(S.tab!=="camp")return;const c=e.target.closest(".card.today");if(!c||e.target.closest("button,a,input,form"))return;S.prev=S.tab;S.tab="tag";render();window.scrollTo(0,0)});
- app.addEventListener("click",e=>{if(S.tab!=="camp"||S.ring)return;const c=e.target.closest(".camp");if(!c||e.target.closest(".spot,.bcnt,.bcal,.btask,a,.skyhead button"))return;if(Date.now()-(S.ringAt||0)<600)return;S.prev=S.tab;S.tab="tag";render();window.scrollTo(0,0)})}
+ // Start als Medaille (Florian 19.11.2026): Tipp auf eine freie Stelle im Bild dreht aufs Dashboard, Tipp auf eine freie Stelle im Dashboard zurück
+ app.addEventListener("click",e=>{if(S.tab!=="camp"||S.ring)return;if(Date.now()-(S.ringAt||0)<600)return;
+   if(e.target.closest(".medfront .camp")&&!e.target.closest(".spot,a,.skyhead button")){medFlip(true);return}
+   if(e.target.closest(".medback")&&!e.target.closest("button,a")){medFlip(false)}})}
 // Doppeltipp auf einen der 4 Reiter springt auf seine zweite Seite (nur im Entwurf)
 try{S.labels=localStorage.getItem("hq-labels")==="1"}catch(_){}
 S.gest={tap:true,swipe:true,ring:true};try{const g=JSON.parse(localStorage.getItem("hq-gest")||"{}");Object.assign(S.gest,g)}catch(_){}
@@ -4321,6 +4366,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="restoredo"){const r=S.restore;if(!r)return;try{if(r.d.config)await S.store.saveConfig(r.d.config);await S.store.setPath("weeks",r.d.weeks||null);await S.store.setPath("food",r.d.food||null);S.restore=null;toast("Wiederhergestellt");render()}catch(_){toast("Wiederherstellen ging nicht. Bitte Verbindung prüfen.")}return}
   if(b.dataset.act==="labels"){S.labels=!S.labels;try{localStorage.setItem("hq-labels",S.labels?"1":"")}catch(_){}render();return}
   if(b.dataset.wxfun){const F=WX_FUN.find(x=>x[0]===b.dataset.wxfun);if(F){S.atipWX=F[4]||"";S.atipC=F[5]||"";S.atipIO="";S.atipZ="woche";S.wxPop=false;S.tFold=S.tFold||{};S.tFold.fix_immer=true;S.tFold["fix_"+season()]=true;goNav("ausflug|tt:ideen");toast(F[1]+" "+F[2]+": passende Ausflüge")}return}
+  if(b.dataset.act==="medflip"){medFlip(!S.medFlip);return}
   if(b.dataset.act==="wxpop"){S.wxPop=!S.wxPop;S.flip=false;render();return}
   if(b.dataset.wpage!=null){setWeekPage(+b.dataset.wpage);return}
   if(b.dataset.rbmode){S.rbMode=b.dataset.rbmode;S.rbOff=0;render();return}

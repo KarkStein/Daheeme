@@ -32,7 +32,7 @@ srv.listen(8765,async()=>{
   // feste Woche
   await A.click('[data-kidrule="0"]');await A.waitForTimeout(400);r.rule=JSON.stringify((db().food.kid||{}).rule);
   // Dashboard
-  await nav('camp|');r.dash=await A.$eval('.startdash .bline',e=>e.innerText.replace(/\n/g,' '));
+  await nav('camp|');r.dash=await A.$eval('.medback .bline',e=>e.innerText.replace(/\n/g,' '));
   // Schaukel im Bild
   await A.clock.setFixedTime(new Date('2026-11-18T10:05:00+01:00'));await nav('camp|');await A.click('.spot[data-go=kind]');await A.waitForTimeout(400);r.swing=await A.$eval('#app h1',e=>e.innerText);
   await nav('camp|');await A.waitForTimeout(600);await (await A.$('.camp')).screenshot({path:out+'/haus-schaukel.png'});

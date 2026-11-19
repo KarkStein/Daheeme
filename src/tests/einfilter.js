@@ -8,7 +8,7 @@ srv.listen(8765,async()=>{
   await put('food/shop/s1',{name:'Brot',urg:true,done:false,at:1});await put('food/shop/s2',{name:'Milch',done:false,at:2});await A.waitForTimeout(600);
   const nav=async v=>{await A.evaluate(v=>{const b=document.createElement("button");b.dataset.nav=v;b.id="zz";document.getElementById("app").appendChild(b)},v);await A.click("#zz");await A.waitForTimeout(400)};
   const txt=()=>A.$eval('#app',e=>e.innerText);
-  await nav('camp|');await A.click('.startdash .bcnt[data-shopview]');await A.waitForTimeout(400);r.f1=!/Milch/.test(await txt());r.chip=await A.$eval(`[data-shopfilter="__heute"]`,e=>e.innerText);
+  await nav('camp|');await A.evaluate(()=>window.hqMedal&&window.hqMedal(true));await A.waitForTimeout(800);await A.click('.medback .bcnt[data-shopview]');await A.waitForTimeout(400);r.f1=!/Milch/.test(await txt());r.chip=await A.$eval(`[data-shopfilter="__heute"]`,e=>e.innerText);
   await A.screenshot({path:process.argv[2]+'/einkauf-filter.png'});
   await A.click(`[data-shopfilter="__heute"]`);await A.waitForTimeout(300);r.off=/Milch/.test(await txt());
   await A.click(`[data-shopfilter="__heute"]`);await A.waitForTimeout(300);await A.click('#tabs [data-tab=woche]');await A.waitForTimeout(300);await A.click('#tabs [data-tab=einkauf]');await A.waitForTimeout(400);r.tab=/Milch/.test(await txt());

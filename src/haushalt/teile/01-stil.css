@@ -679,3 +679,19 @@ a.mkb{text-decoration:none;color:var(--fg)}.muslk[aria-pressed=false]{filter:gra
 .skyring{margin-right:10%}
 .skyhead{z-index:1}.skyl{flex:0 1 auto}.skyhead .skyring{margin-left:auto}
 .wkheute .hmore{flex:none;border:1px solid rgba(240,210,140,.6);background:rgba(255,255,255,.1);color:#fdf7ea;border-radius:999px;padding:var(--sp1) var(--sp2);font:inherit;font-size:var(--fs-s);font-weight:700;cursor:pointer}
+/* Start als Medaille (Florian 19.11.2026): vorne Bild und Karte Heute, hinten das Dashboard in gleicher Größe */
+.medal{perspective:1400px}.medin{position:relative;transition:transform .7s cubic-bezier(.3,.1,.2,1);transform-style:preserve-3d}.medal.flipped .medin{transform:rotateY(180deg)}
+.medfront,.campback.medback{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.medal.flipped .medfront,.medal.flipped .medfront *,.medal:not(.flipped) .medback,.medal:not(.flipped) .medback *{pointer-events:none!important}
+.medfront .card.today{margin-bottom:0}
+.campback.medback{position:absolute;inset:0;transform:rotateY(180deg);margin:0;gap:var(--sp2);padding:var(--sp3) var(--sp4) var(--sp2);cursor:default}
+.medback .skyhead.inback{position:static;background:none;color:#fdf7ea;padding:0;align-items:center}
+.medback .skyhead.inback .skyday{color:#f0d28c}.medback .skyhead.inback .skywx{background:rgba(255,255,255,.14)}.medback .skyhead.inback .skyfun{background:rgba(255,255,255,.14)}
+.medback .skyhead.inback .skyring{margin-right:0}
+.medback .mtlw{position:relative;flex:1;min-height:0;display:flex}
+.medback ul.mtl{flex:1;min-height:0;overflow-y:auto;scroll-snap-type:y proximity;scrollbar-width:none;padding-right:var(--sp3)}.medback ul.mtl::-webkit-scrollbar{display:none}
+.medback ul.mtl li{scroll-snap-align:start;flex:none}
+.medback .msep{font-size:var(--fs-xs);letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:#f0d28c;padding:var(--sp2) 0 var(--sp1)}.medback .bline li.msep::after{display:none}
+.medback .mdots{position:absolute;right:0;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:var(--sp1)}.medback .mdots i{width:6px;height:6px;border-radius:999px;background:rgba(240,210,140,.35)}.medback .mdots i.on{background:#f0d28c}
+.medback .mdays{flex:1;min-height:0;overflow-y:auto}
+.medback .mfoot{display:flex;justify-content:space-between;border-top:1px solid rgba(240,210,140,.25);padding-top:var(--sp1)}

@@ -18,10 +18,23 @@ function syncNav(){if(!S.config)return;arSeen();if(!NAV.length&&!S.navRestored){
 window.addEventListener("popstate",e=>{const st=e.state;
   // Offenes Fenster: Zurück schließt nur das Fenster (Florian 16.11.2026)
   if(ovlOpen()){S.ovl=false;navBusy=false;ovlCloseAll();return}
+  // Medaille: Zurück dreht aufs Bild
+  if(S.medPop){S.medPop=0;return}if(S.tab==="camp"&&S.medFlip&&!(st&&st.med)){medFlip(false);return}
   if(st&&st.ov){history.back();return}
   if(navBusy){navBusy=false;return}if(!st||typeof st.k!=="string")return;
   applyNav(st.k);S.tripDraft=null;S.projDraft=null;S.playDraft=null;S.kitaDraft=null;S.recDraft=S.planEdit=S.lunchDraft=null;S.lunchMapEdit=false;S.draft=null;
   NAV.length=Math.min(NAV.length,st.i);NAV[st.i]=navKey();render();window.scrollTo(0,0)});
+// ---------- Start als Medaille (Florian 19.11.2026): Bild vorne, Dashboard hinten; zuletzt offene Seite je Handy (hq-medal); die Rückseite hat einen eigenen Verlaufsschritt {med:1} ----------
+try{S.medFlip=localStorage.getItem("hq-medal")==="1"}catch(_){}
+function medFlip(v){v=!!v;S.medFlip=v;try{localStorage.setItem("hq-medal",v?"1":"")}catch(_){}const m=app.querySelector(".medal");
+  if(m){m.classList.toggle("flipped",v);const f=m.querySelector(".medfront"),b=m.querySelector(".medback");if(f)f.setAttribute("aria-hidden",String(v));if(b)b.setAttribute("aria-hidden",String(!v));medDots()}
+  try{if(v)medSync();else if(history.state&&history.state.med){S.medPop=1;history.back()}}catch(_){}}
+window.hqMedal=v=>medFlip(v);// für Prüfskripte
+function medSync(){try{if(S.tab==="camp"&&S.medFlip&&!navBusy&&history.state&&!history.state.med&&!history.state.ov)history.pushState(Object.assign({},history.state,{med:1}),"")}catch(_){}}
+// Pünktchen rechts im Zeitstrahl: eine Seite je Bildschirmhöhe des Zeitstrahls
+function medDots(){const l=app.querySelector(".medback ul.mtl"),d=app.querySelector(".medback .mdots");if(!l||!d)return;const n=Math.max(1,Math.ceil((l.scrollHeight-4)/Math.max(1,l.clientHeight))),i=Math.min(n-1,Math.round(l.scrollTop/Math.max(1,l.clientHeight)));
+  d.innerHTML=n>1?Array.from({length:n},(_,j)=>`<i${j===i?' class="on"':""}></i>`).join(""):""}
+document.addEventListener("scroll",e=>{if(e.target&&e.target.classList&&e.target.classList.contains("mtl"))medDots()},true);
 // ---------- Events ----------
 // Wischen links/rechts (Florian 17.11.2026, „Seiten im Reiter“): blättert nur die Seiten der Leiste oben (.pager: Start, Woche, Essen, Einkauf, Wir;
 // sonst die Reiter-Zeile .tabrow, z. B. Reisen Übersicht | Packlisten). Kein Sprung in andere Bereiche, kein Umlauf. Der Wechsel läuft über den Knopf selbst (gleicher Weg wie ein Tipp).
@@ -48,7 +61,10 @@ const hScrollIn=t=>{for(let el=t;el&&el!==app&&el.nodeType===1;el=el.parentEleme
  // Kurzer Tipp auf eine freie Stelle im Bild: Dashboard auf/zu
  // Tipp in den Hintergrund der Karte Heute dreht das Bild auf die Rückseite (Florian 15.11.2026)
  app.addEventListener("click",e=>{if(S.tab!=="camp")return;const c=e.target.closest(".card.today");if(!c||e.target.closest("button,a,input,form"))return;S.prev=S.tab;S.tab="tag";render();window.scrollTo(0,0)});
- app.addEventListener("click",e=>{if(S.tab!=="camp"||S.ring)return;const c=e.target.closest(".camp");if(!c||e.target.closest(".spot,.bcnt,.bcal,.btask,a,.skyhead button"))return;if(Date.now()-(S.ringAt||0)<600)return;S.prev=S.tab;S.tab="tag";render();window.scrollTo(0,0)})}
+ // Start als Medaille (Florian 19.11.2026): Tipp auf eine freie Stelle im Bild dreht aufs Dashboard, Tipp auf eine freie Stelle im Dashboard zurück
+ app.addEventListener("click",e=>{if(S.tab!=="camp"||S.ring)return;if(Date.now()-(S.ringAt||0)<600)return;
+   if(e.target.closest(".medfront .camp")&&!e.target.closest(".spot,a,.skyhead button")){medFlip(true);return}
+   if(e.target.closest(".medback")&&!e.target.closest("button,a")){medFlip(false)}})}
 // Doppeltipp auf einen der 4 Reiter springt auf seine zweite Seite (nur im Entwurf)
 try{S.labels=localStorage.getItem("hq-labels")==="1"}catch(_){}
 S.gest={tap:true,swipe:true,ring:true};try{const g=JSON.parse(localStorage.getItem("hq-gest")||"{}");Object.assign(S.gest,g)}catch(_){}

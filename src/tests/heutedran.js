@@ -10,7 +10,7 @@ srv.listen(8765,async()=>{
   const key=/k=([^&]+)/.exec(A.url())[1];const put=(pa,d)=>fetch('http://localhost:8765/haushalt/'+key+'/'+pa+'.json',{method:'PUT',body:JSON.stringify(d)});const wk='2026-W47';
   const hoRow=async()=>{await A.waitForTimeout(500);return A.$eval('.wkheute [data-hodone]',e=>e.closest('.hrow').innerText.replace(/\n/g,' ')).catch(()=>'')};
   await put('weeks/'+wk+'/ticks/essen__0',{by:'p0',at:1});r.ho0=await hoRow();await A.waitForTimeout(200);await A.screenshot({path:out+'/heutedran-hausdienst.png'});
-  const todo=async()=>{await A.click('#tabs [data-tab=camp]');await A.waitForTimeout(400);const t=await A.$eval('.startdash .bcnt[data-act=gotasks]',e=>e.innerText).catch(()=>'');await A.click('#tabs [data-tab=woche]');await A.waitForTimeout(400);return t};
+  const todo=async()=>{await A.click('#tabs [data-tab=camp]');await A.waitForTimeout(400);const t=await A.$eval('.medback .bcnt[data-act=gotasks]',e=>e.innerText).catch(()=>'');await A.click('#tabs [data-tab=woche]');await A.waitForTimeout(400);return t};
   if(r.ho0){await A.click('.wkheute [data-hodone]');await A.waitForTimeout(500);r.hoDone=JSON.stringify((get(['haushalt',key,'weeks',wk,'ticks','essen__0'])||{}).ok||{});r.hoCls=await A.$eval('.wkheute [data-hodone]',e=>e.closest('.hrow').className)}
   await put('weeks/'+wk+'/ticks/essen__0',{by:'p1',at:1});r.ho1=await hoRow();
   await put('weeks/'+wk+'/ticks/essen__0',{by:'p1',half:'vm',at:1});r.hoVm=await hoRow();r.todoOpen=await todo();

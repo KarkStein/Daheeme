@@ -3,7 +3,7 @@ srv.listen(8765,async()=>{
   const b=await chromium.launch();const errs=[];const r={};const out=process.argv[2];
   const c=await b.newContext({viewport:{width:390,height:844},timezoneId:'Europe/Berlin'});const A=await c.newPage();A.setDefaultTimeout(8000);A.on('pageerror',e=>errs.push(e.message));
   await A.goto('http://localhost:8765/');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');await A.waitForTimeout(300);
-  await A.click('.startdash .bcnt[data-act=gotasks]');await A.waitForTimeout(600);
+  await A.evaluate(()=>window.hqMedal&&window.hqMedal(true));await A.waitForTimeout(800);await A.click('.medback .bcnt[data-act=gotasks]');await A.waitForTimeout(600);
   r.h1=await A.$eval('#app h1',e=>e.innerText).catch(()=>'');r.y=await A.evaluate(()=>scrollY);
   r.top=await A.$eval('.wkheute',e=>Math.round(e.getBoundingClientRect().top));r.flash=await A.$$eval('.hlflash',l=>l.length);
   await A.screenshot({path:out+'/offene-aufgaben-sprung.png'});
