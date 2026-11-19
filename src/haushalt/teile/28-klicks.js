@@ -115,7 +115,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="labels"){S.labels=!S.labels;try{localStorage.setItem("hq-labels",S.labels?"1":"")}catch(_){}render();return}
   if(b.dataset.wxfun){const F=WX_FUN.find(x=>x[0]===b.dataset.wxfun);if(F){S.atipWX=F[4]||"";S.atipC=F[5]||"";S.atipIO="";S.atipZ="woche";S.wxPop=false;S.tFold=S.tFold||{};S.tFold.fix_immer=true;S.tFold["fix_"+season()]=true;goNav("ausflug|tt:ideen");toast(F[1]+" "+F[2]+": passende Ausflüge")}return}
   if(b.dataset.act==="medflip"){medFlip(!S.medFlip);return}
-  if(b.dataset.act==="wxpop"){S.wxPop=!S.wxPop;S.flip=false;render();return}
+  if(b.dataset.act==="wxpop"){S.wxPop=!S.wxPop;S.flip=false;render();if(S.wxPop)setTimeout(()=>{const el=document.querySelector("#app .wxpanel");if(el)el.scrollIntoView({block:"start",behavior:"smooth"})},40);return} // Florian 19.11.2026: „nicht nur öffnen, sondern auch runter auf die passende Stelle scrollen“
   if(b.dataset.wpage!=null){setWeekPage(+b.dataset.wpage);return}
   if(b.dataset.rbmode){S.rbMode=b.dataset.rbmode;S.rbOff=0;render();return}
   if(b.dataset.rboff!=null){S.rbOff=Math.min(0,(S.rbOff|0)+(+b.dataset.rboff));render();return}
