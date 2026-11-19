@@ -198,7 +198,7 @@ function todoRows(tomorrowOff){const now=new Date(),today=ymd(now),tmw=ymd(addDa
   if(kb.length&&D.di<5&&!inUrlaub(now))L+=row("📦","Kita: "+esc(kb.slice(0,3).map(x=>x.name).join(", "))+(kb.length>3?" …":""),"mitbringen",'data-nav="kita|ks:tasche"');
   if(!D.meal&&now.getHours()<20)L+=row("🍲","Noch kein Abendessen","Rezept aussuchen",'data-nav="essen|ft:rezepte" data-mealfor="1"');
   // Morgen nur darunter und kleiner (Florian 16.11.2026: „das wirklich von heute“)
-  const pm=pt.filter(x=>x.due>today);if(pm.length&&!tomorrowOff)L+=`<div class="freq" style="margin-top:var(--sp2)">Morgen</div>`+pm.map(prow).join("");
+  const pm=pt.filter(x=>x.due>today);if(pm.length&&!tomorrowOff)L+=`<div class="mt2 freq">Morgen</div>`+pm.map(prow).join("");
   return L}
 // „Heute für dich“ (Florian 19.11.2026, „2: Heute im Wochenkopf“): Hausdienst, tägliche Aufgaben von heute und fällige Wochen-Aufgaben, für mich (ohne Ich bin: alle), ohne Hausdienst-Wechsel.
 // Mehrfach wöchentliche bleiben nach dem Haken mit „＋1“ für die nächste Runde stehen (Florian 19.11.2026: „Wie lässt sich da 2/3 abhaken?“).

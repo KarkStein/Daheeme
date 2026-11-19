@@ -15,7 +15,7 @@ function placeChips(cur){const L=places(),f=placeFind(cur);
   return `<div class="unl placechips">${L.map(p=>`<button type="button" class="chipbtn neutral" data-placeset="${esc(p.name)}" aria-pressed="${!!f&&f.id===p.id}">📍 ${esc(p.name)}${p.addr?"":" ⚠️"}</button>`).join("")}${cur&&!f?`<button type="button" class="chipbtn neutral" data-placenew="${esc(cur)}">＋ „${esc(String(cur).slice(0,24))}“ als Ort speichern</button>`:!L.length?`<button type="button" class="chipbtn neutral" data-placenew="">＋ Ort speichern</button>`:""}</div>`}
 // Einstellungen › Ort und Wetter: Liste der Orte
 function placeList(){const L=places();
-  return `<div class="freq" style="margin-top:var(--sp3)"><b>📍 Gespeicherte Orte</b> · stehen im Termin zur Auswahl, 🚆 nimmt die Adresse.</div>${L.length?`<ul class="shop">${L.map(p=>`<li><span class="nm">📍 ${esc(p.name)}${p.addr?"":` <span class="freq">(ohne Adresse)</span>`}</span><button type="button" class="ghost small" data-placeedit="${esc(p.id)}">✎</button></li>`).join("")}</ul>`:""}<div class="btnrow"><button type="button" class="ghost small" data-placenew="">＋ Ort</button></div>`}
+  return `<div class="mt3 freq"><b>📍 Gespeicherte Orte</b> · stehen im Termin zur Auswahl, 🚆 nimmt die Adresse.</div>${L.length?`<ul class="shop">${L.map(p=>`<li><span class="nm">📍 ${esc(p.name)}${p.addr?"":` <span class="freq">(ohne Adresse)</span>`}</span><button type="button" class="ghost small" data-placeedit="${esc(p.id)}">✎</button></li>`).join("")}</ul>`:""}<div class="btnrow"><button type="button" class="ghost small" data-placenew="">＋ Ort</button></div>`}
 // Arten von Terminen: Symbol im Kalender statt 📅; Kita-Termine laufen beim Bereich Kita mit (Filter); eigene Arten über „＋ Eigene“
 const TER_TAGS=[["kita","🎒","Kita"],["arzt","🩺","Arzt"],["familie","👪","Familie"],["feier","🎉","Feier"],["sport","⚽","Sport"],["ausflug","🚲","Ausflug"],["arbeit","💼","Arbeit"]];
 const terTags=()=>catsOf("ter",TER_TAGS);
@@ -25,11 +25,11 @@ function terTagHtml(d){return `<div class="fld"><span>Art</span><div class="unl"
 // Vorschlag bei Terminen ohne Ort (Florian 16.11.2026): Arten, bei denen ein Ort Sinn hat, oder ein gespeicherter Ort steckt im Namen → 📍 in der Zeile
 const PLACE_TAGS=["kita","arzt","feier","familie","sport"];
 const placeGuess=n=>{const t=String(n||"").toLowerCase();return places().find(p=>p.name.length>2&&t.includes(p.name.toLowerCase()))||null};
-const placeHint=e=>e.id&&!e.tent&&(PLACE_TAGS.includes(e.tag)||(e.tag&&!TER_TAGS.some(t=>t[0]===e.tag))||placeGuess(e.name))?`<button class="catbtn placehint" data-placeask="${esc(e.id)}" aria-label="Ort eintragen" style="background:none;border:none">📍</button>`:"";
+const placeHint=e=>e.id&&!e.tent&&(PLACE_TAGS.includes(e.tag)||(e.tag&&!TER_TAGS.some(t=>t[0]===e.tag))||placeGuess(e.name))?`<button class="catbtn placehint" data-placeask="${esc(e.id)}" aria-label="Ort eintragen">📍</button>`:"";
 function placeAsk(id){const x=termine().find(y=>y.id===id);if(!x||document.getElementById("mbox"))return;S.mboxAt=Date.now();const g=placeGuess(x.name)||(x.tag==="kita"?placeFind("Kita"):null),L=places().filter(p=>!g||p.id!==g.id);
   const set=async name=>{mboxClose();try{await S.store.setPath("food/termin/"+id+"/place",name);toast("Ort: "+name)}catch(_){toast("Konnte nicht speichern.")}render()};
   const el=document.createElement("div");el.id="mbox";el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="Ort eintragen"><div class="section-head"><h2>📍 Wo ist ${esc(x.name)}?</h2></div>
-    <div class="unl" style="margin:var(--sp2) 0">${(g?[g]:[]).concat(L).map((p,i)=>`<button type="button" class="chipbtn neutral" data-plpick="${esc(p.name)}"${!i&&g?' aria-pressed="true"':""}>📍 ${esc(p.name)}</button>`).join("")}<button type="button" class="chipbtn neutral" data-plnew>＋ Neuer Ort</button></div>
+    <div class="mt2 mb2 unl">${(g?[g]:[]).concat(L).map((p,i)=>`<button type="button" class="chipbtn neutral" data-plpick="${esc(p.name)}"${!i&&g?' aria-pressed="true"':""}>📍 ${esc(p.name)}</button>`).join("")}<button type="button" class="chipbtn neutral" data-plnew>＋ Neuer Ort</button></div>
     <div class="freq">Neuer Ort: nur für diesen Termin oder als fester Ort (Einstellungen › Ort und Wetter).</div><div class="btnrow"><button class="ghost" type="button" data-plx>Schließen</button></div></div>`;
   document.body.appendChild(el);
   el.addEventListener("click",e=>{const p=e.target.closest("[data-plpick]");if(p){set(p.dataset.plpick);return}

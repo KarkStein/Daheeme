@@ -12,8 +12,8 @@ function gardenGrid(mon){const L=gardenPlants(mon),t0=+startOfDay(new Date()),su
   return L.map((p,i)=>!sun&&p.at>=t0&&+mondayOf(new Date())===+(mon||mondayOf(new Date()))?"🌱":GARDEN_FLOWERS[(i*7+3)%GARDEN_FLOWERS.length])}
 // Kleine Blumen im Startbild am Haus (vorne am Weg und an der Hauswand), höchstens 18
 const GARDEN_POS=[[132,236],[140,240],[226,236],[234,240],[150,252],[160,255],[172,251],[184,256],[196,252],[208,255],[220,251],[128,250],[242,252],[146,244],[230,246],[138,258],[248,246],[204,246]];
-function gardenSvg(n){const C=["#f25f8c","#ffc53d","#ffffff","#ff8a5c","#c58cf0","#f7a8c4"];let g='<g class="garden" aria-hidden="true">';
-  GARDEN_POS.slice(0,Math.min(n,GARDEN_POS.length)).forEach((p,i)=>{const c=C[i%C.length];g+=`<path d="M${p[0]} ${p[1]+5}v-5" stroke="#4d7a3a" stroke-width=".9"/><circle cx="${p[0]-1.4}" cy="${p[1]}" r="1.4" fill="${c}"/><circle cx="${p[0]+1.4}" cy="${p[1]}" r="1.4" fill="${c}"/><circle cx="${p[0]}" cy="${p[1]-1.4}" r="1.4" fill="${c}"/><circle cx="${p[0]}" cy="${p[1]+1.2}" r="1.2" fill="${c}"/><circle cx="${p[0]}" cy="${p[1]}" r=".9" fill="#ffd66b"/>`});
+function gardenSvg(n){/*bild: Farben der Blumen gehören zum Startbild*/const C=["#f25f8c","#ffc53d","#ffffff","#ff8a5c","#c58cf0","#f7a8c4"];let g='<g class="garden" aria-hidden="true">';
+  /*bild*/GARDEN_POS.slice(0,Math.min(n,GARDEN_POS.length)).forEach((p,i)=>{const c=C[i%C.length];g+=`<path d="M${p[0]} ${p[1]+5}v-5" stroke="#4d7a3a" stroke-width=".9"/><circle cx="${p[0]-1.4}" cy="${p[1]}" r="1.4" fill="${c}"/><circle cx="${p[0]+1.4}" cy="${p[1]}" r="1.4" fill="${c}"/><circle cx="${p[0]}" cy="${p[1]-1.4}" r="1.4" fill="${c}"/><circle cx="${p[0]}" cy="${p[1]+1.2}" r="1.2" fill="${c}"/><circle cx="${p[0]}" cy="${p[1]}" r=".9" fill="#ffd66b"/>`});
   return g+"</g>"}
 
 // 🍾 Flaschenpost für zwei: food/flasche/<JJJJ-MM-TT> {q, p0:{t,at}, p1:{t,at}}. Erst wenn beide geantwortet haben, öffnet sich die Flasche.

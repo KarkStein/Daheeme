@@ -9,7 +9,7 @@ const careMe=c=>!c||!S.me||c==="both"||c===S.me;
 function careTxt(c){return c==="both"?pname("p0")+" und "+pname("p1"):c?pname(c):""}
 // Kleines Schild: gesetzt = Anfangsbuchstabe(n) in Personenfarbe; leer nur, wenn ask (Kind-Termin, Projekt)
 function careBadge(kind,id,ask){const c=careVal(kind,id);if(!c&&!ask)return "";
-  const dots=c?(c==="both"?["p0","p1"]:[c]).map(p=>`<span class="kz" style="background:${PCOL[p]}">${esc(pInit(p))}</span>`).join(""):"?";
+  const dots=c?(c==="both"?["p0","p1"]:[c]).map(p=>`<span class="kz bgw-${p}">${esc(pInit(p))}</span>`).join(""):"?";
   return `<button type="button" class="carebtn${c?"":" open"}" data-care="${kind}|${esc(id)}" aria-label="${c?"Kümmert sich: "+esc(careTxt(c))+". Tippen ändert":"Wer kümmert sich? Noch offen. Tippen wählt"}">🧠 ${dots}</button>`}
 // Kalender-Zeile: eigener Termin oder Familywall; „?“ nur, wenn das Kind dabei ist
 function careEv(e){if(e.tent)return "";if(e.src==="own"&&e.id)return careBadge("ter",e.id,whoL(e.who).includes("kid"));if(e.src==="ext"&&e.fw)return careBadge("fw",e.fw,whoL(e.who).includes("kid"));return ""}
