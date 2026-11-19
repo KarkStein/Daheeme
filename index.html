@@ -815,6 +815,7 @@ html{scroll-padding-bottom:calc(var(--tabh,64px) + 56px)}
 .maskfoot{margin-top:var(--sp4);padding-top:var(--sp3);border-top:1px solid var(--line)}.maskfoot .verk{margin-bottom:var(--sp2)}.mfrow{display:flex;flex-wrap:wrap;gap:var(--sp2);justify-content:flex-end}.mfrow:empty{display:none}
 .moreb{margin:var(--sp2) 0}
 .maskfoot .verk{border-top:0;margin-top:0;padding-top:0}.tripform .bellbtn{font-size:var(--fs-l);padding:var(--sp2) var(--sp3);border:1px solid var(--line);border-radius:999px;background:none}
+a.minitile{text-decoration:none;color:inherit}
 </style>
 
 <div class="app" id="app">
@@ -3833,7 +3834,9 @@ function renderMinis(){const g=S.miniGame||"";const back=`<button class="ghost m
   const tile=(id,ic,t,sub)=>`<button class="minitile" data-mini="${id}"><span class="mic">${ic}</span><span><b>${t}</b><i>${sub}</i></span><em>›</em></button>`;
   return `<div><div class="eyebrow">Miteinander, ohne Punkte</div><h1>Minispiele</h1></div><div class="minis">`
     +tile("flasche","🍾","Flaschenpost für zwei",flascheOpen(x)?"Heute geöffnet":["p0","p1"].map(p=>(x[p]&&x[p].t?"✅ ":"⏳ ")+pname(p)).join(" · "))
-    +tile("garten","🌱","Garten der Woche",n?`${n} ${n===1?"Pflanze":"Pflanzen"} diese Woche`:"Jeder Haken pflanzt etwas")+`</div>`}
+    +tile("garten","🌱","Garten der Woche",n?`${n} ${n===1?"Pflanze":"Pflanzen"} diese Woche`:"Jeder Haken pflanzt etwas")
+    // Leuchtturm-Wacht (Florian 19.11.2026): eigenes Spiel im Ordner spiel/, in sich geschlossen; hier steht nur der Link
+    +`<a class="minitile" href="spiel/"><span class="mic">🗼</span><span><b>Leuchtturm-Wacht</b><i>Großes Spiel für euch zwei: 10 Buchten, je 8 Wellen</i></span><em>›</em></a></div>`}
 
 // Klicks (aus 28-klicks.js)
 async function miniClick(b){const d=b.dataset;

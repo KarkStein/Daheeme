@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#1e3a5f">
+<title>Leuchtturm-Wacht</title>
+<style>
+:root{--ink:#1c2b4a;--navy:#1e3a5f;--paper:#f3efe6;--card:#fffdf7;--line:#ddd5c2;--ochre:#a9742a;--sea:#6a9bc3;--ok:#2e7d6b;--bad:#b3412e}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;overscroll-behavior:none}
+h1,h2{font-family:Georgia,"Times New Roman",serif;margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+#home{max-width:480px;margin:0 auto;padding:16px 16px 32px}
+#home .eyebrow{color:var(--ochre);font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;margin-top:8px}
+#home h1{font-size:30px;margin-bottom:8px}
+#home p{margin:8px 0;color:#4c5568;line-height:1.4}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:16px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.card h2{font-size:20px;margin-bottom:8px}
+.lvls{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lvl{display:flex;align-items:center;gap:8px;text-align:left;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;min-height:56px}
+.lvl b{display:block;font-size:15px}.lvl small{color:#6b7280}
+.lvl .nr{flex:none;width:28px;height:28px;border-radius:999px;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:700;font-size:14px}
+.lvl.done .nr{background:var(--ok)}.lvl[disabled]{opacity:.45}.lvl[disabled] .nr{background:#8a8f99}
+.primary{background:var(--navy);color:#fff;border:none;border-radius:12px;padding:12px 16px;font-weight:700}
+.ghost{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 16px;font-weight:600}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+a.back{color:var(--navy);font-weight:600;text-decoration:none}
+details summary{font-weight:700;cursor:pointer}details li{margin:4px 0;line-height:1.35}details ul{padding-left:20px;margin:8px 0 0}
+#game{display:none;flex-direction:column;height:100dvh;max-width:520px;margin:0 auto;background:var(--navy)}
+#top{flex:none;display:flex;align-items:center;gap:12px;padding:8px 12px;color:#fff;font-weight:700;padding-top:max(8px,env(safe-area-inset-top))}
+#top button{background:rgba(255,255,255,.14);border:none;color:#fff;border-radius:999px;width:36px;height:36px;font-size:18px}
+#top .sp{flex:1}#top span{white-space:nowrap}
+#wrap{flex:1;min-height:0;display:grid;place-items:center;background:#5b8db8;overflow:hidden}
+canvas{display:block;touch-action:none}
+#panel{flex:none;background:var(--card);border-top:3px solid var(--navy);padding:8px 12px;padding-bottom:max(8px,env(safe-area-inset-bottom));height:178px;overflow-y:auto}
+#panel h2{font-size:17px}
+#panel .hint{color:#5b6475;font-size:14px;margin:4px 0 8px;line-height:1.3}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opt{display:flex;gap:6px;align-items:center;text-align:left;background:#fff;border:1px solid var(--line);border-radius:12px;padding:4px 8px 4px 4px;height:58px}
+.opt canvas{flex:none}.opt b{display:block;font-size:14px}.opt small{color:#5b6475;font-size:11.5px;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.opt[disabled]{opacity:.5}
+.big{font-size:17px;padding:14px 16px;flex:1}
+.x{margin-left:auto;background:none;border:none;font-size:20px;width:36px;height:36px}
+.danger{color:var(--bad)}
+</style>
+</head>
+<body>
+<div id="home"></div>
+<div id="game">
+  <div id="top"><button id="heim" aria-label="Zur Übersicht">‹</button><span id="tTaler"></span><span id="tRinge"></span><span class="sp"></span><span id="tWelle"></span></div>
+  <div id="wrap"><canvas id="feld"></canvas></div>
+  <div id="panel"></div>
+</div>
+<script src="kern.js"></script>
+<script>
+"use strict";
+// Leuchtturm-Wacht: Bild und Bedienung. Der Spielkern steht in kern.js. Alles hier ist in sich geschlossen, ohne Bezug zur Haushalts-App.
+(function(){
+const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const KEY="lw-stand-1",Q=new URLSearchParams(location.search),SCHNELL=Math.max(1,Math.min(40,+Q.get("schnell")||1));
+let save={done:{},lauf:null,gesehen:false};try{const s=JSON.parse(localStorage.getItem(KEY)||"null");if(s&&typeof s==="object")save=Object.assign(save,s)}catch(_){}
+const merken=()=>{try{localStorage.setItem(KEY,JSON.stringify(save))}catch(_){}};
+let G=null,sel=null,tempo=1,pop=[],sig="",zuletzt=0,neuTurm="";
+const frei=i=>i===0||!!save.done[i-1];
+
+// ---------- Übersicht ----------
+function home(){G=null;$("#game").style.display="none";const h=$("#home");h.style.display="block";const n=Object.keys(save.done).length;
+  h.innerHTML=`<a class="back" href="../">‹ Zur Haushalts-App</a><div class="eyebrow">Ein Spiel für euch zwei</div><h1>Leuchtturm-Wacht</h1>
+  <p>Nebel, Treibeis und Flöße treiben durch die Fahrrinne auf euren Hafen zu. Baut am Ufer Leuchtfeuer und mehr, damit nichts ankommt.</p>
+  ${save.lauf?`<div class="card"><h2>Weiterspielen</h2><p>Level ${save.lauf.level+1} „${esc(LW.LEVELS[save.lauf.level].name)}“, vor Welle ${save.lauf.welle+1} von ${LW.WELLEN}.</p><div class="row"><button class="primary" data-weiter="1">▶ Weiter</button></div></div>`:""}
+  <div class="card"><h2>Die Küste</h2><p>${n?n+" von "+LW.LEVELS.length+" geschafft.":"Zehn Buchten, jede mit eigener Fahrrinne."}</p><div class="lvls">${LW.LEVELS.map(L=>`<button class="lvl${save.done[L.i]?" done":""}" data-lvl="${L.i}" ${frei(L.i)?"":"disabled"}><span class="nr">${save.done[L.i]?"✓":frei(L.i)?L.i+1:"🔒"}</span><span><b>${esc(L.name)}</b><small>${save.done[L.i]?"geschafft":frei(L.i)?"8 Wellen":"noch zu"}</small></span></button>`).join("")}</div></div>
+  <div class="card"><details ${save.gesehen?"":"open"}><summary>So geht's</summary><ul>
+    <li>Vor jeder Welle steht das Spiel still. Tippt auf einen freien Uferplatz und baut einen Turm. Der Kreis zeigt, wie weit er reicht.</li>
+    <li>Auf „Los“ kommt die Welle. Die Türme arbeiten von selbst.</li>
+    <li>Für jeden vertriebenen Gegner gibt es Taler. Damit baut ihr nach oder hebt einen Turm auf Stufe 2 und 3 (auf den Turm tippen).</li>
+    <li>Was den Hafen erreicht, kostet einen von 10 Rettungsringen. Nach 8 Wellen ist das Level geschafft.</li>
+    <li>Kurven sind gute Plätze: Dort bleibt ein Gegner lange im Kreis.</li>
+    <li>Licht vertreibt Nebel besonders gut, Wasser bricht Eis, die Bojen-Kette zerlegt Flöße.</li></ul></details></div>`;
+  save.gesehen=true;merken()}
+$("#home").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.weiter){start(save.lauf.level,save.lauf);return}
+  if(b.dataset.lvl!=null){const i=+b.dataset.lvl;if(save.lauf&&save.lauf.level!==i&&save.lauf.welle>0&&!confirmWeg(b))return;start(i,save.lauf&&save.lauf.level===i?save.lauf:null)}});
+// Zweiter Tipp bestätigt (kein Browser-Dialog)
+function confirmWeg(b){if(b.dataset.sure)return true;b.dataset.sure="1";b.querySelector("small").textContent="Nochmal tippen: das laufende Level verfällt";return false}
+
+// ---------- Spiel starten ----------
+const cv=$("#feld"),cx=cv.getContext("2d");let sc=1;
+function passen(){const w=$("#wrap"),f=Math.min(w.clientWidth/LW.W,w.clientHeight/LW.H),dpr=Math.min(3,window.devicePixelRatio||1);sc=f*dpr;cv.width=Math.round(LW.W*sc);cv.height=Math.round(LW.H*sc);cv.style.width=LW.W*f+"px";cv.style.height=LW.H*f+"px"}
+window.addEventListener("resize",()=>{if(G)passen()});
+function start(level,stand){G=LW.neu(level,stand);sel=null;tempo=1;pop=[];sig="";neuTurm="";$("#home").style.display="none";$("#game").style.display="flex";passen();zuletzt=performance.now();save.lauf=LW.stand(G);merken();ui(true)}
+// Zurück mitten in einer Welle: die Welle beginnt beim Weiterspielen neu (Stand von der letzten Pause)
+$("#heim").addEventListener("click",home);
+
+// ---------- Bedienung ----------
+cv.addEventListener("pointerdown",e=>{if(!G)return;const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*LW.W,y=(e.clientY-r.top)/r.height*LW.H;
+  let best=null,bd=30;for(const p of G.plaetze){const d=Math.hypot(p.x-x,p.y-y);if(d<bd){bd=d;best=p}}sel=best?best.id:null;ui(true)});
+$("#panel").addEventListener("click",e=>{const b=e.target.closest("button");if(!b||!G)return;const d=b.dataset;
+  if(d.los){if(LW.los(G)){sel=null}}
+  else if(d.bau){if(LW.bauen(G,sel,d.bau))sichern()}
+  else if(d.auf){if(LW.ausbauen(G,sel))sichern()}
+  else if(d.ab){if(d.sure){LW.abbauen(G,sel);sel=null;sichern()}else{b.dataset.sure="1";b.textContent="Wirklich abbauen?";return}}
+  else if(d.zu){sel=null}
+  else if(d.tempo){tempo=tempo===1?2:tempo===2?3:1}
+  else if(d.nochmal){start(G.level,null);return}
+  else if(d.weiterlvl){start(+d.weiterlvl,null);return}
+  else if(d.heim){home();return}
+  ui(true)});
+function sichern(){if(G.phase==="pause"){save.lauf=LW.stand(G);merken()}}
+
+// ---------- Leiste und Feld unten ----------
+function bild(art,stufe){return `<canvas width="88" height="88" style="width:44px;height:44px" data-bild="${art}|${stufe||0}"></canvas>`}
+function bilder(){document.querySelectorAll("canvas[data-bild]").forEach(c=>{const [a,s]=c.dataset.bild.split("|"),k=c.getContext("2d");k.setTransform(2,0,0,2,0,0);k.clearRect(0,0,44,44);turmBild(k,{art:a,stufe:+s,x:22,y:26,winkel:-.6},true)})}
+function ui(force){if(!G)return;const s=[G.phase,G.taler,G.ringe,G.welle,sel,tempo,G.tuerme.length,G.tuerme.map(t=>t.stufe).join("")].join("|");if(!force&&s===sig)return;sig=s;
+  $("#tTaler").textContent="⚓ "+G.taler;$("#tRinge").textContent="🛟 "+G.ringe;$("#tWelle").textContent=G.phase==="lauf"?`Welle ${G.welle+1}/${LW.WELLEN} läuft`:G.phase==="pause"?`Pause vor Welle ${G.welle+1}/${LW.WELLEN}`:G.phase==="gewonnen"?"Geschafft":"Hafen voll";
+  const P=$("#panel");let h="";
+  if(G.phase==="gewonnen"){const nx=G.level+1<LW.LEVELS.length?G.level+1:null,neu=LW.TOWER_ORDER.find(a=>LW.TOWER_AB[a]===G.level+1);
+    h=`<h2>🎉 ${esc(LW.LEVELS[G.level].name)} ist sicher</h2><div class="hint">Alle 8 Wellen überstanden, ${G.ringe} von ${LW.RINGE} Rettungsringen sind noch da.${neu&&nx!=null?` Neu im nächsten Level: <b>${esc(LW.TOWERS[neu].name)}</b>. ${esc(LW.TOWERS[neu].kurz)}`:""}${nx==null?" Das war die ganze Küste. Glückwunsch euch beiden!":""}</div><div class="row">${nx!=null?`<button class="primary big" data-weiterlvl="${nx}">▶ Weiter: ${esc(LW.LEVELS[nx].name)}</button>`:""}<button class="ghost" data-heim="1">Übersicht</button></div>`}
+  else if(G.phase==="verloren"){h=`<h2>Der Hafen ist voll</h2><div class="hint">In Welle ${G.welle+1} ist zu viel durchgekommen. Probiert andere Plätze oder mischt die Türme anders.</div><div class="row"><button class="primary big" data-nochmal="1">↻ Nochmal</button><button class="ghost" data-heim="1">Übersicht</button></div>`}
+  else if(sel!=null){const t=LW.turmAuf(G,sel);
+    if(t){const T=LW.TOWERS[t.art],k=t.stufe<2?T.kosten[t.stufe+1]:0;
+      h=`<div class="row"><h2>${esc(T.name)} · Stufe ${t.stufe+1}</h2><button class="x" data-zu="1" aria-label="Schließen">✕</button></div><div class="hint">${esc(T.kurz)}</div><div class="row">${t.stufe<2?`<button class="primary" data-auf="1" ${G.taler<k?"disabled style=\"opacity:.5\"":""}>⬆ Stufe ${t.stufe+2} · ${k} Taler<br><small style="font-weight:400">${esc(T.stufe[t.stufe+1])}</small></button>`:`<span class="hint">Höchste Stufe.</span>`}<button class="ghost danger" data-ab="1">Abbauen · +${Math.round(t.bezahlt*.6)}</button></div>`}
+    else{h=`<div class="row"><h2>Was soll hier stehen?</h2><button class="x" data-zu="1" aria-label="Schließen">✕</button></div><div class="opts">${LW.verfuegbar(G.level).map(a=>{const T=LW.TOWERS[a];return `<button class="opt" data-bau="${a}" ${G.taler<T.kosten[0]?"disabled":""}>${bild(a,0)}<span><b>${esc(T.name)} · ${T.kosten[0]}</b><small>${esc(T.kurz)}</small></span></button>`}).join("")}</div>`}}
+  else if(G.phase==="pause"){const W=LW.welleAus(G.level,G.welle),N={};W.forEach(q=>N[q.art]=(N[q.art]||0)+1);
+    h=`<div class="hint">${G.tuerme.length?"Tippt auf einen Platz oder Turm zum Bauen und Ausbauen.":"Tippt auf einen freien Uferplatz (＋) und baut euren ersten Turm."} Es kommen: ${Object.keys(N).map(a=>N[a]+"× "+LW.ENEMIES[a].name).join(", ")}.</div><div class="row"><button class="primary big" data-los="1">▶ Los: Welle ${G.welle+1}</button></div>`}
+  else{h=`<div class="hint">Die Türme arbeiten von selbst. Ihr könnt weiter bauen und ausbauen.</div><div class="row"><button class="ghost big" data-tempo="1">Tempo ×${tempo}</button></div>`}
+  P.innerHTML=h;bilder()}
+
+// ---------- Zeichnen ----------
+const SAND="#ead9a8",GRAS="#b7cb7c";
+function weg(k,breite,farbe,dash){const P=G.weg.pts;k.beginPath();k.moveTo(P[0][0],P[0][1]);for(let i=1;i<P.length;i+=2)k.lineTo(P[i][0],P[i][1]);k.lineTo(P[P.length-1][0],P[P.length-1][1]);k.lineWidth=breite;k.strokeStyle=farbe;k.lineCap="round";k.lineJoin="round";k.setLineDash(dash||[]);k.stroke();k.setLineDash([])}
+function kreis(k,x,y,r,f,s,lw){k.beginPath();k.arc(x,y,r,0,7);if(f){k.fillStyle=f;k.fill()}if(s){k.strokeStyle=s;k.lineWidth=lw||1;k.stroke()}}
+function oval(k,x,y,rx,ry,f){k.beginPath();k.ellipse(x,y,rx,ry,0,0,7);k.fillStyle=f;k.fill()}
+function rr(k,x,y,w,h,r,f){k.beginPath();k.roundRect(x,y,w,h,r);k.fillStyle=f;k.fill()}
+function turmBild(k,t,klein){const x=t.x,y=t.y,s=t.stufe;
+  if(t.art==="leucht"){oval(k,x,y+8,13,5,"#7d7468");k.beginPath();k.moveTo(x-7,y+7);k.lineTo(x-4.5,y-12);k.lineTo(x+4.5,y-12);k.lineTo(x+7,y+7);k.closePath();k.fillStyle="#fdfbf5";k.fill();
+    k.save();k.clip();k.fillStyle="#c8452f";k.fillRect(x-9,y-6,18,4.5);k.fillRect(x-9,y+2,18,4.5);k.restore();rr(k,x-6,y-15,12,4,1,"#1e3a5f");kreis(k,x,y-17,3.4+s*.5,"#ffd65c","#a9742a",1);k.beginPath();k.moveTo(x-4,y-21);k.lineTo(x,y-25);k.lineTo(x+4,y-21);k.closePath();k.fillStyle="#1e3a5f";k.fill()}
+  else if(t.art==="horn"){rr(k,x-2,y-6,4,15,1,"#7a5a3a");oval(k,x,y+9,10,4,"#7d7468");k.save();k.translate(x,y-8);k.rotate(-.35);k.beginPath();k.moveTo(-9,-2.5);k.lineTo(6,-7-s);k.lineTo(6,7+s);k.lineTo(-9,2.5);k.closePath();k.fillStyle="#d9a43a";k.fill();oval(k,7,0,3,7.5+s,"#b9822a");kreis(k,-10,0,2.5,"#8a5f20");k.restore()}
+  else if(t.art==="kanone"){oval(k,x,y+8,12,5,"#7d7468");kreis(k,x,y,9,"#2f6fa3","#1e3a5f",1.5);k.save();k.translate(x,y);k.rotate(t.winkel||0);rr(k,0,-3-s*.5,15+s*2,6+s,2,"#1e3a5f");rr(k,13+s*2,-4-s*.5,4,8+s,1,"#9cc7e6");k.restore();kreis(k,x,y,3.5,"#9cc7e6")}
+  else if(t.art==="bojen"){const B=[[-11,3],[0,-7],[11,3]];k.beginPath();k.moveTo(x+B[0][0],y+B[0][1]);B.forEach(b=>k.lineTo(x+b[0],y+b[1]));k.strokeStyle="#5b5144";k.lineWidth=1.5;k.setLineDash([2,2]);k.stroke();k.setLineDash([]);
+    B.forEach(b=>{kreis(k,x+b[0],y+b[1],5+s*.6,"#c8452f","#7a2416",1);k.fillStyle="#fdfbf5";k.fillRect(x+b[0]-5-s*.6,y+b[1]-1.2,10+s*1.2,2.4);kreis(k,x+b[0],y+b[1]-5-s*.6,1.5,"#ffd65c")})}
+  if(!klein)for(let i=0;i<=s;i++)kreis(k,x-5+i*5,y+17,1.8,"#a9742a","#fff",.8)}
+function gegnerBild(k,e){const x=e.x,y=e.y,p2=LW.posAt(G.weg,e.d+3),w=Math.atan2(p2[1]-y,p2[0]-x),wip=Math.sin(G.t*3+e.id)*1.2;
+  k.save();k.translate(x,y+wip*.4);
+  if(e.art==="nebel"){k.globalAlpha=.82;kreis(k,-6,1,7,"#f4f6f8");kreis(k,3,-3,8.5,"#ffffff");kreis(k,8,3,6,"#e9eef2");kreis(k,-1,4,6,"#f4f6f8");k.globalAlpha=1}
+  else if(e.art==="eis"){k.beginPath();[[-12,-2],[-5,-10],[7,-9],[13,0],[8,9],[-6,10]].forEach((p,i)=>i?k.lineTo(p[0],p[1]):k.moveTo(p[0],p[1]));k.closePath();k.fillStyle="#cfeaf7";k.fill();k.strokeStyle="#8fc3df";k.lineWidth=1.5;k.stroke();k.beginPath();k.moveTo(-6,-3);k.lineTo(2,-6);k.lineTo(6,0);k.lineTo(-2,3);k.closePath();k.fillStyle="#ffffff";k.fill()}
+  else if(e.art==="floss"){k.rotate(w);rr(k,-11,-8,22,16,2,"#b98a55");k.strokeStyle="#7a5a3a";k.lineWidth=1;for(let i=-4;i<=4;i+=4){k.beginPath();k.moveTo(-11,i);k.lineTo(11,i);k.stroke()}rr(k,-8,-9,2.5,18,1,"#7a5a3a");rr(k,5.5,-9,2.5,18,1,"#7a5a3a");k.rotate(-w);rr(k,-1,-15,2,15,1,"#5b4027");k.beginPath();k.moveTo(1,-15);k.lineTo(10,-11.5);k.lineTo(1,-8);k.closePath();k.fillStyle="#3b3f55";k.fill()}
+  else{const kl=e.art==="splitter"?.7:1;k.rotate(w);k.scale(kl,kl);rr(k,-11,-4.5,22,9,4.5,"#8a5f3a");kreis(k,9,0,3.6,"#c9a06a","#6b4526",1);kreis(k,9,0,1.4,"#8a5f3a");k.strokeStyle="#6b4526";k.lineWidth=1;k.beginPath();k.moveTo(-7,-1.5);k.lineTo(3,-1.5);k.moveTo(-5,2);k.lineTo(1,2);k.stroke()}
+  k.restore();
+  if(G.t<e.slowBis||G.t<e.haltBis)kreis(k,x,y,13,null,"rgba(255,255,255,.75)",1.5);
+  if(e.hp<e.max){const b=20;rr(k,x-b/2,y-17,b,3.5,1.5,"rgba(28,43,74,.55)");rr(k,x-b/2,y-17,b*Math.max(0,e.hp/e.max),3.5,1.5,"#f2c14e")}}
+function malen(){const k=cx;k.setTransform(sc,0,0,sc,0,0);const g=k.createLinearGradient(0,0,0,LW.H);g.addColorStop(0,"#6f9fc6");g.addColorStop(1,"#5a8cb8");k.fillStyle=g;k.fillRect(0,0,LW.W,LW.H);
+  // Wellenstriche
+  k.strokeStyle="rgba(255,255,255,.12)";k.lineWidth=1.5;for(let i=0;i<26;i++){const x=(i*97)%LW.W,y=(i*61+((G.t*6)|0)%8)%LW.H;k.beginPath();k.moveTo(x,y);k.quadraticCurveTo(x+6,y-3,x+12,y);k.stroke()}
+  weg(k,LW.RINNE*2+8,"rgba(255,255,255,.18)");weg(k,LW.RINNE*2,"#a8cde2");
+  if(G.phase==="pause"){k.lineDashOffset=-(performance.now()/60)%20;weg(k,2,"rgba(255,255,255,.9)",[8,12]);k.lineDashOffset=0}
+  // Inseln und Plätze
+  for(const p of G.plaetze){oval(k,p.x,p.y+3,30,23,p.id%2?GRAS:SAND);oval(k,p.x,p.y+1,27,20,p.id%2?"#c3d58a":"#f0e2b8")}
+  // Hafen
+  const E=G.weg.pts[G.weg.pts.length-1];rr(k,E[0]-62,LW.H-26,124,30,3,"#7d6a55");for(let i=-56;i<=56;i+=14)rr(k,E[0]+i-1,LW.H-30,3,8,1,"#5b4a3a");rr(k,E[0]-20,LW.H-22,40,24,2,"#fdfbf5");k.beginPath();k.moveTo(E[0]-26,LW.H-22);k.lineTo(E[0],LW.H-40);k.lineTo(E[0]+26,LW.H-22);k.closePath();k.fillStyle="#1e3a5f";k.fill();rr(k,E[0]-5,LW.H-12,10,14,1,"#a9742a");
+  for(let i=0;i<LW.RINGE;i++)kreis(k,E[0]-54+i*12,LW.H-6,3.6,null,i<G.ringe?"#e5533c":"rgba(255,255,255,.25)",2.2);
+  // Reichweite
+  if(sel!=null){const p=G.plaetze[sel],t=LW.turmAuf(G,sel),r=t?LW.TOWERS[t.art].reich[t.stufe]:80;kreis(k,p.x,p.y,r,"rgba(242,193,78,.16)","rgba(169,116,42,.9)",1.5)}
+  for(const p of G.plaetze){if(LW.turmAuf(G,p.id))continue;k.setLineDash([4,4]);kreis(k,p.x,p.y,13,sel===p.id?"rgba(255,255,255,.7)":"rgba(255,255,255,.35)","#1c2b4a",1.5);k.setLineDash([]);k.fillStyle="#1c2b4a";k.fillRect(p.x-5,p.y-1,10,2);k.fillRect(p.x-1,p.y-5,2,10)}
+  for(const e of G.gegner)if(e.y>-14)gegnerBild(k,e);
+  for(const t of G.tuerme)turmBild(k,t);
+  for(const s of G.schuesse){kreis(k,s.x,s.y,4,"#dff1fb","#2f6fa3",1.5)}
+  for(const f of G.effekte){if(f.k==="strahl"){k.globalAlpha=Math.min(1,f.t/.1);k.strokeStyle="#ffe58a";k.lineWidth=3.5;k.beginPath();k.moveTo(f.x1,f.y1);k.lineTo(f.x2,f.y2);k.stroke();kreis(k,f.x2,f.y2,5,"rgba(255,229,138,.8)");k.globalAlpha=1}
+    else if(f.k==="ring"){const a=1-f.t/.5;kreis(k,f.x,f.y,f.r*a,null,`rgba(217,164,58,${.7*(1-a)})`,3)}
+    else if(f.k==="platsch"){const a=1-f.t/.35;kreis(k,f.x,f.y,f.r*(.5+a*.5),`rgba(223,241,251,${.6*(1-a)})`,"rgba(255,255,255,"+(.9*(1-a))+")",2)}
+    else if(f.k==="halt"){kreis(k,f.x,f.y,15,null,"rgba(200,69,47,.8)",2.5)}}
+  k.font="700 11px system-ui,sans-serif";k.textAlign="center";for(const p of pop){k.globalAlpha=Math.min(1,p.t/.4);k.fillStyle=p.c;k.fillText(p.s,p.x,p.y-(1-p.t)*18);k.globalAlpha=1}
+  // Einfahrt
+  const A=LW.posAt(G.weg,26);if(G.phase==="pause"){rr(k,A[0]-1,Math.max(4,A[1])-6,2,16,1,"#1c2b4a");k.beginPath();k.moveTo(A[0]+1,Math.max(4,A[1])-6);k.lineTo(A[0]+13,Math.max(4,A[1])-2);k.lineTo(A[0]+1,Math.max(4,A[1])+2);k.closePath();k.fillStyle="#3b3f55";k.fill()}}
+
+// ---------- Takt ----------
+function takt(now){requestAnimationFrame(takt);if(!G)return;let dt=Math.min(.1,(now-zuletzt)/1000);zuletzt=now;const vor=G.phase;
+  if(G.phase==="lauf"){const n=tempo*SCHNELL,st=Math.min(.05,dt);for(let i=0;i<n&&G.phase==="lauf";i++)LW.schritt(G,st)}
+  for(const ev of G.ereignis.splice(0)){if(ev.k==="weg")pop.push({x:ev.x,y:ev.y,s:"+"+LW.ENEMIES[ev.art].taler,c:"#fff3c4",t:1});else pop.push({x:G.weg.pts[G.weg.pts.length-1][0],y:LW.H-44,s:"−1 🛟",c:"#ffd0c7",t:1})}
+  for(const p of pop)p.t-=dt*1.4;pop=pop.filter(p=>p.t>0);
+  if(vor!==G.phase){if(G.phase==="pause"){save.lauf=LW.stand(G);merken()}else if(G.phase==="gewonnen"){save.done[G.level]=true;save.lauf=null;merken();sel=null}else if(G.phase==="verloren"){save.lauf=null;merken();sel=null}}
+  ui(false);malen()}
+// Für Prüfskripte
+window.LWUI={get G(){return G},get save(){return save},start,home};
+home();requestAnimationFrame(takt);
+if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
+})();
+</script>
+</body>
+</html>

@@ -77,7 +77,9 @@ function renderMinis(){const g=S.miniGame||"";const back=`<button class="ghost m
   const tile=(id,ic,t,sub)=>`<button class="minitile" data-mini="${id}"><span class="mic">${ic}</span><span><b>${t}</b><i>${sub}</i></span><em>›</em></button>`;
   return `<div><div class="eyebrow">Miteinander, ohne Punkte</div><h1>Minispiele</h1></div><div class="minis">`
     +tile("flasche","🍾","Flaschenpost für zwei",flascheOpen(x)?"Heute geöffnet":["p0","p1"].map(p=>(x[p]&&x[p].t?"✅ ":"⏳ ")+pname(p)).join(" · "))
-    +tile("garten","🌱","Garten der Woche",n?`${n} ${n===1?"Pflanze":"Pflanzen"} diese Woche`:"Jeder Haken pflanzt etwas")+`</div>`}
+    +tile("garten","🌱","Garten der Woche",n?`${n} ${n===1?"Pflanze":"Pflanzen"} diese Woche`:"Jeder Haken pflanzt etwas")
+    // Leuchtturm-Wacht (Florian 19.11.2026): eigenes Spiel im Ordner spiel/, in sich geschlossen; hier steht nur der Link
+    +`<a class="minitile" href="spiel/"><span class="mic">🗼</span><span><b>Leuchtturm-Wacht</b><i>Großes Spiel für euch zwei: 10 Buchten, je 8 Wellen</i></span><em>›</em></a></div>`}
 
 // Klicks (aus 28-klicks.js)
 async function miniClick(b){const d=b.dataset;

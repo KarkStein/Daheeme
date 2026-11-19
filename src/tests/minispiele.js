@@ -25,6 +25,6 @@ srv.listen(8765,async()=>{
   // Aufräum-Flut ist wieder weg (Florian 19.11.2026)
   await nav('minis|');r.noFlut=!(await A.$('[data-mini=flut]'));
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&/Minispiele/.test(r.pager)&&r.tiles===2&&r.noFlut&&r.g0&&/^1 Pflanze/.test(r.g1)&&r.gsvg>=1
+  const ok=!errs.length&&/Minispiele/.test(r.pager)&&r.tiles===3&&r.noFlut&&r.g0&&/^1 Pflanze/.test(r.g1)&&r.gsvg>=1
     &&/⏳/.test(r.f0)&&/Deine Antwort/.test(r.f1)&&/⏳/.test(r.f1)&&/Sonnenuntergang/.test(r.f2)&&/Frühstück/.test(r.f2)&&/Sonnenuntergang/.test(r.arch);
   console.error(ok?'MINISPIELE OK':'MINISPIELE FAIL');await b.close();srv.close();process.exit(0)});
