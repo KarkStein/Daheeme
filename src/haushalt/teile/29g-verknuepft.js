@@ -1,13 +1,14 @@
 // ---------- „Verknüpft mit“ (Florian 19.11.2026 im Vergleichs-Dossier: „ja“) ----------
 // Eine Zeile unten in jedem Fenster: was mit diesem Eintrag zusammenhängt (Rückverweise wie bei Notion). Tipp springt hin.
 // verkItems(art,id) sucht in Erinnerungen (ref), Ausgaben (ref art:id), Terminen (ref art:id), Weitere Listen, Splitwise, Türchen und Einkaufsliste.
-const VERK_KIND={trip:"🚲 Ausflug",play:"⚽ Spielidee",adoor:"🎄 Türchen",task:"🧹 Aufgabe",urlaub:"⛵ Urlaub",hproj:"🛠️ Projekt",fund:"🔖 Gemerkt",idea:"💡 Idee",mus:"🎵 Musik"};
+const VERK_KIND={trip:"🚲 Ausflug",play:"⚽ Spielidee",adoor:"🎄 Türchen",task:"🧹 Aufgabe",urlaub:"⛵ Urlaub",hproj:"🛠️ Projekt",hstep:"✅ Schritt",fund:"🔖 Gemerkt",idea:"💡 Idee",mus:"🎵 Musik"};
 function verkTarget(ref){const [k,id]=String(ref||"").split(":"),F=S.food||{};if(!id)return null;
   if(k==="trip"){const t=listOf(F.trip).find(x=>x.id===id);return t&&["🚲",t.name,`data-verktrip="${esc(id)}"`]}
   if(k==="play"){const p=listOf(F.play).find(x=>x.id===id);return p&&["⚽",p.name,`data-verkplay="${esc(id)}"`]}
   if(k==="adoor"){const d=(F.adoor||{})[id];return d&&["🎄","Türchen "+d.day+(d.name?": "+d.name:""),`data-verkadv="${esc(id)}"`]}
   if(k==="task"){const t=tasks().find(x=>x.id===id);return t&&["🧹",t.name,`data-nav="woche|"`]}
   if(k==="urlaub"){const u=listOf(F.urlaub).find(x=>x.id===id);return u&&[u.emo||"⛵",u.name,`data-reise="${esc(id)}"`]}
+  if(k==="hstep"){const s=(F.hstep||{})[id],p=s&&listOf(F.hproj).find(x=>x.id===s.proj);return p&&["✅",s.name+" · "+p.name,`data-hproj="${esc(p.id)}"`]}
   if(k==="ter"){const t=listOf(F.termin).find(x=>x.id===id);return t&&[terIcon(t),t.name+(t.date?" · "+dLabel(t.date):""),`data-teredit="${esc(id)}"`]}
   return null}
 function verkItems(kind,id,self){const F=S.food||{},L=[],key=kind+":"+id;if(!id)return L;

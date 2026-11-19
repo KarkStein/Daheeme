@@ -814,3 +814,16 @@ a.minitile{text-decoration:none;color:inherit}
 
 .mapsrow{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp2);margin:var(--sp2) 0 var(--sp3)}
 .mapsrow .freq{flex-basis:100%}
+/* Am Haus: Schritte im Projekt */
+.hsdash{margin-bottom:var(--sp3)}.hsnext{list-style:none;margin:0;padding:0 var(--sp3) var(--sp3);display:grid;gap:var(--sp2)}
+.hsdash .thr{gap:var(--sp2)}.hsdash .thr .btl{background:none;border:0;color:inherit;text-align:left;padding:0;display:grid;font:inherit}.hsdash .thr .btl span{font-size:var(--fs-xs);opacity:.8}
+.hstick{flex:none;width:26px;height:26px;border-radius:var(--r-s);border:2px solid var(--line,#c9c2b3);background:var(--card,#fffdf8);color:#fff;display:grid;place-items:center;font-size:var(--fs-s);padding:0;min-height:0}
+.hstick[aria-pressed="true"]{background:#2e8b6f;border-color:#2e8b6f}.hsdash .hstick{background:transparent;border-color:rgba(255,255,255,.7)}
+.hssec{border-top:1px solid var(--line,#e5dfd2)}.hssech{display:flex;justify-content:space-between;align-items:center;width:100%;background:none;border:0;padding:var(--sp2) 0;font:inherit;font-size:var(--fs-xs);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ochre)}
+.hssech i{font-style:normal}.hslist{list-style:none;margin:0;padding:0}
+.hsrow{display:flex;align-items:center;gap:var(--sp2);padding:var(--sp2) 0;border-top:1px solid var(--line,#eee7da);position:relative}
+.hsname{flex:1;min-width:0;background:none;border:0;text-align:left;font:inherit;color:inherit;padding:var(--sp1) 0;display:grid}.hsname i{font-style:normal;font-size:var(--fs-xs);opacity:.7}
+.hsrow.done .hsname{text-decoration:line-through;opacity:.55}
+.hsday{flex:none;font-size:var(--fs-xs);padding:2px var(--sp2);border-radius:999px;background:rgba(40,70,120,.1);white-space:nowrap}.hsdash .hsday{background:rgba(255,255,255,.18)}
+.hsadd{margin-top:var(--sp3)}.hsover .freq{font-size:var(--fs-xs)}
+.hsover{list-style:none;margin:0;padding:0}.hsover .item{background:none;border:0;border-top:1px solid var(--line,#eee7da);width:100%;text-align:left;font:inherit;color:inherit;padding:var(--sp2) 0}.hsover li:first-child .item{border-top:0}

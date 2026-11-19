@@ -119,6 +119,7 @@ function searchHits(q){const W=sNorm(q).split(/\s+/).filter(Boolean);if(!W.lengt
   prios().forEach(x=>{if(x.from==="mittag")return;add("Wichtig","🔔",x.name,"Erinnerung"+(x.due?" · "+x.due.split("-").reverse().slice(0,2).join("."):""),'data-go="wichtig"',x.note)});
   listOf(F.idea).forEach(x=>{const c=projCat(x),haus=!!HCAT[c],gs=c==="geschenk",pc=projCats().find(p=>p[0]===c);add(gs?"Geschenke":haus?"Am Haus":"Sammlung",x.emo||(pc?pc[1]:"📎"),x.name,gs?(giftFor(x)||"Geschenk"):pc?pc[2]:"",gs?'data-nav="geschenke|"':`data-nav="${haus?"amhaus":"projekte"}|pf:${esc(c)}"`,x.note)});
   hprojs().forEach(x=>add("Am Haus",x.emo||"🛋️",x.name,"Projekt",`data-hproj="${esc(x.id)}"`,x.note));
+  hstepsAll().forEach(s=>{const p=hprojs().find(x=>x.id===s.proj);if(p)add("Am Haus","✅",s.name,"Schritt im Projekt "+p.name+(s.done?" · erledigt":""),`data-hproj="${esc(p.id)}"`)});
   urlaube().forEach(x=>add("Ausflüge und Reisen",x.emo||"⛵",x.name,"Urlaub"+(x.place?" · "+x.place:""),`data-reise="${esc(x.id)}"`,x.note));
   trips().forEach(x=>add("Ausflüge und Reisen","🚲",x.name,"Ausflug",'data-nav="ausflug|tt:ideen"',x.note));
   listOf(F.fund).forEach(x=>{const h=x.area==="haus";add(h?"Am Haus":"Reisen",fundKind(x.kind,h?"haus":"reise")[1],x.name,(h?"Gemerkt Am Haus":"Gemerkt für unterwegs")+(x.place?" · "+x.place:""),h?(x.proj?`data-hproj="${esc(x.proj)}"`:'data-nav="amhaus|hs:wohnen"'):(x.reise?`data-reise="${esc(x.reise)}"`:'data-nav="ausflug|tt:recherche"'),x.note)});

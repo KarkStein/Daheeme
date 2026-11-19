@@ -833,6 +833,19 @@ a.minitile{text-decoration:none;color:inherit}
 
 .mapsrow{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp2);margin:var(--sp2) 0 var(--sp3)}
 .mapsrow .freq{flex-basis:100%}
+/* Am Haus: Schritte im Projekt */
+.hsdash{margin-bottom:var(--sp3)}.hsnext{list-style:none;margin:0;padding:0 var(--sp3) var(--sp3);display:grid;gap:var(--sp2)}
+.hsdash .thr{gap:var(--sp2)}.hsdash .thr .btl{background:none;border:0;color:inherit;text-align:left;padding:0;display:grid;font:inherit}.hsdash .thr .btl span{font-size:var(--fs-xs);opacity:.8}
+.hstick{flex:none;width:26px;height:26px;border-radius:var(--r-s);border:2px solid var(--line,#c9c2b3);background:var(--card,#fffdf8);color:#fff;display:grid;place-items:center;font-size:var(--fs-s);padding:0;min-height:0}
+.hstick[aria-pressed="true"]{background:#2e8b6f;border-color:#2e8b6f}.hsdash .hstick{background:transparent;border-color:rgba(255,255,255,.7)}
+.hssec{border-top:1px solid var(--line,#e5dfd2)}.hssech{display:flex;justify-content:space-between;align-items:center;width:100%;background:none;border:0;padding:var(--sp2) 0;font:inherit;font-size:var(--fs-xs);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ochre)}
+.hssech i{font-style:normal}.hslist{list-style:none;margin:0;padding:0}
+.hsrow{display:flex;align-items:center;gap:var(--sp2);padding:var(--sp2) 0;border-top:1px solid var(--line,#eee7da);position:relative}
+.hsname{flex:1;min-width:0;background:none;border:0;text-align:left;font:inherit;color:inherit;padding:var(--sp1) 0;display:grid}.hsname i{font-style:normal;font-size:var(--fs-xs);opacity:.7}
+.hsrow.done .hsname{text-decoration:line-through;opacity:.55}
+.hsday{flex:none;font-size:var(--fs-xs);padding:2px var(--sp2);border-radius:999px;background:rgba(40,70,120,.1);white-space:nowrap}.hsdash .hsday{background:rgba(255,255,255,.18)}
+.hsadd{margin-top:var(--sp3)}.hsover .freq{font-size:var(--fs-xs)}
+.hsover{list-style:none;margin:0;padding:0}.hsover .item{background:none;border:0;border-top:1px solid var(--line,#eee7da);width:100%;text-align:left;font:inherit;color:inherit;padding:var(--sp2) 0}.hsover li:first-child .item{border-top:0}
 </style>
 
 <div class="app" id="app">
@@ -1540,8 +1553,8 @@ function heuteList(){if(inUrlaub(new Date()))return [];const now=new Date(),mon=
     const n=slotsOf(t);let c=0,first=-1,today=-1;for(let i=0;i<n;i++){const v=mine(t,o,i);if(v){c++;if(v.at>=t0)today=i}else if(first<0)first=i}
     const soll=wkSoll(n,wd);if(first>=0&&c<soll)L.push({t,o,slot:first,done:false,sub:n>1?`${soll-c} von ${n} fällig`:"diese Woche"});
     else if(today>=0)L.push({t,o,slot:today,done:true,more:first,sub:n>1?`${c} von ${n}`:"diese Woche"})});
-  return L.concat(needHeute())}
-function heuteRows(L){return L.map(x=>`<li class="hrow${x.done?" hdone":""}"><span class="hn">${esc(x.t.name)}<i> · ${esc(x.sub)}</i></span>${x.done&&x.more>=0&&x.more!=null?`<button class="hmore" data-task="${esc(x.t.id)}" data-slot="${x.more}"${x.o==="both"?' data-split="1"':""} aria-label="${esc(x.t.name)}: noch eine Runde abhaken">＋1</button>`:""}<button class="hchk" ${x.need?`data-need="${esc(x.t.id)}"`:x.ho?`data-hodone="${x.slot}"`:`data-task="${esc(x.t.id)}" data-slot="${x.slot}"${x.o==="both"?' data-split="1"':""}`} aria-pressed="${x.done}" aria-label="${esc(x.t.name)} ${x.done?"erledigt, Tipp nimmt den Haken von heute zurück":"abhaken"}">${x.done?"✓":""}</button></li>`).join("")}
+  return L.concat(needHeute(),hstepHeute())}
+function heuteRows(L){return L.map(x=>`<li class="hrow${x.done?" hdone":""}"><span class="hn">${esc(x.t.name)}<i> · ${esc(x.sub)}</i></span>${x.done&&x.more>=0&&x.more!=null?`<button class="hmore" data-task="${esc(x.t.id)}" data-slot="${x.more}"${x.o==="both"?' data-split="1"':""} aria-label="${esc(x.t.name)}: noch eine Runde abhaken">＋1</button>`:""}<button class="hchk" ${x.hs?`data-hstick="${esc(x.t.id)}"`:x.need?`data-need="${esc(x.t.id)}"`:x.ho?`data-hodone="${x.slot}"`:`data-task="${esc(x.t.id)}" data-slot="${x.slot}"${x.o==="both"?' data-split="1"':""}`} aria-pressed="${x.done}" aria-label="${esc(x.t.name)} ${x.done?"erledigt, Tipp nimmt den Haken von heute zurück":"abhaken"}">${x.done?"✓":""}</button></li>`).join("")}
 // Kopf im Himmel (Florian 19.11.2026, „A: Bild und Dashboard zusammen“): Wochentag, Datum, Wetter mit Sonnenzeiten, Hausdienst; rechts der Doppelring. Tipp aufs Datum öffnet das Wetter
 function skyHead(night,ring,cls){const now=new Date(),pl=S.food&&S.food.wxplace,lat=pl&&pl.lat!=null?+pl.lat:51.0,lon=pl&&pl.lon!=null?+pl.lon:10.4,t=sunTimes(now,lat,lon),hm=m=>{m=Math.round(m);return Math.floor(m/60)+":"+String(m%60).padStart(2,"0")};
   const DN=["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"],MN=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
@@ -3241,6 +3254,7 @@ function buyLinked(list){const out=[];
     musics().filter(m=>m.art==="hoer"&&m.st==="geplant").forEach(m=>out.push({name:"🎧 "+m.name,kid:true,sub:"Hörspiel/Tonie für "+kidName(),tick:`data-musbought="${esc(m.id)}"`,link:`<button class="chipbtn neutral buyref" data-nav="musik|ma:hoer">🎧 Musik ›</button>`}))}
   if(list==="geschenke")gmGuests("geschenke").filter(i=>i.st==="geplant").forEach(i=>out.push({name:i.name,kid:i.who==="kid",sub:[gmWho(i),i.from].filter(Boolean).join(" · "),tick:`data-gmdone="${i.store}|${esc(i.id)}"`,link:`<button class="chipbtn neutral buyref" data-nav="geschenke|">🎁 Geschenke ›</button>`}));
   if(list==="baumarkt")funde("haus").filter(f=>f.proj&&(f.kind==="werkzeug"||f.kind==="material")&&f.st!=="gebucht").forEach(f=>{const hp=hprojs().find(x=>x.id===f.proj);if(hp)out.push({name:f.name,sub:f.price?f.price+" €":"",tick:`data-fundbought="${esc(f.id)}"`,link:`<button class="chipbtn neutral buyref" data-hproj="${esc(hp.id)}">${esc(hp.emo||"🛋️")} ${esc(hp.name)} ›</button>`})});
+  if(list==="baumarkt")hstepsAll().filter(s=>s.buy&&!s.done).forEach(s=>{const hp=hprojs().find(x=>x.id===s.proj);if(hp)out.push({name:s.name,sub:"Schritt im Projekt",tick:`data-hstick="${esc(s.id)}"`,link:`<button class="chipbtn neutral buyref" data-hproj="${esc(hp.id)}">${esc(hp.emo||"🛋️")} ${esc(hp.name)} ›</button>`})});
   return out}
 function renderBuy(){const O=S.buyOpen||(S.buyOpen={}),all=buys();
   let h=`<div><h1>Weitere Listen</h1></div><div class="freq">Lebensmittel und Drogerie stehen auf der Einkaufsliste. Hier steht alles andere, was ihr besorgen wollt.</div>`;
@@ -3577,16 +3591,17 @@ const HPROJ_EMO=["🛋️","🛏️","🍳","🛁","🧸","💻","🚪","🪴","
 const euro=n=>Math.round(n).toLocaleString("de-DE")+" €";
 const priceOf=f=>{const v=parseFloat(String(f.price||"").replace(/\./g,"").replace(",","."));return isFinite(v)?v:0};
 function hprojTiles(cat){cat=cat||"wohnen";const L=hprojs().filter(x=>hprojCat(x)===cat),A=L.filter(x=>x.state!=="erledigt"),E=L.filter(x=>x.state==="erledigt");
-  const tile=x=>{const F=funde("haus").filter(f=>f.proj===x.id),open=F.filter(f=>f.st!=="gebucht").length;return `<button class="tile reisetile" data-hproj="${esc(x.id)}"><span class="te">${esc(x.emo||"🛋️")}</span><span class="tn">${esc(x.name)}</span>${x.room?`<span class="tc">🚪 ${esc(x.room)}</span>`:""}${careMini("hproj",x.id)?`<span class="tc">${careMini("hproj",x.id)}</span>`:""}<span class="tc">${hpSt(x)[1]} ${hpSt(x)[2]} · ${F.length?F.length+" Funde"+(open?", "+open+" offen":""):"noch leer"}</span>${x.budget?`<span class="tc">💶 ${euro(+x.budget)}</span>`:""}</button>`};
+  const tile=x=>{const F=funde("haus").filter(f=>f.proj===x.id),open=F.filter(f=>f.st!=="gebucht").length;return `<button class="tile reisetile" data-hproj="${esc(x.id)}"><span class="te">${esc(x.emo||"🛋️")}</span><span class="tn">${esc(x.name)}</span>${x.room?`<span class="tc">🚪 ${esc(x.room)}</span>`:""}${careMini("hproj",x.id)?`<span class="tc">${careMini("hproj",x.id)}</span>`:""}${hstepCount(x.id)[1]?`<span class="tc">✅ ${hstepCount(x.id)[0]} von ${hstepCount(x.id)[1]} Schritten</span>`:""}<span class="tc">${hpSt(x)[1]} ${hpSt(x)[2]} · ${F.length?F.length+" Funde"+(open?", "+open+" offen":""):"noch leer"}</span>${x.budget?`<span class="tc">💶 ${euro(+x.budget)}</span>`:""}</button>`};
   return `<section data-fk="f_hproj|1" class="card"><div class="section-head"><h2>🧩 Projekte</h2><button class="ghost" data-act="hsamm">🔖 Gemerkt (${funde("haus").length})</button></div><div class="tiles">${A.map(tile).join("")}<button class="tile add" data-act="hprojnew"><span class="te">＋</span><span class="tn">Neues Projekt</span><span class="tc">${HCAT[cat][2]}</span></button></div>
     ${E.length?`<details class="reisedone"><summary class="section-head"><h2>✅ Erledigt</h2><span class="freq num">${E.length} ▾</span></summary><div class="tiles">${E.map(tile).join("")}</div></details>`:""}<div class="freq">Ein Projekt hat Budget, Funde und Stand. Stand ändern oder löschen: Projekt öffnen, ganz oben.</div></section>`}
-function renderHProj(x){const F=funde("haus").filter(f=>f.proj===x.id),fo=F.filter(f=>f.st!=="gebucht"),fb=F.filter(f=>f.st==="gebucht"),mL=geldFor(["hproj:"+x.id].concat(F.map(f=>"fund:"+f.id))),mR=new Set(mL.map(m=>m.ref)),sb=fb.filter(f=>!mR.has("fund:"+f.id)).reduce((a,f)=>a+priceOf(f),0)+geldSum(mL)/100,sp=fo.filter(f=>f.st==="favorit").reduce((a,f)=>a+priceOf(f),0),bud=+x.budget||0;
+function renderHProj(x){const F=funde("haus").filter(f=>f.proj===x.id),fo=F.filter(f=>f.st!=="gebucht"),fb=F.filter(f=>f.st==="gebucht"),mL=geldFor(["hproj:"+x.id].concat(F.map(f=>"fund:"+f.id),hsteps(x.id).map(s=>"hstep:"+s.id))),mR=new Set(mL.map(m=>m.ref)),sb=fb.filter(f=>!mR.has("fund:"+f.id)).reduce((a,f)=>a+priceOf(f),0)+geldSum(mL)/100,sp=fo.filter(f=>f.st==="favorit").reduce((a,f)=>a+priceOf(f),0),bud=+x.budget||0;
   const fld=(k,lab,type,ph)=>`<label class="fld"><span>${lab}</span><input ${type?`type="${type}"`:""} data-hpf="${k}" value="${esc(x[k]||"")}" placeholder="${ph||""}" autocomplete="off"></label>`;
   let h=`<div class="btnrow"><button class="ghost" data-act="hprojback">‹ ${HCAT[hprojCat(x)][0]}</button></div><div><div class="eyebrow">${esc(x.emo||"🛋️")} Projekt${x.room?" · "+esc(x.room):""}</div><h1>${esc(x.name)}</h1>${careHead("hproj",x.id)}</div>`;
+  h+=hstepCard(x);
   h+=`<section class="card"><div class="section-head"><h2>📌 Stand</h2></div><div class="unl">${HP_ST.map(s=>`<button class="chipbtn" data-hpst="${s[0]}" aria-pressed="${hpSt(x)[0]===s[0]}">${s[1]} ${s[2]}</button>`).join("")}</div><div class="btnrow" style="margin-top:8px"><button class="ghost danger" data-act="hprojdel">🗑 Projekt löschen</button></div></section>`;
-  h+=`<section data-fk="f_hpbud|1" class="card"><div class="section-head"><h2>💶 Budget</h2></div><div class="freq" style="font-size:1rem">${bud?`${euro(sb)} ausgegeben von ${euro(bud)}`:`${euro(sb)} ausgegeben`}${sp?` · ⭐ Favoriten ${euro(sp)}`:""}</div>${bud?`<div class="bar"><span style="width:${Math.min(100,sb/bud*100).toFixed(0)}%"></span></div>`:""}<div class="freq">Rechnet mit eingetragenen Ausgaben und den Preisen gekaufter Funde ohne Ausgabe (⭐ = Favorit, noch nicht gekauft).</div>${geldSrcRow("hproj:"+x.id,{name:x.name,cat:"wohnen",grp:""})}${splitChips("hproj:"+x.id)}${splitFor("hproj:"+x.id).length?"":splitAddForm("hproj:"+x.id)}</section>`;
   h+=`<section data-fk="f_hpgm|1" class="card"><div class="section-head"><h2>🔖 Gemerkt fürs Projekt</h2><button class="ghost" data-fundopen="${esc(x.id)}" data-ar="haus">🔖 Alles Gemerkte</button></div><div class="freq">Alles, was ihr hier merkt, steht auch unter Am Haus › 🔖 Gemerkt und in der 🗃️ Sammlung. ✎ ändert einen Eintrag und zeigt ihn auf Wunsch auch bei Geschenke, Einkaufsliste oder Wichtig.</div>${F.some(f=>f.kind==="werkzeug"||f.kind==="material")?`<div class="btnrow"><button class="ghost" data-nav="listen|bl:baumarkt">🧰 Werkzeug und Material: Einkauf › Baumarkt</button></div>`:""}${fo.length?`<ul class="evlist fundlist">${fo.map(f=>fundLi(f,"proj","haus")).join("")}</ul>`:`<div class="freq">Link aus einem Shop oder einfach ein Name. Das Schild rechts zeigt den Stand: 💡 Idee, ⭐ Favorit, 📅 Geplant, ✅ Erledigt (gekauft).</div>`}${fundForm("hpfundform",x.id,"haus")}</section>`;
   if(fb.length)h+=`<section class="card"><div class="section-head"><h2>✅ Erledigt <span class="freq">gekauft</span></h2><span class="freq num">${euro(sb)}</span></div><ul class="evlist fundlist">${fb.map(f=>fundLi(f,"proj","haus")).join("")}</ul></section>`;
+  h+=`<section data-fk="f_hpbud|1" class="card"><div class="section-head"><h2>💶 Budget</h2></div><div class="freq" style="font-size:1rem">${bud?`${euro(sb)} ausgegeben von ${euro(bud)}`:`${euro(sb)} ausgegeben`}${sp?` · ⭐ Favoriten ${euro(sp)}`:""}</div>${bud?`<div class="bar"><span style="width:${Math.min(100,sb/bud*100).toFixed(0)}%"></span></div>`:""}<div class="freq">Rechnet mit eingetragenen Ausgaben und den Preisen gekaufter Funde ohne Ausgabe (⭐ = Favorit, noch nicht gekauft).</div>${geldSrcRow("hproj:"+x.id,{name:x.name,cat:"wohnen",grp:""})}${splitChips("hproj:"+x.id)}${splitFor("hproj:"+x.id).length?"":splitAddForm("hproj:"+x.id)}</section>`;
   h+=`<section data-fk="f_hpeck|0" class="card"><div class="section-head"><h2>✏️ Eckdaten</h2></div>${fld("name","Name")}${fld("room","Raum","","z. B. Wohnzimmer")}${fld("budget","💶 Budget (€)","number","z. B. 800")}
     <div class="fld"><span>Symbol</span><div class="unl">${HPROJ_EMO.map(e=>`<button class="chipbtn neutral" data-hpemo="${e}" aria-pressed="${(x.emo||"🛋️")===e}">${e}</button>`).join("")}</div></div>
     <label class="fld"><span>Oder eigenes Symbol (jedes Emoji von der Tastatur)</span><input data-hpf="emo" value="${esc(HPROJ_EMO.includes(x.emo)?"":x.emo||"")}" placeholder="z. B. 🦖" maxlength="8" autocomplete="off" style="max-width:8em"></label>
@@ -3652,6 +3667,7 @@ function renderProjects(){const d=S.projDraft;
     if(G.quick)h+=`<form class="addrow" id="projform" novalidate><input type="text" id="projinput" placeholder="Schnell notieren, sortieren später" value="${esc(S.projText)}" autocomplete="off" enterkeyhint="done" aria-label="Neue Idee"><button class="primary" type="submit">Merken</button></form>`;
     const hpN=k=>S.tab==="amhaus"?hprojs().filter(p=>hprojCat(p)===k&&p.state!=="erledigt").length:0,tcTxt=k=>{const n=cnt(k),p=hpN(k),a=[];if(p)a.push(p+(p===1?" Projekt":" Projekte"));if(n)a.push(n+" offen");return a.join(" · ")||"leer"};
     h+=`<div class="tiles">${projCats().filter(k=>G.cats.includes(k[0])).map(k=>`<button class="tile" data-pfilter="${k[0]}"><span class="te">${k[1]}</span><span class="tn">${k[2]}</span><span class="tc">${tcTxt(k[0])}</span></button>`).join("")}${S.tab==="amhaus"?(()=>{const n=funde("haus").length;return `<button class="tile" data-nav="amhaus|hs:wohnen"><span class="te">🔖</span><span class="tn">Gemerkt</span><span class="tc">${n?n+" Dinge":"leer"}</span></button>`})():""}${S.tab==="projekte"?projAllTile()+`<button class="tile add" data-catman="idea" aria-label="Eigene Kachel anlegen oder löschen"><span class="te">＋</span><span class="tn">Eigene Kachel</span><span class="tc">anlegen, löschen</span></button>`:""}</div>`;
+    if(S.tab==="amhaus")h+=hstepOverview();
     const dn=all.filter(x=>x.done&&G.cats.includes(projCat(x))).length;if(dn)h+=`<div class="freq" style="text-align:center">${dn} erledigt. Ihr findet sie in den Kacheln.</div>`;
     if(S.tab==="projekte")h+=sammHtml();
     return h}
@@ -3795,6 +3811,63 @@ function fundDelOpts(f){const A=FAREA[f.area||"reise"],o=[];
   o.push([fundLinked(f).length?"Ganz löschen, auch dort":"Ganz löschen",async()=>{await fundDropAll(f);toast("Gelöscht")},true]);return o}
 function fundRmAsk(id){const f=listOf(S.food&&S.food.fund).find(y=>y.id===id);if(!f)return;const lk=fundLinked(f);
   editBox(f.name,[{k:"x",type:"note",label:(f[FAREA[f.area||"reise"].key]?"Nur aus dem "+FAREA[f.area||"reise"].word+" nehmen: der Eintrag bleibt in der Sammlung. ":"")+"Ganz löschen: weg aus Sammlung"+(lk.length?" und bei "+lk.map(k=>FUND_LINKS[k].lbl).join(", "):"")+"."}],async()=>{},fundDelOpts(f))}
+// ---------- Am Haus: Schritte im Projekt (Florian 19.11.2026: „B: Schritte in Abschnitten“, Entwurf /mnt/project-files/design/amhaus-todos.png) ----------
+// food/hstep/<id> {proj,name,sec:vor|bes|mach|ein,ord,who?:p0|p1|both,date?,buy?,done?,doneAt?,doneBy?,at,by}
+// Ohne Tag bleibt der Schritt im Projekt. Mit Tag wird er ein Termin (food/termin/s_<id>, ref hstep:<id>, siehe 29h) und steht am Tag in „Heute für dich“.
+// 🛒 = steht bei Weitere Listen › Baumarkt (buyLinked), Haken dort hakt den Schritt ab und bietet den Betrag an (ref hstep:<id>, zählt im Projekt-Budget).
+// Gemerkte Funde des Projekts auf Favorit oder Geplant stehen ohne Kopie unter Besorgen. Haushalts-Aufgaben bleiben draußen.
+const HSTEP_SEC=[["vor","Vorbereiten"],["bes","Besorgen"],["mach","Machen"],["ein","Einrichten"]];
+const HSTEP_TPL=[["vor","Beide Zimmer ausmessen"],["vor","Überlegen, was wohin kommt"],["bes","Farbe, Folie und Kreppband besorgen",1],["mach","Zimmer ausräumen"],["mach","Sauber machen"],["mach","Streichen"],["mach","Möbel umziehen"],["ein","Spielsachen zusammensuchen"],["ein","Einräumen und einrichten"]];
+const hstepSecI=s=>{const i=HSTEP_SEC.findIndex(x=>x[0]===s);return i<0?2:i};
+const hstepsAll=()=>listOf(S.food&&S.food.hstep).filter(x=>x&&x.name&&x.proj);
+function hsteps(pid){return hstepsAll().filter(x=>x.proj===pid).sort((a,b)=>hstepSecI(a.sec)-hstepSecI(b.sec)||(a.ord||0)-(b.ord||0)||(a.at||0)-(b.at||0))}
+function hstepNext(pid,n){return hsteps(pid).filter(x=>!x.done).slice(0,n||2)}
+function hstepCount(pid){const L=hsteps(pid);return [L.filter(x=>x.done).length,L.length]}
+const hstepFunde=pid=>funde("haus").filter(f=>f.proj===pid&&(f.st==="favorit"||f.st==="geplant"));
+const hstepDay=d=>{const t=ymd(new Date());return d===t?"Heute":d===ymd(addDays(new Date(),1))?"Morgen":dLabel(d)};
+const hstepSub=x=>(HSTEP_SEC[hstepSecI(x.sec)]||[])[1]+(x.buy?" · 🛒 Baumarkt":"");
+function hstepRow(x){return `<li class="hsrow${x.done?" done":""}"><button class="tick hstick" data-hstick="${esc(x.id)}" aria-pressed="${!!x.done}" aria-label="${esc(x.name)} ${x.done?"doch nicht erledigt":"abhaken"}">${x.done?"✓":""}</button><button class="hsname" data-hsedit="${esc(x.id)}" aria-label="${esc(x.name)} bearbeiten">${esc(x.name)}</button>${x.buy&&!x.done?`<button class="chipbtn neutral buyref" data-nav="listen|bl:baumarkt" aria-label="Steht bei Weitere Listen, Baumarkt">🛒 Baumarkt</button>`:""}${x.who?pDot(x.who==="both"?"p0,p1":x.who):""}${x.date&&!x.done?`<span class="hsday">${esc(hstepDay(x.date))}</span>`:""}</li>`}
+function hstepFundRow(f){const st=f.st==="geplant"?["geplant","📅 Geplant"]:["favorit","⭐ Favorit"];return `<li class="hsrow gmg"><button class="tick hstick" data-fundbought="${esc(f.id)}" aria-pressed="false" aria-label="${esc(f.name)} gekauft">${""}</button><button class="hsname" data-fundedit="${esc(f.id)}" aria-label="${esc(f.name)} bearbeiten">${esc(f.name)}<i>aus 🔖 Gemerkt${f.price?" · "+esc(f.price)+" €":""}</i></button><span class="stbadge st-${st[0]}">${st[1]}</span></li>`}
+// Marine-Block „Als Nächstes“ plus Klapp-Karte „✅ Schritte“
+function hstepCard(x){const L=hsteps(x.id),N=L.filter(s=>!s.done).slice(0,2),[d,n]=hstepCount(x.id),FB=hstepFunde(x.id);let h="";
+  if(N.length)h+=`<div class="campback dash kiddash tripdash hsdash" aria-label="Als Nächstes">${panelHead("Als Nächstes",d+" von "+n+" Schritten erledigt","","")}<ul class="hsnext">${N.map(s=>`<li class="thr"><button class="tick hstick" data-hstick="${esc(s.id)}" aria-pressed="false" aria-label="${esc(s.name)} abhaken"></button><button class="btl" data-hsedit="${esc(s.id)}"><b>${esc(s.name)}</b><span>${esc(hstepSub(s))}</span></button>${s.who?pDot(s.who==="both"?"p0,p1":s.who):""}${s.date?`<span class="hsday">${esc(hstepDay(s.date))}</span>`:""}</li>`).join("")}</ul></div>`;
+  let b="";HSTEP_SEC.forEach((sc,i)=>{const R=L.filter(s=>hstepSecI(s.sec)===i),F=i===1?FB:[],dn=R.filter(s=>s.done).length,tot=R.length+F.length;if(!tot)return;
+    const k="hs_"+sc[0],on=tFoldOn(k,dn<tot);
+    b+=`<div class="hssec"><button class="hssech" data-tfold="${k}" data-tdef="${dn<tot?1:0}" aria-expanded="${on}"><span>${i+1} ${sc[1]}</span><i>${dn} von ${tot}${dn===tot?" ✓":""} ${on?"▾":"›"}</i></button>${on?`<ul class="hslist">${R.map(hstepRow).join("")}${F.map(hstepFundRow).join("")}</ul>`:""}</div>`});
+  if(!L.length&&!FB.length)b+=`<div class="freq">Noch keine Schritte. Schreibt auf, was zu tun ist, oder nehmt die Vorlage. Tipp auf einen Schritt = Bearbeiten, lange drücken = ✕ Löschen.</div>`;
+  b+=`<div class="btnrow hsadd"><button class="ghost" data-act="hsnew">＋ Schritt</button><button class="ghost" data-act="hstpl">📋 Vorlage Zimmer umziehen</button></div>`;
+  return h+foldCard("hp_steps","✅ Schritte",n?d+" von "+n:"",b,true,"hscard")}
+// Fenster zum Anlegen und Bearbeiten
+function hstepEdit(pid,id,pre){const x=id?(S.food.hstep||{})[id]:null;if(id&&!x)return;const o=x||pre||{},same=sec=>hsteps(pid).filter(s=>hstepSecI(s.sec)===hstepSecI(sec)&&s.id!==id);
+  const pos=x?same(x.sec).filter(s=>(s.ord||0)<(x.ord||0)||((s.ord||0)===(x.ord||0)&&(s.at||0)<(x.at||0))).length+1:"";
+  if(id)S.verkNext=["hstep",id,x];
+  editBox(id?"✅ Schritt":"✅ Neuer Schritt",[{k:"name",label:"Was",val:o.name||"",ph:"z. B. Gästezimmer ausräumen"},{k:"sec",label:"Abschnitt",type:"chips",val:o.sec||"mach",opts:HSTEP_SEC.map((s,i)=>[s[0],(i+1)+" "+s[1]])},{k:"pos",label:"Reihenfolge (Platz im Abschnitt, leer = ans Ende)",val:pos,max:3,ph:"z. B. 1"},{k:"who",label:"Für wen",type:"chips",val:o.who||"",opts:[["","Offen"],["p0",pname("p0")],["p1",pname("p1")],["both","Beide"]]},{k:"date",label:"Wann (freiwillig, dann steht er im Kalender)",type:"date",val:o.date||""},{k:"buy",label:"Besorgen",type:"chips",val:o.buy?"1":"",opts:[["","Nein"],["1","🛒 Auf die Liste Baumarkt"]]}],
+    async V=>{const name=String(V.name||"").trim().slice(0,80);if(!name){toast("Bitte eintragen, was zu tun ist.");return}const sid=id||newId("hs"),sec=HSTEP_SEC.some(s=>s[0]===V.sec)?V.sec:"mach";
+      const R=same(sec),p=parseInt(V.pos,10),at=isFinite(p)&&p>=1?Math.min(p-1,R.length):R.length,v=Object.assign({},x||{},{proj:pid,name,sec,who:V.who||null,date:/^\d{4}-\d\d-\d\d$/.test(V.date)?V.date:null,buy:V.buy?true:null});
+      if(!x){v.at=Date.now();v.by=S.me||""}R.splice(at,0,{id:sid});
+      for(let i=0;i<R.length;i++){if(R[i].id===sid)v.ord=i;else if((R[i].ord||0)!==i||R[i].ord==null)await S.store.setPath("food/hstep/"+R[i].id+"/ord",i)}
+      Object.keys(v).forEach(k=>{if(v[k]==null)delete v[k]});await S.store.setPath("food/hstep/"+sid,v);if(typeof linkTerSync==="function")linkTerSync();render()},
+    id?async()=>{await hstepDel(id)}:null)}
+async function hstepDel(id){const x=(S.food.hstep||{})[id];if(!x)return;await delUndo("food/hstep/"+id,"Schritt gelöscht")}
+async function hstepTick(id,fromBuy){const x=(S.food.hstep||{})[id];if(!x)return;const on=!x.done;
+  await S.store.setPath("food/hstep/"+id+"/done",on?true:null);await S.store.setPath("food/hstep/"+id+"/doneAt",on?Date.now():null);await S.store.setPath("food/hstep/"+id+"/doneBy",on?(S.me||""):null);render();
+  if(on&&x.buy){const hp=hprojs().find(p=>p.id===x.proj);geldBought({name:x.name,cat:"wohnen",ref:"hstep:"+id,grp:"",note:hp?hp.name:""})}}
+async function hstepTpl(pid){const L=hsteps(pid),have=new Set(L.map(s=>s.name)),cnt={};L.forEach(s=>{cnt[s.sec]=Math.max(cnt[s.sec]||0,(s.ord||0)+1)});let n=0,t=Date.now();
+  for(const r of HSTEP_TPL){if(have.has(r[1]))continue;const v={proj:pid,name:r[1],sec:r[0],ord:cnt[r[0]]||0,at:t+n,by:S.me||""};if(r[2])v.buy=true;cnt[r[0]]=(cnt[r[0]]||0)+1;await S.store.setPath("food/hstep/"+newId("hs")+n,v);n++}
+  toast(n?n+" Schritte aus der Vorlage. Alles lässt sich ändern oder löschen.":"Die Schritte der Vorlage stehen schon da.");render()}
+async function hstepClick(b){const d=b.dataset;
+  if(d.hstick){try{await hstepTick(d.hstick)}catch(_){toast("Konnte nicht speichern.")}return true}
+  if(d.hsedit){const x=(S.food.hstep||{})[d.hsedit];if(x)hstepEdit(x.proj,d.hsedit);return true}
+  if(d.act==="hsnew"&&S.hprojOpen){hstepEdit(S.hprojOpen,null);return true}
+  if(d.act==="hstpl"&&S.hprojOpen){try{await hstepTpl(S.hprojOpen)}catch(_){toast("Konnte nicht speichern.")}return true}
+  return false}
+// Am Haus › Übersicht: je laufendem Projekt eine Zeile
+function hstepOverview(){const P=hprojs().filter(p=>p.state!=="erledigt"&&p.state!=="pause").map(p=>[p,hstepNext(p.id,1)[0],hstepCount(p.id)]).filter(r=>r[1]);if(!P.length)return "";
+  return `<section data-fk="f_hsnext|1" class="card"><div class="section-head"><h2>✅ Als Nächstes</h2></div><ul class="evlist hsover">${P.map(r=>`<li><button class="item" data-hproj="${esc(r[0].id)}"><span class="nm">${esc(r[0].emo||"🛋️")} ${esc(r[0].name)}<br><span class="freq">Als Nächstes: ${esc(r[1].name)}${r[1].who?" · "+esc(r[1].who==="both"?"Beide":pname(r[1].who)):""}${r[1].date?" · "+esc(hstepDay(r[1].date)):""} · ${r[2][0]} von ${r[2][1]}</span></span></button></li>`).join("")}</ul></section>`}
+// „Heute für dich“: Schritte mit Tag heute bei der Person (ohne Person: bei beiden)
+function hstepHeute(){const t=ymd(new Date()),t0=+startOfDay(new Date());return hstepsAll().filter(x=>x.date===t&&(!S.me||!x.who||x.who==="both"||x.who===S.me)&&(!x.done||(x.doneAt||0)>=t0)).map(x=>{const hp=hprojs().find(p=>p.id===x.proj);return hp?{hs:1,t:{id:x.id,name:x.name},done:!!x.done,sub:(hp.emo||"🛠️")+" "+hp.name}:null}).filter(Boolean)}
+// Projekt gelöscht: Schritte gehen mit
+async function hstepDropProj(pid){for(const s of hsteps(pid))await S.store.setPath("food/hstep/"+s.id,null)}
 // ---------- Spielen (Ball), seit der Bündelung 17.11.2026 Seite unter Kind (Kind | Kita | Spielen); Spielplätze sind nach Ausflüge und Reisen umgezogen (migPlayTrip) ----------
 const playSecs=()=>catsOf("play",PLAY_SECS);
 const PLAY_SECS=[["zuhause","🎲","Spielideen zu Hause"],["sport","🤸","Sport und Kurse"],["sonst","📎","Sonstiges"]];
@@ -4335,6 +4408,7 @@ function searchHits(q){const W=sNorm(q).split(/\s+/).filter(Boolean);if(!W.lengt
   prios().forEach(x=>{if(x.from==="mittag")return;add("Wichtig","🔔",x.name,"Erinnerung"+(x.due?" · "+x.due.split("-").reverse().slice(0,2).join("."):""),'data-go="wichtig"',x.note)});
   listOf(F.idea).forEach(x=>{const c=projCat(x),haus=!!HCAT[c],gs=c==="geschenk",pc=projCats().find(p=>p[0]===c);add(gs?"Geschenke":haus?"Am Haus":"Sammlung",x.emo||(pc?pc[1]:"📎"),x.name,gs?(giftFor(x)||"Geschenk"):pc?pc[2]:"",gs?'data-nav="geschenke|"':`data-nav="${haus?"amhaus":"projekte"}|pf:${esc(c)}"`,x.note)});
   hprojs().forEach(x=>add("Am Haus",x.emo||"🛋️",x.name,"Projekt",`data-hproj="${esc(x.id)}"`,x.note));
+  hstepsAll().forEach(s=>{const p=hprojs().find(x=>x.id===s.proj);if(p)add("Am Haus","✅",s.name,"Schritt im Projekt "+p.name+(s.done?" · erledigt":""),`data-hproj="${esc(p.id)}"`)});
   urlaube().forEach(x=>add("Ausflüge und Reisen",x.emo||"⛵",x.name,"Urlaub"+(x.place?" · "+x.place:""),`data-reise="${esc(x.id)}"`,x.note));
   trips().forEach(x=>add("Ausflüge und Reisen","🚲",x.name,"Ausflug",'data-nav="ausflug|tt:ideen"',x.note));
   listOf(F.fund).forEach(x=>{const h=x.area==="haus";add(h?"Am Haus":"Reisen",fundKind(x.kind,h?"haus":"reise")[1],x.name,(h?"Gemerkt Am Haus":"Gemerkt für unterwegs")+(x.place?" · "+x.place:""),h?(x.proj?`data-hproj="${esc(x.proj)}"`:'data-nav="amhaus|hs:wohnen"'):(x.reise?`data-reise="${esc(x.reise)}"`:'data-nav="ausflug|tt:recherche"'),x.note)});
@@ -4718,6 +4792,8 @@ async function calLpDel(kind,id){
   if(kind==="ctrip"){const x=(S.food&&S.food.trip||{})[id];if(!x)return;lpAsk("🚲 "+(x.name||"Ausflug"),"Was soll weg?",[["📅 Nur den Tag wegnehmen, das Ziel bleibt gemerkt",()=>setUndo("food/trip/"+id+"/date",null,"Aus dem Kalender genommen. Das Ziel bleibt gemerkt.")],["🗑 Ausflug ganz löschen",()=>calLpDel("trip",id)]]);return}
   if(kind==="cplay"){const x=(S.food&&S.food.play||{})[id];if(!x)return;lpAsk("🤸 "+(x.name||"Kurs"),"Was soll weg?",[["📅 Nur aus dem Kalender nehmen, der Kurs bleibt unter Spielen",()=>setUndo("food/play/"+id+"/when",null,"Kurs steht nicht mehr im Kalender. Er bleibt unter Spielen.")],["🗑 Kurs ganz löschen",()=>calLpDel("play",id)]]);return}
   if(kind==="advent")return delUndo("food/adoor/"+id,"Türchen geleert");
+  if(kind==="hstep")return hstepDel(id);
+  if(kind==="chstep"){const x=(S.food&&S.food.hstep||{})[id];if(!x)return;lpAsk("✅ "+(x.name||"Schritt"),"Was soll weg?",[["📅 Nur den Tag wegnehmen, der Schritt bleibt im Projekt",()=>setUndo("food/hstep/"+id+"/date",null,"Aus dem Kalender genommen. Der Schritt bleibt im Projekt.")],["🗑 Schritt ganz löschen",()=>hstepDel(id)]]);return}
   if(kind==="prio")return delUndo("food/prio/"+id,"Erinnerung gelöscht");
   if(kind==="kidmed")return delUndo("food/kid/med/"+id,"Eintrag gelöscht");
   if(kind==="buy")return delUndo("food/buy/"+id,"Eintrag gelöscht");
@@ -4733,7 +4809,7 @@ function lpAsk(title,note,opts){if(document.getElementById("mbox"))return;S.mbox
   document.body.appendChild(el);
   el.addEventListener("click",e=>{const b=e.target.closest("[data-la]");if(!b){if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose();return}mboxClose();const o=opts[+b.dataset.la];if(o)Promise.resolve(o[1]()).catch(()=>toast("Konnte nicht speichern."))})}
 // Dasselbe an allen Listen-Zeilen (Florian 18.11.2026: „Alle“): die Art einer Zeile ergibt sich aus ihren vorhandenen Knöpfen (LP_ROWS), neue Liste = eine Zeile dort.
-const LP_ROWS=[["[data-need]","need","need"],["[data-priodone]","prio","priodone"],["[data-buyrm]","buy","buyrm"],["[data-packrm]","pack","packrm"],["[data-recrm]","rec","recrm"],["[data-kitarm]","kita","kitarm"],["[data-kitaedit]","kita","kitaedit"],["[data-fundrm]","fund","fundrm"],["[data-fundedit]","fund","fundedit"],["[data-tripedit]","trip","tripedit"],["[data-playedit]","play","playedit"],["[data-musedit]","music","musedit"],["[data-projedit]","idea","projedit"],["[data-kidmed]","kidmed","kidmed"],["[data-urlst]","urlaub","urlst"]];
+const LP_ROWS=[["[data-hsedit]","hstep","hsedit"],["[data-need]","need","need"],["[data-priodone]","prio","priodone"],["[data-buyrm]","buy","buyrm"],["[data-packrm]","pack","packrm"],["[data-recrm]","rec","recrm"],["[data-kitarm]","kita","kitarm"],["[data-kitaedit]","kita","kitaedit"],["[data-fundrm]","fund","fundrm"],["[data-fundedit]","fund","fundedit"],["[data-tripedit]","trip","tripedit"],["[data-playedit]","play","playedit"],["[data-musedit]","music","musedit"],["[data-projedit]","idea","projedit"],["[data-kidmed]","kidmed","kidmed"],["[data-urlst]","urlaub","urlst"]];
 function lpRowOf(t){if(!t||!t.closest||t.closest("input,textarea,select,.evlist,.gmg,#mbox"))return null;const R=t.closest("li,.prow,.recbar");if(!R||!app.contains(R))return null;
   for(const d of LP_ROWS){const n=R.querySelector(d[0]);if(n&&n.closest("li,.prow,.recbar")===R&&n.dataset[d[2]])return {R,k:[d[1],n.dataset[d[2]]]}}return null}
 // Einfacher Tipp auf einen Termin aus einem anderen Bereich öffnet gleich das Bearbeiten dort (Florian 18.11.2026: „mit einem einfachen Klick bearbeiten“)
@@ -5034,7 +5110,7 @@ app.addEventListener("click",async e=>{
   if(S.hprojOpen&&(b.dataset.hpemo||b.dataset.hpst||b.dataset.act==="hprojdel")){const base="food/hproj/"+S.hprojOpen+"/";
     if(b.dataset.hpemo){await S.store.setPath(base+"emo",b.dataset.hpemo).catch(()=>{});return}
     if(b.dataset.hpst){try{await S.store.setPath(base+"state",b.dataset.hpst);toast("Stand: "+hpSt({state:b.dataset.hpst})[2])}catch(_){toast("Konnte nicht speichern.")}return}
-    if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Wirklich löschen?";return}try{for(const f of funde("haus").filter(f=>f.proj===S.hprojOpen))await S.store.setPath("food/fund/"+f.id+"/proj",null);const hid=S.hprojOpen;await splitDropRef("hproj:"+hid);await prioDropRef([hid]);await S.store.setPath("food/hproj/"+hid,null);S.hprojOpen=null;toast("Projekt gelöscht, Funde bleiben in der Sammlung");render()}catch(_){toast("Konnte nicht speichern.")}return}
+    if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Wirklich löschen?";return}try{for(const f of funde("haus").filter(f=>f.proj===S.hprojOpen))await S.store.setPath("food/fund/"+f.id+"/proj",null);const hid=S.hprojOpen;await splitDropRef("hproj:"+hid);await hstepDropProj(hid);await prioDropRef([hid]);await S.store.setPath("food/hproj/"+hid,null);S.hprojOpen=null;toast("Projekt gelöscht, Funde bleiben in der Sammlung");render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.advgo){S.prev=S.tab;S.tab="geschenke";S.projFilter="advent";S.advCal=b.dataset.advgo;S.advDoor=null;render();window.scrollTo(0,0);return}
   if(b.dataset.advcal){S.advCal=b.dataset.advcal;S.advDoor=null;render();return}
   if(b.dataset.advnew){const [w,k]=b.dataset.advnew.split("|");advNew(w,k);return}
@@ -5171,6 +5247,7 @@ app.addEventListener("click",async e=>{
     try{await S.store.setPath("food/lunchmap",u||null);S.lunchMapEdit=false;S.lunchMapOpen=!!mapsEmbed(u);render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.idea){const x=((S.ideas&&S.ideas.items)||[])[+b.dataset.idea];if(!x)return;recWohin(recVal(x));return}
   if(b.dataset.openrec){openRec(b.dataset.openrec);return}
+  if(b.dataset.hstick||b.dataset.hsedit||b.dataset.act==="hsnew"||b.dataset.act==="hstpl"){if(await hstepClick(b))return}
   if(b.dataset.tagfix||b.dataset.rdbgo!=null||/^(tagfix|tagbasic|rdbing)/.test(b.dataset.act||"")){if(await tagClick(b))return}
   if(b.dataset.srclink===KITA_SRC){S.prev=S.tab;S.tab="kita";S.kitaSec="tasche";render();window.scrollTo(0,0);return}
   if(b.dataset.srclink&&/^adventskalender/i.test(b.dataset.srclink)){const m=b.dataset.srclink.match(/(\d+)\s*$/);S.prev=S.tab;S.tab="geschenke";S.projFilter="advent";S.advCal=null;S.advDoor=m?+m[1]:null;render();window.scrollTo(0,0);return}
@@ -5723,13 +5800,14 @@ async function migGmCopies(){if(S.migGm||!S.food||!S.food.fund)return;S.migGm=1;
 // ---------- „Verknüpft mit“ (Florian 19.11.2026 im Vergleichs-Dossier: „ja“) ----------
 // Eine Zeile unten in jedem Fenster: was mit diesem Eintrag zusammenhängt (Rückverweise wie bei Notion). Tipp springt hin.
 // verkItems(art,id) sucht in Erinnerungen (ref), Ausgaben (ref art:id), Terminen (ref art:id), Weitere Listen, Splitwise, Türchen und Einkaufsliste.
-const VERK_KIND={trip:"🚲 Ausflug",play:"⚽ Spielidee",adoor:"🎄 Türchen",task:"🧹 Aufgabe",urlaub:"⛵ Urlaub",hproj:"🛠️ Projekt",fund:"🔖 Gemerkt",idea:"💡 Idee",mus:"🎵 Musik"};
+const VERK_KIND={trip:"🚲 Ausflug",play:"⚽ Spielidee",adoor:"🎄 Türchen",task:"🧹 Aufgabe",urlaub:"⛵ Urlaub",hproj:"🛠️ Projekt",hstep:"✅ Schritt",fund:"🔖 Gemerkt",idea:"💡 Idee",mus:"🎵 Musik"};
 function verkTarget(ref){const [k,id]=String(ref||"").split(":"),F=S.food||{};if(!id)return null;
   if(k==="trip"){const t=listOf(F.trip).find(x=>x.id===id);return t&&["🚲",t.name,`data-verktrip="${esc(id)}"`]}
   if(k==="play"){const p=listOf(F.play).find(x=>x.id===id);return p&&["⚽",p.name,`data-verkplay="${esc(id)}"`]}
   if(k==="adoor"){const d=(F.adoor||{})[id];return d&&["🎄","Türchen "+d.day+(d.name?": "+d.name:""),`data-verkadv="${esc(id)}"`]}
   if(k==="task"){const t=tasks().find(x=>x.id===id);return t&&["🧹",t.name,`data-nav="woche|"`]}
   if(k==="urlaub"){const u=listOf(F.urlaub).find(x=>x.id===id);return u&&[u.emo||"⛵",u.name,`data-reise="${esc(id)}"`]}
+  if(k==="hstep"){const s=(F.hstep||{})[id],p=s&&listOf(F.hproj).find(x=>x.id===s.proj);return p&&["✅",s.name+" · "+p.name,`data-hproj="${esc(p.id)}"`]}
   if(k==="ter"){const t=listOf(F.termin).find(x=>x.id===id);return t&&[terIcon(t),t.name+(t.date?" · "+dLabel(t.date):""),`data-teredit="${esc(id)}"`]}
   return null}
 function verkItems(kind,id,self){const F=S.food||{},L=[],key=kind+":"+id;if(!id)return L;
@@ -5768,11 +5846,12 @@ function maskFoot(verk,move,del){if(!verk&&!move&&!del)return "";return `<div cl
 // linkTerSync gleicht bei jedem Datenstand ab (Tag und Name kommen aus dem Bereich). Im Termin-Fenster geänderter Tag, Uhrzeit und Name gehen zurück in den Bereich (linkBack).
 // Uhrzeit, Ort, Für wen, 🔔 und Notiz gehören dem Termin. Löschen fragt wie bisher (nur den Tag wegnehmen oder ganz löschen).
 const WD_SHORT=["So","Mo","Di","Mi","Do","Fr","Sa"];
-const linkRef=x=>{const m=/^(trip|play|adoor):(.+)$/.exec(String(x&&x.ref||""));return m?[m[1],m[2]]:null};
+const linkRef=x=>{const m=/^(trip|play|adoor|hstep):(.+)$/.exec(String(x&&x.ref||""));return m?[m[1],m[2]]:null};
 function linkWant(){const W={};
   trips().forEach(x=>{if(x.date&&!x.done&&/^\d{4}-\d\d-\d\d$/.test(x.date))W["a_"+x.id]={ref:"trip:"+x.id,name:x.name,date:x.date,place:x.place||"",tag:"ausflug"}});
   plays().forEach(x=>{if(x.sec!=="sport"||!x.when)return;const t=whenTime(x.when);whenDays(x.when).forEach(wd=>{W["c_"+x.id+"_"+wd]={ref:"play:"+x.id,name:x.name,wd,time:t,who:"kid",tag:"sport",rep:"w"}})});
   advCals().forEach(c=>Object.values(advDoors(c.id)).forEach(x=>{if(x.kind!=="aktiv"||!x.name)return;W["d_"+x.id]={ref:"adoor:"+x.id,name:x.name+" (Türchen "+x.day+")",date:(c.year||advYear())+"-12-"+String(x.day).padStart(2,"0"),who:c.for==="kid"?"kid":""}}));
+  hstepsAll().forEach(x=>{if(x.date&&!x.done&&/^\d{4}-\d\d-\d\d$/.test(x.date)&&hprojs().some(p=>p.id===x.proj))W["s_"+x.id]={ref:"hstep:"+x.id,name:x.name,date:x.date,who:x.who||""}});
   return W}
 const nextWd=wd=>{let d=startOfDay(new Date());while(d.getDay()!==wd)d=addDays(d,1);return ymd(d)};
 let linkBusy=false;
@@ -5783,12 +5862,14 @@ async function linkTerSync(){if(linkBusy||!S.food||!S.store)return;linkBusy=true
     if(w.date&&o.date!==w.date)await P(id+"/date",w.date);
     if(w.wd!=null&&(!o.date||ymdD(o.date).getDay()!==w.wd))await P(id+"/date",nextWd(w.wd));
     if(w.wd!=null&&w.time&&o.time!==w.time)await P(id+"/time",w.time);
+    if(/^s_/.test(id)&&(o.who||"")!==(w.who||""))await P(id+"/who",w.who||null);
     if(o.ref!==w.ref)await P(id+"/ref",w.ref)}
-  for(const id of Object.keys(T)){const o=T[id];if(o&&/^[acd]_/.test(id)&&linkRef(o)&&!W[id])await P(id,null)}}
+  for(const id of Object.keys(T)){const o=T[id];if(o&&/^[acds]_/.test(id)&&linkRef(o)&&!W[id])await P(id,null)}}
   catch(_){}finally{linkBusy=false}}
 // Gespeichert im Termin-Fenster: Tag, Uhrzeit, Name zurück in den Bereich
 async function linkBack(v,old){const L=linkRef(old);if(!L)return;const [k,id]=L;
   if(k==="trip"){const x=(S.food.trip||{})[id];if(!x)return;if(v.date!==x.date)await S.store.setPath("food/trip/"+id+"/date",v.date);if(v.name&&v.name!==x.name)await S.store.setPath("food/trip/"+id+"/name",v.name);if((v.place||null)!==(x.place||null)&&v.place)await S.store.setPath("food/trip/"+id+"/place",v.place);return}
+  if(k==="hstep"){const x=(S.food.hstep||{})[id];if(!x)return;if(v.date!==x.date)await S.store.setPath("food/hstep/"+id+"/date",v.date);if(v.name&&v.name!==x.name)await S.store.setPath("food/hstep/"+id+"/name",v.name);return}
   if(k==="play"){const x=(S.food.play||{})[id];if(!x)return;if(v.name&&v.name!==x.name)await S.store.setPath("food/play/"+id+"/name",v.name);
     const ow=old.date?ymdD(old.date).getDay():null,nw=ymdD(v.date).getDay(),days=whenDays(x.when).map(d=>d===ow?nw:d),t=v.time||"";
     const nd=[...new Set(days)].sort((a,b)=>((a+6)%7)-((b+6)%7));if(nw!==ow||t!==(whenTime(x.when)||"")){const w=nd.map(d=>WD_SHORT[d]).join(", ")+(t?" "+t+" Uhr":"");await S.store.setPath("food/play/"+id+"/when",w)}
@@ -5799,6 +5880,7 @@ function linkDel(tid){const x=(S.food.termin||{})[tid],L=linkRef(x);if(!L)return
   if(L[0]==="trip"){calLpDel("ctrip",L[1]);return true}
   if(L[0]==="play"){calLpDel("cplay",L[1]);return true}
   if(L[0]==="adoor"){calLpDel("advent",L[1]);return true}
+  if(L[0]==="hstep"){calLpDel("chstep",L[1]);return true}
   return false}
 // Im Kalender ausblenden: Türchen, die für diese Person noch Überraschung sind
 function linkHide(x){const L=linkRef(x);if(!L||L[0]!=="adoor")return false;const d=(S.food.adoor||{})[L[1]];const c=d&&advCals().find(y=>y.id===d.cal);return !!(c&&advHidden(c,d.day))}

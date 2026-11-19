@@ -271,7 +271,7 @@ app.addEventListener("click",async e=>{
   if(S.hprojOpen&&(b.dataset.hpemo||b.dataset.hpst||b.dataset.act==="hprojdel")){const base="food/hproj/"+S.hprojOpen+"/";
     if(b.dataset.hpemo){await S.store.setPath(base+"emo",b.dataset.hpemo).catch(()=>{});return}
     if(b.dataset.hpst){try{await S.store.setPath(base+"state",b.dataset.hpst);toast("Stand: "+hpSt({state:b.dataset.hpst})[2])}catch(_){toast("Konnte nicht speichern.")}return}
-    if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Wirklich löschen?";return}try{for(const f of funde("haus").filter(f=>f.proj===S.hprojOpen))await S.store.setPath("food/fund/"+f.id+"/proj",null);const hid=S.hprojOpen;await splitDropRef("hproj:"+hid);await prioDropRef([hid]);await S.store.setPath("food/hproj/"+hid,null);S.hprojOpen=null;toast("Projekt gelöscht, Funde bleiben in der Sammlung");render()}catch(_){toast("Konnte nicht speichern.")}return}
+    if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Wirklich löschen?";return}try{for(const f of funde("haus").filter(f=>f.proj===S.hprojOpen))await S.store.setPath("food/fund/"+f.id+"/proj",null);const hid=S.hprojOpen;await splitDropRef("hproj:"+hid);await hstepDropProj(hid);await prioDropRef([hid]);await S.store.setPath("food/hproj/"+hid,null);S.hprojOpen=null;toast("Projekt gelöscht, Funde bleiben in der Sammlung");render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.advgo){S.prev=S.tab;S.tab="geschenke";S.projFilter="advent";S.advCal=b.dataset.advgo;S.advDoor=null;render();window.scrollTo(0,0);return}
   if(b.dataset.advcal){S.advCal=b.dataset.advcal;S.advDoor=null;render();return}
   if(b.dataset.advnew){const [w,k]=b.dataset.advnew.split("|");advNew(w,k);return}
@@ -408,6 +408,7 @@ app.addEventListener("click",async e=>{
     try{await S.store.setPath("food/lunchmap",u||null);S.lunchMapEdit=false;S.lunchMapOpen=!!mapsEmbed(u);render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.idea){const x=((S.ideas&&S.ideas.items)||[])[+b.dataset.idea];if(!x)return;recWohin(recVal(x));return}
   if(b.dataset.openrec){openRec(b.dataset.openrec);return}
+  if(b.dataset.hstick||b.dataset.hsedit||b.dataset.act==="hsnew"||b.dataset.act==="hstpl"){if(await hstepClick(b))return}
   if(b.dataset.tagfix||b.dataset.rdbgo!=null||/^(tagfix|tagbasic|rdbing)/.test(b.dataset.act||"")){if(await tagClick(b))return}
   if(b.dataset.srclink===KITA_SRC){S.prev=S.tab;S.tab="kita";S.kitaSec="tasche";render();window.scrollTo(0,0);return}
   if(b.dataset.srclink&&/^adventskalender/i.test(b.dataset.srclink)){const m=b.dataset.srclink.match(/(\d+)\s*$/);S.prev=S.tab;S.tab="geschenke";S.projFilter="advent";S.advCal=null;S.advDoor=m?+m[1]:null;render();window.scrollTo(0,0);return}

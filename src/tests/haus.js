@@ -11,7 +11,7 @@ srv.listen(8765,async()=>{
   const db=JSON.parse(JSON.stringify(get(['haushalt',key,'food'])));const hf=Object.entries(db.fund).filter(([k,f])=>f.area==='haus');
   for(const [k] of hf.filter(([k,f])=>/Kallax/i.test(f.name)))await put('food/fund/'+k+'/price','69');await A.waitForTimeout(300);
   const kid=hf.find(([k,f])=>/Kallax/i.test(f.name))[0];for(let i=0;i<3;i++){await A.click('[data-fundst="'+kid+'"]');await A.waitForTimeout(250)}await A.waitForTimeout(150);
-  r.funds=hf.map(([k,f])=>f.kind+':'+f.name+':'+(f.proj?'P':'-'));r.budget=await A.$eval('.card .freq',e=>e.innerText);
+  r.funds=hf.map(([k,f])=>f.kind+':'+f.name+':'+(f.proj?'P':'-'));r.budget=await A.$$eval('.card .freq',l=>(l.map(e=>e.innerText).find(t=>/ausgegeben/.test(t))||''));
   await A.screenshot({path:out+'/einrichtung-projekt.png',fullPage:true});
   await A.click('[data-fundopen][data-ar=haus]');await A.waitForTimeout(300);r.samm=await A.$$eval('.card:not(.rfund) .fundlist li.fund',l=>l.length);r.reiseNot=!(await A.$eval('#app',e=>/Ferienhaus/.test(e.innerText)));await A.screenshot({path:out+'/einrichtung-sammlung.png',fullPage:true});
   await A.click('.pager [data-nav="amhaus|pf:wohnen"]');await A.waitForTimeout(200);r.tileTxt=await A.$$eval('[data-hproj]',l=>l.map(x=>x.innerText.replace(/\n/g,' | ')));await A.screenshot({path:out+'/einrichtung.png',fullPage:true});
