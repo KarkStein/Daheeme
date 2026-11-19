@@ -163,10 +163,11 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="ternewgo"){S.prev=S.tab;S.tab="woche";S.weekPage=3;S.calDay=null;b.dataset.act="ternew"}
   if(b.dataset.calnew){S.calDay=b.dataset.calnew;S.terDraft={id:null,name:"",date:b.dataset.calnew,time:"",who:"both",rep:"",note:""};render();window.scrollTo(0,0);const el=document.getElementById("ter-name");if(el)el.focus();return}
   if(b.dataset.act==="ternew"){S.terDraft={id:null,name:"",date:S.calDay||ymd(new Date()),time:"",who:"both",rep:"",note:""};render();window.scrollTo(0,0);const el=document.getElementById("ter-name");if(el)el.focus();return}
-  if(b.dataset.teredit){const x=termine().find(y=>y.id===b.dataset.teredit);if(x){S.terDraft=terDraftOf(x);render();window.scrollTo(0,0)}return}
+  if(b.dataset.teredit){const x=termine().find(y=>y.id===b.dataset.teredit);if(x){S.terDraft=terDraftOf(x);if(S.tab==="kita"||S.tab==="kind")S.terDraft.from=S.tab;render();window.scrollTo(0,0)}return}
   if(b.dataset.act==="teraltadd"&&S.terDraft){const d=S.terDraft;d.alt=d.alt||[];if(!d.alt.length&&!d.ask)d.ask=choiceOther(S.me)||"p1";d.alt.push({date:"",time:d.time||""});render();const l=document.querySelectorAll("[data-teralt][data-k=date]");if(l.length)l[l.length-1].focus();return}
   if(b.dataset.act==="terallday"&&S.terDraft){const d=S.terDraft;d.allday=!d.allday;render();return}
   if(b.dataset.teraltrm!=null&&S.terDraft){S.terDraft.alt.splice(+b.dataset.teraltrm,1);render();return}
+  if(b.dataset.termk!=null&&S.terDraft){S.terDraft.mk=S.terDraft.mk===b.dataset.termk?"":b.dataset.termk;render();return}
   if(b.dataset.terkk!=null&&S.terDraft){S.terDraft.kk=S.terDraft.kk===b.dataset.terkk?"":b.dataset.terkk;render();return}
   if(b.dataset.fwsplit){try{await S.store.setPath("food/ext/fwsplit/"+b.dataset.fwsplit,1);toast("↔ Wieder getrennt gezeigt")}catch(_){}return}
   if(b.dataset.tertag!=null&&S.terDraft){const d=S.terDraft;d.tag=b.dataset.tertag;const t=terTag(d);if(t&&!String(d.place||"").trim()&&placeFind(t[2]))d.place=placeFind(t[2]).name;render();return}

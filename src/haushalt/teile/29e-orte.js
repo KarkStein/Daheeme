@@ -20,7 +20,7 @@ function placeList(){const L=places();
 const TER_TAGS=[["kita","🎒","Kita"],["arzt","🩺","Arzt"],["familie","👪","Familie"],["feier","🎉","Feier"],["sport","⚽","Sport"],["arbeit","💼","Arbeit"]];
 const terTags=()=>catsOf("ter",TER_TAGS);
 const terTag=x=>x&&x.tag?terTags().find(t=>t[0]===x.tag)||null:null;
-const terIcon=x=>{const t=terTag(x);return t?t[1]:"📅"};
+const terIcon=x=>{if(x&&x.tag==="arzt"&&x.mk){const m=KID_MED.find(k=>k[0]===x.mk);if(m)return m[1]}const t=terTag(x);return t?t[1]:"📅"};
 function terTagHtml(d){return `<div class="fld"><span>Art</span><div class="unl">${[["","Keine"]].concat(terTags().map(t=>[t[0],t[1]+" "+t[2]])).map(o=>`<button type="button" class="chipbtn neutral" data-tertag="${esc(o[0])}" aria-pressed="${(d.tag||"")===o[0]}">${esc(o[1])}</button>`).join("")}${catBtn("ter")}</div>${ownCats("ter").length?`<div class="freq">Eigene Art lange drücken = löschen.</div>`:""}</div>`}
 // Vorschlag bei Terminen ohne Ort (Florian 16.11.2026): Arten, bei denen ein Ort Sinn hat, oder ein gespeicherter Ort steckt im Namen → 📍 in der Zeile
 const PLACE_TAGS=["kita","arzt","feier","familie","sport"];

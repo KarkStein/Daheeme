@@ -1,9 +1,16 @@
 // ---------- Bereich Kind neu (Florian 17.11.2026, „A mit Größen und Gesundheit“, Bild /mnt/project-files/design/kind-seite-neu.png) ----------
 // Seite 1 (Tab kind): oben „Heute“ im Marine-Look (panelHead, panelTile), darunter Klapp-Karten (foldCard): Gerade beliebt, Besorgen, Unternehmen, Größen, Gesundheit.
 // Seite 2 (Kita): Bringen und Abholen als Wochen-Tafel ganz oben (kidBoard). Seite 3 (Spielen) bleibt.
-// Daten nur in der Datenbank: food/kid/size {cl,sh,hat,at}, food/kid/med/<id> {name,kind,date?,time?,note?,done?,at,by}, food/kid/doc {name,tel}, food/kid/birth "JJJJ-MM-TT"; Adresse des Kinderarztes als gespeicherter Ort food/place/kdoc.
+// Daten nur in der Datenbank: food/kid/size {cl,sh,hat,at}, food/kid/med/<id> {name,kind,date?,time?,note?,done?,moved?,at,by} (offene mit Tag sind seit 19.11.2026 Termine m_<id> mit tag arzt, mk), food/kid/doc {name,tel}, food/kid/birth "JJJJ-MM-TT"; Adresse des Kinderarztes als gespeicherter Ort food/place/kdoc.
 const kidData=()=>(S.food&&S.food.kid)||{};
-const kidMeds=()=>listOf(kidData().med);
+const kidMedsAll=()=>listOf(kidData().med);
+const kidMeds=()=>kidMedsAll().filter(x=>!x.moved);
+// Arzt-Termine des Kindes leben im Kalender (Florian 19.11.2026, wie Kita): Termin mit Art Arzt, who kid, mk = Art aus KID_MED
+const kidArzt=()=>termine().filter(t=>t.tag==="arzt"&&t.date&&whoL(t.who).includes("kid"));
+// Einmalig: Gesundheit-Einträge mit Tag, noch offen, ziehen als Termin um; feste Id m_<id>, das Original bleibt mit moved liegen
+async function migKidMed(){const M=kidData().med;if(S.migMed||!M)return;S.migMed=1;const raw=Object.assign({},M);
+  for(const id of Object.keys(raw)){const x=raw[id];if(!x||x.moved||x.done||!/^\d{4}-\d\d-\d\d$/.test(x.date||""))continue;const tid="m_"+id,dp=kidDocPlace();
+    try{if(!(S.food.termin&&S.food.termin[tid]))await S.store.setPath("food/termin/"+tid,{name:x.name||"Arzt",date:x.date,time:x.time||null,tag:"arzt",who:"kid",mk:x.kind||"vorsorge",note:x.note||null,place:dp&&dp.name||null,at:x.at||Date.now(),by:x.by||""});await S.store.setPath("food/kid/med/"+id+"/moved","ter:"+tid)}catch(_){S.migMed=0;return}}S.migMed=0}
 const KID_MED=[["vorsorge","🩺","Vorsorge"],["impf","💉","Impfung"],["sonst","📎","Sonstiges"]];
 const kidMedIc=x=>(KID_MED.find(k=>k[0]===x.kind)||KID_MED[0])[1];
 const kidDoc=()=>kidData().doc||{};
@@ -15,7 +22,7 @@ function kidAgeM(at){const b=kidData().birth;if(!b||!/^\d{4}-\d\d-\d\d$/.test(b)
 const kidAgeTxt=()=>{const n=kidAgeM();if(n==null)return "";const y=Math.floor(n/12),m=n%12;return y?(y+(y===1?" Jahr":" Jahre")+(m?", "+m+(m===1?" Monat":" Monate"):"")):m+(m===1?" Monat":" Monate")};
 // Vorsorge-Untersuchungen (Monate von/bis): Vorschlag für die nächste, die noch nicht eingetragen ist
 const KID_U=[["U6",10,12],["U7",21,24],["U7a",34,36],["U8",46,48],["U9",60,64]];
-function kidNextU(){const n=kidAgeM();if(n==null)return null;const b=kidData().birth,have=kidMeds().map(x=>String(x.name||"").toLowerCase());
+function kidNextU(){const n=kidAgeM();if(n==null)return null;const b=kidData().birth,have=kidMeds().concat(kidArzt()).map(x=>String(x.name||"").toLowerCase());
   const u=KID_U.find(x=>x[2]>=n&&!have.some(h=>new RegExp("(^|[^a-z0-9])"+x[0].toLowerCase()+"($|[^a-z0-9])").test(h)));if(!u)return null;
   const at=k=>{const d=new Date(+b.slice(0,4),+b.slice(5,7)-1+k,1,12);return KID_MON[d.getMonth()]+" "+d.getFullYear()};return {name:u[0],from:at(u[1]),to:at(u[2])}}
 // Wetter-Hinweis zur Kleidung (aus wxToday, höchstens einer)
@@ -69,13 +76,15 @@ function renderKind(){const nm=kidName(),today=ymd(new Date());
   const z=kidSize(),zd=z.at?new Date(z.at):null,zt=(l,v)=>`<button class="kidsz" data-kidsize="1"><small>${l}</small><b>${v?esc(v):"–"}</b></button>`;
   h+=foldCard("kid_size","📏 Größen",[z.cl,z.sh].filter(Boolean).join(" · "),`<div class="kidszs">${zt("Kleidung",z.cl)}${zt("Schuhe",z.sh)}${zt("Mütze",z.hat)}${zt("Stand",zd?KID_MON[zd.getMonth()]+" "+zd.getFullYear():"")}</div><div class="btnrow"><button class="ghost" data-kidsize="1">✎ Größen ändern</button><button class="ghost" data-nav="listen|bl:kleidung">👕 Kleidung besorgen ›</button></div>`,false,"kidcard");
   // 🩺 Gesundheit
-  const M=kidMeds(),open=M.filter(x=>!x.done).sort((a,b)=>(a.date||"9")<(b.date||"9")?-1:1),done=M.filter(x=>x.done).sort((a,b)=>(a.date||"")<(b.date||"")?1:-1),nu=kidNextU(),doc=kidDoc(),dp=kidDocPlace(),nxm=open.find(x=>x.date&&x.date>=today);
+  const M=kidMeds(),open=M.filter(x=>!x.done).sort((a,b)=>(a.date||"9")<(b.date||"9")?-1:1),done=M.filter(x=>x.done).sort((a,b)=>(a.date||"")<(b.date||"")?1:-1),nu=kidNextU(),doc=kidDoc(),dp=kidDocPlace();
+  const isMed=e=>e.tag==="arzt"&&whoL(e.who).includes("kid")&&(e.src==="own"||e.src==="ext"),mup=calEvents(today,ymd(addDays(new Date(),400))).filter(isMed),mpast=calEvents(ymd(addDays(new Date(),-400)),ymd(addDays(new Date(),-1))).filter(isMed).reverse(),nxm=mup[0];
   const mli=x=>`<li class="mk${x.done?" done":""}"><span class="tic">${kidMedIc(x)}</span><button class="mkn" data-kidmed="${esc(x.id)}"><span>${esc(x.name)}</span><i>${[x.date?dLabel(x.date)+(x.time?" · "+x.time:""):"ohne Termin",x.note?telPlain(x.note):""].filter(Boolean).map(esc).join(" · ")}</i></button>${x.done?`<span class="stbadge st-erledigt">✅</span>`:bell("kind",x)}</li>`;
-  h+=foldCard("kid_med","🩺 Gesundheit",nxm?nxm.name+" am "+dLabel(nxm.date):nu?nu.name+" ab "+nu.from:"",
-    `<div class="section-head kidmedh"><span class="freq">Vorsorge, Impfungen, Arzt. Termine stehen auch im Kalender.</span><button class="chipbtn" data-kidmed="">＋ Eintrag</button></div>`
-    +(open.length?`<ul class="shop kidmeds">${open.map(mli).join("")}</ul>`:"")
+  h+=foldCard("kid_med","🩺 Gesundheit",nxm?nxm.name+" am "+dLabel(nxm.d):nu?nu.name+" ab "+nu.from:"",
+    `<div class="section-head kidmedh"><span class="freq">Vorsorge, Impfungen, Arzt. Termine sind normale Termine im Kalender.</span><button class="chipbtn" data-kidmed="">＋ Eintrag</button></div>`
+    +(mup.length?`<ul class="evlist kidmedter">${mup.slice(0,12).map(e=>evRow(e,true)).join("")}</ul>`:"")
+    +(open.length?`<div class="freq">Noch ohne Tag</div><ul class="shop kidmeds">${open.map(mli).join("")}</ul>`:"")
     +(nu?`<div class="kidsugg"><span>✨ Vorschlag: <b>${esc(nu.name)}</b> zwischen ${esc(nu.from)} und ${esc(nu.to)}</span><button class="chipbtn neutral" data-kidmedu="${esc(nu.name)}">＋ Eintragen</button></div>`:"")
-    +(done.length?`<details class="kiddone"><summary>✅ Erledigt (${done.length})</summary><ul class="shop kidmeds">${done.map(mli).join("")}</ul></details>`:"")
+    +(mpast.length||done.length?`<details class="kiddone"><summary>✅ Vorbei und erledigt (${mpast.length+done.length})</summary>${mpast.length?`<ul class="evlist kidmedter">${mpast.slice(0,12).map(e=>evRow(e,true)).join("")}</ul>`:""}${done.length?`<ul class="shop kidmeds">${done.map(mli).join("")}</ul>`:""}</details>`:"")
     +`<div class="tagcard kiddoc"><div class="trow"><span class="tic">👩‍⚕️</span><button class="ttx" data-kiddoc="1"><span>${doc.name?esc(doc.name):"Kinderarzt eintragen"}<i>${doc.name||doc.tel?"Kinderarzt"+(doc.tel?" · 📞 "+telMask(doc.tel):""):"Name, Telefon, Adresse"}</i></span><em>✎</em></button>${doc.tel&&waNum(doc.tel)?`<a class="catbtn routebtn" href="tel:+${waNum(doc.tel)}" aria-label="Kinderarzt anrufen">📞</a>`:""}${dp&&dp.addr?transitA(dp.name):""}</div>`
     +`<div class="trow"><span class="tic">🎂</span><button class="ttx" data-kidbirth="1"><span>${kidData().birth?esc(kidData().birth.split("-").reverse().join(".")):"Geburtstag eintragen"}<i>${kidData().birth?esc(kidAgeTxt()):"für das Alter oben und den Vorsorge-Vorschlag"}</i></span><em>✎</em></button></div></div>`,false,"kidcard");
   return h}
@@ -96,6 +105,7 @@ function kidSizeEdit(){const z=kidSize();editBox("📏 Größen",[{k:"cl",label:
 function kidMedEdit(id,pre){const x=id?kidMeds().find(m=>m.id===id):null,v=x||pre||{};
   editBox(x?"🩺 Eintrag ändern":"🩺 Neuer Eintrag",[{k:"name",label:"Was?",val:v.name||"",ph:"z. B. U7a, Impfung, Zahnarzt"},{k:"kind",label:"Art",type:"chips",val:v.kind||"vorsorge",opts:KID_MED.map(k=>[k[0],k[1]+" "+k[2]])},{k:"date",label:"Wann? (steht dann im Kalender)",type:"date",val:v.date||""},{k:"time",label:"Uhrzeit",type:"time",val:v.time||""},{k:"note",label:"Notiz",val:v.note||"",max:160,ph:"z. B. Impfpass und gelbes Heft mitnehmen"},{k:"done",label:"Stand",type:"chips",val:v.done?"1":"",opts:[["","Offen"],["1","✅ Erledigt"]]}],
     async V=>{const name=String(V.name||"").trim().slice(0,80);if(!name){toast("Bitte eintragen, was es ist.");return}const nid=x?x.id:newId("km");
+      if(/^\d{4}-\d\d-\d\d$/.test(V.date)&&!V.done){const dp=kidDocPlace();await S.store.setPath("food/termin/m_"+nid,{name,date:V.date,time:/^\d\d:\d\d$/.test(V.time)?V.time:null,tag:"arzt",who:"kid",mk:V.kind||"vorsorge",note:String(V.note||"").trim().slice(0,160)||null,place:dp&&dp.name||null,at:(x&&x.at)||Date.now(),by:(x&&x.by)||S.me||""});if(x)await S.store.setPath("food/kid/med/"+nid,null);toast("Gespeichert, steht im Kalender");return}
       await S.store.setPath("food/kid/med/"+nid,{name,kind:V.kind||"vorsorge",date:/^\d{4}-\d\d-\d\d$/.test(V.date)?V.date:null,time:/^\d\d:\d\d$/.test(V.time)?V.time:null,note:String(V.note||"").trim().slice(0,160)||null,done:V.done?true:null,at:(x&&x.at)||Date.now(),by:(x&&x.by)||S.me||""});
       if(V.done)await prioDropRef([nid]);toast(V.date&&!V.done?"Gespeichert, steht im Kalender":"Gespeichert")},
     x?async()=>{await S.store.setPath("food/kid/med/"+x.id,null);await prioDropRef([x.id]);toast("Eintrag gelöscht")}:null)}
