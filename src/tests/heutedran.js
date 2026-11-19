@@ -23,7 +23,10 @@ srv.listen(8765,async()=>{
   await A.click('.wkheute .hrow:has-text("von 3 fällig") .hchk');await A.waitForTimeout(600);r.more1=await A.$eval('.wkheute .hrow.hdone:has(.hmore)',e=>e.innerText.replace(/\n/g,' ')).catch(()=>'');
   await A.click('.wkheute .hrow.hdone .hmore');await A.waitForTimeout(600);r.more2=await A.$eval('.wkheute .hrow.hdone:has(.hmore)',e=>e.innerText.replace(/\n/g,' ')).catch(()=>'');
   await A.screenshot({path:out+'/haushalt-heute-plus1.png'});
+  // Freitag: jetzt ist auch 1× pro Woche dabei (Florian 19.11.2026: ab Freitag); der innere Ring zählt nur Tägliches und Hausdienst
+  await A.clock.setFixedTime(new Date('2026-11-20T10:00:00+01:00'));await A.reload();await A.waitForSelector('.wkheute');await A.waitForTimeout(500);r.fri=await A.$eval('.wkheute .hlist',e=>e.innerText.replace(/\n/g,' | ')).catch(()=>'');
+  r.ring=await A.evaluate(()=>{const L=[...document.querySelectorAll('.wkheute .hrow')];const fix=L.filter(x=>/täglich|Hausdienst/.test(x.innerText));return {lab:document.querySelector('.wkheute .bring2').getAttribute('aria-label'),fix:fix.length,all:L.length}});
   console.log(JSON.stringify(r),ticked,errs);
   const mon=r.txt.split(/heute für/i)[1]||'';
-  console.log(!errs.length&&r.order&&r.top<400&&r.n>0&&ticked&&!r.old&&r.folds.every(x=>x==='false')&&!/fällig|diese Woche/.test(mon)&&/täglich/.test(mon)&&/Hausdienst/.test(r.ho0)&&/p0/.test(r.hoDone)&&/hdone/.test(r.hoCls)&&!r.ho1&&/nachmittags/.test(r.hoVm)&&/Heute dran/.test(r.todoOpen)&&!r.hoX&&/von 2 fällig/.test(r.thu)&&/diese Woche/.test(r.thu)&&/1 von 3/.test(r.more1)&&/2 von 3/.test(r.more2)?'HEUTEDRAN OK':'HEUTEDRAN FAIL');
+  console.log(!errs.length&&r.order&&r.top<400&&r.n>0&&ticked&&!r.old&&r.folds.every(x=>x==='false')&&!/fällig|diese Woche/.test(mon)&&/täglich/.test(mon)&&/Hausdienst/.test(r.ho0)&&/p0/.test(r.hoDone)&&/hdone/.test(r.hoCls)&&!r.ho1&&/nachmittags/.test(r.hoVm)&&/Heute dran/.test(r.todoOpen)&&!r.hoX&&/von 2 fällig/.test(r.thu)&&!/diese Woche/.test(r.thu)&&/diese Woche/.test(r.fri)&&r.ring.all>r.ring.fix&&new RegExp('von '+r.ring.fix+' Aufgaben').test(r.ring.lab)&&/1 von 3/.test(r.more1)&&/2 von 3/.test(r.more2)?'HEUTEDRAN OK':'HEUTEDRAN FAIL');
   await b.close();process.exit(0)});
