@@ -2,7 +2,7 @@
 // food/shopcat/<id> überschreibt die festen CATS ({ic?,name?,ord?,hide?}); eigene Kategorien {ic,name,ord,own:true,at}.
 // „Sonstiges“ bleibt immer (Auffang, nur umbenennen). Gelöschte feste lassen sich zurückholen. Einträge einer gelöschten Kategorie werden neu einsortiert.
 function shopCats(){const O=(S.food&&S.food.shopcat)||{},L=[];
-  CATS.forEach((c,i)=>{const o=O[c[0]]||{};if(o.hide&&c[0]!=="sonst")return;L.push([c[0],String(o.ic||c[1]),String(o.name||c[2]),c[3],o.ord!=null?+o.ord:i*10])});
+  CATS.forEach((c,i)=>{const o=O[c[0]]||{};if(o.hide&&c[0]!=="sonst")return;L.push([c[0],String(o.ic||c[1]),String(o.name||c[2]),c[3],o.ord!=null?+o.ord:(CAT_ORD[c[0]]!=null?CAT_ORD[c[0]]:i*10)])});
   Object.keys(O).forEach(k=>{const o=O[k];if(!o||!o.own||CATS.some(c=>c[0]===k))return;L.push([k,String(o.ic||"🏷️"),String(o.name||"Eigene"),[],o.ord!=null?+o.ord:75])});
   return L.sort((a,b)=>a[4]-b[4]||String(a[0]).localeCompare(String(b[0])))}
 const shopCatOk=id=>!!id&&shopCats().some(c=>c[0]===id);
