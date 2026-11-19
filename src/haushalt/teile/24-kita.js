@@ -14,7 +14,7 @@ function renderKitaMeals(){let h="";const mon=planWeek(),km=kitaMeals(mon),isCur
     else h+=`<div class="empty"><h2>Noch kein Kita-Essen für diese Woche</h2><div>Speiseplan unten einfügen oder <button class="ghost" data-act="kitamealedit">✏️ von Hand eintragen</button></div></div>`;
     h+=`<section data-fk="f_kmimp|0" class="card"><h2>Speiseplan einfügen</h2><div class="freq">Den Plan aus der Kita-App kopieren und hier einfügen. Die App erkennt Woche, Tage, Frühstück, Mittag, Nachspeise und Brotzeit und lässt die Kürzel in Klammern weg.</div><textarea id="kitaplantext" rows="4" placeholder="Speiseplan 16.11. - 20.11. …" aria-label="Speiseplan einfügen"></textarea><div class="btnrow"><button class="primary" data-act="kitaplanimport">Übernehmen</button></div></section>`;
     return h}
-function renderKita(){if(S.terDraft)return renderTerForm();const d=S.kitaDraft,sec=KITA_SECS.find(s=>s[0]===S.kitaSec)||KITA_SECS[0];
+function renderKita(){if(S.terDraft&&S.terDraft.from==="kita")return renderTerForm();const d=S.kitaDraft,sec=KITA_SECS.find(s=>s[0]===S.kitaSec)||KITA_SECS[0];
   let h=`<div><div class="eyebrow">Mit dem Rucksack</div><h1>Kita</h1></div>${d?"":kidBoard()}${bellRow("kita")}<div class="unl">${KITA_SECS.map(s=>`<button class="chipbtn" data-kitasec="${s[0]}" aria-pressed="${s[0]===sec[0]}">${s[1]} ${s[2]}</button>`).join("")}</div>`;
   if(d)return h+`<section class="card tripform"><h2>${d.id?"Bearbeiten":sec[0]==="termine"?"Neuer Termin":"Neue Info"}</h2>
     <label class="fld"><span>${sec[0]==="termine"?"Was?":"Titel"}</span><input type="text" id="ki-name" data-kf="name" value="${esc(d.name)}" maxlength="80" placeholder="${sec[0]==="termine"?"Zum Beispiel Laternenfest":"Zum Beispiel Abholberechtigte"}" autocomplete="off"></label>

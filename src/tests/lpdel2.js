@@ -27,7 +27,7 @@ srv.listen(8765,async()=>{
   await del('pack','ausflug|tt:pack','[data-pack=k1]',()=>!(db().pack||{}).k1,'[data-packlist=l1]');
   await del('rec','essen|ft:rezepte','.recbar:has([data-recrm=r1])',()=>!(db().rec||{}).r1,'[data-act=bookstog]');
   await del('kitabag','kita|ks:tasche','[data-kitatick=k2]',()=>!(db().kita||{}).k2);
-  await del('kitater','kita|','[data-kitaedit=k3]',()=>!(db().kita||{}).k3);
+  await del('kitater','kita|','.evlist li:has([data-teredit="k_k3"]) [data-teredit]',()=>!(db().termin||{}).k_k3);
   await del('play','spiel|','[data-playedit=s1]',()=>!(db().play||{}).s1);
   await del('music','musik|','li.mk:has([data-musedit=m1]) .mkb',()=>!(db().music||{}).m1);
   await del('trip','ausflug|','[data-tripedit=t1]',()=>!(db().trip||{}).t1);

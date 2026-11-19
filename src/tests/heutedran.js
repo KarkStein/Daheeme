@@ -19,7 +19,11 @@ srv.listen(8765,async()=>{
   // Donnerstag: 1× pro Woche ist ab heute dabei, 2× mit „1 von 2 fällig“
   await A.clock.setFixedTime(new Date('2026-11-19T10:00:00+01:00'));await A.reload();await A.waitForSelector('.wkheute');await A.waitForTimeout(500);r.thu=await A.$eval('.wkheute .hlist',e=>e.innerText.replace(/\n/g,' | ')).catch(()=>'');
   await A.screenshot({path:out+'/haushalt-heute-donnerstag.png'});
+  // Mehrfach wöchentlich: nach dem Haken bleibt ＋1 für die nächste Runde
+  await A.click('.wkheute .hrow:has-text("von 3 fällig") .hchk');await A.waitForTimeout(600);r.more1=await A.$eval('.wkheute .hrow.hdone:has(.hmore)',e=>e.innerText.replace(/\n/g,' ')).catch(()=>'');
+  await A.click('.wkheute .hrow.hdone .hmore');await A.waitForTimeout(600);r.more2=await A.$eval('.wkheute .hrow.hdone:has(.hmore)',e=>e.innerText.replace(/\n/g,' ')).catch(()=>'');
+  await A.screenshot({path:out+'/haushalt-heute-plus1.png'});
   console.log(JSON.stringify(r),ticked,errs);
   const mon=r.txt.split(/heute für/i)[1]||'';
-  console.log(!errs.length&&r.order&&r.top<400&&r.n>0&&ticked&&!r.old&&r.folds.every(x=>x==='false')&&!/fällig|diese Woche/.test(mon)&&/täglich/.test(mon)&&/Hausdienst/.test(r.ho0)&&/p0/.test(r.hoDone)&&/hdone/.test(r.hoCls)&&!r.ho1&&/nachmittags/.test(r.hoVm)&&/Heute dran/.test(r.todoOpen)&&!r.hoX&&/von 2 fällig/.test(r.thu)&&/diese Woche/.test(r.thu)?'HEUTEDRAN OK':'HEUTEDRAN FAIL');
+  console.log(!errs.length&&r.order&&r.top<400&&r.n>0&&ticked&&!r.old&&r.folds.every(x=>x==='false')&&!/fällig|diese Woche/.test(mon)&&/täglich/.test(mon)&&/Hausdienst/.test(r.ho0)&&/p0/.test(r.hoDone)&&/hdone/.test(r.hoCls)&&!r.ho1&&/nachmittags/.test(r.hoVm)&&/Heute dran/.test(r.todoOpen)&&!r.hoX&&/von 2 fällig/.test(r.thu)&&/diese Woche/.test(r.thu)&&/1 von 3/.test(r.more1)&&/2 von 3/.test(r.more2)?'HEUTEDRAN OK':'HEUTEDRAN FAIL');
   await b.close();process.exit(0)});

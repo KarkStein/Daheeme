@@ -195,6 +195,7 @@ function todoRows(tomorrowOff){const now=new Date(),today=ymd(now),tmw=ymd(addDa
   const pm=pt.filter(x=>x.due>today);if(pm.length&&!tomorrowOff)L+=`<div class="freq" style="margin-top:var(--sp2)">Morgen</div>`+pm.map(prow).join("");
   return L}
 // „Heute für dich“ (Florian 19.11.2026, „2: Heute im Wochenkopf“): Hausdienst, tägliche Aufgaben von heute und fällige Wochen-Aufgaben, für mich (ohne Ich bin: alle), ohne Hausdienst-Wechsel.
+// Mehrfach wöchentliche bleiben nach dem Haken mit „＋1“ für die nächste Runde stehen (Florian 19.11.2026: „Wie lässt sich da 2/3 abhaken?“).
 // Wochen-Aufgaben kommen nach Florians Regel: fällig, wenn erledigt < abgerundet(Anzahl × Wochentag / 7), Mo=1 … So=7; ab Samstag alles Offene; 1× pro Woche schon ab Donnerstag („Und Wochenaufgabe an Donnerstag“).
 const HEUTE_ALL_FROM=6,HEUTE_ONE_FROM=4;
 function wkSoll(n,wd){return wd>=HEUTE_ALL_FROM?n:n===1?(wd>=HEUTE_ONE_FROM?1:0):Math.floor(n*wd/7)}
@@ -205,9 +206,9 @@ function heuteList(){const now=new Date(),mon=mondayOf(now),tk=ticksOf(wkKey(mon
     if(t.freq==="day"){L.push({t,o,slot:di,done:!!mine(t,o,di),sub:"täglich"});return}
     const n=slotsOf(t);let c=0,first=-1,today=-1;for(let i=0;i<n;i++){const v=mine(t,o,i);if(v){c++;if(v.at>=t0)today=i}else if(first<0)first=i}
     const soll=wkSoll(n,wd);if(first>=0&&c<soll)L.push({t,o,slot:first,done:false,sub:n>1?`${soll-c} von ${n} fällig`:"diese Woche"});
-    else if(today>=0)L.push({t,o,slot:today,done:true,sub:n>1?`${c} von ${n}`:"diese Woche"})});
+    else if(today>=0)L.push({t,o,slot:today,done:true,more:first,sub:n>1?`${c} von ${n}`:"diese Woche"})});
   return L}
-function heuteRows(L){return L.map(x=>`<li class="hrow${x.done?" hdone":""}"><span class="hn">${esc(x.t.name)}<i> · ${esc(x.sub)}</i></span><button class="hchk" ${x.ho?`data-hodone="${x.slot}"`:`data-task="${esc(x.t.id)}" data-slot="${x.slot}"${x.o==="both"?' data-split="1"':""}`} aria-pressed="${x.done}" aria-label="${esc(x.t.name)} ${x.done?"erledigt":"abhaken"}">${x.done?"✓":""}</button></li>`).join("")}
+function heuteRows(L){return L.map(x=>`<li class="hrow${x.done?" hdone":""}"><span class="hn">${esc(x.t.name)}<i> · ${esc(x.sub)}</i></span>${x.done&&x.more>=0&&x.more!=null?`<button class="hmore" data-task="${esc(x.t.id)}" data-slot="${x.more}"${x.o==="both"?' data-split="1"':""} aria-label="${esc(x.t.name)}: noch eine Runde abhaken">＋1</button>`:""}<button class="hchk" ${x.ho?`data-hodone="${x.slot}"`:`data-task="${esc(x.t.id)}" data-slot="${x.slot}"${x.o==="both"?' data-split="1"':""}`} aria-pressed="${x.done}" aria-label="${esc(x.t.name)} ${x.done?"erledigt, Tipp nimmt den Haken von heute zurück":"abhaken"}">${x.done?"✓":""}</button></li>`).join("")}
 // Kopf im Himmel (Florian 19.11.2026, „A: Bild und Dashboard zusammen“): Wochentag, Datum, Wetter mit Sonnenzeiten, Hausdienst; rechts der Doppelring. Tipp aufs Datum öffnet das Wetter
 function skyHead(night){const now=new Date(),pl=S.food&&S.food.wxplace,lat=pl&&pl.lat!=null?+pl.lat:51.0,lon=pl&&pl.lon!=null?+pl.lon:10.4,t=sunTimes(now,lat,lon),hm=m=>{m=Math.round(m);return Math.floor(m/60)+":"+String(m%60).padStart(2,"0")};
   const DN=["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"],MN=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];

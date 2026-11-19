@@ -678,3 +678,4 @@ a.mkb{text-decoration:none;color:var(--fg)}.muslk[aria-pressed=false]{filter:gra
 .campback.wkheute .bdate{font-size:var(--fs-l)}
 .skyring{margin-right:10%}
 .skyhead{z-index:1}.skyl{flex:0 1 auto}.skyhead .skyring{margin-left:auto}
+.wkheute .hmore{flex:none;border:1px solid rgba(240,210,140,.6);background:rgba(255,255,255,.1);color:#fdf7ea;border-radius:999px;padding:var(--sp1) var(--sp2);font:inherit;font-size:var(--fs-s);font-weight:700;cursor:pointer}
