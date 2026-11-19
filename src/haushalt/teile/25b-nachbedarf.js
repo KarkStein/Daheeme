@@ -9,7 +9,7 @@ const needEveryL=d=>{const e=NEED_EVERY.find(x=>x[0]===+d);return e?e[1]:Math.ro
 function needTicks(id){const o=((S.food&&S.food.need)||{})[id]||{};return Object.keys(o).filter(k=>o[k]&&o[k].at).map(k=>Object.assign({tid:k},o[k])).sort((a,b)=>a.at-b.at)}
 function needInfo(t,now){now=now||Date.now();const E=(+t.every||28)*NEED_DAY,T=needTicks(t.id),last=T[T.length-1]||null,base=last?last.at:(t.since||now);
   const P=((S.food&&S.food.needp)||{})[t.id],due=P&&P.until>base+E?P.until:base+E,fill=Math.max(0,(now-(due-E))/E);
-  const other=p=>p==="p0"?"p1":p==="p1"?"p0":null,who=t.owner==="alt"?(last?other(last.by):null):t.owner;
+  const other=p=>p==="p0"?"p1":p==="p1"?"p0":null,who=t.owner==="alt"?(last?other(last.by):t.first||null):t.owner;
   const t0=+startOfDay(new Date(now)),today=last&&last.at>=t0?last:null;
   return {t,last,T,fill,due,who,today,st:fill>=1?"voll":fill>=NEED_BALD?"bald":"",later:!!(P&&P.until>base+E)}}
 // Gehört es heute mir? (Alle, wenn noch niemand dran ist oder „Beide“)
@@ -45,8 +45,10 @@ const NEED_SEED=[["backofen","Backofen putzen",182,"alt",5,/backofen/],["kuehl",
   ["handtuch","Handtücher wechseln",14,"alt",1,/handt(ü|ue)ch/],["kuehlab","Kühlschrank auf Abgelaufenes durchsehen",14,"alt",2,/abgelaufen/],["spuelma","Spülmaschine reinigen und Sieb säubern",28,"alt",1,/sp(ü|ue)lmaschine/],["muelleimer","Mülleimer auswaschen",28,"alt",1,/m(ü|ue)lleimer/]];
 function migNeed(cfg){const c=JSON.parse(JSON.stringify(cfg)),ps=(c.persons||[]).map(x=>String(x||"").toLowerCase()),now=Date.now();
   const pOf=k=>{const i=ps.findIndex(n=>k==="J"?/judith/.test(n):/florian/.test(n));return i>=0?"p"+i:k==="J"?"p1":"p0"};
+  // Erstes Mal bei „Abwechselnd“: nach Aufwand ausgeglichen verteilt (first), danach wechselt es mit jedem Haken
+  const sum={p0:0,p1:0},firstOf=pts=>{const p=sum.p0<=sum.p1?"p0":"p1";sum[p]+=pts;return p};
   NEED_SEED.forEach(([id,name,every,ow,pts,rx])=>{const owner=ow==="alt"?"alt":pOf(ow),since=now-Math.round(every*NEED_DAY/2);
     const ex=c.tasks.find(t=>t.owner!=="ho"&&t.id!=="saugen"&&!/nach bedarf/i.test(t.name||"")&&(t.id==="n_"+id||rx.test(String(t.name||"").toLowerCase())));
-    if(ex){if(ex.freq!=="need"){ex.freq="need";ex.every=every;ex.owner=owner;ex.since=since;ex.pts=pts;delete ex.times;delete ex.pack;delete ex.subs}return}
-    c.tasks.push({id:"n_"+id,name,owner,freq:"need",every,pts,since})});
+    if(ex){if(ex.freq!=="need"){ex.freq="need";ex.every=every;ex.owner=owner;ex.since=since;if(owner==="alt")ex.first=firstOf(pts);ex.pts=pts;delete ex.times;delete ex.pack;delete ex.subs}return}
+    {const o={id:"n_"+id,name,owner,freq:"need",every,pts,since};if(owner==="alt")o.first=firstOf(pts);c.tasks.push(o)}});
   c.mig=Object.assign({},c.mig,{need1:now});S.store.saveConfig(c).catch(()=>{})}
