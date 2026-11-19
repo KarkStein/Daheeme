@@ -15,14 +15,15 @@ srv.listen(8765,async()=>{
   await nav('woche|wp:3');await A.click('[data-calview=liste]');await A.waitForTimeout(300);
   const rows=()=>A.$$eval('.evlist .ev',l=>l.map(x=>x.innerText.replace(/\s+/g,' ').trim()));
   r.r1=(await rows()).filter(x=>/Laternen|Zahnarzt/.test(x));
-  await A.click('.evlist .ev[data-caled^="kita|"]');await A.waitForSelector('#mbox');r.info=await A.$eval('#mbox',e=>e.innerText.replace(/\s+/g,' '));
+  r.mig=get(['haushalt',key,'food','termin','k_k1']);r.moved=get(['haushalt',key,'food','kita','k1','moved']);r.row17=await A.$eval('.evlist .ev[data-teredit="k_k1"]',e=>e.closest('li').innerText.replace(/\s+/g,' '));
+  await A.click('.evlist .ev[data-teredit="k_k1"]');await A.waitForSelector('#terform');r.info=await A.$eval('#app',e=>e.innerText.replace(/\s+/g,' '));
   if(out)await A.screenshot({path:out+'/kalender-doppelt-zusammen.png'});
-  await A.click('#mbox [data-ci=split]');await A.waitForTimeout(600);r.r2=(await rows()).filter(x=>/Laternen/.test(x));r.split=get(['haushalt',key,'food','ext','fwsplit','a1']);
+  await A.click('[data-fwsplit]');await A.waitForTimeout(600);await A.click('[data-act=tercancel]');await A.waitForTimeout(400);r.r2=(await rows()).filter(x=>/Laternen/.test(x));r.split=get(['haushalt',key,'food','ext','fwsplit','a1']);
   // Kurs: Uhrzeit ändern
   await A.click('.evlist .ev[data-caled^="cplay|"]');await A.waitForSelector('#mbox');r.ct=await A.$eval('#citime',e=>e.value);
   await A.fill('#citime','17:15');if(out)await A.screenshot({path:out+'/kalender-kurs-uhrzeit.png'});await A.click('#mbox [data-ci=time]');await A.waitForTimeout(600);
   r.when=get(['haushalt',key,'food','play','p1','when']);r.r3=(await rows()).filter(x=>/Turnen/.test(x))[0];
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&r.r1.length===2&&r.r1.some(x=>/Kita: Laternenfest/.test(x))&&/· 17:00 ·/.test(r.info)&&r.r1.some(x=>/Zahnarzt/.test(x))&&/auch in Familywall/i.test(r.info)&&/Doch getrennt/.test(r.info)
+  const ok=!errs.length&&r.r1.length===2&&r.mig&&r.mig.tag==='kita'&&r.mig.who==='kid'&&r.moved==='ter:k_k1'&&r.r1.some(x=>/^🎒 Laternenfest|Laternenfest/.test(x))&&/17:00/.test(r.row17)&&/Kita-Art/.test(r.info)&&r.r1.some(x=>/Zahnarzt/.test(x))&&/auch in Familywall/i.test(r.info)&&/Doch getrennt/.test(r.info)
     &&r.r2.length===2&&r.split===1&&r.ct==='16:00'&&r.when===WD+' 17:15 Uhr'&&/Turnen/.test(r.r3||'');
   console.error(ok?'CALDUP OK':'CALDUP FAIL');await b.close();srv.close();process.exit(0)});

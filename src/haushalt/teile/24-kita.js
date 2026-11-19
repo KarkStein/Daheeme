@@ -1,6 +1,6 @@
 const ymd=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 const dLabel=s=>{const d=new Date(s+"T12:00:00");return isNaN(d)?s:d.toLocaleDateString("de-DE",{weekday:"short",day:"numeric",month:"numeric"})};
-function kitaNext(days){const today=ymd(new Date()),lim=ymd(addDays(new Date(),days));return kitas().filter(x=>x.sec==="termine"&&x.date&&x.date>=today&&x.date<=lim).sort((a,b)=>a.date<b.date?-1:1)[0]}
+function kitaNext(days){const today=ymd(new Date()),lim=ymd(addDays(new Date(),days));return kitaTer().filter(x=>x.date>=today&&x.date<=lim).sort((a,b)=>a.date<b.date?-1:1)[0]}
 function renderKitaMeals(){let h="";const mon=planWeek(),km=kitaMeals(mon),isCur=+mon===+mondayOf(new Date()),dm=x=>x.getDate()+"."+(x.getMonth()+1)+".";
     h+=`<div class="section-head" style="align-items:center"><div><h2>KW ${isoWeek(mon).w}</h2><div class="freq">${dm(mon)} bis ${dm(addDays(mon,4))}</div></div><div class="weeknav"><button class="iconbtn" data-fnav="-1" aria-label="Vorige Woche">‹</button>${isCur?"":`<button class="ghost" data-fnav="0">Heute</button>`}<button class="iconbtn" data-fnav="1" aria-label="Nächste Woche">›</button></div></div>`;
     const KM=[["fr","🥣","Frühstück"],["text","🍽️","Mittag"],["bz","🥨","Brotzeit"]],todayI=isCur?(new Date().getDay()+6)%7:-1,any=[0,1,2,3,4].some(i=>{const x=km["d"+i]||{};return x.text||x.fr||x.bz||x.na});
@@ -14,7 +14,7 @@ function renderKitaMeals(){let h="";const mon=planWeek(),km=kitaMeals(mon),isCur
     else h+=`<div class="empty"><h2>Noch kein Kita-Essen für diese Woche</h2><div>Speiseplan unten einfügen oder <button class="ghost" data-act="kitamealedit">✏️ von Hand eintragen</button></div></div>`;
     h+=`<section data-fk="f_kmimp|0" class="card"><h2>Speiseplan einfügen</h2><div class="freq">Den Plan aus der Kita-App kopieren und hier einfügen. Die App erkennt Woche, Tage, Frühstück, Mittag, Nachspeise und Brotzeit und lässt die Kürzel in Klammern weg.</div><textarea id="kitaplantext" rows="4" placeholder="Speiseplan 16.11. - 20.11. …" aria-label="Speiseplan einfügen"></textarea><div class="btnrow"><button class="primary" data-act="kitaplanimport">Übernehmen</button></div></section>`;
     return h}
-function renderKita(){const d=S.kitaDraft,sec=KITA_SECS.find(s=>s[0]===S.kitaSec)||KITA_SECS[0];
+function renderKita(){if(S.terDraft)return renderTerForm();const d=S.kitaDraft,sec=KITA_SECS.find(s=>s[0]===S.kitaSec)||KITA_SECS[0];
   let h=`<div><div class="eyebrow">Mit dem Rucksack</div><h1>Kita</h1></div>${d?"":kidBoard()}${bellRow("kita")}<div class="unl">${KITA_SECS.map(s=>`<button class="chipbtn" data-kitasec="${s[0]}" aria-pressed="${s[0]===sec[0]}">${s[1]} ${s[2]}</button>`).join("")}</div>`;
   if(d)return h+`<section class="card tripform"><h2>${d.id?"Bearbeiten":sec[0]==="termine"?"Neuer Termin":"Neue Info"}</h2>
     <label class="fld"><span>${sec[0]==="termine"?"Was?":"Titel"}</span><input type="text" id="ki-name" data-kf="name" value="${esc(d.name)}" maxlength="80" placeholder="${sec[0]==="termine"?"Zum Beispiel Laternenfest":"Zum Beispiel Abholberechtigte"}" autocomplete="off"></label>
@@ -22,17 +22,15 @@ function renderKita(){const d=S.kitaDraft,sec=KITA_SECS.find(s=>s[0]===S.kitaSec
     <label class="fld"><span>Notiz</span><textarea id="ki-note" data-kf="note" rows="${sec[0]==="infos"?6:3}" placeholder="${sec[0]==="termine"?"Uhrzeit, was mitbringen":"Telefonnummern, Namen der Erzieherinnen, Regeln"}">${esc(d.note)}</textarea></label>
     <div class="btnrow"><button class="primary" data-act="kitasave">Speichern</button><button class="ghost" data-act="kitacancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="kitadel">Löschen</button>`:""}</div></section>`;
   const all=kitas().filter(x=>(x.sec||"termine")===sec[0]);
-  if(sec[0]==="termine"){const today=ymd(new Date()),up=all.filter(x=>!x.date||x.date>=today).sort((a,b)=>(a.date||"9")<(b.date||"9")?-1:1),past=all.filter(x=>x.date&&x.date<today).sort((a,b)=>a.date<b.date?1:-1);
-    const KI={fest:"🎉",zu:"🚪",eltern:"👥",mit:"📦"};
-    const li=x=>`<li><button class="item" data-kitaedit="${esc(x.id)}"><span class="box" style="border:none;font-size:1.1rem">${KI[x.kind]||"📅"}</span><span class="nm">${esc(x.name)}<br><span class="freq">${x.date?esc(dLabel(x.date)):"ohne Datum"}${x.note?" · "+telNote(x.note):""}</span></span></button>${telA(x.note)}${bell("kita",x)}</li>`;
-    h+=`<div class="btnrow"><button class="primary" data-act="kitanew">+ Neuer Termin</button><button class="ghost" data-act="kitaimp">📋 Termine einfügen</button></div>`;
+  // Termine leben im Kalender (Florian 19.11.2026: „Termine Kita in Termine, etc“): hier dieselben Zeilen wie im Kalender, Tipp öffnet dasselbe Termin-Fenster
+  if(sec[0]==="termine"){const today=ymd(new Date()),fw=new Set(kitaTer().map(x=>x.id)),up=calEvents(today,ymd(addDays(new Date(),365))).filter(e=>e.tag==="kita"&&(e.src==="own"||e.src==="ext")),
+      past=calEvents(ymd(addDays(new Date(),-120)),ymd(addDays(new Date(),-1))).filter(e=>e.tag==="kita"&&e.src==="own").reverse(),old=all.filter(x=>!x.date);
+    h+=`<div class="btnrow"><button class="primary" data-act="kitanew">＋ Neuer Termin</button><button class="ghost" data-act="kitaimp">📋 Termine einfügen</button></div>`;
     if(S.kitaImp)h+=kitaImpCard();
-    h+=up.length?`<section data-fk="f_kup|1" class="card"><div class="section-head"><h2>Kommt noch</h2><span class="freq num">${up.length}</span></div><ul class="shop">${up.map(li).join("")}</ul><div class="freq">Termine in den nächsten 7 Tagen stehen auch auf der Startseite unter „Heute“.</div></section>`
-      :`<div class="empty"><h2>Keine Termine</h2><div>Tragt Feste, Schließtage und Elternabende ein. Ihr seht beide dieselbe Liste.</div></div>`;
-    // Kita-Termine aus dem Kalender (Florian 16.11.2026): eigene Termine mit Art Kita und Familywall-Termine (Art Kita oder Kita/Kinderhaus im Titel)
-    {const ce=calEvents(today,ymd(addDays(new Date(),120))).filter(e=>e.tag==="kita"&&(e.src==="own"||e.src==="ext"));
-     if(ce.length)h+=`<section data-fk="f_kcal|1" class="card"><div class="section-head"><h2>📅 Aus dem Kalender</h2><span class="freq num">${ce.length}</span></div><ul class="evlist">${ce.map(e=>evRow(e,true)).join("")}</ul><div class="freq">Termine mit der Art Kita, auch aus Familywall. Ändern im Termin.</div></section>`}
-    if(past.length)h+=`<section data-fk="f_kpast|0" class="card"><div class="section-head"><h2>Vorbei</h2><span class="freq num">${past.length}</span></div><ul class="shop">${past.slice(0,10).map(li).join("")}</ul></section>`;
+    h+=up.length?`<section data-fk="f_kup|1" class="card"><div class="section-head"><h2>Kommt noch</h2><span class="freq num">${up.length}</span></div><ul class="evlist">${up.slice(0,40).map(e=>evRow(e,true)).join("")}</ul><div class="freq">Dieselben Termine wie im Kalender (Art Kita, auch aus Familywall). Tipp = bearbeiten, lange drücken = löschen.</div></section>`
+      :`<div class="empty"><h2>Keine Termine</h2><div>Tragt Feste, Schließtage und Elternabende ein. Sie stehen auch im Kalender.</div></div>`;
+    if(old.length)h+=`<section class="card"><div class="section-head"><h2>Ohne Datum</h2></div><ul class="shop">${old.map(x=>`<li><button class="item" data-kitaedit="${esc(x.id)}"><span class="nm">${esc(x.name)}</span></button></li>`).join("")}</ul><div class="freq">Mit einem Datum ziehen sie in den Kalender um.</div></section>`;
+    if(past.length)h+=`<section data-fk="f_kpast|0" class="card"><div class="section-head"><h2>Vorbei</h2><span class="freq num">${past.length}</span></div><ul class="evlist">${past.slice(0,10).map(e=>evRow(e,true)).join("")}</ul></section>`;
     return h}
   if(sec[0]==="essen")return h+renderKitaMeals();
   if(sec[0]==="tasche"){const items=all.sort((a,b)=>(a.at||0)-(b.at||0)),have=new Set(items.map(i=>i.name.toLowerCase())),bring=items.filter(i=>!i.done),da=items.filter(i=>i.done),mt=kitaMitTermine();

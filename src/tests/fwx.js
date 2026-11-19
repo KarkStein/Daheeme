@@ -16,7 +16,7 @@ srv.listen(8765,async()=>{
   r.row=await A.$$eval('.evlist li',l=>{const x=l.find(x=>/Zahnarzt/.test(x.innerText));return x?[x.innerText.includes('🩺'),!!x.querySelector('[data-route]')].join():''});
   // Kita: Familywall-Termin mit Kinderhaus im Titel erscheint bei Kita › Termine
   await put('food/ext/fw/items/f2',{name:'Kinderhaus schließt um 12:00 Uhr',date:k});await A.waitForTimeout(400);await nav('kita|ks:termine');
-  r.kita=await A.$eval('#app',e=>/Aus dem Kalender/.test(e.innerText)&&/Kinderhaus schließt/.test(e.innerText));
+  r.kita=await A.$eval('#app',e=>/Kommt noch/.test(e.innerText)&&/Kinderhaus schließt/.test(e.innerText));
   console.error(JSON.stringify(r),errs);
   const ok=!errs.length&&r.db==='arzt,Praxis,1d'&&r.row==='true,true'&&r.kita;
   console.error(ok?'FWX OK':'FWX FAIL');await b.close();srv.close();process.exit(0)});

@@ -10,8 +10,8 @@ srv.listen(8765,async()=>{
   await A.setInputFiles('#kimp-file',{name:'t.ics',mimeType:'text/calendar',buffer:Buffer.from('BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nDTSTART;TZID=Europe/Berlin:20261203T193000\r\nSUMMARY:Elternabend\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n')});
   await A.click('[data-act=kimpparse]');await A.waitForTimeout(300);const pre=await A.$eval('#app',e=>e.innerText);
   await A.click('[data-act=kimpsave]');await A.waitForTimeout(600);
-  const db=JSON.stringify(get(['haushalt',key,'food','kita'])||{});
+  const db=JSON.stringify(get(['haushalt',key,'food','termin'])||{});
   await nav('kita|');const kid=await A.$eval('.kidbh',e=>e.innerText);
-  const r={pre:/4 erkannt/.test(pre),saved:(db.match(/"sec":"termine"/g)||[]).length,ea:/19:30 Uhr/.test(db),zu:(kid.match(/🚪/g)||[]).length};
+  const r={pre:/4 erkannt/.test(pre),saved:(db.match(/"tag":"kita"/g)||[]).length,ea:/"time":"19:30"/.test(db),zu:(kid.match(/🚪/g)||[]).length};
   console.error(JSON.stringify(r),errs);
   console.error(!errs.length&&r.pre&&r.saved===4&&r.ea&&r.zu===2?'KIMP OK':'KIMP FAIL');await b.close();srv.close();process.exit(0)});

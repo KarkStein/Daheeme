@@ -7,7 +7,7 @@ const kidName=()=>((S.food&&S.food.pref&&S.food.pref.kidname)||"").trim()||"Kind
 const wirPager=p=>areaPager(["privat","geschenke"][p]||"privat");
 const KID_RULE={br:["p0","p1","p0","p1","p0"],ab:["p1","p0","p1","p0","p1"]};
 const kidRule=()=>{const r=S.food&&S.food.kid&&S.food.kid.rule;return {br:(r&&r.br)||KID_RULE.br,ab:(r&&r.ab)||KID_RULE.ab}};
-const kitaZu=d=>kitas().find(x=>x.sec==="termine"&&x.kind==="zu"&&x.date===d)||null;
+const kitaZu=d=>kitaTer().find(x=>x.kind==="zu"&&x.date<=d&&(x.to||x.date)>=d)||null;
 function bhDay(mon,i){const wk=wkKey(mon),d=addDays(mon,i),k=ymd(d),ov=(((S.food&&S.food.kid&&S.food.kid.bh)||{})[wk]||{})["d"+i]||{},hoT=tasks().find(t=>t.owner==="ho"),ho=hoT?ticksOf(wk)[hoT.id+"__"+i]:null,hp=ho&&(ho.by==="p0"||ho.by==="p1")?ho.by:null,rl=kidRule();
   const off=kitaZu(k)?"zu":feiertag(k)?"frei":inUrlaub(d)?"urlaub":"";
   // Florian 16.11.2026: Wer den Hausdienst hat (Aufgabe owner "ho" in der Woche), bringt und holt NICHT; das macht der andere.

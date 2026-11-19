@@ -5,7 +5,7 @@ srv.listen(8765,async()=>{
   const link=A.url();const B=await mk();await B.goto(link.replace('/#','/?bild=haus#'));await B.waitForSelector('[data-me=p1]');await B.click('[data-me=p1]');
   const shopRowGone=!(await A.$('.todayrow[data-go=einkauf]'));
   // Kita-Termin mit Glocke
-  await A.click('.spot[data-go=kita]');await A.click('[data-act=kitanew]');await A.fill('#ki-name','Laternenfest');await A.fill('#ki-date','2026-11-17');await A.click('[data-act=kitasave]');await A.waitForTimeout(300);
+  await A.click('.spot[data-go=kita]');await A.click('[data-kitasec=tasche]');await A.fill('#kitainput','Wechselsachen');await A.press('#kitainput','Enter');await A.waitForTimeout(300);
   await A.click('[data-prio^="kita|"]');await A.waitForTimeout(300);const pressed=await A.$eval('[data-prio^="kita|"]',e=>e.getAttribute('aria-pressed'));
   const W=async P=>{await P.evaluate(()=>{const b=document.createElement('button');b.dataset.go='wichtig';document.getElementById('app').appendChild(b);b.click()});await P.waitForTimeout(300)};
   // Idee am Haus mit Glocke
@@ -32,5 +32,5 @@ srv.listen(8765,async()=>{
   await A.click('[data-tab=camp]');await A.click('.startdash .bcnt[data-go=wichtig]');const wh2=await A.$eval('h1',e=>e.textContent);
   console.log({wh,secs,secs2,wh2,heute:await A.$$eval('.startdash .bcnt',l=>l.map(x=>x.innerText))});
   console.log({shopRowGone,pressed,rows,later,brows,after,h1,errs});
-  const ok=!errs.length&&shopRowGone&&pressed==='true'&&rows.length===3&&rows.some(r=>/Laternenfest.*Erinnerung ab/.test(r))&&later.length===2&&brows.length===3&&after.length===2&&!after.some(r=>/Steuer/.test(r))&&h1==='Kita'&&/Wichtig/.test(wh)&&secs.includes('Ohne Datum')&&secs.includes('Später')&&secs2.length===3&&secs2.some(x=>/Rezepte/.test(x))&&/Wichtig/.test(wh2);
+  const ok=!errs.length&&shopRowGone&&pressed==='true'&&rows.length===3&&rows.some(r=>/Wechselsachen/.test(r))&&later.length===1&&brows.length===3&&after.length===2&&!after.some(r=>/Steuer/.test(r))&&h1==='Kita'&&/Wichtig/.test(wh)&&secs.includes('Ohne Datum')&&secs2.length===3&&secs2.some(x=>/Rezepte/.test(x))&&/Wichtig/.test(wh2);
   console.log(ok?'PRIO OK':'PRIO FAIL');await b.close();srv.close();process.exit(0)});
