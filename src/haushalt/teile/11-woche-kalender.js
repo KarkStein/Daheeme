@@ -231,23 +231,29 @@ function renderWeek(){
   const order=(a,b)=>FO[a.t.freq]-FO[b.t.freq]||b.times-a.times||a.pct-b.pct;
   const secs=S.groupBy==="art"
     ?[["rot","↻ Wechsel-Aufgaben",t=>t.owner==="rot",0],["fix","📌 Feste Aufgaben",t=>t.owner==="p0"||t.owner==="p1",0],["gem","🤝 Gemeinsam",t=>t.owner==="both",0]]
-    :[["day","☀️ Täglich",t=>t.freq==="day",0],["week","📅 Diese Woche",t=>t.freq==="week",0],["long","🗓️ Monat, Halbjahr, Jahr",t=>t.freq==="month"||t.freq==="half"||t.freq==="year",0]];
+    :[["day",isCur?"☀️ Heute":"☀️ Täglich",t=>t.freq==="day",0],["week","📅 Diese Woche",t=>t.freq==="week",0],["long","🗓️ Monat, Halbjahr, Jahr",t=>t.freq==="month"||t.freq==="half"||t.freq==="year",0]];
+  // Drei Bereiche (Florian 19.11.2026): Heute (Hausdienst und Tägliches von heute), Diese Woche (Wöchentliches, Tägliches der Woche, volle Nach-Bedarf-Aufgaben), Nach Bedarf: noch nicht dran
+  const three=S.groupBy!=="art";let hoIn="";
   // Hausdienst immer als erster Abschnitt (Florian 15.11.2026), Filter blenden ihn nicht aus
   const ho=tasks().filter(t=>t.owner==="ho").map(card);
   if(ho.length){const hv=today>=0&&today<7?tk[ho[0].t.id+"__"+today]:null,hn=n=>esc(pname(n).charAt(0));
     const lab=!(today>=0&&today<7)?ho[0].c+" Tage eingetragen":!hv?"heute niemand":hv.by==="x"?"heute "+esc(hv.lbl||"jemand"):hv.half==="vm"?`heute ${hn(hv.by)} vorm. · ${hn(hv.by==="p0"?"p1":"p0")} nachm.`:"heute "+esc(pname(hv.by));
-    h+=wkFold("ho","🔑 Hausdienst",lab,`${isCur?hoChkRows(ho[0].t,hv,today):""}<div class="hoein"><b>Einteilen</b><span class="freq">Wer hat wann den Dienst? Daraus folgt, wer bringt und holt.</span></div>${ho.map(x=>x.html.replace('<article class="task','<article class="task hotask')).join("")}<div class="freq hohint">Kurz tippen trägt dich ein, lange drücken: andere Person oder geteilt. <button class="linkish" data-nav="kita|">🚸 Bringen und Abholen ›</button></div>`,0)}
-  secs.forEach(([id,title,fn0,def])=>{const fn=t=>t.owner!=="ho"&&fn0(t);const xs=tasks().filter(fn).map(card).filter(vis).sort(order);if(!xs.length)return;
-    const lt=xs.filter(x=>x.later),op=xs.filter(x=>!x.done&&!x.later),dn=xs.filter(x=>x.done);if(!op.length&&!dn.length&&!lt.length)return;
+    const hoB=`${isCur?hoChkRows(ho[0].t,hv,today):""}<div class="hoein"><b>Einteilen</b><span class="freq">Wer hat wann den Dienst? Daraus folgt, wer bringt und holt.</span></div>${ho.map(x=>x.html.replace('<article class="task','<article class="task hotask')).join("")}<div class="freq hohint">Kurz tippen trägt dich ein, lange drücken: andere Person oder geteilt. <button class="linkish" data-nav="kita|">🚸 Bringen und Abholen ›</button></div>`;
+    if(three)hoIn=`<div id="sec-ho" class="hoin"><div class="hoinh"><b>🔑 Hausdienst</b> <span class="freq">${lab}</span></div>${hoB}</div>`;else h+=wkFold("ho","🔑 Hausdienst",lab,hoB,0)}
+  const dayX=[];
+  secs.forEach(([id,title,fn0,def])=>{const fn=t=>t.owner!=="ho"&&fn0(t);const xs=tasks().filter(fn).map(card).filter(vis).sort(order);if(id==="day")dayX.push(...xs);
+    const pre=three&&id==="day"?hoIn:"",post=three&&id==="week"&&isCur?needDueHtml()+(dayX.length?`<div class="wkdaily freq">☀️ Täglich in dieser Woche: ${dayX.map(x=>esc(x.t.name)+" "+(x.c%1?String(x.c).replace(".",","):x.c)+"/7").join(" · ")}</div>`:""):"";
+    if(!xs.length&&!pre&&!post)return;
+    const lt=xs.filter(x=>x.later),op=xs.filter(x=>!x.done&&!x.later),dn=xs.filter(x=>x.done);if(!op.length&&!dn.length&&!lt.length&&!pre&&!post)return;
     const lim=id==="week"&&!S.wkMore?6:99,all=op.concat(dn),shown=all.slice(0,lim),rest=all.length-shown.length;
     const so=shown.filter(x=>!x.done),sdn=shown.filter(x=>x.done);
     // Jeder Haken zählt (Florian 18.11.2026: „3 von 9 statt 0 von 3“)
     const hk=v=>v%1?String(v).replace(".",","):v,cur0=op.concat(dn),hD=cur0.reduce((a,x)=>a+(x.t.freq==="day"||x.t.freq==="week"?x.c:x.done?1:0),0),hN=cur0.reduce((a,x)=>a+x.n,0),
       tD=cur0.filter(x=>x.sl[today]&&/aria-pressed="true"/.test(x.sl[today])).length;
-    const nlab=op.length+dn.length?(id==="day"&&isCur?`heute ${tD} von ${cur0.length} erledigt`:`${hk(hD)} von ${hN} erledigt`)+(lt.length?`, ${lt.length} erst ab Mitte`:""):`${lt.length}, erst ab Mitte`;
+    const nlab=!xs.length?"":op.length+dn.length?(id==="day"&&isCur?`heute ${tD} von ${cur0.length} erledigt`:`${hk(hD)} von ${hN} erledigt`)+(lt.length?`, ${lt.length} erst ab Mitte`:""):`${lt.length}, erst ab Mitte`;
     const body=`${so.map(row).join("")}${sdn.length?`<div class="donesep">Erledigt</div>`+sdn.map(row).join(""):""}${rest>0?`<button class="linkish" data-act="wkmore">Noch ${rest} weitere zeigen</button>`:""}${lt.length?`<div class="laterline freq">⏳ Erst ab Mitte des Zeitraums: ${lt.map(x=>esc(x.t.name)+" (ab "+fmt(x.later,{day:"numeric",month:"numeric"})+")").join(", ")}</div>`:""}`;
-    h+=wkFold(id,title,nlab,body,def)});
-  if(isCur)h+=needSection();
+    h+=wkFold(id,title,nlab||(pre?"Hausdienst":""),pre+body+post,def)});
+  if(isCur)h+=needSection(three);
   h+=`<div class="freq wkhint">Kreise antippen hakt ab. Tipp auf den Namen zeigt alle Tage. Abschnitte bleiben auf diesem Handy auf oder zu.</div>`;
   return h}
 

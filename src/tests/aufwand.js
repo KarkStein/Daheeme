@@ -15,5 +15,5 @@ srv.listen(8765,async()=>{
   r.pak1=await A.$eval('.rotlist',e=>e.innerText);
   await A.click('[data-wmwsec=ver-p0]');await A.waitForTimeout(200);r.list=await A.$eval('.wmwsec:has([data-wmwsec=ver-p0])',e=>e.innerText.replace(/\s+/g,' '));
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&r.fix&&r.both&&r.month&&r.rot&&!r.ho&&!r.rotMonth&&r.pts==='9|30'&&r.pak0===r.pak1&&r.pak0.length>20&&/Balkon 1× pro Woche · Aufwand 9/.test(r.list);
+  const ok=!errs.length&&r.fix&&r.both&&r.month&&r.rot&&!r.ho&&r.rotMonth&&r.pts==='9|30'&&r.pak0===r.pak1&&r.pak0.length>20&&/Balkon 1× pro Woche · Aufwand 9/.test(r.list);
   console.error(ok?'AUFWAND OK':'AUFWAND FAIL');await b.close();srv.close();process.exit(0)});

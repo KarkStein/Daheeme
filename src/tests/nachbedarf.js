@@ -15,13 +15,13 @@ srv.listen(8765,async()=>{
   await A.click('.wkheute .hrow:has-text("Bett abziehen") [data-need]');await A.waitForTimeout(600);
   r.tick=Object.values(get(['haushalt',key,'food','need','n_bett'])||{}).filter(v=>v.by==='p0');r.done=await A.$eval('.wkheute .hrow:has-text("Bett abziehen")',e=>e.className).catch(()=>'');
   // Abschnitt aufklappen
-  await A.click('#sec-need [data-tfold]');await A.waitForTimeout(400);r.rows=await A.$$eval('#sec-need .needrow',l=>l.length);r.sec=await A.$eval('#sec-need',e=>e.innerText.replace(/\n/g,' | ').slice(0,500));
+  await A.click('#sec-need [data-tfold]');await A.waitForTimeout(300);await A.waitForTimeout(100);r.rows=await A.$$eval('#sec-need .needrow, #sec-week .needrow',l=>l.length);r.sec=await A.$eval('#sec-week .needdue',e=>e.innerText.replace(/\n/g,' | ').slice(0,500)).catch(()=>'');r.rest=await A.$eval('#sec-need',e=>e.innerText.replace(/\n/g,' | ').slice(0,200));r.conv=(get(['haushalt',key,'config','tasks'])||[]).filter(t=>['month','half','year'].includes(t.freq)).length;r.center=(get(['haushalt',key,'config','tasks'])||[]).some(t=>/center/i.test(t.name));
   r.bald=await A.$eval('#sec-need .needrow:has-text("Wasserkocher")',e=>e.innerHTML).catch(()=>'');
-  await A.$eval('#sec-need',e=>e.scrollIntoView());await A.screenshot({path:out+'/nachbedarf-abschnitt.png'});
+  await A.setViewportSize({width:360,height:1500});await A.$eval('#sec-day',e=>e.scrollIntoView());await A.waitForTimeout(300);await A.screenshot({path:out+'/drei-bereiche.png'});await A.setViewportSize({width:360,height:640});
   // Übernehmen: Handtücher sind bei p1 dran, p0 hakt ab
-  await A.click('#sec-need .needrow:has-text("Handtücher") [data-need]');await A.waitForTimeout(600);r.own=Object.values(get(['haushalt',key,'food','need','n_handtuch'])||{}).find(v=>v.by==='p0'&&v.at>now-D);
+  await A.click('#sec-week .needrow:has-text("Handtücher") [data-need]');await A.waitForTimeout(600);r.own=Object.values(get(['haushalt',key,'food','need','n_handtuch'])||{}).find(v=>v.by==='p0'&&v.at>now-D);
   // Später: lange drücken
-  const row=await A.$('#sec-need .needrow:has-text("Wasserkocher") .needl');const bb=await row.boundingBox();await A.mouse.move(bb.x+20,bb.y+8);await A.mouse.down();await A.waitForTimeout(700);await A.mouse.up();await A.waitForTimeout(200);
+  const row=await A.$('#sec-need .needrow:has-text("Wasserkocher") .needl');await row.evaluate(x=>x.scrollIntoView({block:'center'}));const bb=await row.boundingBox();await A.mouse.move(bb.x+20,bb.y+8);await A.mouse.down();await A.waitForTimeout(700);await A.mouse.up();await A.waitForTimeout(200);
   r.lpx=await A.$eval('#sec-need .lpx',e=>e.textContent).catch(()=>'');await A.screenshot({path:out+'/nachbedarf-spaeter.png'});
   if(r.lpx)await A.click('#sec-need .lpx');await A.waitForTimeout(500);r.later=get(['haushalt',key,'food','needp','n_kocher']);
   // Rückblick zeigt die Haken
@@ -29,5 +29,5 @@ srv.listen(8765,async()=>{
   // Bearbeiten: Rhythmus „etwa alle“
   await nav('woche|wp:1');r.edit=await A.evaluate(()=>{const s=document.querySelector('[data-f=every]');return s?s.options.length:0});
   console.log(JSON.stringify(Object.assign({},r,{names:r.names.length,rb:/Handtücher/.test(r.rb),bald:/bald/.test(r.bald)})),errs);
-  console.log(!errs.length&&r.n>=18&&!r.dup&&r.kaffee==='p1'&&r.matr==='p0'&&r.bett===21&&r.saugen==='week'&&/Bett abziehen/.test(r.heute)&&!/Handtücher/.test(r.heute)&&r.tick.length===1&&!r.tick[0].own&&/hdone/.test(r.done)&&r.rows>=18&&/voll/.test(r.sec)&&/bald/.test(r.bald)&&r.own&&r.own.own==='p1'&&/Später/.test(r.lpx)&&r.later&&r.later.until>now+6*D&&/Handtücher/.test(r.rb)?'NACHBEDARF OK':'NACHBEDARF FAIL');
+  console.log(!errs.length&&r.n>=18&&!r.dup&&r.kaffee==='p1'&&r.matr==='p0'&&r.bett===21&&r.saugen==='week'&&/Bett abziehen/.test(r.heute)&&!/Handtücher/.test(r.heute)&&r.tick.length===1&&!r.tick[0].own&&/hdone/.test(r.done)&&r.rows>=18&&/voll/.test(r.sec)&&/Handtücher/.test(r.sec)&&!/Handtücher/.test(r.rest)&&r.conv===0&&!r.center&&/bald/.test(r.bald)&&r.own&&r.own.own==='p1'&&/Später/.test(r.lpx)&&r.later&&r.later.until>now+6*D&&/Handtücher/.test(r.rb)?'NACHBEDARF OK':'NACHBEDARF FAIL');
   await b.close();process.exit(0)});

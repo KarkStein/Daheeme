@@ -6,7 +6,10 @@ const NEED_EVERY=[[7,"jede Woche"],[14,"alle 2 Wochen"],[21,"alle 3 Wochen"],[28
 const NEED_DAY=864e5,NEED_BALD=.8;
 const needTasks=()=>((S.config&&S.config.tasks)||[]).filter(t=>t.freq==="need");
 const needEveryL=d=>{const e=NEED_EVERY.find(x=>x[0]===+d);return e?e[1]:"alle "+Math.round(d/7)+" Wochen"};
-function needTicks(id){const o=((S.food&&S.food.need)||{})[id]||{};return Object.keys(o).filter(k=>o[k]&&o[k].at).map(k=>Object.assign({tid:k},o[k])).sort((a,b)=>a.at-b.at)}
+// Haken: neue aus food/need, dazu alte aus der Zeit als Monats-/Halbjahres-/Jahres-Aufgabe (weeks/<wk>/ticks/<id>__p), damit nichts verloren geht
+function needTicks(id){const o=((S.food&&S.food.need)||{})[id]||{},L=Object.keys(o).filter(k=>o[k]&&o[k].at).map(k=>Object.assign({tid:k},o[k]));
+  for(const wk in S.weeks){const v=ticksOf(wk)[id+"__p"];if(v&&v.at&&(v.by==="p0"||v.by==="p1"))L.push(Object.assign({old:wk},v))}
+  return L.sort((a,b)=>a.at-b.at)}
 function needInfo(t,now){now=now||Date.now();const E=(+t.every||28)*NEED_DAY,T=needTicks(t.id),last=T[T.length-1]||null,base=last?last.at:(t.since||now);
   const P=((S.food&&S.food.needp)||{})[t.id],due=P&&P.until>base+E?P.until:base+E,fill=Math.max(0,(now-(due-E))/E);
   const other=p=>p==="p0"?"p1":p==="p1"?"p0":null,who=t.owner==="alt"?(last?other(last.by):t.first||null):t.owner;
@@ -22,7 +25,7 @@ function needHeute(){const L=[];needTasks().forEach(t=>{const I=needInfo(t);
   if(I.fill>=1&&!I.today&&needMine(I))L.push({need:1,t,done:false,sub:"nach Bedarf · "+(I.last?"zuletzt "+needAgo(I.last.at):"noch nie abgehakt")})});return L}
 // Abhaken: wer es macht, steht in by; gehörte es laut Plan dem anderen, steht dessen Kürzel in own (🤝 im Rückblick)
 async function needTick(id){const t=needTasks().find(x=>x.id===id);if(!t)return;if(!S.me){toast("Wähle zuerst in den Einstellungen, wer du bist.");return}
-  const I=needInfo(t);if(I.today&&I.today.by===S.me){await S.store.setPath("food/need/"+id+"/"+I.today.tid,null);toast("Haken von heute zurückgenommen");render();return}
+  const I=needInfo(t);if(I.today&&I.today.by===S.me&&I.today.tid){await S.store.setPath("food/need/"+id+"/"+I.today.tid,null);toast("Haken von heute zurückgenommen");render();return}
   const own=(I.who==="p0"||I.who==="p1")&&I.who!==S.me?I.who:null,v={at:Date.now(),by:S.me};if(own)v.own=own;
   await S.store.setPath("food/need/"+id+"/"+newId("n"),v);if(I.later)await S.store.setPath("food/needp/"+id,null);
   toast(own?"Für "+pname(own)+" übernommen. Der Balken ist wieder leer.":t.owner==="alt"?"Erledigt. Nächstes Mal ist "+pname(S.me==="p0"?"p1":"p0")+" dran.":"Erledigt. Der Balken ist wieder leer.");render()}
@@ -33,7 +36,11 @@ function needBar(I){const p=Math.min(1,I.fill);return `<span class="needbar${I.s
 function needRow(I){const t=I.t,sub=[`etwa ${needEveryL(t.every||28)}`,I.last?`zuletzt ${needAgo(I.last.at)}${I.last.by?" ("+pInit(I.last.by)+")":""}`:"noch nie abgehakt",needWhoTxt(I)].join(" · ");
   return `<li class="needrow${I.today?" hdone":""}"><div class="needl"><b>${esc(t.name)}${I.st==="voll"?' <em class="needst voll">voll</em>':I.st==="bald"?' <em class="needst">bald</em>':""}${I.later?' <em class="needst">⏭ später</em>':""}</b>${needBar(I)}<span class="freq">${esc(sub)}</span></div><button class="hchk" data-need="${esc(t.id)}" aria-pressed="${!!I.today}" aria-label="${esc(t.name)} ${I.today?"heute erledigt, Tipp nimmt den Haken zurück":"abhaken"}">${I.today?"✓":""}</button></li>`}
 // Abschnitt im Haushalt (zugeklappt), volle zuerst
-function needSection(){const L=needTasks().map(t=>needInfo(t)).sort((a,b)=>b.fill-a.fill);if(!L.length)return "";const n=L.filter(I=>I.fill>=1&&!I.today).length;
+// Jetzt dran (voll oder heute erledigt): steht in „Diese Woche“
+const needDue=I=>I.fill>=1||!!I.today;
+function needDueHtml(){const L=needTasks().map(t=>needInfo(t)).filter(needDue).sort((a,b)=>b.fill-a.fill);return L.length?`<div class="donesep needsep">🫧 Nach Bedarf, jetzt dran</div><ul class="needlist needdue">${L.map(needRow).join("")}</ul>`:""}
+function needSection(rest){let L=needTasks().map(t=>needInfo(t)).sort((a,b)=>b.fill-a.fill);if(!L.length)return "";const n=L.filter(I=>I.fill>=1&&!I.today).length;
+  if(rest){L=L.filter(I=>!needDue(I));const bd=L.filter(I=>I.st==="bald").length;return wkFold("need","🫧 Nach Bedarf, später",L.length+(bd?", "+bd+" bald":""),L.length?`<ul class="needlist">${L.map(needRow).join("")}</ul><div class="freq">Der Balken füllt sich seit dem letzten Haken. Ist er voll, steht die Aufgabe bei „Diese Woche“. Lange drücken: eine Woche später.</div>`:`<div class="freq">Alles ist gerade dran oder erledigt.</div>`,false)}
   return wkFold("need","🫧 Nach Bedarf",n?n+" voll":"nichts voll",`<ul class="needlist">${L.map(needRow).join("")}</ul><div class="freq">Der Balken füllt sich seit dem letzten Haken. Lange drücken: eine Woche später.</div>`,false)}
 // Rückblick: Haken dieser Woche (Montag bis Sonntag)
 function needWeekTicks(mon){const a=+mon,b=+addDays(mon,7),L=[];needTasks().forEach(t=>needTicks(t.id).forEach(v=>{if(v.at>=a&&v.at<b)L.push({t,v})}));return L}
@@ -52,3 +59,10 @@ function migNeed(cfg){const c=JSON.parse(JSON.stringify(cfg)),ps=(c.persons||[])
     if(ex){if(ex.freq!=="need"){ex.freq="need";ex.every=every;ex.owner=owner;ex.since=since;if(owner==="alt")ex.first=firstOf(pts);ex.pts=pts;delete ex.times;delete ex.pack;delete ex.subs}return}
     {const o={id:"n_"+id,name,owner,freq:"need",every,pts,since};if(owner==="alt")o.first=firstOf(pts);c.tasks.push(o)}});
   c.mig=Object.assign({},c.mig,{need1:now});S.store.saveConfig(c).catch(()=>{})}
+// Einmalig (Flag config.mig.need2, Florian 19.11.2026: „Ja, umwandeln“, „center raus … das gibts nicht“): Monat, Halbjahr, Jahr werden „Nach Bedarf“ (etwa alle 4 Wochen, 6 Monate, einmal im Jahr).
+// Im Wechsel wird Abwechselnd (zuerst dran, wer gerade dran wäre), fest bleibt fest. Alte Haken zählen weiter (needTicks). „Center putzen“ aus der Vorlage fällt weg.
+function migNeed2(cfg){const c=JSON.parse(JSON.stringify(cfg)),now=Date.now(),mon=mondayOf(new Date()),E={month:28,half:182,year:365};
+  c.tasks=c.tasks.filter(t=>!(t.id==="center"&&/^center putzen$/i.test(String(t.name||"").trim())));
+  c.tasks.forEach(t=>{const e=E[t.freq];if(!e||t.owner==="ho")return;let first=null;if(t.owner==="rot"){try{first=ownerFor(t,mon)}catch(_){}}
+    t.every=e;t.since=now-Math.round(e*NEED_DAY/2);if(t.owner==="rot"){t.owner="alt";if(first==="p0"||first==="p1")t.first=first}t.freq="need";delete t.pack;delete t.times;delete t.subs});
+  c.mig=Object.assign({},c.mig,{need2:now});S.store.saveConfig(c).catch(()=>{})}

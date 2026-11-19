@@ -12,7 +12,7 @@ srv.listen(8765,async()=>{
   await put('ext/fw',{at:1,n:1,items:{f1:{name:'Chorprobe',date:day(3),time:'19:00'}}});
   await A.waitForTimeout(3200);
   const nav=async v=>{await A.evaluate(v=>{const o=document.getElementById("zz");if(o)o.remove();const b=document.createElement("button");b.dataset.nav=v;b.id="zz";document.getElementById("app").appendChild(b)},v);await A.click("#zz");await A.waitForTimeout(400)};
-  const lp=async sel=>{const e=await A.$(sel);await e.scrollIntoViewIfNeeded();const q=await e.boundingBox();await A.mouse.move(q.x+30,q.y+q.height/2);await A.mouse.down();await A.waitForTimeout(650);await A.mouse.up();await A.waitForTimeout(300)};
+  const lp=async sel=>{const e=await A.$(sel);await e.evaluate(x=>x.scrollIntoView({block:'center'}));const q=await e.boundingBox();await A.mouse.move(q.x+30,q.y+q.height/2);await A.mouse.down();await A.waitForTimeout(650);await A.mouse.up();await A.waitForTimeout(300)};
   await nav('woche|wp:3');await A.click('[data-calview=liste]');await A.waitForTimeout(300);
   // lange drücken: nur „✕ Löschen“ an der Zeile, kein Fenster, keine Maske
   await lp('.ev[data-teredit=t1]');r.x=await A.$$eval('#app .lpx',l=>l.map(x=>x.innerText.trim()));r.noMask=!(await A.$('#terform'))&&!(await A.$('#mbox'));

@@ -7,8 +7,9 @@ srv.listen(8765,async()=>{
     const o={};
     await A.click('#tabs [data-tab=woche]');await A.waitForTimeout(400);
     // Woche kompakt (17.11.2026): Monat ist eine Klapp-Karte, erst aufklappen
-    const mf=await A.$('[data-tfold=wk2_long][aria-expanded=false]');if(mf){await mf.click();await A.waitForTimeout(300)}
-    o.titles=await A.$$eval('.wt .wtn b',l=>l.map(x=>x.innerText).filter(x=>/Flächen|Zimmer drüben/.test(x)));
+    // Seit 19.11.2026 („Ja, umwandeln“): Monat, Halbjahr, Jahr sind „Nach Bedarf“; der Abschnitt „Monat, Halbjahr, Jahr“ ist weg
+    await A.waitForTimeout(1500);o.long=!!(await A.$('[data-tfold=wk2_long]'));const nf=await A.$('[data-tfold=wk2_need][aria-expanded=false]');if(nf){await nf.click();await A.waitForTimeout(300)}
+    o.titles=await A.$$eval('#sec-need .needrow b',l=>l.map(x=>x.innerText).filter(x=>/Flächen|Zimmer drüben/.test(x)));
     o.later=await A.$$eval('.laterline',l=>l.map(x=>x.innerText).join(' | '));
     await A.click('[data-tab=camp]');await A.waitForTimeout(400);
     await A.click('.camp',{position:{x:120,y:60}});await A.waitForTimeout(400);
@@ -18,5 +19,5 @@ srv.listen(8765,async()=>{
     await c.close();return o};
   r.a=await run('2026-11-10');r.b=await run('2026-11-20','dashboard-aufgaben.png');
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&r.a.titles.length===0&&/Flächen/.test(r.a.later)&&r.b.titles.length>0;
+  const ok=!errs.length&&!r.a.long&&!r.a.later&&r.a.titles.length===3&&r.b.titles.length===3;
   console.error(ok?'MID OK':'MID FAIL');await b.close();srv.close();process.exit(0)});

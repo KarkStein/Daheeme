@@ -22,15 +22,9 @@ srv.listen(8765,async()=>{
   await put('food/flasche/'+k+'/p1',{t:'Das Lachen beim Frühstück',at:Date.now()});await A.waitForTimeout(2500);r.f2=await txt('.flasche');
   if(out){await A.screenshot({path:out+'/minispiele-flasche.png'})}
   await nav('privat|pv:briefe');r.arch=await txt('.flarch');
-  // Flut
-  await nav('minis|');await A.click('[data-mini=flut]');await A.click('[data-flutn="4"]');await A.click('[data-act=flutgo]');await A.waitForTimeout(500);
-  r.u0=await txt('#flutn');r.t0=await txt('#flutt');
-  if(out){await A.screenshot({path:out+'/minispiele-flut.png'})}
-  for(let i=0;i<4;i++){await A.click(`[data-fluttoy="${i}"]`);await A.waitForTimeout(150)}
-  await A.waitForTimeout(1200);r.u1=await txt('.flut');
-  await A.click('[data-act=flutgo]');await A.waitForTimeout(300);await A.click('[data-act=flutdone]');await A.waitForTimeout(300);r.u2=await txt('.flut');
+  // Aufräum-Flut ist wieder weg (Florian 19.11.2026)
+  await nav('minis|');r.noFlut=!(await A.$('[data-mini=flut]'));
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&/Minispiele/.test(r.pager)&&r.tiles===3&&r.g0&&/^1 Pflanze/.test(r.g1)&&r.gsvg>=1
-    &&/⏳/.test(r.f0)&&/Deine Antwort/.test(r.f1)&&/⏳/.test(r.f1)&&/Sonnenuntergang/.test(r.f2)&&/Frühstück/.test(r.f2)&&/Sonnenuntergang/.test(r.arch)
-    &&/Noch 4 Sachen/.test(r.u0)&&/^[0-3]:\d\d$/.test(r.t0)&&/Burg bleibt/.test(r.u1)&&/Burg bleibt/.test(r.u2);
+  const ok=!errs.length&&/Minispiele/.test(r.pager)&&r.tiles===2&&r.noFlut&&r.g0&&/^1 Pflanze/.test(r.g1)&&r.gsvg>=1
+    &&/⏳/.test(r.f0)&&/Deine Antwort/.test(r.f1)&&/⏳/.test(r.f1)&&/Sonnenuntergang/.test(r.f2)&&/Frühstück/.test(r.f2)&&/Sonnenuntergang/.test(r.arch);
   console.error(ok?'MINISPIELE OK':'MINISPIELE FAIL');await b.close();srv.close();process.exit(0)});

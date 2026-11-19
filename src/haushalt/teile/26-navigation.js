@@ -32,7 +32,7 @@ function medFlip(v){v=!!v;S.medFlip=v;try{localStorage.setItem("hq-medal",v?"1":
 window.hqMedal=v=>medFlip(v);// für Prüfskripte
 function medSync(){try{if(S.tab==="camp"&&S.medFlip&&!navBusy&&history.state&&!history.state.med&&!history.state.ov)history.pushState(Object.assign({},history.state,{med:1}),"")}catch(_){}}
 // Bild so hoch, dass die Medaille bis kurz über die Reiter reicht (einmal je Bildschirmgröße, danach nur bei Größenänderung)
-function medFit(){const m=app.querySelector(".medal"),c=app.querySelector(".medfront .camp"),t=document.getElementById("tabs");if(!m||!c||!t)return;  const free=t.getBoundingClientRect().top-m.getBoundingClientRect().bottom-8,cr=c.getBoundingClientRect();if(!cr.width)return;const vh=Math.max(228,Math.min(480,Math.round(HVB[3]*(cr.height+free)/cr.height)));
+function medFit(){const m=app.querySelector(".medal"),c=app.querySelector(".medfront .camp"),t=document.getElementById("tabs");if(!m||!c||!t)return;  const pg=app.querySelector(".pager"),free=(pg?pg.getBoundingClientRect().top:t.getBoundingClientRect().top)-m.getBoundingClientRect().bottom-8,cr=c.getBoundingClientRect();if(!cr.width)return;const vh=Math.max(228,Math.min(480,Math.round(HVB[3]*(cr.height+free)/cr.height)));
   if(Math.abs(vh-(S.hvbH||228))>2){S.hvbH=vh;const y=window.scrollY;render();window.scrollTo(0,y)}}
 window.addEventListener("resize",()=>{if(S.tab!=="camp")return;clearTimeout(S.fitT);S.fitT=setTimeout(medFit,250)});
 // Pünktchen rechts im Zeitstrahl: eine Seite je Bildschirmhöhe des Zeitstrahls
@@ -78,3 +78,7 @@ try{S.theme=localStorage.getItem("hq-theme")||"";if(S.theme)document.documentEle
 const TAP_SEQ={camp:[()=>{S.tab="camp"},()=>{S.tab="woche";S.weekPage=3},()=>{S.tab="wichtig"}],woche:[0,1,4].map(p=>()=>{S.tab="woche";S.weekPage=p}),essen:["heute","rezepte"].map(f=>()=>{S.tab="essen";S.foodTab=f}),einkauf:[()=>{S.tab="einkauf"},()=>{S.tab="ausgaben"},()=>{S.tab="listen"}]};
 const TAP_AT={camp:[()=>S.tab==="camp",()=>S.tab==="woche"&&S.weekPage===3,()=>S.tab==="wichtig"],woche:[0,1,4].map(p=>()=>S.tab==="woche"&&(S.weekPage|0)===p),essen:[()=>S.tab==="essen"&&S.foodTab!=="rezepte",()=>S.tab==="essen"&&S.foodTab==="rezepte"],einkauf:[()=>S.tab==="einkauf",()=>S.tab==="ausgaben",()=>S.tab==="listen"]};
 const tapCur=t=>(TAP_AT[t]||[]).findIndex(f=>f());
+
+// Höhe der Reiter für die Seiten-Leiste direkt darüber (.pager, bottom:var(--tabh))
+function tabhSet(){const t=document.getElementById("tabs");if(t&&t.offsetHeight)document.documentElement.style.setProperty("--tabh",t.offsetHeight+"px")}
+tabhSet();window.addEventListener("resize",tabhSet);window.addEventListener("load",tabhSet);

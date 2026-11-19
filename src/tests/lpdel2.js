@@ -15,7 +15,7 @@ srv.listen(8765,async()=>{
   await put('trip/t1',{name:'Wildpark',at:10});await put('idea/i1',{name:'Bilderbuch',cat:'geschenk',at:11});
   await A.waitForTimeout(3200);
   const nav=async v=>{await A.evaluate(v=>{const o=document.getElementById("zz");if(o)o.remove();const b=document.createElement("button");b.dataset.nav=v;b.id="zz";document.getElementById("app").appendChild(b)},v);await A.click("#zz");await A.waitForTimeout(400)};
-  const lp=async sel=>{const e=await A.$(sel);if(!e)return false;await e.scrollIntoViewIfNeeded();const q=await e.boundingBox();await A.mouse.move(q.x+Math.min(40,q.width/2),q.y+q.height/2);await A.mouse.down();await A.waitForTimeout(650);await A.mouse.up();await A.waitForTimeout(300);return true};
+  const lp=async sel=>{const e=await A.$(sel);if(!e)return false;await e.evaluate(x=>x.scrollIntoView({block:'center'}));const q=await e.boundingBox();await A.mouse.move(q.x+Math.min(40,q.width/2),q.y+q.height/2);await A.mouse.down();await A.waitForTimeout(650);await A.mouse.up();await A.waitForTimeout(300);return true};
   const del=async(name,page,sel,gone,pre)=>{await nav(page);if(pre){const p=await A.$(pre);if(p){await p.click();await A.waitForTimeout(300)}}const f=await lp(sel);const x=await A.$('#app .lpx');if(!f||!x){r[name]='kein ✕';return}if(out&&name==='buy')await A.screenshot({path:out+'/lang-druecken-liste.png'});await x.click();await A.waitForTimeout(500);r[name]=gone()?'ok':'noch da'};
   await del('prio','wichtig|','.prow .pnm',()=>!(db().prio||{}).p1);
   // Rückgängig holt die Erinnerung zurück

@@ -23,8 +23,7 @@ const TEMPLATE={persons:["Florian","Judith"],rotOffset:0,tasks:[
  {id:"flaechen-1",name:"Flächen: Kommode und Fensterbank",owner:"p1",freq:"month",pts:2},
  {id:"flaechen-0",name:"Flächen: roter Schrank",owner:"p0",freq:"month",pts:2},
  {id:"buecherregal",name:"Bücherregal Wohnzimmer",owner:"p1",freq:"half",pts:6},
- {id:"grossputz",name:"Großputz (langes Wochenende)",owner:"p0",freq:"half",pts:48},
- {id:"center",name:"Center putzen",owner:"rot",freq:"year",pts:18}
+ {id:"grossputz",name:"Großputz (langes Wochenende)",owner:"p0",freq:"half",pts:48}
 ]};
 const FREQ_LABEL={day:"täglich",week:"pro Woche",month:"monatlich",half:"halbjährlich",year:"jährlich",need:"nach Bedarf"};
 const OWNER_LABEL={rot:"Im Wechsel",both:"Beide",ho:"Hausdienst"};

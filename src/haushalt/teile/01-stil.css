@@ -251,7 +251,7 @@ details.reisemap summary{cursor:pointer;font-weight:600}
 .beam{transform-box:view-box;transform-origin:314px 60px;animation:beam 4s ease-in-out infinite alternate}
 @keyframes rainfall{from{transform:translate(0,-12px)}to{transform:translate(-4px,12px)}}@keyframes snowfall{from{transform:translate(0,-10px)}to{transform:translate(3px,10px)}}@keyframes boltflash{0%,92%,100%{opacity:0}94%,97%{opacity:1}}
 .rain{animation:rainfall .6s linear infinite}.snow{animation:snowfall 3s linear infinite alternate}.bolt{animation:boltflash 6s infinite}
-@keyframes swl{from{transform:translateX(24px);opacity:.4}to{transform:none;opacity:1}}@keyframes swr{from{transform:translateX(-24px);opacity:.4}to{transform:none;opacity:1}}
+@keyframes swl{from{left:24px;opacity:.4}to{left:0;opacity:1}}@keyframes swr{from{left:-24px;opacity:.4}to{left:0;opacity:1}}#app.swl,#app.swr{position:relative}
 #app.swl{animation:swl .18s ease-out}#app.swr{animation:swr .18s ease-out}
 @keyframes beam{from{transform:rotate(-5deg)}to{transform:rotate(6deg)}}
 .bob{animation:bob 3s ease-in-out infinite alternate}
@@ -778,3 +778,17 @@ a.mkb{text-decoration:none;color:var(--fg)}.muslk[aria-pressed=false]{filter:gra
 .carehead{display:inline-block;margin-top:var(--sp1);border:1px solid var(--line);border-radius:999px;background:none;font:inherit;font-size:var(--fs-s);padding:var(--sp1) var(--sp3);cursor:pointer;color:var(--ink)}
 .carehead.open{border-style:dashed;color:var(--muted)}
 .rbcare{margin-top:var(--sp2)}
+
+/* Seiten-Leisten unten direkt über den Reitern (Florian 19.11.2026: „A und B: Kopfzeile, dann Leiste unten“). --tabh setzt 26-navigation.js */
+.pager{position:fixed;left:0;right:0;bottom:var(--tabh,64px);z-index:4;margin:0;padding:var(--sp1) var(--sp3);background:var(--bg);border-top:1px solid var(--line);justify-content:center}
+.pager .pdots{max-width:100%}
+.pager .pdot{padding:var(--sp1) var(--sp3);white-space:nowrap}
+.app:has(.pager){padding-bottom:156px}
+.toast{bottom:calc(128px + env(safe-area-inset-bottom,0px))}
+
+/* Drei Bereiche im Haushalt: Hausdienst in „Heute“, Nach Bedarf in „Diese Woche“ */
+.hoin{padding-bottom:var(--sp3);margin-bottom:var(--sp2);border-bottom:1px solid var(--line)}
+.hoinh{margin-bottom:var(--sp2)}
+.needsep{margin-top:var(--sp3)}
+.wkdaily{margin-top:var(--sp3)}
+html{scroll-padding-bottom:calc(var(--tabh,64px) + 56px)}

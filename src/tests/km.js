@@ -7,7 +7,7 @@ srv.listen(8765,async()=>{
   await A.click('.empty [data-act=kitamealedit]');await A.waitForTimeout(200);
   const V=[["Haferbrei mit Apfel","Kürbissuppe mit Brot","Joghurt","Vollkornbrot mit Frischkäse"],["Müsli","Nudeln mit Tomatensoße","Birne","Laugenbrezel"],["Brot mit Butter","Gemüsereis mit Hähnchen","Pudding","Gurke und Karotte"],["Obstteller","Kartoffelauflauf","","Knäckebrot"],["Brötchen mit Marmelade","Fischstäbchen mit Kartoffelbrei","Apfelmus","Reiswaffeln"]];
   for(let i=0;i<5;i++){await A.fill('#ke-fr'+i,V[i][0]);await A.fill('#ke-d'+i,V[i][1]);await A.fill('#ke-na'+i,V[i][2]);await A.fill('#ke-bz'+i,V[i][3])}
-  await A.click('[data-act=kitamealsave]');await A.waitForTimeout(600);
+  await A.click('[data-act=kitamealsave]');await A.waitForTimeout(1500);
   r.days=await A.$$eval('.kmday',l=>l.length);r.rows=await A.$$eval('.kmrow',l=>l.length);r.d0=await A.$eval('.kmday',e=>e.innerText.replace(/\n/g,' | '));
   const el=await A.$('.kmweek');await el.scrollIntoViewIfNeeded();const bb=await el.boundingBox();
   await A.screenshot({path:out+'/kita-essen.png',fullPage:true});

@@ -70,13 +70,12 @@ function gardenHtml(){const mon=mondayOf(new Date()),G=gardenGrid(mon),last=gard
     <div class="freq">Die Blumen wachsen auch im Bild am Haus.</div></section>`}
 
 function renderMinis(){const g=S.miniGame||"";const back=`<button class="ghost minib" data-mini="">‹ Minispiele</button>`;
-  if(g==="flut")return (S.flut&&!S.flut.end?"":back)+flutHtml();
+  // Aufräum-Flut ist seit 19.11.2026 nicht mehr erreichbar (Florian: „Nett gemeint, aber Weg“); flut* ist Altlast
   if(g==="flasche")return back+`<section class="card flasche"><h2>🍾 Flaschenpost für zwei</h2>${flascheCard(true)}${flascheAll().length?`<button class="linkish" data-nav="privat|pv:briefe">Alle geöffneten Flaschen bei Partner › Briefe ›</button>`:""}</section>`;
   if(g==="garten")return back+gardenHtml();
   const k=ymd(new Date()),x=flascheDay(k),n=gardenPlants().length;
   const tile=(id,ic,t,sub)=>`<button class="minitile" data-mini="${id}"><span class="mic">${ic}</span><span><b>${t}</b><i>${sub}</i></span><em>›</em></button>`;
   return `<div><div class="eyebrow">Miteinander, ohne Punkte</div><h1>Minispiele</h1></div><div class="minis">`
-    +tile("flut","🌊","Aufräum-Flut","Fürs Kind mit euch: alles in den Korb, bevor die Welle kommt")
     +tile("flasche","🍾","Flaschenpost für zwei",flascheOpen(x)?"Heute geöffnet":["p0","p1"].map(p=>(x[p]&&x[p].t?"✅ ":"⏳ ")+pname(p)).join(" · "))
     +tile("garten","🌱","Garten der Woche",n?`${n} ${n===1?"Pflanze":"Pflanzen"} diese Woche`:"Jeder Haken pflanzt etwas")+`</div>`}
 
