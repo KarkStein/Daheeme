@@ -343,7 +343,7 @@ function renderTripIdeas(){const d=S.tripDraft;
     <label class="fld"><span>Notiz</span><textarea id="tr-note" data-tf="note" rows="3" placeholder="Parkplatz, Eintritt, was man nicht vergessen darf">${esc(d.note)}</textarea></label>
     ${d.id?geldSrcRow("trip:"+d.id,{name:d.name||"",cat:"frei",date:d.date||ymd(new Date())}):""}
     ${gmMaskRow("trip",d.id)}
-    <div class="btnrow"><button class="primary" data-act="tripsave">Speichern</button><button class="ghost" data-act="tripcancel">Abbrechen</button>${d.id?`<button class="ghost" data-move="trip|${esc(d.id)}">↪ Verschieben</button><button class="ghost danger" data-act="tripdel">Löschen</button>`:""}</div></section>`}
+    ${d.id?verkHtml("trip",d.id,trips().find(x=>x.id===d.id)):""}<div class="btnrow"><button class="primary" data-act="tripsave">Speichern</button><button class="ghost" data-act="tripcancel">Abbrechen</button>${d.id?`<button class="ghost" data-move="trip|${esc(d.id)}">↪ Verschieben</button><button class="ghost danger" data-act="tripdel">Löschen</button>`:""}</div></section>`}
   const mz=musLinks("auto",3);
   const all=trips(),F=S.tripFilter||"",match=x=>!F||(F==="regen"?x.wx==="egal":x.kind===F);
   const open=all.filter(x=>!x.done&&match(x)).sort((a,b)=>(a.at||0)-(b.at||0)),done=all.filter(x=>x.done).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0));
@@ -354,7 +354,7 @@ function renderTripIdeas(){const d=S.tripDraft;
   let h=`<div class="btnrow"><button class="primary" data-act="tripnew">+ Neue Ausflugsidee</button></div>`+mz;
   if(open.length)h+=foldCard("gm","🔖 Gemerkt",open.length,`<ul class="shop">${gm.map(card).join("")}</ul>${open.length>3?`<button class="ghost small" data-act="tripall">${S.tripAll?"Weniger zeigen":"Alle "+open.length+" zeigen"}</button>`:""}<div class="freq">📅 trägt ein Ziel in den Kalender, 🚆 zeigt den Weg. Tippt auf ein Ziel, wenn ihr dort wart.</div>`,true);
   h+=atipFixCards()+atipCard();
-  if(kinds.length||all.some(x=>!x.done&&x.wx==="egal"))h+=`<div class="unl"><button class="chipbtn" data-tfilter="" aria-pressed="${!F}">Alle</button>${all.some(x=>!x.done&&x.wx==="egal")?`<button class="chipbtn" data-tfilter="regen" aria-pressed="${F==="regen"}">🌧️ Bei Regen</button>`:""}${kinds.map(k=>`<button class="chipbtn" data-tfilter="${k[0]}" aria-pressed="${F===k[0]}">${k[1]} ${k[2]}</button>`).join("")}</div>`;
+  if(kinds.length||all.some(x=>!x.done&&x.wx==="egal"))h+=`<div class="unl scrollrow"><button class="chipbtn" data-tfilter="" aria-pressed="${!F}">Alle</button>${all.some(x=>!x.done&&x.wx==="egal")?`<button class="chipbtn" data-tfilter="regen" aria-pressed="${F==="regen"}">🌧️ Bei Regen</button>`:""}${kinds.map(k=>`<button class="chipbtn" data-tfilter="${k[0]}" aria-pressed="${F===k[0]}">${k[1]} ${k[2]}</button>`).join("")}</div>`;
   h+=open.length?""
     :`<div class="empty"><h2>${F?"Nichts Passendes":"Noch keine Ideen"}</h2><div>${F?"Für diesen Filter gibt es noch kein Ziel.":"Legt mit dem Knopf oben eure erste Ausflugsidee an. Ihr seht beide dieselbe Liste."}</div></div>`;
   if(done.length)h+=`<section data-fk="f_tdone|0" class="card"><div class="section-head"><h2>Schon gemacht</h2><span class="freq num">${done.length}</span></div><ul class="shop">${done.map(card).join("")}</ul></section>`;

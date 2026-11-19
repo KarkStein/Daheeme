@@ -30,9 +30,9 @@ srv.listen(8765,async()=>{
   // Erinnerung im Kalender: lange drücken löscht, Rückgängig holt sie zurück
   await lp('.ev[data-caled="prio|p2"]');await A.click('#app .lpx');await A.waitForTimeout(500);r.pgone=!(db().prio||{}).p2;await A.click('#toast .toastbtn');await A.waitForTimeout(500);r.pback=!!(db().prio||{}).p2;
   // Ausflug mit Tag: lange drücken nimmt nur den Tag weg, das Ziel bleibt
-  await lp('.ev[data-caled="ctrip|x1"]');await A.click('#app .lpx');await A.waitForTimeout(400);r.ask=await A.$$eval('#mbox [data-la]',l=>l.length);if(out)await A.screenshot({path:out+'/kalender-ausflug-loeschen.png'});await A.click('#mbox [data-la="0"]');await A.waitForTimeout(500);r.trip=r.ask===3&&!!db().trip.x1&&!db().trip.x1.date;
+  await lp('.ev[data-teredit="a_x1"]');await A.click('#app .lpx');await A.waitForTimeout(400);r.ask=await A.$$eval('#mbox [data-la]',l=>l.length);if(out)await A.screenshot({path:out+'/kalender-ausflug-loeschen.png'});await A.click('#mbox [data-la="0"]');await A.waitForTimeout(500);r.trip=r.ask===3&&!!db().trip.x1&&!db().trip.x1.date;
   // … oder ganz löschen
-  await lp('.ev[data-caled="ctrip|x2"]');await A.click('#app .lpx');await A.waitForTimeout(400);await A.click('#mbox [data-la="1"]');await A.waitForTimeout(500);r.tripall=!db().trip.x2;
+  await lp('.ev[data-teredit="a_x2"]');await A.click('#app .lpx');await A.waitForTimeout(400);await A.click('#mbox [data-la="1"]');await A.waitForTimeout(500);r.tripall=!db().trip.x2;
   // kurzer Tipp springt nicht mehr weg: kleines Fenster, von dort ins Bearbeiten in der Kita
   r.mig=(db().termin||{}).m_m1&&db().termin.m_m1.tag==='arzt';await A.click('.ev[data-caled="prio|p2"]');await A.waitForTimeout(400);r.info=/gehört zu Wichtig/.test(await A.$eval('#mbox',e=>e.innerText))&&/Kalender/.test(await A.$eval('.pager [aria-pressed=true], .pager .on',e=>e.innerText).catch(()=>'Kalender'));
   if(out){await A.evaluate(()=>{const t=document.getElementById('toast');if(t)t.style.visibility='hidden'});await A.screenshot({path:out+'/kalender-tipp-fenster.png'})}await A.keyboard.press('Escape');await A.waitForTimeout(300);await A.click('#app [data-teredit="m_m1"] >> nth=0');await A.waitForTimeout(500);r.kita=await A.evaluate(()=>[...document.querySelectorAll('input')].some(i=>i.value==='Laternenfest'));await A.click('[data-act=tercancel]');await A.waitForTimeout(300);

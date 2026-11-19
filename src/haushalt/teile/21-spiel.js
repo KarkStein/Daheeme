@@ -46,7 +46,7 @@ function renderMusic(){const d=S.musDraft,F=S.musFilter||"",AF=S.musArtF||"";
     ${a==="lied"?`<label class="fld"><span>Liedtext zum Mitsingen (optional)</span><textarea data-muf="txt" rows="5" maxlength="4000">${esc(d.txt||"")}</textarea></label>`:""}
     <label class="fld"><span>Eigenes Symbol (optional, ein Emoji)</span><input data-muf="emo" value="${esc(d.emo||"")}" maxlength="8" placeholder="${musArt(d)[1]}" autocomplete="off" style="width:90px"></label>
     <label class="fld"><span>Notiz</span><input data-muf="note" value="${esc(d.note)}" maxlength="120" autocomplete="off"></label>
-    ${gmMaskRow("mus",d.id)}<div class="btnrow"><button class="primary" data-act="mussave">Speichern</button><button class="ghost" data-act="muscancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="musdel">Löschen</button>`:""}</div></section>`}
+    ${gmMaskRow("mus",d.id)}${d.id?verkHtml("mus",d.id):""}<div class="btnrow"><button class="primary" data-act="mussave">Speichern</button><button class="ghost" data-act="muscancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="musdel">Löschen</button>`:""}</div></section>`}
   const all=musics(),cA={},cO={};all.forEach(m=>{const k=musArt(m)[0];cA[k]=(cA[k]||0)+1;csv(m.occ).forEach(o=>cO[o]=(cO[o]||0)+1)});
   const L=all.filter(m=>(!AF||musArt(m)[0]===AF)&&(!F||(F==="like"?m.like:F==="fav"?musFav(m):csv(m.occ).includes(F))));
   const chA=(v,t)=>`<button class="chipbtn neutral" data-musartf="${v}" aria-pressed="${AF===v}">${t}</button>`,chO=(v,t)=>`<button class="chipbtn neutral" data-musfilter="${v}" aria-pressed="${F===v}">${t}</button>`;
@@ -89,7 +89,7 @@ function renderPlay(){const d=S.playDraft,PS=playSecs(),F=S.playF||"",cur=PS.fin
     <div class="fld"><span>Stand</span><div class="unl">${PLAY_ST.map(s=>`<button type="button" class="chipbtn" data-plset="st" data-v="${s[0]}" aria-pressed="${(d.st||"idee")===s[0]}">${s[1]} ${s[2]}</button>`).join("")}</div></div>
     <label class="fld"><span>Notiz</span><textarea id="pl-note" data-plf="note" rows="3" placeholder="${esc(hint[1])}">${esc(d.note)}</textarea></label>
     ${gmMaskRow("play",d.id)}
-    <div class="btnrow"><button class="primary" data-act="playsave">Speichern</button><button class="ghost" data-act="playcancel">Abbrechen</button>${x?bell("spiel",x):""}${d.id?`<button class="ghost" data-move="play|${esc(d.id)}">↪ Verschieben</button><button class="ghost danger" data-act="playdel">Löschen</button>`:""}</div></section>`}
+    ${d.id?verkHtml("play",d.id,plays().find(x=>x.id===d.id)):""}<div class="btnrow"><button class="primary" data-act="playsave">Speichern</button><button class="ghost" data-act="playcancel">Abbrechen</button>${x?bell("spiel",x):""}${d.id?`<button class="ghost" data-move="play|${esc(d.id)}">↪ Verschieben</button><button class="ghost danger" data-act="playdel">Löschen</button>`:""}</div></section>`}
   const all=plays(),open=all.filter(x=>playSt(x)!=="erledigt"),cS={},STO={favorit:0,geplant:1,idee:2,erledigt:3};open.forEach(x=>{const k=playSecOf(x);cS[k]=(cS[k]||0)+1});
   const R=all.filter(x=>(!cur||playSecOf(x)===cur[0])&&(F==="draussen"?playOut(x):F==="drinnen"?playIn(x):true)&&(F==="erledigt"?playSt(x)==="erledigt":F==="favorit"?playSt(x)==="favorit":playSt(x)!=="erledigt"))
     .sort((a,b)=>STO[playSt(a)]-STO[playSt(b)]||(a.name||"").localeCompare(b.name||"","de"));
