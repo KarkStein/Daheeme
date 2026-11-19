@@ -811,3 +811,6 @@ a.minitile{text-decoration:none;color:inherit}
 .rdbsugg{margin-top:var(--sp2)}.rdbsugg:empty{display:none}.rdbing .setsum{width:100%}
 .tagfixl{list-style:none;margin:var(--sp2) 0;padding:0}.tagfixl li{display:flex;align-items:center;gap:var(--sp2);padding:var(--sp2) 0;border-top:1px solid var(--line)}.tagfixl li:first-child{border-top:none}.tfn{flex:1;min-width:0}.tfn b{display:block;overflow-wrap:anywhere}.tfn .freq{display:block}.tagfixl.done li{padding:var(--sp1) 0}
 #tagbasic{width:100%;margin-top:var(--sp1)}.recwin .ing{margin:var(--sp3) 0}.recwinb{flex-wrap:wrap}
+
+.mapsrow{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp2);margin:var(--sp2) 0 var(--sp3)}
+.mapsrow .freq{flex-basis:100%}

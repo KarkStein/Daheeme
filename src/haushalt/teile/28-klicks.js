@@ -367,6 +367,8 @@ app.addEventListener("click",async e=>{
   if(b.dataset.packrm){try{await buyDropRef("pack:"+b.dataset.packrm);await S.store.setPath("food/pack/"+b.dataset.packrm,null)}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.act==="packreset"){for(const i of packs().filter(x=>x.done&&(x.list||"main")===curPack().id)){try{await S.store.setPath("food/pack/"+i.id+"/done",false)}catch(_){}}return}
   if(b.dataset.tripdone){const x=trips().find(y=>y.id===b.dataset.tripdone);if(x){try{await S.store.setPath("food/trip/"+x.id+"/done",!x.done);await S.store.setPath("food/trip/"+x.id+"/doneAt",x.done?null:Date.now())}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}return}
+  if(b.dataset.mapsopen){window.open(mapsQ(placeAddr(b.dataset.mapsopen)),"_blank","noopener");return}
+  if(b.dataset.tripmaps){const id=b.dataset.tripmaps,x=trips().find(y=>y.id===id);if(x){try{await S.store.setPath("food/trip/"+id+"/maps",x.maps?null:Date.now());render()}catch(_){toast("Konnte nicht speichern.")}}return}
   if(b.dataset.tripedit){const x=trips().find(y=>y.id===b.dataset.tripedit);if(x){S.tripDraft={id:x.id,who:x.who||"",emo:x.emo||"",name:x.name||"",note:x.note||"",link:x.link||"",kind:x.kind||"",wx:x.wx||"",dur:x.dur||"",drive:x.drive?String(x.drive):"",kid:x.kid||"",cost:x.cost||"",season:x.season||"",pack:x.pack||"",place:x.place||"",date:x.date||""};render();window.scrollTo(0,0)}return}
   if(b.dataset.act==="tripcancel"){S.tripDraft=null;render();return}
   if(b.dataset.act==="tripsave"){const d=S.tripDraft,name=(d.name||"").trim().slice(0,80);if(!name){toast("Bitte ein Ziel eintragen");return}
