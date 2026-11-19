@@ -8,10 +8,10 @@ srv.listen(8765,async()=>{
   await A.click('[data-wmwsec=pakete]');await A.waitForTimeout(200);r.pak0=await A.$eval('.rotlist',e=>e.innerText);
   await A.click('[data-wmwsec=edit]');await A.waitForTimeout(200);
   r.fix=!!(await A.$('#tp-balkon'));r.both=!!(await A.$('#tp-mittag'));r.month=!!(await A.$('#tp-flaechen-0'));r.rot=!!(await A.$('#tp-bad'));r.ho=!!(await A.$('#tp-essen'));r.rotMonth=!!(await A.$('#tp-zimmer-drueben'));
-  await A.fill('#tp-balkon','9');await A.dispatchEvent('#tp-balkon','change');await A.fill('#tp-grossputz','30');await A.dispatchEvent('#tp-grossputz','change');
+  await A.fill('#tp-balkon','9');await A.dispatchEvent('#tp-balkon','change');await A.fill('#tp-buecherregal','30');await A.dispatchEvent('#tp-buecherregal','change');
   if(out){await A.$eval('#tp-balkon',e=>e.scrollIntoView({block:'center'}));await A.screenshot({path:out+'/aufwand.png'})}
   await A.click('[data-act=save]');await A.waitForTimeout(500);
-  const T=cfg().tasks;r.pts=[T.find(t=>t.id==='balkon').pts,T.find(t=>t.id==='grossputz').pts].join('|');
+  const T=cfg().tasks;r.pts=[T.find(t=>t.id==='balkon').pts,T.find(t=>t.id==='buecherregal').pts].join('|');
   r.pak1=await A.$eval('.rotlist',e=>e.innerText);
   await A.click('[data-wmwsec=ver-p0]');await A.waitForTimeout(200);r.list=await A.$eval('.wmwsec:has([data-wmwsec=ver-p0])',e=>e.innerText.replace(/\s+/g,' '));
   console.error(JSON.stringify(r),errs);

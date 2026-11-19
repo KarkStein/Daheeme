@@ -66,3 +66,9 @@ function migNeed2(cfg){const c=JSON.parse(JSON.stringify(cfg)),now=Date.now(),mo
   c.tasks.forEach(t=>{const e=E[t.freq];if(!e||t.owner==="ho")return;let first=null;if(t.owner==="rot"){try{first=ownerFor(t,mon)}catch(_){}}
     t.every=e;t.since=now-Math.round(e*NEED_DAY/2);if(t.owner==="rot"){t.owner="alt";if(first==="p0"||first==="p1")t.first=first}t.freq="need";delete t.pack;delete t.times;delete t.subs});
   c.mig=Object.assign({},c.mig,{need2:now});S.store.saveConfig(c).catch(()=>{})}
+// Einmalig (Flag config.mig.need3): Der Großputz ist keine Aufgabe „Nach Bedarf“, sondern steht zweimal im Jahr als Termin im Kalender (abgesprochen mit Florian 19.11.2026), mit 🧠 bei der Person, der er gehörte.
+function migNeed3(cfg){const c=JSON.parse(JSON.stringify(cfg)),gp=c.tasks.find(t=>/gro(ß|ss)putz/i.test(t.name||"")&&t.owner!=="ho"&&(t.freq==="need"||t.freq==="half"||t.freq==="year"));
+  if(gp)c.tasks=c.tasks.filter(t=>t!==gp);c.mig=Object.assign({},c.mig,{need3:Date.now()});
+  // erst die Einstellungen speichern (sonst ruft der Datenstand diese Umstellung erneut auf), dann die Termine anlegen
+  S.store.saveConfig(c).then(()=>{if(!gp)return;const T=(S.food&&S.food.termin)||{},y=new Date().getFullYear(),nx=md=>{const d=y+"-"+md;return d>ymd(new Date())?d:(y+1)+"-"+md},care=gp.owner==="p0"||gp.owner==="p1"?gp.owner:gp.owner==="both"?"both":null;
+    [["gp_a","04-01"],["gp_b","10-01"]].forEach(([id,md])=>{if(!T[id])S.store.setPath("food/termin/"+id,{name:String(gp.name).slice(0,80),date:nx(md),allday:true,rep:"y",care,note:"Tag bitte anpassen. War vorher eine Aufgabe im Haushalt.",at:Date.now(),by:""}).catch(()=>{})})}).catch(()=>{})}

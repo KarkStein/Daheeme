@@ -4331,6 +4331,12 @@ function migNeed2(cfg){const c=JSON.parse(JSON.stringify(cfg)),now=Date.now(),mo
   c.tasks.forEach(t=>{const e=E[t.freq];if(!e||t.owner==="ho")return;let first=null;if(t.owner==="rot"){try{first=ownerFor(t,mon)}catch(_){}}
     t.every=e;t.since=now-Math.round(e*NEED_DAY/2);if(t.owner==="rot"){t.owner="alt";if(first==="p0"||first==="p1")t.first=first}t.freq="need";delete t.pack;delete t.times;delete t.subs});
   c.mig=Object.assign({},c.mig,{need2:now});S.store.saveConfig(c).catch(()=>{})}
+// Einmalig (Flag config.mig.need3): Der Großputz ist keine Aufgabe „Nach Bedarf“, sondern steht zweimal im Jahr als Termin im Kalender (abgesprochen mit Florian 19.11.2026), mit 🧠 bei der Person, der er gehörte.
+function migNeed3(cfg){const c=JSON.parse(JSON.stringify(cfg)),gp=c.tasks.find(t=>/gro(ß|ss)putz/i.test(t.name||"")&&t.owner!=="ho"&&(t.freq==="need"||t.freq==="half"||t.freq==="year"));
+  if(gp)c.tasks=c.tasks.filter(t=>t!==gp);c.mig=Object.assign({},c.mig,{need3:Date.now()});
+  // erst die Einstellungen speichern (sonst ruft der Datenstand diese Umstellung erneut auf), dann die Termine anlegen
+  S.store.saveConfig(c).then(()=>{if(!gp)return;const T=(S.food&&S.food.termin)||{},y=new Date().getFullYear(),nx=md=>{const d=y+"-"+md;return d>ymd(new Date())?d:(y+1)+"-"+md},care=gp.owner==="p0"||gp.owner==="p1"?gp.owner:gp.owner==="both"?"both":null;
+    [["gp_a","04-01"],["gp_b","10-01"]].forEach(([id,md])=>{if(!T[id])S.store.setPath("food/termin/"+id,{name:String(gp.name).slice(0,80),date:nx(md),allday:true,rep:"y",care,note:"Tag bitte anpassen. War vorher eine Aufgabe im Haushalt.",at:Date.now(),by:""}).catch(()=>{})})}).catch(()=>{})}
 // ---------- Zurück-Taste ----------
 const NAV=[];let navBusy=false;
 function navKey(){return S.tab+"|"+(S.tab==="essen"?S.foodTab:S.tab==="ausflug"?S.tripTab:S.tab==="spiel"?S.playSec:S.tab==="kita"?S.kitaSec:S.tab==="privat"?(S.privSec||""):PROJ_TABS.includes(S.tab)?S.projFilter:S.tab==="woche"&&S.weekPage?String(S.weekPage):"")+"|"+((S.recDraft||S.planEdit||S.lunchDraft||S.lunchMapEdit||S.tripDraft||S.projDraft||S.playDraft||S.kitaDraft)?"d":"")}
@@ -5790,7 +5796,7 @@ function shareIn(){let q;try{q=new URLSearchParams(location.search)}catch(_){ret
 // ---------- Start ----------
 function start(store,mode){S.store=store;S.mode=mode;let gotCfg=false,gotWeeks=false;
   const timer=setTimeout(()=>{S.timedOut=true;if(!gotCfg)S.config=S.config||null;render()},10000);
-  store.listen((cfg,fromCache)=>{S.config=cfg;if(cfg&&!fromCache&&Array.isArray(cfg.tasks)&&!(cfg.mig&&cfg.mig.saug1))migSaugen(cfg);else if(cfg&&!fromCache&&Array.isArray(cfg.tasks)&&!(cfg.mig&&cfg.mig.bring1))migBring(cfg);else if(cfg&&!fromCache&&Array.isArray(cfg.tasks)&&!(cfg.mig&&cfg.mig.need1))migNeed(cfg);else if(cfg&&!fromCache&&Array.isArray(cfg.tasks)&&!(cfg.mig&&cfg.mig.need2))migNeed2(cfg);if(!fromCache){gotCfg=true;S.cfgConfirmed=true}if(gotCfg&&gotWeeks){clearTimeout(timer);S.timedOut=false}render()},
+  store.listen((cfg,fromCache)=>{S.config=cfg;if(cfg&&!fromCache&&Array.isArray(cfg.tasks)&&!(cfg.mig&&cfg.mig.saug1))migSaugen(cfg);else if(cfg&&!fromCache&&Array.isArray(cfg.tasks)&&!(cfg.mig&&cfg.mig.bring1))migBring(cfg);else if(cfg&&!fromCache&&Array.isArray(cfg.tasks)&&!(cfg.mig&&cfg.mig.need1))migNeed(cfg);else if(cfg&&!fromCache&&Array.isArray(cfg.tasks)&&!(cfg.mig&&cfg.mig.need2))migNeed2(cfg);else if(cfg&&!fromCache&&Array.isArray(cfg.tasks)&&!(cfg.mig&&cfg.mig.need3))migNeed3(cfg);if(!fromCache){gotCfg=true;S.cfgConfirmed=true}if(gotCfg&&gotWeeks){clearTimeout(timer);S.timedOut=false}render()},
     (w,fromCache)=>{S.weeks=w;if(!fromCache){gotWeeks=true;setTimeout(migDayFuture,1500)}if(gotCfg&&gotWeeks){clearTimeout(timer);S.timedOut=false}render()},
     err=>{clearTimeout(timer);toast("Verbindung zu den gemeinsamen Daten verloren. Seite neu öffnen.")},
     food=>{S.food=food||{};migSpiel();migShopBell();migPlayTrip();migKitaTer();migKidMed();linkTerSync();migGmCopies();geldFixBook();render()});// Florian 16.11.2026: früher nur bestimmte Bereiche, dadurch fehlten nach dem Neuladen auf Woche/Kalender/Suche Essen, Kita und Termine
