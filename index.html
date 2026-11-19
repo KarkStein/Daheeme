@@ -830,6 +830,9 @@ a.minitile{text-decoration:none;color:inherit}
 .rdbsugg{margin-top:var(--sp2)}.rdbsugg:empty{display:none}.rdbing .setsum{width:100%}
 .tagfixl{list-style:none;margin:var(--sp2) 0;padding:0}.tagfixl li{display:flex;align-items:center;gap:var(--sp2);padding:var(--sp2) 0;border-top:1px solid var(--line)}.tagfixl li:first-child{border-top:none}.tfn{flex:1;min-width:0}.tfn b{display:block;overflow-wrap:anywhere}.tfn .freq{display:block}.tagfixl.done li{padding:var(--sp1) 0}
 #tagbasic{width:100%;margin-top:var(--sp1)}.recwin .ing{margin:var(--sp3) 0}.recwinb{flex-wrap:wrap}
+
+.mapsrow{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp2);margin:var(--sp2) 0 var(--sp3)}
+.mapsrow .freq{flex-basis:100%}
 </style>
 
 <div class="app" id="app">
@@ -2990,7 +2993,7 @@ async function reiseDelUndo(uid){const x=urlaube().find(y=>y.id===uid);if(!x)ret
 const tripSt=x=>x.done?"erledigt":x.date?"geplant":x.fav?"favorit":"idee";
 function rgItems(){const U=urlaube(),L=[];
   // Ausflugsziele der Art Spielplatz (auch die aus Sport und Spiel umgezogenen) laufen unter der Art 🛝 Spielplatz
-  trips().forEach(x=>{const k=tripKinds().find(c=>c[0]===x.kind),sp=x.kind==="spiel";L.push({t:"t",id:x.id,ic:emoOf(x,k?k[1]:"🚲"),name:x.name,art:sp?"spielplatz":"ausflug",artL:sp?"Spielplatz":"Ausflugsziel"+(k&&k[0]!=="sonst"?" · "+k[2]:""),u:"hier",st:tripSt(x),date:x.date,place:x.place||x.name,rain:x.wx==="egal",pack:x.pack&&packLists().find(p=>p.id===x.pack),also:gmAlso(x),at:x.at||0})});
+  trips().forEach(x=>{const k=tripKinds().find(c=>c[0]===x.kind),sp=x.kind==="spiel";L.push({t:"t",id:x.id,ic:emoOf(x,k?k[1]:"🚲"),name:x.name,art:sp?"spielplatz":"ausflug",artL:(sp?"Spielplatz":"Ausflugsziel"+(k&&k[0]!=="sonst"?" · "+k[2]:""))+(x.maps?" · 🗺️ in Maps":""),u:"hier",st:tripSt(x),date:x.date,place:x.place||x.name,rain:x.wx==="egal",pack:x.pack&&packLists().find(p=>p.id===x.pack),also:gmAlso(x),at:x.at||0})});
   funde("reise").forEach(f=>{const k=fundKind(f.kind,"reise"),u=f.reise&&U.find(y=>y.id===f.reise);L.push({t:"f",id:f.id,ic:k[1],name:f.name,art:k[0],artL:k[2]+(f.st==="gebucht"?" · gebucht":""),u:u?u.id:"hier",uL:u?(u.emo||"⛵")+" "+u.name:"",st:f.st==="gebucht"?"erledigt":f.st||"idee",place:f.addr||f.place||(u?f.name+" "+(u.place||""):""),ref:f.ref||"",also:gmAlso(f),at:f.at||0})});
   return L.sort((a,b)=>(b.at||0)-(a.at||0))}
 const refMask=r=>"****"+String(r||"").slice(-2);
@@ -3146,6 +3149,10 @@ function atipFixCards(){let all=atipItems().filter(i=>i.dauer).sort((a,b)=>((a.w
   const wx=S.atipWX||"",c=S.atipC||"";if(wx||c){const m=all.filter(i=>(wx&&(Array.isArray(i.wx)?i.wx:[i.wx]).includes(wx))||(c&&atipCat(i)===c));if(m.length)all=m}
   const sea=season(),SN={spring:"🌷 Frühling",summer:"☀️ Sommer",autumn:"🍂 Herbst",winter:"❄️ Winter"};
   return [["immer","✅ Geht immer",all.filter(i=>atipSeas(i).includes("immer"))],[sea,SN[sea]+": passt jetzt",all.filter(i=>atipSeas(i).includes(sea))]].map(([k,t,g])=>g.length?foldCard("fix_"+k,t,g.length,`<ul class="evlist atipl">${g.map(atipLi).join("")}</ul>`,false,"atipfix"):"").join("")}
+// In Google Maps speichern (Florian 19.11.2026: „ein Haken in die Liste aufnehmen wäre mega“, „auch in verschiedene“): die App kann nicht selbst in Maps-Listen schreiben; der Knopf öffnet den Ort in Maps, dort „Speichern“ zeigt alle Listen zum Anhaken; der Haken hier merkt nur, dass es erledigt ist (food/trip/<id>/maps)
+function mapsQ(q){return "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q)}
+function mapsRow(d){const q=(d.place||d.name||"").trim();if(!q)return "";const x=d.id&&trips().find(y=>y.id===d.id),on=!!(x&&x.maps);
+  return `<div class="mapsrow"><button class="ghost" data-mapsopen="${esc(q)}">🗺️ In Google Maps speichern</button>${d.id?`<button class="chipbtn neutral" data-tripmaps="${esc(d.id)}" aria-pressed="${on}">${on?"✓ Ist in Maps-Liste":"○ Ist in Maps-Liste"}</button>`:""}<span class="freq">In Maps auf „Speichern“ tippen und eine oder mehrere Listen anhaken.</span></div>`}
 function renderTripIdeas(){const d=S.tripDraft;
   if(d){const one=(f,L)=>`<div class="unl">${L.map(c=>`<button class="chipbtn" data-tset="${f}" data-v="${c[0]}" aria-pressed="${d[f]===c[0]}">${c.length>=3?c[1]+" "+c[2]:c[1]}</button>`).join("")}</div>`;
     const many=(f,L)=>`<div class="unl">${L.map(c=>`<button class="chipbtn" data-ttog="${f}" data-v="${c[0]}" aria-pressed="${csv(d[f]).includes(c[0])}">${c[1]}</button>`).join("")}</div>`;
@@ -3155,7 +3162,7 @@ function renderTripIdeas(){const d=S.tripDraft;
     <label class="fld"><span>Was</span><input type="text" id="tr-name" data-tf="name" value="${esc(d.name)}" maxlength="80" placeholder="Zum Beispiel Wasserfall im Wald" autocomplete="off"></label>${emoFld("data-tf",d.emo,"🏞️")}
     <label class="fld"><span>Wann (optional, steht dann im Kalender)</span><input type="date" id="tr-date" data-tf="date" value="${esc(d.date||"")}"></label>
     <div class="fld"><span>Für wen</span>${one("who",whoOpts().filter(o=>o[0]!=="both").map(o=>[o[0],o[1]]))}</div>
-    <div class="fld"><span>Wo</span><input type="text" id="tr-place" data-tf="place" value="${esc(d.place||"")}" maxlength="160" placeholder="Zum Beispiel Bahnhof Starnberg" autocomplete="off">${placeChips(d.place||"")}</div>
+    <div class="fld"><span>Wo</span><input type="text" id="tr-place" data-tf="place" value="${esc(d.place||"")}" maxlength="160" placeholder="Zum Beispiel Bahnhof Starnberg" autocomplete="off">${placeChips(d.place||"")}</div>${mapsRow(d)}
     <div class="fld"><span>Art</span>${one("kind",tripKinds())}<div class="unl">${catBtn("trip")}</div></div>
     ${gmMaskRow("trip",d.id)}
     <label class="fld"><span>Link</span><input type="url" id="tr-link" data-tf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off"></label>
@@ -5123,6 +5130,8 @@ app.addEventListener("click",async e=>{
   if(b.dataset.packrm){try{await buyDropRef("pack:"+b.dataset.packrm);await S.store.setPath("food/pack/"+b.dataset.packrm,null)}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.act==="packreset"){for(const i of packs().filter(x=>x.done&&(x.list||"main")===curPack().id)){try{await S.store.setPath("food/pack/"+i.id+"/done",false)}catch(_){}}return}
   if(b.dataset.tripdone){const x=trips().find(y=>y.id===b.dataset.tripdone);if(x){try{await S.store.setPath("food/trip/"+x.id+"/done",!x.done);await S.store.setPath("food/trip/"+x.id+"/doneAt",x.done?null:Date.now())}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}return}
+  if(b.dataset.mapsopen){window.open(mapsQ(placeAddr(b.dataset.mapsopen)),"_blank","noopener");return}
+  if(b.dataset.tripmaps){const id=b.dataset.tripmaps,x=trips().find(y=>y.id===id);if(x){try{await S.store.setPath("food/trip/"+id+"/maps",x.maps?null:Date.now());render()}catch(_){toast("Konnte nicht speichern.")}}return}
   if(b.dataset.tripedit){const x=trips().find(y=>y.id===b.dataset.tripedit);if(x){S.tripDraft={id:x.id,who:x.who||"",emo:x.emo||"",name:x.name||"",note:x.note||"",link:x.link||"",kind:x.kind||"",wx:x.wx||"",dur:x.dur||"",drive:x.drive?String(x.drive):"",kid:x.kid||"",cost:x.cost||"",season:x.season||"",pack:x.pack||"",place:x.place||"",date:x.date||""};render();window.scrollTo(0,0)}return}
   if(b.dataset.act==="tripcancel"){S.tripDraft=null;render();return}
   if(b.dataset.act==="tripsave"){const d=S.tripDraft,name=(d.name||"").trim().slice(0,80);if(!name){toast("Bitte ein Ziel eintragen");return}
