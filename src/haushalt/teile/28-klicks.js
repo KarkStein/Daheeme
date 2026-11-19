@@ -406,6 +406,7 @@ app.addEventListener("click",async e=>{
     try{await S.store.setPath("food/lunchmap",u||null);S.lunchMapEdit=false;S.lunchMapOpen=!!mapsEmbed(u);render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.idea){const x=((S.ideas&&S.ideas.items)||[])[+b.dataset.idea];if(!x)return;recWohin(recVal(x));return}
   if(b.dataset.openrec){openRec(b.dataset.openrec);return}
+  if(b.dataset.tagfix||b.dataset.rdbgo!=null||/^(tagfix|tagbasic|rdbing)/.test(b.dataset.act||"")){if(await tagClick(b))return}
   if(b.dataset.srclink===KITA_SRC){S.prev=S.tab;S.tab="kita";S.kitaSec="tasche";render();window.scrollTo(0,0);return}
   if(b.dataset.srclink&&/^adventskalender/i.test(b.dataset.srclink)){const m=b.dataset.srclink.match(/(\d+)\s*$/);S.prev=S.tab;S.tab="geschenke";S.projFilter="advent";S.advCal=null;S.advDoor=m?+m[1]:null;render();window.scrollTo(0,0);return}
   if(b.dataset.srclink){const n=b.dataset.srclink.trim().toLowerCase(),r=recs().find(x=>x.name.trim().toLowerCase()===n);if(r){openRec(r.id);return}else{
@@ -458,7 +459,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="rdbopen"){S.recDb=true;S.recDraft=null;render();window.scrollTo(0,0);return}
   if(b.dataset.act==="rdbclose"){S.recDb=false;render();window.scrollTo(0,0);return}
   if(b.dataset.act==="rdbreset"){S.rdbSel=[];S.rdbQ="";render();return}
-  if(b.dataset.rdbt){const t=b.dataset.rdbt,a=S.rdbSel||[];S.rdbSel=a.includes(t)?a.filter(x=>x!==t):a.concat(t);S.rdbOpen=!!b.closest(".rdbfilt");render();return}
+  if(b.dataset.rdbt){const t=b.dataset.rdbt,a=S.rdbSel||[];if(b.dataset.rdbsug)S.rdbQ="";S.rdbSel=a.includes(t)?a.filter(x=>x!==t):a.concat(t);S.rdbOpen=!!b.closest(".rdbfilt");render();return}
   if(b.dataset.rtagrm){try{await S.store.setPath("food/rectag/"+b.dataset.rtagrm,null);toast("Tag gelöscht")}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.act==="rtagnew"){const g=document.getElementById("rtaggrp"),el=document.getElementById("rtagnew"),v=(el&&el.value||"").trim().slice(0,30);if(!v||!g)return;S.rdbOpen=true;try{await S.store.setPath("food/rectag/"+newId("t"),{g:g.value,name:v,at:Date.now()});toast("Tag „"+v+"“ bei "+g.value+" dazu")}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.act==="recnew"){S.recDraft={id:null,name:"",ing:"",note:"",link:"",book:S.book||"main"};render();const el=document.getElementById("rec-name");if(el)el.focus();return}

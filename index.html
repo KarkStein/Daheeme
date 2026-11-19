@@ -826,6 +826,10 @@ a.minitile{text-decoration:none;color:inherit}
 .uheart{background:rgba(255,255,255,.12);border:none;border-radius:999px;color:inherit;font:inherit;font-size:var(--fs-xs);padding:var(--sp1) var(--sp2);flex:none}
 .mkgo{font-style:normal;color:var(--muted);padding:0 var(--sp2)}.reiseact{margin-top:var(--sp4);justify-content:center}
 .tripdash .carehead,.tripdash .carehead.open{color:inherit;margin:0}
+/* Rezepte: Wörterbuch, Tags aufräumen, Rezept-Fenster (19.11.2026) */
+.rdbsugg{margin-top:var(--sp2)}.rdbsugg:empty{display:none}.rdbing .setsum{width:100%}
+.tagfixl{list-style:none;margin:var(--sp2) 0;padding:0}.tagfixl li{display:flex;align-items:center;gap:var(--sp2);padding:var(--sp2) 0;border-top:1px solid var(--line)}.tagfixl li:first-child{border-top:none}.tfn{flex:1;min-width:0}.tfn b{display:block;overflow-wrap:anywhere}.tfn .freq{display:block}.tagfixl.done li{padding:var(--sp1) 0}
+#tagbasic{width:100%;margin-top:var(--sp1)}.recwin .ing{margin:var(--sp3) 0}.recwinb{flex-wrap:wrap}
 </style>
 
 <div class="app" id="app">
@@ -1618,7 +1622,9 @@ const UNIT_MAP={g:["g",1],gramm:["g",1],kg:["g",1000],ml:["ml",1],l:["ml",1000],
 function parseQty(line){const t=String(line||"").trim();const m=/^(\d+(?:[.,]\d+)?(?:\s*\/\s*\d+)?|[½¼¾⅓])(?:\s*[-–]\s*(\d+(?:[.,]\d+)?))?\s*([A-Za-zÄÖÜäöüß.]+)?\.?\s+(.*)$/.exec(t);
   if(!m)return {n:null,unit:"",rest:t};let v=m[2]||m[1];v={"½":.5,"¼":.25,"¾":.75,"⅓":1/3}[v]||(v.includes("/")?v.split("/").reduce((x,y)=>parseFloat(x)/parseFloat(y)):parseFloat(v.replace(",",".")));
   let u=(m[3]||"").replace(/\.$/,"").toLowerCase(),rest=m[4];if(u&&!UNIT_MAP[u]){rest=m[3]+" "+rest;u=""}const um=u?UNIT_MAP[u]:["",1];return {n:v*um[1],unit:um[0],rest:rest.trim()}}
-const ingKey=r=>r.toLowerCase().replace(/\([^)]*\)/g,"").replace(/,.*$/,"").replace(/[^a-zäöüß ]/g," ").replace(/(e|el|er)n\b/g,"$1").replace(/\s+/g," ").trim();
+// Akzente auf den Grundbuchstaben (Florian 19.11.2026: aus „Crème fraîche“ wurde sonst „cr me fra che“ und der Tag „che“); ä, ö, ü, ß bleiben
+const deAcc=s=>String(s||"").replace(/[éèêë]/g,"e").replace(/[àâáã]/g,"a").replace(/[îïíì]/g,"i").replace(/[ôóò]/g,"o").replace(/[ûùú]/g,"u").replace(/ç/g,"c").replace(/ñ/g,"n");
+const ingKey=r=>deAcc(r.toLowerCase()).replace(/\([^)]*\)/g,"").replace(/,.*$/,"").replace(/[^a-zäöüß ]/g," ").replace(/(e|el|er)n\b/g,"$1").replace(/\s+/g," ").trim();
 function fmtNum(x){return (Math.round(x*100)/100).toString().replace(".",",")}
 function fmtQty(n,unit){if(unit==="g"&&n>=1000)return fmtNum(n/1000)+" kg";if(unit==="ml"&&n>=1000)return fmtNum(n/1000)+" l";return fmtNum(n)+(unit?" "+unit:"")}
 function shopGroups(list){const out=[],by={};list.forEach(i=>{const q=parseQty(i.name),k=ingKey(q.rest)||i.name.toLowerCase();if(by[k])by[k].items.push(i);else{by[k]={key:k,items:[i]};out.push(by[k])}});
@@ -1688,11 +1694,12 @@ const REC_TAGS=[
  ["Quelle","📚",[["Kochbuch",r=>r._book],["Recherche",r=>!!r._pool],["eigene",r=>!r.link]]]];
 const recTagExtra=()=>listOf(S.food&&S.food.rectag);
 function recTagGroups(){return REC_TAGS.map(g=>[g[0],g[1],g[2].map(t=>t[0]).concat(recTagExtra().filter(x=>x.g===g[0]).map(x=>x.name))])}
-function recZut(lines){const out=[];lines.forEach(l=>{if(out.length>=8)return;const q=parseQty(l),k=ingKey(q.rest||l).split(" ").filter(w=>w.length>2&&!/^(und|oder|mit|frisch|frische|gehackt|gerieben|klein|groß|große|etwas|prise|zum|für|nach|bio)$/.test(w));if(!k.length)return;const w=k[k.length-1];if(isPantry(w))return;const n=w.charAt(0).toUpperCase()+w.slice(1);if(!out.includes(n))out.push(n)});return out}
+function recZut(lines){return tagZut(lines)}
+function recZutOld(lines){const out=[];lines.forEach(l=>{if(out.length>=8)return;const q=parseQty(l),k=ingKey(q.rest||l).split(" ").filter(w=>w.length>2&&!/^(und|oder|mit|frisch|frische|gehackt|gerieben|klein|groß|große|etwas|prise|zum|für|nach|bio)$/.test(w));if(!k.length)return;const w=k[k.length-1];if(isPantry(w))return;const n=w.charAt(0).toUpperCase()+w.slice(1);if(!out.includes(n))out.push(n)});return out}
 function recAuto(r){const lines=Array.isArray(r.ing)?r.ing:recIng(r),n=String(r.name||"").toLowerCase(),t=n+" "+lines.join(" ").toLowerCase(),pool=weekPool().find(x=>x.src!=="rezept"&&x.name.toLowerCase()===n.trim());
   const R={link:r.link||"",_n:n,_t:t,_veg:isVeg({name:r.name,ing:lines}),_h:hauptOf(t),_min:+r.min||(pool&&+pool.min)||0,_pool:!!(pool&&!r.id),_book:!!r.id};
   const out=[];REC_TAGS.forEach(g=>g[2].forEach(([nm,f])=>{try{if(f(R))out.push(g[0]+"|"+nm)}catch(_){}}));recZut(lines).forEach(z=>out.push("Zutaten|"+z));
-  if(pool&&Array.isArray(pool.tags))pool.tags.forEach(t=>{t=String(t);if(t.includes("|")&&!/^Quelle\|Emmi$/.test(t)&&!out.includes(t))out.push(t)});return out}
+  if(pool&&Array.isArray(pool.tags))pool.tags.forEach(t=>{t=String(t);if(t.startsWith("Zutaten|")){const f=tagFix(tagLab(t));if(!f.to||out.filter(x=>x.startsWith("Zutaten|")).length>=5)return;t="Zutaten|"+f.to}if(t.includes("|")&&!/^Quelle\|Emmi$/.test(t)&&!out.includes(t))out.push(t)});return out}
 function recTags(r){if(Array.isArray(r.tags))return r.tags;if(r.tags&&typeof r.tags==="object")return Object.values(r.tags);return recAuto(r)}
 function draftTags(d){const auto=recAuto({name:d.name,ing:d.ing,link:d.link,id:d.id||"neu",min:d.min}),off=d.tagsOff||[],own=d.tagsOwn||[];return {auto,off,own,final:auto.filter(t=>!off.includes(t)).concat(own.filter(t=>!auto.includes(t)))}}
 function tagLab(t){const [g,n]=t.split("|");return n||t}
@@ -1725,19 +1732,23 @@ function recTagForm(d){const T=draftTags(d),on=t=>T.final.includes(t);
   return `<details class="tagbox" open><summary><b>🏷️ Tags für die Filter</b> <span class="freq">${T.final.length} gewählt · vorausgewählt aus dem Rezept, antippen wählt ab</span></summary>
     ${groups}<div class="taggrp"><span class="freq">🥕 Zutaten</span><div class="unl">${zut.map(chip).join("")||`<span class="freq">erscheinen, sobald Zutaten drinstehen</span>`}</div></div>
     <div class="taggrp"><span class="freq">✏️ Eigene</span><div class="unl">${own.map(chip).join("")}</div><div class="addrow"><input id="rtagown" placeholder="Eigener Tag, z. B. Lieblingsessen" maxlength="30" autocomplete="off"><button type="button" class="primary" data-act="rtagown">+</button></div></div></details>`}
-function renderRecDb(){const q=(S.rdbQ||"").toLowerCase().trim(),sel=S.rdbSel||[],R=recs();
+function renderRecDb(){const q=sNorm(S.rdbQ||"").trim(),sel=S.rdbSel||[],R=recs();
   const all=R.map(r=>({r,t:recTags(r)})),cnt={};all.forEach(x=>x.t.forEach(t=>cnt[t]=(cnt[t]||0)+1));
-  const hit=x=>sel.every(t=>x.t.includes(t))&&(!q||(x.r.name+" "+(x.r.ing||"")+" "+x.t.map(tagLab).join(" ")).toLowerCase().includes(q));
-  const L=all.filter(hit).sort((a,b)=>a.r.name.localeCompare(b.r.name,"de"));
+  // Suche nur in Name und Tags; was nur in den Zutaten steht, kommt zugeklappt darunter (Florian 19.11.2026)
+  const top=x=>!q||sNorm(x.r.name+" "+x.t.map(tagLab).join(" ")).includes(q),bySel=all.filter(x=>sel.every(t=>x.t.includes(t)));
+  const L=bySel.filter(top).sort((a,b)=>a.r.name.localeCompare(b.r.name,"de")),LI=q?bySel.filter(x=>!top(x)&&sNorm(x.r.ing||"").includes(q)).sort((a,b)=>a.r.name.localeCompare(b.r.name,"de")):[];
+  const row=x=>{const b=books().find(k=>k.id===recBook(x.r)),main=x.t.filter(t=>!t.startsWith("Zutaten|")&&!t.startsWith("Quelle|")).slice(0,4).map(tagLab);return `<li><button class="dishlink" data-openrec="${esc(x.r.id)}"><span class="ev"><b>${esc(x.r.name)}</b><br><span class="freq">${b?esc(b.name):""}${main.length?" · "+esc(main.join(" · ")):""}${safeLink(x.r.link)?" · 🔗":""}</span></span><i>›</i></button><button class="catbtn" data-cook="rec|${esc(x.r.id)}" aria-label="${esc(x.r.name)} kochen: Tag wählen" style="background:none;border:none;padding:8px 4px">🍲</button></li>`};
   const chip=t=>`<button class="chipbtn neutral" data-rdbt="${esc(t)}" aria-pressed="${sel.includes(t)}">${esc(tagLab(t))} <span class="freq">${cnt[t]||0}</span></button>`;
   const groups=recTagGroups().concat([["Zutaten","🥕",Object.keys(cnt).filter(t=>t.startsWith("Zutaten|")).sort((a,b)=>cnt[b]-cnt[a]).slice(0,16).map(tagLab)],["Eigene","✏️",Object.keys(cnt).filter(t=>t.startsWith("Eigene|")).map(tagLab)]]);
   let h=`<div class="btnrow"><button class="ghost" data-act="rdbclose">‹ Rezepte</button></div><section class="card"><div class="section-head"><h2>🔎 Rezept-Datenbank</h2><span class="freq num">${L.length} von ${R.length}</span></div>
-    <input type="search" id="rdbq" value="${esc(S.rdbQ||"")}" placeholder="Suchen: Name, Zutat, Tag" autocomplete="off" aria-label="Rezepte durchsuchen">
+    <input type="search" id="rdbq" value="${esc(S.rdbQ||"")}" placeholder="Suchen: Name oder Tag" autocomplete="off" aria-label="Rezepte durchsuchen"><div class="unl rdbsugg" id="rdbsugg">${rdbSuggHtml(S.rdbQ||"",cnt)}</div>
     ${sel.length?`<div class="unl" style="margin-top:6px">${sel.map(t=>`<button class="chipbtn" data-rdbt="${esc(t)}" aria-pressed="true">✕ ${esc(tagLab(t))}</button>`).join("")}<button class="ghost" data-act="rdbreset">Alle Filter weg</button></div>`:""}</section>`;
   h+=`<details class="card rdbfilt"${S.rdbOpen?" open":""}><summary><b>Filter</b> <span class="freq">nur Tags, die in euren Rezepten vorkommen</span></summary>${groups.map(g=>{const ts=g[2].map(n=>g[0]+"|"+n).filter(t=>cnt[t]);return ts.length?`<div class="taggrp"><span class="freq">${g[1]} ${esc(g[0])}</span><div class="unl">${ts.map(chip).join("")}</div></div>`:""}).join("")}
     ${recTagExtra().length?`<div class="taggrp"><span class="freq">Eigene Tags (✕ löscht den Tag aus dem Filter, Rezepte behalten ihn)</span><div class="unl">${recTagExtra().map(x=>`<button class="chipbtn neutral" data-rtagrm="${esc(x.id)}" aria-label="Tag ${esc(x.name)} löschen">${esc(x.name)} ✕</button>`).join("")}</div></div>`:""}<div class="taggrp"><span class="freq">Filter pflegen: eigenen Tag zu einer Gruppe dazu</span><div class="addrow"><select id="rtaggrp">${REC_TAGS.map(g=>`<option>${esc(g[0])}</option>`).join("")}</select><input id="rtagnew" placeholder="z. B. griechisch" maxlength="30" autocomplete="off"><button class="primary" data-act="rtagnew">+</button></div></div></details>`;
-  h+=L.length?`<section class="card"><ul class="evlist rdblist">${L.map(x=>{const b=books().find(k=>k.id===recBook(x.r)),main=x.t.filter(t=>!t.startsWith("Zutaten|")&&!t.startsWith("Quelle|")).slice(0,4).map(tagLab);return `<li><button class="dishlink" data-openrec="${esc(x.r.id)}"><span class="ev"><b>${esc(x.r.name)}</b><br><span class="freq">${b?esc(b.name):""}${main.length?" · "+esc(main.join(" · ")):""}${safeLink(x.r.link)?" · 🔗":""}</span></span><i>›</i></button><button class="catbtn" data-cook="rec|${esc(x.r.id)}" aria-label="${esc(x.r.name)} kochen: Tag wählen" style="background:none;border:none;padding:8px 4px">🍲</button></li>`}).join("")}</ul></section>`
-    :`<div class="empty"><h2>${R.length?"Nichts gefunden":"Noch keine Rezepte"}</h2><div>${R.length?"Weniger Filter wählen oder anders suchen.":"Legt Rezepte an, sie landen hier mit Tags."}</div></div>`;
+  h+=tagFixCard();
+  if(LI.length)h+=`<section class="card rdbing"><button class="setsum" data-act="rdbing" aria-expanded="${!!S.rdbIng}"><span>🥕 Steht auch in den Zutaten von ${LI.length} ${LI.length===1?"Rezept":"Rezepten"}</span><i>${S.rdbIng?"▾":"›"}</i></button>${S.rdbIng?`<ul class="evlist rdblist">${LI.map(row).join("")}</ul>`:""}</section>`;
+  h+=L.length?`<section class="card"><ul class="evlist rdblist">${L.map(row).join("")}</ul></section>`
+    :LI.length?"":`<div class="empty"><h2>${R.length?"Nichts gefunden":"Noch keine Rezepte"}</h2><div>${R.length?"Weniger Filter wählen oder anders suchen.":"Legt Rezepte an, sie landen hier mit Tags."}</div></div>`;
   return h}
 function renderRecipes(){const d=S.recDraft,bk=S.book||"main",list=recs().filter(r=>recBook(r)===bk),bobj=books().find(b=>b.id===bk)||books()[0];
   if(d)return `<section class="card"><h2>${d.id?"Rezept bearbeiten":"Neues Rezept"}</h2>
@@ -1953,7 +1964,10 @@ async function cookStart(ref){const it=cookItem(ref);if(!it){toast("Rezept nicht
 const repNext=(d,r)=>r==="d"?addDays(d,1):r==="w"?addDays(d,7):r==="y"?new Date(d.getFullYear()+1,d.getMonth(),d.getDate()):new Date(d.getFullYear(),d.getMonth()+1,d.getDate());
 async function prioDropRef(refs){for(const x of prios().filter(p=>p.ref&&refs.includes(p.ref)))await S.store.setPath("food/prio/"+x.id,null)}
 async function recDrop(r){if(shopBlocks()[r.name])await shopRemoveBlock(r.name);const plan=(S.food&&S.food.plan)||{};for(const wk of Object.keys(plan))for(const k of Object.keys(plan[wk]||{}))if(plan[wk][k]&&plan[wk][k].rec===r.id)await S.store.setPath("food/plan/"+wk+"/"+k+"/rec",null);await prioDropRef([r.id]);await S.store.setPath("food/rec/"+r.id,null)}
-function openRec(id){const r=recs().find(x=>x.id===id);S.tab="essen";S.foodTab="rezepte";S.recDraft=null;S.recOpen=id;if(r)S.book=recBook(r);render();const el=document.querySelector('[data-rec="'+CSS.escape(id)+'"]');if(el)el.closest("section").scrollIntoView({block:"start"});else window.scrollTo(0,0)}
+function openRec(id){const r=recs().find(x=>x.id===id);
+  // In der Rezept-Datenbank geht das Rezept als Fenster auf (Florian 19.11.2026: vorher passierte scheinbar nichts, weil die Datenbank gleich wieder gezeichnet wurde)
+  if(r&&S.tab==="essen"&&S.foodTab==="rezepte"&&S.recDb&&!S.recDraft){recWin(id);return}S.recDb=false;
+  S.tab="essen";S.foodTab="rezepte";S.recDraft=null;S.recOpen=id;if(r)S.book=recBook(r);render();const el=document.querySelector('[data-rec="'+CSS.escape(id)+'"]');if(el)el.closest("section").scrollIntoView({block:"start"});else window.scrollTo(0,0)}
 function dishKey(d){const mon=mondayOf(d);return wkKey(mon)+"|d"+((d.getDay()+6)%7)}
 function dishName(mi,key,cls){return mi.r?`<button class="dishlink ${cls||""}" data-openrec="${esc(mi.r.id)}">${esc(mi.name)} <i>›</i></button>`:`<button class="dishlink ${cls||""}" data-dishopen="${esc(key)}" aria-expanded="${S.dishOpen===key}">${esc(mi.name)} <i>${S.dishOpen===key?"▴":"›"}</i></button>`}
 function dishMore(mi,key){if(mi.r||S.dishOpen!==key)return "";return `<div class="dishmore">${mi.link?`<a class="primary btnlink wide" href="${esc(mi.link)}" target="_blank" rel="noopener">🔗 Zum Rezept · ${esc((()=>{try{return new URL(mi.link).hostname.replace(/^www\./,"")}catch(_){return "Link"}})())}</a>`:""}${mi.ing.length?`<ul class="ing">${mi.ing.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}<div class="btnrow"><button class="ghost" data-dishsave="${esc(key)}">📖＋ Als eigenes Rezept speichern</button></div></div>`}
@@ -2043,6 +2057,108 @@ function wishResHtml(w){const any=w.lust||w.mit||w.ohne||w.wie;if(!any)return ""
   if(!L.length)return `<div class="freq wishnone">Bei euch nichts Passendes. Unten im Netz weitersuchen.</div>`;
   return `<ul class="evlist wishlist">${L.map(({x,why})=>{const own=x.src==="rezept"&&x.rec,ref=own?"rec|"+x.rec:"pool|"+x.name;
     return `<li><span class="t">${own?"📖":"✨"}</span><span class="n">${own?`<button class="linkbtn" data-openrec="${esc(x.rec)}">${esc(x.name)}</button>`:esc(x.name)}${why?`<small>${esc(why)}</small>`:""}</span><span class="wishbtns">${!own&&safeLink(x.link)?`<a class="iconbtn" href="${esc(x.link)}" target="_blank" rel="noopener" aria-label="Rezept öffnen">🔗</a>`:""}<button class="iconbtn" data-cook="${esc(ref)}" aria-label="${esc(x.name)} kochen">🍲</button></span></li>`}).join("")}</ul>`}
+// ---------- Rezepte: ein Wörterbuch für Tags, Suche und Vorschläge (Florian 19.11.2026, „A: Alles zusammen“, Entwurf /mnt/project-files/design/rezepte-woerterbuch.png) ----------
+// Zutaten-Tags entstehen nur noch aus Wörtern des Wörterbuchs (TAG_DICT, Einkaufs-Grundliste SHOP_BASE, Einkaufs-Gedächtnis food/fav, Hauptzutaten HAUPT_KW, eigene Tags).
+// Grundzutaten (food/pref/tagbasic, sonst TAG_BASIC) werden nie ein Tag; höchstens 5 je Rezept, Hauptzutaten zuerst; Einzahl und Mehrzahl sind ein Tag (tagStem);
+// ein Buchstabe daneben wird korrigiert (tagNear); Unbekanntes und Wörter unter 4 Buchstaben werden kein Tag.
+const TAG_DICT="Crème fraîche,Saure Sahne,Rote Bete,Passierte Tomaten,Gehackte Tomaten,Getrocknete Tomaten,Frühlingszwiebel,Blätterteig,Hefeteig,Mürbeteig,Kidneybohnen,"+
+  "Champignon,Pilz,Pfifferling,Steinpilz,Knödel,Sahne,Schmand,Quark,Joghurt,Milch,Käse,Feta,Mozzarella,Parmesan,Gouda,Bergkäse,Frischkäse,Mascarpone,Ricotta,Halloumi,Eier,Tofu,"+
+  "Haselnuss,Walnuss,Mandel,Cashew,Erdnuss,Pinienkern,Sesam,Kokosmilch,Haferflocken,Grieß,Polenta,Couscous,Bulgur,Quinoa,Hirse,Dinkel,Reis,Risottoreis,Nudeln,Spaghetti,Penne,Lasagneplatten,Gnocchi,Spätzle,Tortellini,Maultaschen,Tortilla,Wraps,Brot,Toast,Brötchen,Semmelbrösel,"+
+  "Kartoffel,Süßkartoffel,Möhre,Karotte,Tomate,Gurke,Paprika,Zucchini,Aubergine,Brokkoli,Blumenkohl,Kürbis,Hokkaido,Lauch,Porree,Sellerie,Pastinake,Kohlrabi,Wirsing,Weißkohl,Rotkohl,Spitzkohl,Rosenkohl,Grünkohl,Sauerkraut,Spinat,Mangold,Rucola,Salat,Feldsalat,Fenchel,Spargel,Erbse,Mais,Bohne,Linse,Kichererbse,Radieschen,Rettich,Bärlauch,Ingwer,Chili,Avocado,Olive,Kapern,"+
+  "Apfel,Birne,Banane,Zitrone,Limette,Orange,Erdbeere,Himbeere,Heidelbeere,Beere,Kirsche,Zwetschge,Pflaume,Aprikose,Pfirsich,Mango,Ananas,Rhabarber,Rosine,Dattel,"+
+  "Hähnchen,Hähnchenbrust,Pute,Rind,Rindfleisch,Schwein,Schweinefleisch,Hackfleisch,Speck,Schinken,Wurst,Würstchen,Salami,Lachs,Forelle,Thunfisch,Kabeljau,Seelachs,Garnele,Fischstäbchen,"+
+  "Tomatenmark,Sojasauce,Pesto,Curry,Currypaste,Kokos,Honig,Ahornsirup,Schokolade,Kakao,Vanille,Zimt,Hefe,Backpulver,Tahin,Hummus,Erdnussbutter,Kürbiskerne,Sonnenblumenkerne";
+const TAG_BASIC="Salz, Pfeffer, Öl, Olivenöl, Rapsöl, Sonnenblumenöl, Wasser, Zucker, Mehl, Butter, Margarine, Knoblauch, Zwiebel, Brühe, Gemüsebrühe, Essig, Senf, Paprikapulver, Petersilie, Schnittlauch, Basilikum, Kräuter, Muskat, Lorbeer, Thymian, Oregano, Speisestärke";
+const TAG_STOP=/^(und|oder|mit|ohne|frisch|frische|frischer|frisches|gehackt|gehackte|gerieben|geriebener|klein|kleine|gross|grosse|groß|große|etwas|prise|zum|zur|für|nach|bio|ca|evtl|tk|reif|reife|weich|weiche|fein|grob|ganz|ganze|halb|halbe|dose|dosen|glas|bund|pck|packung|becher|stück|scheibe|scheiben|zehe|zehen|stange|stangen|blatt|blätter|zweig|zweige|esslöffel|teelöffel|liter|gramm|braten|anbraten|bestreuen|servieren|geschmack|belieben|bedarf)$/;
+const tagStem=w=>{w=deAcc(String(w||"").toLowerCase()).replace(/ä/g,"a").replace(/ö/g,"o").replace(/ü/g,"u").replace(/ß/g,"ss");if(w.length>4)w=w.replace(/([^s])s$/,"$1").replace(/(en|er|e|n)$/,"");return w};
+const tagWords=t=>deAcc(String(t||"").toLowerCase()).split(/[^a-zäöüß]+/).filter(Boolean);
+const tagKey=t=>tagWords(t).map(tagStem).join(" ");
+const tagBasicTxt=()=>{const v=S.food&&S.food.pref&&S.food.pref.tagbasic;return typeof v==="string"&&v.trim()?v:TAG_BASIC};
+let TAGC=null;
+// Wörterbuch: Schlüssel (Wortstämme) → Anzeigename; das zuerst genannte Wort gewinnt (TAG_DICT hat die schönen Einzahl-Formen)
+function tagDict(){const fav=(S.food&&S.food.fav)||null,ex=(S.food&&S.food.rectag)||null,bt=tagBasicTxt();if(TAGC&&TAGC.fav===fav&&TAGC.ex===ex&&TAGC.bt===bt)return TAGC;
+  const D=new Map(),add=n=>{n=String(n||"").trim();if(n.length<2||n.length>40)return;const k=tagKey(n);if(k&&!D.has(k))D.set(k,n.charAt(0).toUpperCase()+n.slice(1))};
+  TAG_DICT.split(",").forEach(add);SHOP_BASE.forEach(add);HAUPT_KW.forEach(h=>add(h[0]));
+  if(fav)Object.keys(fav).forEach(k=>{const f=fav[k];if(f&&f.name&&(f.n||0)>0)add(qtySplit(f.name).rest||f.name)});
+  recTagExtra().forEach(x=>add(x.name));
+  const B=new Set(bt.split(/[,;\n]/).map(tagKey).filter(Boolean)),multi=[...D.keys()].filter(k=>k.includes(" ")),one=[...D.keys()].filter(k=>!k.includes(" "));
+  return TAGC={fav,ex,bt,D,B,multi,one}}
+const tagLev1=(a,b)=>{if(a===b)return true;const la=a.length,lb=b.length;if(Math.abs(la-lb)>1)return false;let i=0;while(i<la&&i<lb&&a[i]===b[i])i++;
+  return la===lb?a.slice(i+1)===b.slice(i+1):la>lb?a.slice(i+1)===b.slice(i):a.slice(i)===b.slice(i+1)};
+function tagNear(st){if(st.length<5)return "";const C=tagDict();for(const k of C.one)if(k.length>=5&&k[0]===st[0]&&!C.B.has(k)&&tagLev1(k,st))return C.D.get(k);return ""}
+// Ein Tag-Name gegen das Wörterbuch: {to: richtiger Name oder "" = kein Tag, why}
+function tagFix(name){const C=tagDict(),k=tagKey(name),lab=String(name||"").trim();if(!k)return {to:"",why:"leer"};
+  if(C.B.has(k))return {to:"",why:"Grundzutat"};
+  if(C.D.has(k)){const to=C.D.get(k);return {to,why:to===lab?"":"wie "+to}}
+  if(lab.replace(/[^A-Za-zÄÖÜäöüß]/g,"").length<4)return {to:"",why:"zu kurz"};
+  const n=tagNear(k);if(n)return {to:n,why:"fast wie "+n};
+  return {to:"",why:"nicht im Wörterbuch"}}
+// Zutatenzeilen → höchstens 5 Tags, Hauptzutaten zuerst
+function tagZut(lines){const C=tagDict(),out=[];
+  (lines||[]).forEach(l=>{const q=parseQty(l),txt=String(q.rest||l).replace(/\([^)]*\)/g," ").replace(/,.*$/,""),W=tagWords(txt).filter(w=>!TAG_STOP.test(w)),St=W.map(tagStem);if(!W.length)return;let hit="";
+    for(let n=3;n>=2&&!hit;n--)for(let i=0;i+n<=St.length&&!hit;i++){const k=St.slice(i,i+n).join(" ");if(C.B.has(k))return;if(C.D.has(k))hit=C.D.get(k)}
+    for(let i=St.length-1;i>=0&&!hit;i--){const k=St[i];if(C.B.has(k)||isPantry(W[i]))continue;if(C.D.has(k)){hit=C.D.get(k);break}
+      if(k.length>=7){const s=C.one.filter(d=>d.length>=5&&k.endsWith(d)&&!C.B.has(d)).sort((a,b)=>b.length-a.length)[0];if(s){hit=C.D.get(s);break}}}
+    if(!hit){const i=St.length-1,k=St[i];if(W[i].length>=5&&!C.B.has(k)&&!isPantry(W[i]))hit=tagNear(k)}
+    if(hit&&!C.B.has(tagKey(hit))&&!out.includes(hit))out.push(hit)});
+  const hp=n=>hauptOf(n.toLowerCase()).length?0:1;return out.map((n,i)=>[n,i]).sort((a,b)=>hp(a[0])-hp(b[0])||a[1]-b[1]).map(x=>x[0]).slice(0,5)}
+// ---------- Tags aufräumen ----------
+const tagFixState=()=>(S.food&&S.food.tagfix)||{};
+const recTagArr=r=>Array.isArray(r.tags)?r.tags:r.tags&&typeof r.tags==="object"?Object.values(r.tags):null;
+// Verdächtige Zutaten-Tags in den gespeicherten Rezepten: [{tag,lab,n,to,why}]
+function tagSuggs(){const cnt={};recs().forEach(r=>(recTagArr(r)||[]).forEach(t=>{if(String(t).startsWith("Zutaten|"))cnt[t]=(cnt[t]||0)+1}));
+  return Object.keys(cnt).map(t=>{const lab=tagLab(t),f=tagFix(lab);return {tag:t,lab,n:cnt[t],to:f.to,why:f.why}}).filter(x=>x.to!==x.lab).sort((a,b)=>b.n-a.n||a.lab.localeCompare(b.lab,"de"))}
+// Änderungen schreiben: ch = [[rezept, neue Tag-Liste]], log = [{from,to,n}]; der Stand davor bleibt je Rezept in food/tagfix/old (der älteste gewinnt), für ↩ Rückgängig
+async function tagWrite(ch,log,auto){const st=tagFixState(),old=Object.assign({},st.old||{});
+  for(const [r,T] of ch){if(!(r.id in old))old[r.id]=(recTagArr(r)||[]).slice();await S.store.setPath("food/rec/"+r.id+"/tags",T);
+    if(Array.isArray(r.tagsOwn)){const own=r.tagsOwn.filter(t=>!String(t).startsWith("Zutaten|")||T.includes(t));if(own.length!==r.tagsOwn.length)await S.store.setPath("food/rec/"+r.id+"/tagsOwn",own.length?own:null)}}
+  const L=(Array.isArray(st.log)?st.log:[]).concat(log).slice(-60);
+  await S.store.setPath("food/tagfix",{auto:true,at:Date.now(),old:Object.keys(old).length?old:null,log:L.length?L:null})}
+async function tagApply(list){const ch=[],log=[];const M=new Map(list.map(x=>[x.tag,x]));
+  recs().forEach(r=>{const T=recTagArr(r);if(!T||!T.some(t=>M.has(t)))return;const N=[];T.forEach(t=>{const x=M.get(t),v=x?(x.to?"Zutaten|"+x.to:""):t;if(v&&!N.includes(v))N.push(v)});ch.push([r,N])});
+  list.forEach(x=>log.push({from:x.lab,to:x.to||"",n:x.n}));if(ch.length)await tagWrite(ch,log)}
+// Einmal automatisch (food/tagfix/auto): Zutaten-Tags aller gespeicherten Rezepte nach den neuen Regeln; von Hand gesetzte (tagsOwn) bleiben
+let tagMigBusy=false;
+async function migTags(){if(tagMigBusy||!S.food||!S.food.rec||tagFixState().auto||!S.store)return;tagMigBusy=true;
+  try{const ch=[],agg={};
+    recs().forEach(r=>{const T=recTagArr(r);if(!T)return;const own=(Array.isArray(r.tagsOwn)?r.tagsOwn:[]).filter(t=>String(t).startsWith("Zutaten|")),off=Array.isArray(r.tagsOff)?r.tagsOff:[];
+      const Z=tagZut(recIng(r)).map(z=>"Zutaten|"+z).filter(t=>!off.includes(t));own.forEach(t=>{if(T.includes(t)&&!Z.includes(t))Z.push(t)});
+      const oldZ=T.filter(t=>String(t).startsWith("Zutaten|")),N=T.filter(t=>!String(t).startsWith("Zutaten|")).concat(Z);
+      if(oldZ.length===Z.length&&oldZ.every(t=>Z.includes(t)))return;ch.push([r,N]);
+      oldZ.filter(t=>!Z.includes(t)).forEach(t=>{const lab=tagLab(t),f=tagFix(lab),to=f.to&&Z.includes("Zutaten|"+f.to)?f.to:"",k=lab+"|"+to;(agg[k]=agg[k]||{from:lab,to,n:0}).n++})});
+    if(ch.length)await tagWrite(ch,Object.values(agg).sort((a,b)=>b.n-a.n).slice(0,40),true);else await S.store.setPath("food/tagfix/auto",true)}catch(_){}tagMigBusy=false}
+async function tagUndo(){const st=tagFixState(),old=st.old||{};for(const id of Object.keys(old)){if(S.food.rec&&S.food.rec[id])await S.store.setPath("food/rec/"+id+"/tags",old[id])}
+  await S.store.setPath("food/tagfix",{auto:true,at:Date.now(),undone:true})}
+function tagFixCard(){const G=tagSuggs(),st=tagFixState(),L=Array.isArray(st.log)?st.log:[],nOld=Object.keys(st.old||{}).length;
+  let b=G.length?`<ul class="tagfixl">${G.slice(0,30).map(x=>`<li><span class="tfn"><b>${esc(x.lab)}</b><span class="freq">${x.n} ${x.n===1?"Rezept":"Rezepte"} · ${esc(x.why)}</span></span><button class="${x.to?"primary":"ghost"} small" data-tagfix="${esc(x.tag)}">${x.to?"→ "+esc(x.to):"🗑 überall weg"}</button></li>`).join("")}</ul>${G.length>30?`<div class="freq">und ${G.length-30} weitere</div>`:""}<div class="btnrow"><button class="primary" data-act="tagfixall">✓ Alle ${G.length} Vorschläge übernehmen</button></div>`
+    :`<div class="freq">Alle Zutaten-Tags passen zum Wörterbuch.</div>`;
+  if(L.length)b+=`<div class="taggrp"><span class="freq">Zuletzt aufgeräumt${nOld?" · "+nOld+" "+(nOld===1?"Rezept":"Rezepte")+" geändert":""}</span><ul class="tagfixl done">${L.slice(-12).reverse().map(x=>`<li><span class="tfn"><b>${esc(x.from)}</b><span class="freq">${x.n} ${x.n===1?"Rezept":"Rezepte"}</span></span><span class="freq">${x.to?"→ "+esc(x.to):"entfernt"}</span></li>`).join("")}</ul>${nOld?`<div class="btnrow"><button class="ghost small" data-act="tagfixundo">↩ Rückgängig</button></div>`:""}</div>`;
+  else if(st.undone)b+=`<div class="freq">Das Aufräumen wurde zurückgenommen.</div>`;
+  b+=`<div class="taggrp"><span class="freq">Grundzutaten werden nie ein Tag (mit Komma getrennt)</span><textarea id="tagbasic" rows="3">${esc(tagBasicTxt())}</textarea><div class="btnrow"><button class="ghost small" data-act="tagbasicsave">Liste speichern</button>${tagBasicTxt()!==TAG_BASIC?`<button class="ghost small" data-act="tagbasicreset">↺ Vorgabe</button>`:""}</div></div>`;
+  return foldCard("f_tagfix","🧹 Tags aufräumen",G.length||"",b,false)}
+async function tagClick(b){
+  if(b.dataset.tagfix){const x=tagSuggs().find(y=>y.tag===b.dataset.tagfix);if(!x)return true;try{await tagApply([x]);toast(x.to?x.lab+" ist jetzt "+x.to:x.lab+" entfernt")}catch(_){toast("Konnte nicht speichern.")}render();return true}
+  if(b.dataset.act==="tagfixall"){const G=tagSuggs();try{await tagApply(G);toast(G.length+" Vorschläge übernommen")}catch(_){toast("Konnte nicht speichern.")}render();return true}
+  if(b.dataset.act==="tagfixundo"){try{await tagUndo();toast("Tags sind wieder wie vorher")}catch(_){toast("Konnte nicht speichern.")}render();return true}
+  if(b.dataset.act==="tagbasicsave"||b.dataset.act==="tagbasicreset"){const el=document.getElementById("tagbasic"),v=b.dataset.act==="tagbasicreset"?"":String(el&&el.value||"").trim().slice(0,1500);try{await S.store.setPath("food/pref/tagbasic",v&&v!==TAG_BASIC?v:null);toast("Grundzutaten gespeichert")}catch(_){toast("Konnte nicht speichern.")}render();return true}
+  if(b.dataset.act==="rdbing"){S.rdbIng=!S.rdbIng;render();return true}
+  if(b.dataset.rdbgo!=null){S.tab="essen";S.foodTab="rezepte";S.recDraft=null;S.recDb=true;S.rdbQ=b.dataset.rdbgo;S.rdbSel=[];S.rdbIng=true;render();window.scrollTo(0,0);return true}
+  return false}
+// ---------- Vorschläge beim Tippen in der Datenbank-Suche (wie shopSugg): Tags mit Anzahl und Rezeptnamen ----------
+function rdbSuggHtml(q,cnt){q=sNorm(q).trim();if(q.length<2)return "";const sel=S.rdbSel||[],GI={Zutaten:"🥕",Eigene:"✏️"};REC_TAGS.forEach(g=>GI[g[0]]=g[1]);
+  const T=Object.keys(cnt).filter(t=>!sel.includes(t)&&!t.startsWith("Quelle|")).map(t=>[t,sNorm(tagLab(t))]).filter(x=>x[1].includes(q)).sort((a,b)=>(a[1].startsWith(q)?0:1)-(b[1].startsWith(q)?0:1)||cnt[b[0]]-cnt[a[0]]).slice(0,4);
+  const R=recs().map(r=>[r,sNorm(r.name)]).filter(x=>x[1].includes(q)).sort((a,b)=>(a[1].startsWith(q)?0:1)-(b[1].startsWith(q)?0:1)||a[1].localeCompare(b[1])).slice(0,3);
+  return T.map(x=>`<button type="button" class="chipbtn rdbsg" data-rdbt="${esc(x[0])}" data-rdbsug="1">${GI[x[0].split("|")[0]]||"🏷️"} ${esc(tagLab(x[0]))} <span class="freq">${cnt[x[0]]}</span></button>`).join("")+R.map(x=>`<button type="button" class="chipbtn neutral rdbsg" data-openrec="${esc(x[0].id)}">📖 ${esc(x[0].name)}</button>`).join("")}
+// ---------- Rezept als Fenster über der Datenbank: Zurück schließt nur das Fenster, Suche und Filter bleiben ----------
+function recWin(id){const r=recs().find(x=>x.id===id);if(!r)return;mboxClose();S.mboxAt=Date.now();const ing=withQty(r.name,recIng(r)),link=safeLink(r.link),b=books().find(k=>k.id===recBook(r)),onList=!!shopBlocks()[r.name];let host="";if(link){try{host=new URL(link).hostname.replace(/^www\./,"")}catch(_){}}
+  const T=recTags(r).filter(t=>!t.startsWith("Quelle|")).slice(0,8).map(tagLab);
+  const el=document.createElement("div");el.id="mbox";
+  el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard recwin" role="dialog" aria-label="Rezept ${esc(r.name)}"><div class="section-head"><h2>${esc(r.name)}</h2><button type="button" class="ghost small" data-rw="x" aria-label="Schließen">✕</button></div>
+    <div class="freq">📚 ${esc(b?b.name:"Unsere Rezepte")}${host?" · 🔗 "+esc(host):""}${T.length?" · "+esc(T.join(" · ")):""}</div>
+    ${ing.length?`<ul class="ing">${ing.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<div class="freq" style="margin-top:var(--sp2)">Noch keine Zutaten eingetragen.</div>`}${r.note?`<div class="recnote">${esc(r.note)}</div>`:""}
+    <div class="btnrow recwinb"><button type="button" class="primary" data-rw="cook" data-rwv="rec|${esc(r.id)}">🍲 Kochen</button>${ing.length?`<button type="button" class="ghost" data-rw="${onList?"shopview":"recshop"}" data-rwv="${esc(onList?r.name:r.id)}">🧺 ${onList?"Auf der Liste":"Zutaten"}</button>`:""}${link?`<a class="ghost btnlink" href="${esc(link)}" target="_blank" rel="noopener noreferrer">🔗 Original</a>`:""}<button type="button" class="ghost" data-rw="recedit" data-rwv="${esc(r.id)}">✎ Bearbeiten</button></div></div>`;
+  document.body.appendChild(el);
+  el.addEventListener("click",e=>{const k=e.target.closest("[data-rw]");if(k){const a=k.dataset.rw;mboxClose();if(a!=="x")calFire("data-"+a+'="'+esc(k.dataset.rwv||"")+'"');return}if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose()})}
 // ---------- Privat: Themen zu zweit ----------
 const briefe=()=>listOf(S.food&&S.food.brief).sort((a,b)=>(a.at||0)-(b.at||0));
 // ---------- Wir › Kind (Florian 15.11.2026): Seite 2 von Wir; Name nur aus der Datenbank (food/pref/kidname) ----------
@@ -4192,7 +4308,9 @@ function searchHits(q){const W=sNorm(q).split(/\s+/).filter(Boolean);if(!W.lengt
   AREAS.forEach(a=>{if(a[2]==="camp")return;add("Bereiche",a[0],a[1],"",`data-nav="${a[2]}|"`);a[5]().forEach(x=>add("Bereiche",a[0],x[0],a[1],`data-nav="${a[2]}|${x[1]}"`))});
   add("Bereiche","📅","Kalender","Woche",'data-nav="woche|wp:3"');add("Bereiche","⚙️","Einstellungen","",'data-go="settings"');
   SET_ITEMS.forEach(x=>add("Einstellungen",x[1],x[2],"Einstellungen",`data-setgo="${x[0]}"`,x[3]));glosSearch(add);
-  recs().forEach(r=>add("Rezepte","📖",r.name,"Rezept",`data-openrec="${esc(r.id)}"`,(r.ing||"")+" "+(r.tags||[]).join(" ")));
+  // Rezepte: Treffer nur über Name und Tags; was nur in den Zutaten steht, kommt als eine Zeile, die die Rezept-Datenbank mit dieser Suche öffnet (Florian 19.11.2026)
+  {let nIng=0;recs().forEach(r=>{const n0=H.length;add("Rezepte","📖",r.name,"Rezept",`data-openrec="${esc(r.id)}"`,recTags(r).filter(t=>!String(t).startsWith("Quelle|")).map(tagLab).join(" "));if(H.length===n0&&W.every(w=>sNorm(r.ing||"").includes(w)||sNorm(r.name).includes(w)))nIng++});
+    if(nIng)H.push({grp:"Rezepte",ic:"🥕",name:"Steht auch in den Zutaten von "+nIng+(nIng===1?" Rezept":" Rezepten"),sub:"öffnet die Rezept-Datenbank",attr:`data-rdbgo="${esc(q.trim())}"`})}
   ((S.ideas&&S.ideas.items)||[]).concat((S.ideas&&S.ideas.emmi)||[]).forEach(x=>add("Rezepte","✨",x.name,"Tagesrezept",'data-nav="essen|ft:rezepte"',(x.ing||[]).join(" ")));
   Object.keys(F.plan||{}).forEach(wk=>{if(wk<wkKey(mondayOf(addDays(new Date(),-14))))return;Object.keys(F.plan[wk]||{}).forEach(d=>{const x=F.plan[wk][d];if(x&&x.text)add("Wochenplan","🍲",x.text,wk.replace(/^\d+-W/,"KW ")+" · "+(DAYN[+d.slice(1)]||""),'data-nav="essen|ft:plan"')})});
   listOf(F.shop).filter(x=>!x.done).forEach(x=>add("Einkaufsliste","🧺",x.name,"Einkaufsliste"+(x.src?" · "+x.src:""),'data-go="einkauf"'));
@@ -5044,6 +5162,7 @@ app.addEventListener("click",async e=>{
     try{await S.store.setPath("food/lunchmap",u||null);S.lunchMapEdit=false;S.lunchMapOpen=!!mapsEmbed(u);render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.idea){const x=((S.ideas&&S.ideas.items)||[])[+b.dataset.idea];if(!x)return;recWohin(recVal(x));return}
   if(b.dataset.openrec){openRec(b.dataset.openrec);return}
+  if(b.dataset.tagfix||b.dataset.rdbgo!=null||/^(tagfix|tagbasic|rdbing)/.test(b.dataset.act||"")){if(await tagClick(b))return}
   if(b.dataset.srclink===KITA_SRC){S.prev=S.tab;S.tab="kita";S.kitaSec="tasche";render();window.scrollTo(0,0);return}
   if(b.dataset.srclink&&/^adventskalender/i.test(b.dataset.srclink)){const m=b.dataset.srclink.match(/(\d+)\s*$/);S.prev=S.tab;S.tab="geschenke";S.projFilter="advent";S.advCal=null;S.advDoor=m?+m[1]:null;render();window.scrollTo(0,0);return}
   if(b.dataset.srclink){const n=b.dataset.srclink.trim().toLowerCase(),r=recs().find(x=>x.name.trim().toLowerCase()===n);if(r){openRec(r.id);return}else{
@@ -5096,7 +5215,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="rdbopen"){S.recDb=true;S.recDraft=null;render();window.scrollTo(0,0);return}
   if(b.dataset.act==="rdbclose"){S.recDb=false;render();window.scrollTo(0,0);return}
   if(b.dataset.act==="rdbreset"){S.rdbSel=[];S.rdbQ="";render();return}
-  if(b.dataset.rdbt){const t=b.dataset.rdbt,a=S.rdbSel||[];S.rdbSel=a.includes(t)?a.filter(x=>x!==t):a.concat(t);S.rdbOpen=!!b.closest(".rdbfilt");render();return}
+  if(b.dataset.rdbt){const t=b.dataset.rdbt,a=S.rdbSel||[];if(b.dataset.rdbsug)S.rdbQ="";S.rdbSel=a.includes(t)?a.filter(x=>x!==t):a.concat(t);S.rdbOpen=!!b.closest(".rdbfilt");render();return}
   if(b.dataset.rtagrm){try{await S.store.setPath("food/rectag/"+b.dataset.rtagrm,null);toast("Tag gelöscht")}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.act==="rtagnew"){const g=document.getElementById("rtaggrp"),el=document.getElementById("rtagnew"),v=(el&&el.value||"").trim().slice(0,30);if(!v||!g)return;S.rdbOpen=true;try{await S.store.setPath("food/rectag/"+newId("t"),{g:g.value,name:v,at:Date.now()});toast("Tag „"+v+"“ bei "+g.value+" dazu")}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.act==="recnew"){S.recDraft={id:null,name:"",ing:"",note:"",link:"",book:S.book||"main"};render();const el=document.getElementById("rec-name");if(el)el.focus();return}
@@ -5924,7 +6043,7 @@ function start(store,mode){S.store=store;S.mode=mode;let gotCfg=false,gotWeeks=f
   store.listen((cfg,fromCache)=>{S.config=cfg;if(cfg&&!fromCache&&Array.isArray(cfg.tasks)&&!(cfg.mig&&cfg.mig.saug1))migSaugen(cfg);else if(cfg&&!fromCache&&Array.isArray(cfg.tasks)&&!(cfg.mig&&cfg.mig.bring1))migBring(cfg);else if(cfg&&!fromCache&&Array.isArray(cfg.tasks)&&!(cfg.mig&&cfg.mig.need1))migNeed(cfg);else if(cfg&&!fromCache&&Array.isArray(cfg.tasks)&&!(cfg.mig&&cfg.mig.need2))migNeed2(cfg);else if(cfg&&!fromCache&&Array.isArray(cfg.tasks)&&!(cfg.mig&&cfg.mig.need3))migNeed3(cfg);if(!fromCache){gotCfg=true;S.cfgConfirmed=true}if(gotCfg&&gotWeeks){clearTimeout(timer);S.timedOut=false}render()},
     (w,fromCache)=>{S.weeks=w;if(!fromCache){gotWeeks=true;setTimeout(migDayFuture,1500)}if(gotCfg&&gotWeeks){clearTimeout(timer);S.timedOut=false}render()},
     err=>{clearTimeout(timer);toast("Verbindung zu den gemeinsamen Daten verloren. Seite neu öffnen.")},
-    food=>{S.food=food||{};migSpiel();migShopBell();migPlayTrip();migKitaTer();migKidMed();linkTerSync();migGmCopies();geldFixBook();render()});// Florian 16.11.2026: früher nur bestimmte Bereiche, dadurch fehlten nach dem Neuladen auf Woche/Kalender/Suche Essen, Kita und Termine
+    food=>{S.food=food||{};migSpiel();migShopBell();migPlayTrip();migKitaTer();migKidMed();migTags();linkTerSync();migGmCopies();geldFixBook();render()});// Florian 16.11.2026: früher nur bestimmte Bereiche, dadurch fehlten nach dem Neuladen auf Woche/Kalender/Suche Essen, Kita und Termine
   try{fetch("wochenideen.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.wideas=j;if(S.tab==="essen")render()}}).catch(()=>{})}catch(_){}
   try{fetch("hausfunde.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.hfunde=j;if(S.tab==="amhaus")render()}}).catch(()=>{})}catch(_){}
   shareIn();abIn();if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});

@@ -99,7 +99,9 @@ function searchHits(q){const W=sNorm(q).split(/\s+/).filter(Boolean);if(!W.lengt
   AREAS.forEach(a=>{if(a[2]==="camp")return;add("Bereiche",a[0],a[1],"",`data-nav="${a[2]}|"`);a[5]().forEach(x=>add("Bereiche",a[0],x[0],a[1],`data-nav="${a[2]}|${x[1]}"`))});
   add("Bereiche","📅","Kalender","Woche",'data-nav="woche|wp:3"');add("Bereiche","⚙️","Einstellungen","",'data-go="settings"');
   SET_ITEMS.forEach(x=>add("Einstellungen",x[1],x[2],"Einstellungen",`data-setgo="${x[0]}"`,x[3]));glosSearch(add);
-  recs().forEach(r=>add("Rezepte","📖",r.name,"Rezept",`data-openrec="${esc(r.id)}"`,(r.ing||"")+" "+(r.tags||[]).join(" ")));
+  // Rezepte: Treffer nur über Name und Tags; was nur in den Zutaten steht, kommt als eine Zeile, die die Rezept-Datenbank mit dieser Suche öffnet (Florian 19.11.2026)
+  {let nIng=0;recs().forEach(r=>{const n0=H.length;add("Rezepte","📖",r.name,"Rezept",`data-openrec="${esc(r.id)}"`,recTags(r).filter(t=>!String(t).startsWith("Quelle|")).map(tagLab).join(" "));if(H.length===n0&&W.every(w=>sNorm(r.ing||"").includes(w)||sNorm(r.name).includes(w)))nIng++});
+    if(nIng)H.push({grp:"Rezepte",ic:"🥕",name:"Steht auch in den Zutaten von "+nIng+(nIng===1?" Rezept":" Rezepten"),sub:"öffnet die Rezept-Datenbank",attr:`data-rdbgo="${esc(q.trim())}"`})}
   ((S.ideas&&S.ideas.items)||[]).concat((S.ideas&&S.ideas.emmi)||[]).forEach(x=>add("Rezepte","✨",x.name,"Tagesrezept",'data-nav="essen|ft:rezepte"',(x.ing||[]).join(" ")));
   Object.keys(F.plan||{}).forEach(wk=>{if(wk<wkKey(mondayOf(addDays(new Date(),-14))))return;Object.keys(F.plan[wk]||{}).forEach(d=>{const x=F.plan[wk][d];if(x&&x.text)add("Wochenplan","🍲",x.text,wk.replace(/^\d+-W/,"KW ")+" · "+(DAYN[+d.slice(1)]||""),'data-nav="essen|ft:plan"')})});
   listOf(F.shop).filter(x=>!x.done).forEach(x=>add("Einkaufsliste","🧺",x.name,"Einkaufsliste"+(x.src?" · "+x.src:""),'data-go="einkauf"'));

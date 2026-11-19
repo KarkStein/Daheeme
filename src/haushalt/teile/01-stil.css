@@ -807,3 +807,7 @@ a.minitile{text-decoration:none;color:inherit}
 .uheart{background:rgba(255,255,255,.12);border:none;border-radius:999px;color:inherit;font:inherit;font-size:var(--fs-xs);padding:var(--sp1) var(--sp2);flex:none}
 .mkgo{font-style:normal;color:var(--muted);padding:0 var(--sp2)}.reiseact{margin-top:var(--sp4);justify-content:center}
 .tripdash .carehead,.tripdash .carehead.open{color:inherit;margin:0}
+/* Rezepte: Wörterbuch, Tags aufräumen, Rezept-Fenster (19.11.2026) */
+.rdbsugg{margin-top:var(--sp2)}.rdbsugg:empty{display:none}.rdbing .setsum{width:100%}
+.tagfixl{list-style:none;margin:var(--sp2) 0;padding:0}.tagfixl li{display:flex;align-items:center;gap:var(--sp2);padding:var(--sp2) 0;border-top:1px solid var(--line)}.tagfixl li:first-child{border-top:none}.tfn{flex:1;min-width:0}.tfn b{display:block;overflow-wrap:anywhere}.tfn .freq{display:block}.tagfixl.done li{padding:var(--sp1) 0}
+#tagbasic{width:100%;margin-top:var(--sp1)}.recwin .ing{margin:var(--sp3) 0}.recwinb{flex-wrap:wrap}
