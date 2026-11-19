@@ -15,7 +15,7 @@ srv.listen(8765,async()=>{
   r.askDef=await A.$eval('[data-terask][aria-pressed=true]',e=>e.dataset.terask);await A.fill('[data-terf=askdue]',day(3));
   await A.screenshot({path:out+'/termin-moeglichkeiten-anlegen.png',fullPage:true});
   await A.click('#terform button[type=submit]');await A.waitForTimeout(500);
-  const id=Object.keys(db().termin||{})[0];let T=db().termin[id];r.saved=[(T.alt||[]).length,T.ask&&T.ask.who,T.ask&&T.ask.from,T.ask&&T.ask.due===day(3)].join();
+  const id=Object.keys(db().termin||{}).filter(k=>!/^gp_/.test(k))[0];let T=db().termin[id];r.saved=[(T.alt||[]).length,T.ask&&T.ask.who,T.ask&&T.ask.from,T.ask&&T.ask.due===day(3)].join();
   // 2) Kalender: drei gestrichelte Einträge
   await A.click('[data-calview=liste]');await A.waitForTimeout(300);r.tent=await A.$$eval('.evlist li.tent',l=>l.length);r.tentTxt=await A.$eval('.evlist li.tent',e=>e.innerText).catch(()=>'');
   await A.screenshot({path:out+'/termin-moeglichkeiten-kalender.png'});

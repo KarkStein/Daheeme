@@ -42,7 +42,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="pmdel"&&S.prioDraft&&S.prioDraft.id){try{await S.store.setPath("food/prio/"+S.prioDraft.id,null);S.prioDraft=null;toast("Gelöscht");render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.act==="pmsave"&&S.prioDraft){const d=S.prioDraft,r=parseWhen(d.name);let name=(d.due||d.time?d.name:r.rest||d.name).trim().slice(0,80);if(!name){toast("Bitte eintragen, woran erinnert werden soll");return}
     const due=d.due||r.due||"",time=due?(d.time||r.time||""):"",auto=!d.areaSet&&(d.from||"frei")==="frei"?detectArea(d.name):"";if(auto)d.from=auto;const src=d.ref?prioSrc(d.from,d.ref):null;
-    const v=Object.assign({name,from:d.from||"frei",at:d.at||Date.now(),by:d.by||S.me||""},d.ref&&src?{ref:d.ref}:{},due?{due}:{},time?{time}:{},d.rep&&due?{rep:d.rep}:{},d.note&&d.note.trim()?{note:d.note.trim().slice(0,300)}:{},d.who&&d.who!=="both"?{who:d.who}:{});
+    const v=Object.assign({name,from:d.from||"frei",at:d.at||Date.now(),by:d.by||S.me||""},d.ref&&(src||/^[a-z]+:/.test(d.ref))?{ref:d.ref}:{},due?{due}:{},time?{time}:{},d.rep&&due?{rep:d.rep}:{},d.note&&d.note.trim()?{note:d.note.trim().slice(0,300)}:{},d.who&&d.who!=="both"?{who:d.who}:{});
     try{await S.store.setPath("food/prio/"+(d.id||newId("w")),v);S.prioDraft=null;if(TAB_FROM[S.prioBack])S.tab=S.prioBack;toast(due?"Erinnerung für "+dLabel(due)+(time?" um "+time:""):"Steht jetzt unter Wichtig");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.priosort){S.prioSort=b.dataset.priosort;render();return}
   if(b.dataset.reise){S.reiseOpen=b.dataset.reise;S.tab="ausflug";S.tripTab="urlaub";render();window.scrollTo(0,0);return}
@@ -149,9 +149,9 @@ app.addEventListener("click",async e=>{
   if(b.dataset.fwkwrm){try{await S.store.setPath("food/ext/fwkw/"+b.dataset.fwkwrm,null)}catch(_){}return}
   if(b.dataset.fwpick){const id=b.dataset.fwpick,fw=S.food&&S.food.ext&&S.food.ext.fw,x=fw&&fw.items&&fw.items[id];if(!x)return;const cur=((S.food.ext.fwwho||{})[id])||"",X=((S.food.ext.fwx||{})[id])||{},pl=X.place&&placeFind(X.place)?placeFind(X.place).name:"";
     // Familywall-Termin (Florian 16.11.2026): Titel und Zeit nur in Familywall; Für wen, Art, Ort und Erinnern ergänzt die App (food/ext/fwx/<id>)
-    editBox("„"+x.name+"“",[{k:"note",type:"note",label:(rDate(x.date)+(x.time?" "+x.time:"")+(x.place?" · "+x.place:"")).replace(/\.$/,"")+". Aus Familywall: Titel und Zeit ändern geht nur dort."},{k:"who",label:"Für wen (mehrere gehen)",type:"multi",excl:["","both"],opts:[["","Automatisch"]].concat(whoOpts()),val:!cur?[""]:cur==="both"?["both"]:whoL(cur)},
+    editBox("„"+x.name+"“",[{k:"note",type:"note",label:(rDate(x.date)+(x.time?" "+x.time:"")+(x.place?" · "+x.place:"")).replace(/\.$/,"")+". Aus Familywall: Titel und Zeit ändern geht nur dort."},{k:"who",label:"Für wen",type:"multi",excl:["","both"],opts:[["","Automatisch"]].concat(whoOpts()),val:!cur?[""]:cur==="both"?["both"]:whoL(cur)},
       {k:"tag",label:"Art",type:"chips",get opts(){return [["","Keine"]].concat(terTags().map(t=>[t[0],t[1]+" "+t[2]]))},val:X.tag||"",hint:ownCats("ter").length?"Eigene Art lange drücken = löschen.":""},
-      {k:"pl",label:"Ort"+(x.place?" (sonst wie in Familywall)":""),type:"chips",opts:[["",x.place?"Wie in Familywall":"Keiner"]].concat(places().map(p=>[p.name,"📍 "+p.name])),val:pl},
+      {k:"pl",label:"Wo"+(x.place?" (sonst wie in Familywall)":""),type:"chips",opts:[["",x.place?"Wie in Familywall":"Keiner"]].concat(places().map(p=>[p.name,"📍 "+p.name])),val:pl},
       {k:"plx",label:"Oder Adresse nur für diesen Termin",type:"text",val:X.place&&!pl?X.place:""},
       {k:"remind",label:"🔔 Erinnern",type:"chips",opts:[["","Nein"],["tag","Am Tag"],["1d","1 Tag vorher"],["1h","1 Stunde vorher"]],val:X.remind===true?"tag":X.remind||""},
       {k:"care",label:"🧠 Kümmert sich (Erinnerungen nur an diese Person)",type:"chips",opts:careOpts(),val:X.care||""},
@@ -203,6 +203,9 @@ app.addEventListener("click",async e=>{
   if(await kimpClick(b))return;
   if(verkClick(b))return;
   if(careClick(b))return;
+  if(inboxClick(b))return;
+  if(stayClick(b))return;
+  if(b.dataset.terplus){const [k,...r]=b.dataset.terplus.split("|");terPlus(k,r.join("|"));return}
   if(b.dataset.act==="kitaimp"){S.kitaImp=S.kitaImp?null:{text:"",list:null};render();return}
   if(b.dataset.act==="kimpcancel"){S.kitaImp=null;render();return}
   if(b.dataset.act==="kimpback"&&S.kitaImp){S.kitaImp.list=null;render();return}
@@ -357,11 +360,11 @@ app.addEventListener("click",async e=>{
   if(b.dataset.packrm){try{await buyDropRef("pack:"+b.dataset.packrm);await S.store.setPath("food/pack/"+b.dataset.packrm,null)}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.act==="packreset"){for(const i of packs().filter(x=>x.done&&(x.list||"main")===curPack().id)){try{await S.store.setPath("food/pack/"+i.id+"/done",false)}catch(_){}}return}
   if(b.dataset.tripdone){const x=trips().find(y=>y.id===b.dataset.tripdone);if(x){try{await S.store.setPath("food/trip/"+x.id+"/done",!x.done);await S.store.setPath("food/trip/"+x.id+"/doneAt",x.done?null:Date.now())}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}}return}
-  if(b.dataset.tripedit){const x=trips().find(y=>y.id===b.dataset.tripedit);if(x){S.tripDraft={id:x.id,emo:x.emo||"",name:x.name||"",note:x.note||"",link:x.link||"",kind:x.kind||"",wx:x.wx||"",dur:x.dur||"",drive:x.drive?String(x.drive):"",kid:x.kid||"",cost:x.cost||"",season:x.season||"",pack:x.pack||"",place:x.place||"",date:x.date||""};render();window.scrollTo(0,0)}return}
+  if(b.dataset.tripedit){const x=trips().find(y=>y.id===b.dataset.tripedit);if(x){S.tripDraft={id:x.id,who:x.who||"",emo:x.emo||"",name:x.name||"",note:x.note||"",link:x.link||"",kind:x.kind||"",wx:x.wx||"",dur:x.dur||"",drive:x.drive?String(x.drive):"",kid:x.kid||"",cost:x.cost||"",season:x.season||"",pack:x.pack||"",place:x.place||"",date:x.date||""};render();window.scrollTo(0,0)}return}
   if(b.dataset.act==="tripcancel"){S.tripDraft=null;render();return}
   if(b.dataset.act==="tripsave"){const d=S.tripDraft,name=(d.name||"").trim().slice(0,80);if(!name){toast("Bitte ein Ziel eintragen");return}
     const id=d.id||newId("t"),base="food/trip/"+id+"/";
-    try{await S.store.setPath(base+"emo",emoClean(d.emo));await S.store.setPath(base+"name",name);await S.store.setPath(base+"note",(d.note||"").trim().slice(0,500)||null);await S.store.setPath(base+"link",safeLink(d.link)||null);await S.store.setPath(base+"place",String(d.place||"").trim().slice(0,160)||null);for(const k of ["kind","wx","dur","kid","cost","season","pack"])await S.store.setPath(base+k,d[k]||null);await S.store.setPath(base+"date",/^\d{4}-\d{2}-\d{2}$/.test(d.date||"")?d.date:null);await S.store.setPath(base+"drive",Math.max(0,Math.min(999,parseInt(d.drive,10)||0))||null);await S.store.setPath(base+"by",S.me||"");if(!d.id){await S.store.setPath(base+"at",Date.now());await S.store.setPath(base+"done",false)}S.tripDraft=null;toast("Gespeichert");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
+    try{await S.store.setPath(base+"emo",emoClean(d.emo));await S.store.setPath(base+"name",name);await S.store.setPath(base+"note",(d.note||"").trim().slice(0,500)||null);await S.store.setPath(base+"link",safeLink(d.link)||null);await S.store.setPath(base+"place",String(d.place||"").trim().slice(0,160)||null);for(const k of ["kind","wx","dur","kid","cost","season","pack"])await S.store.setPath(base+k,d[k]||null);if(d.who!==undefined)await S.store.setPath(base+"who",d.who||null);await S.store.setPath(base+"date",/^\d{4}-\d{2}-\d{2}$/.test(d.date||"")?d.date:null);await S.store.setPath(base+"drive",Math.max(0,Math.min(999,parseInt(d.drive,10)||0))||null);await S.store.setPath(base+"by",S.me||"");if(!d.id){await S.store.setPath(base+"at",Date.now());await S.store.setPath(base+"done",false)}S.tripDraft=null;toast("Gespeichert");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.act==="tripdel"){try{const tid=S.tripDraft.id;await splitDropRef("trip:"+tid);await prioDropRef([tid]);const AD=(S.food&&S.food.adoor)||{};for(const k of Object.keys(AD))if(AD[k]&&AD[k].trip===tid)await S.store.setPath("food/adoor/"+k+"/trip",null);await S.store.setPath("food/trip/"+S.tripDraft.id,null);S.tripDraft=null;toast("Gelöscht");render()}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.food==="kita"){const fw=focusWeek();S.tab="kita";S.kitaSec="essen";S.kitaDraft=null;focusApply(fw);render();window.scrollTo(0,0);return}
   if(b.dataset.food){const fw=focusWeek();S.tab="essen";S.lunchDraft=null;S.lunchMapEdit=false;S.shopCatEdit=null;S.recDraft=null;S.planEdit=null;S.foodTab=b.dataset.food;try{localStorage.setItem("hq-foodtab",S.foodTab)}catch(_){}focusApply(fw);render();return}

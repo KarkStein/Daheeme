@@ -205,7 +205,7 @@ function todoRows(tomorrowOff){const now=new Date(),today=ymd(now),tmw=ymd(addDa
 // Wochen-Aufgaben kommen nach Florians Regel: fällig, wenn erledigt < abgerundet(Anzahl × Wochentag / 7), Mo=1 … So=7; ab Samstag alles Offene; 1× pro Woche schon ab Donnerstag („Und Wochenaufgabe an Donnerstag“).
 const HEUTE_ALL_FROM=6,HEUTE_ONE_FROM=4;
 function wkSoll(n,wd){return wd>=HEUTE_ALL_FROM?n:n===1?(wd>=HEUTE_ONE_FROM?1:0):Math.floor(n*wd/7)}
-function heuteList(){const now=new Date(),mon=mondayOf(now),tk=ticksOf(wkKey(mon)),split=rotSplit(),di=(now.getDay()+6)%7,wd=di+1,t0=+startOfDay(now);
+function heuteList(){if(inUrlaub(new Date()))return [];const now=new Date(),mon=mondayOf(now),tk=ticksOf(wkKey(mon)),split=rotSplit(),di=(now.getDay()+6)%7,wd=di+1,t0=+startOfDay(now);
   const mine=(t,o,i)=>{const k=t.id+"__"+i;if(o!=="both")return tk[k]||null;const leg=tk[k];return S.me?(tk[k+"_"+S.me]||(leg&&leg.by===S.me?leg:null)):leg||null};
   const L=[],hm=hoMine();if(hm)L.push({ho:1,t:hm.t,slot:hm.di,done:hm.done,sub:"Hausdienst"+(hm.part?" "+hm.part:"")+(S.me?"":" · "+pname(hm.me))});
   tasks().forEach(t=>{if(group(t.freq)!=="week")return;const o=t.owner==="rot"?ownerFor(t,mon,split):t.owner;if(o==="ho"||(S.me&&o!==S.me&&o!=="both"))return;

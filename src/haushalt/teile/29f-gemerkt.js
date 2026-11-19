@@ -55,7 +55,7 @@ function gmNative(store,id){const x=gmRaw(store,id);if(!x)return;const i=gmItem(
   const b=document.createElement("button");b.hidden=true;b.dataset[store==="trip"?"tripedit":store==="play"?"playedit":store==="mus"?"musedit":"projedit"]=id;app.appendChild(b);b.click();b.remove()}
 // Das eine Fenster, von jeder Stelle aus: Name, Link, Stand, Für wen, Zeigen bei, Notiz
 function gmEdit(store,id){const x=gmRaw(store,id);if(!x)return;if(store==="fund"){fundEdit(id);return}const i=gmItem(store,x),sg=gmSugg(i),steps=gmSteps(i);
-  S.verkNext=[store==="music"?"mus":store,id,x];editBox(i.ic+" "+i.name,[{k:"name",label:"Name",type:"text",val:i.name},{k:"link",label:"Link",type:"url",val:x.link||""},
+  S.verkNext=[store==="music"?"mus":store,id,x];editBox(i.ic+" "+i.name,[{k:"name",label:"Was",type:"text",val:i.name},{k:"link",label:"Link",type:"url",val:x.link||""},
     {k:"st",label:"Stand",type:"chips",opts:steps.map(s=>{const l=gmStL(s);return [s,l[1]+" "+(store==="mus"&&s==="erledigt"?"Haben wir":l[2])]}),val:i.st},
     {k:"who",label:"Für wen",type:"chips",opts:[["","Offen"]].concat(whoOpts().filter(o=>o[0]!=="both")),val:i.who},
     {k:"show",label:"Zeigen bei",type:"multi",opts:GM_PLACES.filter(p=>p[0]!==i.home).map(p=>[p[0],(sg.includes(p[0])?"✨ ":"")+p[1]+" "+p[2]]),val:i.show,hint:"Zu Hause bei "+i.from+". "+(sg.length?"✨ = passt vermutlich. ":"")+"Der Eintrag bleibt einer und steht auch dort, mit demselben Stand."},

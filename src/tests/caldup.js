@@ -20,7 +20,7 @@ srv.listen(8765,async()=>{
   if(out)await A.screenshot({path:out+'/kalender-doppelt-zusammen.png'});
   await A.click('[data-fwsplit]');await A.waitForTimeout(600);await A.click('[data-act=tercancel]');await A.waitForTimeout(400);r.r2=(await rows()).filter(x=>/Laternen/.test(x));r.split=get(['haushalt',key,'food','ext','fwsplit','a1']);
   // Kurs: Uhrzeit ändern
-  await A.click('.evlist .ev[data-teredit^="c_p1"] >> nth=0');await A.waitForSelector('#terform');r.ct=await A.$eval('[data-terf=time]',e=>e.value);r.verk=await A.$eval('#terform .verk',e=>e.innerText).catch(()=>'');
+  await A.click('.evlist .ev[data-teredit^="c_p1"] >> nth=0');await A.waitForSelector('#terform');r.ct=await A.$eval('[data-terf=time]',e=>e.value);r.verk=await A.$eval('#terform .verk:not(.terplus)',e=>e.innerText).catch(()=>'');
   await A.fill('[data-terf=time]','17:15');if(out)await A.screenshot({path:out+'/kalender-kurs-uhrzeit.png'});await A.click('#terform button[type=submit]');await A.waitForTimeout(900);
   r.when=get(['haushalt',key,'food','play','p1','when']);r.terc=JSON.stringify(Object.entries(get(['haushalt',key,'food','termin'])||{}).filter(e=>/^c_/.test(e[0])));r.r3=(await rows()).filter(x=>/Turnen/.test(x))[0];
   console.error(JSON.stringify(r),errs);

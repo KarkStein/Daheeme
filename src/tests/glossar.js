@@ -5,7 +5,7 @@ srv.listen(8765,async()=>{
   await A.goto('http://localhost:8765/');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');
   const vis=sel=>A.$$eval(sel,l=>l.filter(x=>x.offsetParent!==null).length);
   // Schnellzugriff öffnet das Glossar, alle Abschnitte zu
-  await A.click('[data-go=settings]');await A.waitForTimeout(300);await A.click('.setquick [data-setgo=glossar]');await A.waitForTimeout(300);
+  await A.evaluate(()=>{const b=document.createElement('button');b.dataset.go='settings';document.getElementById('app').appendChild(b);b.click()});await A.waitForTimeout(300);await A.click('.setquick [data-setgo=glossar]');await A.waitForTimeout(300);
   const r={};r.secs=await A.$$eval('.glossec',l=>l.map(x=>x.dataset.gs).join(','))==='bild,bereiche,begriffe,symbole,gesten';r.closed=await vis('.glosrow')===0;
   // Im Bild: alle Dinge des Motivs, Schnellmenü steht dabei, Sprung funktioniert
   await A.click('[data-glossec=bild]');await A.waitForTimeout(200);

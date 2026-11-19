@@ -37,7 +37,7 @@ function renderMusic(){const d=S.musDraft,F=S.musFilter||"",AF=S.musArtF||"";
   if(d){const a=d.art||"playlist",ph={playlist:["z. B. Kochen am Sonntag","https://open.spotify.com/playlist/…"],lied:["z. B. Alle meine Entchen","https://www.youtube.com/…"],hoer:["z. B. Tonie: Die Raupe Nimmersatt","https://tonies.com/…"],song:["z. B. Unser Lied","https://open.spotify.com/track/…"]}[a];
     return h+`<section class="card"><h2>${d.id?"✎ Bearbeiten":"🎵 Neu bei Musik"}</h2>
     <div class="fld"><span>Art</span><div class="unl">${MUS_ART.map(x=>`<button type="button" class="chipbtn neutral" data-musart="${x[0]}" aria-pressed="${a===x[0]}">${x[1]} ${x[2]}</button>`).join("")}</div></div>
-    <label class="fld"><span>Name</span><input id="mu-name" data-muf="name" value="${esc(d.name)}" maxlength="80" placeholder="${ph[0]}" autocomplete="off"></label>
+    <label class="fld"><span>Was</span><input id="mu-name" data-muf="name" value="${esc(d.name)}" maxlength="80" placeholder="${ph[0]}" autocomplete="off"></label>
     <label class="fld"><span>Link (Spotify, Apple Music, YouTube, Tonies …)</span><input type="url" data-muf="link" value="${esc(d.link)}" placeholder="${ph[1]}" autocomplete="off"></label>
     ${a==="hoer"?`<div class="fld"><span>Stand</span><div class="unl">${MUS_ST.map(x=>`<button type="button" class="chipbtn neutral" data-musstd="${x[0]}" aria-pressed="${(d.st||"idee")===x[0]}">${x[1]} ${x[2]}</button>`).join("")}</div><div class="freq">Auf 📅 Geplant steht es als Geschenk für ${esc(kidName())} bei Einkauf › Weitere Listen › Geschenke. Abhaken dort = ✅ Haben wir.</div></div>`:""}
     <div class="fld"><span>Wofür?</span><div class="unl">${musOcc().map(o=>`<button type="button" class="chipbtn neutral" data-musocc="${o[0]}" aria-pressed="${csv(d.occ).includes(o[0])}">${esc(o[1])} ${esc(o[2])}</button>${o[3]?`<button type="button" class="rm" data-musoccrm="${o[0]}" aria-label="Rubrik ${esc(o[2])} löschen">✕</button>`:""}`).join("")}</div>
@@ -46,7 +46,7 @@ function renderMusic(){const d=S.musDraft,F=S.musFilter||"",AF=S.musArtF||"";
     ${a==="lied"?`<label class="fld"><span>Liedtext zum Mitsingen (optional)</span><textarea data-muf="txt" rows="5" maxlength="4000">${esc(d.txt||"")}</textarea></label>`:""}
     <label class="fld"><span>Eigenes Symbol (optional, ein Emoji)</span><input data-muf="emo" value="${esc(d.emo||"")}" maxlength="8" placeholder="${musArt(d)[1]}" autocomplete="off" style="width:90px"></label>
     <label class="fld"><span>Notiz</span><input data-muf="note" value="${esc(d.note)}" maxlength="120" autocomplete="off"></label>
-    ${gmMaskRow("mus",d.id)}${d.id?verkHtml("mus",d.id):""}<div class="btnrow"><button class="primary" data-act="mussave">Speichern</button><button class="ghost" data-act="muscancel">Abbrechen</button>${d.id?`<button class="ghost danger" data-act="musdel">Löschen</button>`:""}</div></section>`}
+    ${gmMaskRow("mus",d.id)}<div class="btnrow"><button class="primary" data-act="mussave">Speichern</button><button class="ghost" data-act="muscancel">Abbrechen</button></div>${d.id?maskFoot(verkHtml("mus",d.id),"",`data-act="musdel"`):""}</section>`}
   const all=musics(),cA={},cO={};all.forEach(m=>{const k=musArt(m)[0];cA[k]=(cA[k]||0)+1;csv(m.occ).forEach(o=>cO[o]=(cO[o]||0)+1)});
   const L=all.filter(m=>(!AF||musArt(m)[0]===AF)&&(!F||(F==="like"?m.like:F==="fav"?musFav(m):csv(m.occ).includes(F))));
   const chA=(v,t)=>`<button class="chipbtn neutral" data-musartf="${v}" aria-pressed="${AF===v}">${t}</button>`,chO=(v,t)=>`<button class="chipbtn neutral" data-musfilter="${v}" aria-pressed="${F===v}">${t}</button>`;
@@ -80,7 +80,7 @@ function renderPlay(){const d=S.playDraft,PS=playSecs(),F=S.playF||"",cur=PS.fin
     return h+`<section class="card tripform"><h2>${d.id?"✎ Bearbeiten":"🔖 Merken bei Spielen"}</h2>
     <div class="fld"><span>Art</span><div class="unl">${PS.map(s=>`<button type="button" class="chipbtn" data-plset="sec" data-v="${esc(s[0])}" aria-pressed="${d.sec===s[0]}">${esc(s[1])} ${esc(s[2])}</button>`).join("")}</div></div>
     ${d.sec==="zuhause"&&!d.id?`<label class="fld"><span>Link zur Spielidee (füllt den Namen vor)</span><input type="url" id="pl-link0" data-plf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off"></label>`:""}
-    <label class="fld"><span>Name</span><input type="text" id="pl-name" data-plf="name" value="${esc(d.name)}" maxlength="80" placeholder="${esc(hint[0])}" autocomplete="off"></label>${emoFld("data-plf",d.emo,sec[1])}
+    <label class="fld"><span>Was</span><input type="text" id="pl-name" data-plf="name" value="${esc(d.name)}" maxlength="80" placeholder="${esc(hint[0])}" autocomplete="off"></label>${emoFld("data-plf",d.emo,sec[1])}
     ${d.sec==="links"?"":d.sec==="spielplatz"?"":`<div class="fld"><span>Wo?</span>${one("wx",PLAY_WX)}</div>`}
     ${d.sec==="links"?"":`<div class="fld"><span>Alter</span>${one("age",PLAY_AGE)}</div>`}
     ${d.sec==="zuhause"?`<label class="fld"><span>Was braucht man?</span><input type="text" id="pl-mat" data-plf="mat" value="${esc(d.mat)}" maxlength="120" placeholder="Decken, Wäscheklammern" autocomplete="off"></label>`:""}
@@ -89,7 +89,7 @@ function renderPlay(){const d=S.playDraft,PS=playSecs(),F=S.playF||"",cur=PS.fin
     <div class="fld"><span>Stand</span><div class="unl">${PLAY_ST.map(s=>`<button type="button" class="chipbtn" data-plset="st" data-v="${s[0]}" aria-pressed="${(d.st||"idee")===s[0]}">${s[1]} ${s[2]}</button>`).join("")}</div></div>
     <label class="fld"><span>Notiz</span><textarea id="pl-note" data-plf="note" rows="3" placeholder="${esc(hint[1])}">${esc(d.note)}</textarea></label>
     ${gmMaskRow("play",d.id)}
-    ${d.id?verkHtml("play",d.id,plays().find(x=>x.id===d.id)):""}<div class="btnrow"><button class="primary" data-act="playsave">Speichern</button><button class="ghost" data-act="playcancel">Abbrechen</button>${x?bell("spiel",x):""}${d.id?`<button class="ghost" data-move="play|${esc(d.id)}">↪ Verschieben</button><button class="ghost danger" data-act="playdel">Löschen</button>`:""}</div></section>`}
+    <div class="btnrow"><button class="primary" data-act="playsave">Speichern</button><button class="ghost" data-act="playcancel">Abbrechen</button>${x?bell("spiel",x):""}</div>${d.id?maskFoot(verkHtml("play",d.id,plays().find(x=>x.id===d.id)),`data-move="play|${esc(d.id)}"`,`data-act="playdel"`):""}</section>`}
   const all=plays(),open=all.filter(x=>playSt(x)!=="erledigt"),cS={},STO={favorit:0,geplant:1,idee:2,erledigt:3};open.forEach(x=>{const k=playSecOf(x);cS[k]=(cS[k]||0)+1});
   const R=all.filter(x=>(!cur||playSecOf(x)===cur[0])&&(F==="draussen"?playOut(x):F==="drinnen"?playIn(x):true)&&(F==="erledigt"?playSt(x)==="erledigt":F==="favorit"?playSt(x)==="favorit":playSt(x)!=="erledigt"))
     .sort((a,b)=>STO[playSt(a)]-STO[playSt(b)]||(a.name||"").localeCompare(b.name||"","de"));

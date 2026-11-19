@@ -16,7 +16,7 @@ srv.listen(8765,async()=>{
   await A.screenshot({path:out+'/recherchen.png',fullPage:true});
   await A.click('[data-rgo=ideen]');await A.waitForTimeout(400);r.after=await A.$eval('#app h1',e=>e.innerText);
   await A.click('[data-go=wichtig]');await A.waitForTimeout(300);r.wInbox=await A.$$eval('.rinbox',l=>l.length);
-  await A.click('[data-go=settings]');await A.waitForTimeout(300);r.set=await A.$$eval('[data-go=recherchen]',l=>l.length);
+  await A.evaluate(()=>{const b=document.createElement('button');b.dataset.go='settings';document.getElementById('app').appendChild(b);b.click()});await A.waitForTimeout(300);r.set=await A.$$eval('[data-go=recherchen]',l=>l.length);
   await A.evaluate(()=>{const b=document.createElement("button");b.dataset.nav="bereiche|";document.getElementById("app").appendChild(b);b.click()});await A.waitForTimeout(300);r.area=await A.$$eval('[data-nav="recherchen|"]',l=>l.length);
   const db=JSON.parse(JSON.stringify(get(['haushalt',key,'food'])));r.db={seen:db.rseen,w:Object.values(db.rwunsch||{}).map(w=>w.area+'/'+w.rhythm+'/'+w.state)};
   console.error(JSON.stringify(r,null,1),errs);

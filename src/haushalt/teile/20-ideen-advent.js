@@ -78,19 +78,20 @@ function renderProjects(){const d=S.projDraft;
   const G=projGroup();let h=`${S.tab==="geschenke"||S.tab==="projekte"?areaPager(S.tab):""}<div><div class="eyebrow">${G.eye}</div><h1>${G.title}</h1></div>${bellRow(S.tab)}`;
   if(d){const one=(f,L)=>`<div class="unl">${L.map(c=>`<button class="chipbtn" data-pset="${f}" data-v="${c[0]}" aria-pressed="${(f==="state"?pjSt(d[f]):d[f])===c[0]}">${c.length>=3?c[1]+" "+c[2]:c[1]}</button>`).join("")}</div>`;
     return h+`<section class="card tripform"><h2>${d.id?"Bearbeiten":"Neue Idee"}</h2>
-    <label class="fld"><span>Was?</span><input type="text" id="pj-name" data-pf="name" value="${esc(d.name)}" maxlength="80" placeholder="Zum Beispiel Regal für den Flur" autocomplete="off"></label>${d.cat==="geschenk"?emoFld("data-pf",d.emo,"🎁"):""}
+    <label class="fld"><span>Was</span><input type="text" id="pj-name" data-pf="name" value="${esc(d.name)}" maxlength="80" placeholder="Zum Beispiel Regal für den Flur" autocomplete="off"></label>${d.cat==="geschenk"?emoFld("data-pf",d.emo,"🎁"):""}
     <div class="fld"><span>Bereich</span>${one("cat",projCats().filter(c=>G.cats.includes(c[0])))}</div>
     <div class="fld"><span>Stand</span>${one("state",PROJ_STATE)}</div>
     ${d.cat==="geschenk"?`<div class="fld"><span>Für wen</span>${one("who",whoOpts().filter(o=>o[0]!=="both").map(o=>[o[0],o[1]]))}</div><label class="fld"><span>Oder für jemand anderen, und zu welchem Anlass?</span><input type="text" id="pj-for" data-pf="for" value="${esc(d.for)}" maxlength="60" placeholder="Zum Beispiel Oma, Weihnachten" autocomplete="off"></label>`:""}
-    <label class="fld"><span>Link (Shop, Anleitung, Bild)</span><input type="url" id="pj-link" data-pf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off"></label>
+    <label class="fld"><span>Link</span><input type="url" id="pj-link" data-pf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off"></label>
     <label class="fld"><span>Notiz</span><textarea id="pj-note" data-pf="note" rows="4" placeholder="Maße, Preis, nächste Schritte">${esc(d.note)}</textarea></label>
     ${gmMaskRow("idea",d.id)}
-    ${d.id?verkHtml("idea",d.id,projs().find(x=>x.id===d.id)):""}<div class="btnrow"><button class="primary" data-act="projsave">Speichern</button><button class="ghost" data-act="projcancel">Abbrechen</button>${d.id?`<button class="ghost" data-move="idea|${esc(d.id)}">↪ Verschieben</button><button class="ghost danger" data-act="projdel">Löschen</button>`:""}</div></section>`}
+    <div class="btnrow"><button class="primary" data-act="projsave">Speichern</button><button class="ghost" data-act="projcancel">Abbrechen</button></div>${d.id?maskFoot(verkHtml("idea",d.id,projs().find(x=>x.id===d.id)),`data-move="idea|${esc(d.id)}"`,`data-act="projdel"`):""}</section>`}
   const all=projs();let F=S.projFilter||"";if(S.tab==="geschenke"&&F!=="advent")F="geschenk";
   if(F==="advent")return h+renderAdvent();
   if(F==="alle")return h+projOverview();
   if(S.tab==="amhaus"&&HCAT[F]){const hp=S.hprojOpen&&hprojs().find(x=>x.id===S.hprojOpen);if(hp)return h+renderHProj(hp);S.hprojOpen=null;if(S.hsamm)return h+`<div class="btnrow"><button class="ghost" data-act="hsammback">‹ ${HCAT[F][0]}</button></div>`+renderSammlung("haus")}
   if(!F){const cnt=k=>all.filter(x=>!x.done&&projCat(x)===k).length;
+    if(G.quick)h+=inboxCard();
     if(G.quick)h+=`<form class="addrow" id="projform" novalidate><input type="text" id="projinput" placeholder="Schnell notieren, sortieren später" value="${esc(S.projText)}" autocomplete="off" enterkeyhint="done" aria-label="Neue Idee"><button class="primary" type="submit">Merken</button></form>`;
     const hpN=k=>S.tab==="amhaus"?hprojs().filter(p=>hprojCat(p)===k&&p.state!=="erledigt").length:0,tcTxt=k=>{const n=cnt(k),p=hpN(k),a=[];if(p)a.push(p+(p===1?" Projekt":" Projekte"));if(n)a.push(n+" offen");return a.join(" · ")||"leer"};
     h+=`<div class="tiles">${projCats().filter(k=>G.cats.includes(k[0])).map(k=>`<button class="tile" data-pfilter="${k[0]}"><span class="te">${k[1]}</span><span class="tn">${k[2]}</span><span class="tc">${tcTxt(k[0])}</span></button>`).join("")}${S.tab==="amhaus"?(()=>{const n=funde("haus").length;return `<button class="tile" data-nav="amhaus|hs:wohnen"><span class="te">🔖</span><span class="tn">Gemerkt</span><span class="tc">${n?n+" Dinge":"leer"}</span></button>`})():""}${S.tab==="projekte"?projAllTile()+`<button class="tile add" data-catman="idea" aria-label="Eigene Kachel anlegen oder löschen"><span class="te">＋</span><span class="tn">Eigene Kachel</span><span class="tc">anlegen, löschen</span></button>`:""}</div>`;
@@ -219,10 +220,10 @@ async function fundSetLinks(f,want,o){const L=Object.assign({},f.links||{});
   await S.store.setPath("food/fund/"+f.id+"/links",Object.keys(L).length?L:null)}
 async function fundDropAll(f){for(const k of fundLinked(f))await FUND_LINKS[k].drop(f.links[k]);await S.store.setPath("food/fund/"+f.id,null)}
 function fundEdit(id){const f=listOf(S.food&&S.food.fund).find(y=>y.id===id);if(!f)return;const ar=f.area||"reise",A=FAREA[ar],sg=fundSugg(f).concat(gmSugg(gmItem("fund",f))),lk=fundLinked(f).concat(gmShow(f));
-  S.verkNext=["fund",id,f];editBox(f.name,[{k:"name",label:"Name",type:"text",val:f.name},{k:"link",label:"Link",type:"url",val:f.link||""},
+  S.verkNext=["fund",id,f];editBox(f.name,[{k:"name",label:"Was",type:"text",val:f.name},{k:"link",label:"Link",type:"url",val:f.link||""},
     {k:"kind",label:"Art",type:"chips",opts:A.kinds.map(c=>[c[0],c[1]+" "+c[2]]),val:f.kind||"sonst"},
     {k:"st",label:"Stand",type:"chips",opts:A.st.map(s=>[s[0],s[1]+" "+s[2]]),val:f.st||"idee"},
-    {k:"price",label:"Preis in €",type:"text",val:f.price||""}].concat(ar==="reise"?[{k:"ref",label:"Buchungsnummer (nur in euren Daten, in Listen versternt)",type:"text",val:f.ref||""},{k:"addr",label:"Adresse oder Anfahrt",type:"text",val:f.addr||""}]:[]).concat([
+    {k:"price",label:"Preis in €",type:"text",val:f.price||""}].concat(ar==="reise"?[{k:"ref",label:"Buchungsnummer (nur in euren Daten, in Listen versternt)",type:"text",val:f.ref||""},{k:"addr",label:"Wo",type:"text",val:f.addr||""}]:[]).concat([
     {k:"proj",label:"Gehört zu",type:"chips",opts:[["",A.none]].concat(A.projs().filter(p=>ar==="reise"||p.state!=="erledigt"||p.id===f[A.key]).map(p=>[p.id,(p.emo||A.emo)+" "+p.name])),val:f[A.key]||""},
     {k:"who",label:"Für wen",type:"chips",opts:[["","Offen"]].concat(whoOpts().filter(o=>o[0]!=="both")),val:f.who||""},
     {k:"links",label:"Zeigen bei",type:"multi",opts:GM_PLACES.filter(p=>p[0]!==ar).map(p=>[p[0],(sg.includes(p[0])?"✨ ":"")+p[1]+" "+p[2]]).concat(Object.keys(FUND_LINKS).map(k=>[k,(sg.includes(k)?"✨ ":"")+FUND_LINKS[k].lbl])),val:lk,hint:(sg.length?"✨ = passt vermutlich. ":"")+"Der Eintrag bleibt einer und steht auch dort, mit demselben Stand. Einkaufsliste und Wichtig legen dort einen eigenen Eintrag an. Abwählen nimmt ihn wieder weg."},

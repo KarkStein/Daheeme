@@ -47,8 +47,10 @@ function swipeTo(dir){if(document.getElementById("mbox")||document.getElementByI
   const L=[...bar.querySelectorAll("button[aria-pressed]")],i=L.findIndex(x=>x.getAttribute("aria-pressed")==="true");if(i<0)return;const nx=L[i+dir];if(!nx)return;
   nx.click();window.scrollTo(0,0);app.classList.remove("swl","swr");void app.offsetWidth;app.classList.add(dir>0?"swl":"swr")}
 // Florian 17.11.2026: Zeilen, die seitlich scrollen (Filter-Chips, Urlaube, Kacheln), behalten das Wischen für sich; nie Bereichswechsel von dort
+// Kein Wischen vom Bildschirmrand (Florian 19.11.2026: „Okay“): dort gehört die Geste Android (Zurück), sonst blättert die App zugleich.
+const EDGE_PX=28;
 const hScrollIn=t=>{for(let el=t;el&&el!==app&&el.nodeType===1;el=el.parentElement){if(el.scrollWidth>el.clientWidth+2){const o=getComputedStyle(el).overflowX;if(o==="auto"||o==="scroll")return true}}return false};
-{let sx=null,sy=0,st=0;app.addEventListener("touchstart",e=>{const t=e.target;if(e.touches.length!==1||t.closest("input,textarea,select,iframe,.pickwrap,.mapwrap")||hScrollIn(t)){sx=null;return}sx=e.touches[0].clientX;sy=e.touches[0].clientY;st=Date.now()},{passive:true});
+{let sx=null,sy=0,st=0;app.addEventListener("touchstart",e=>{const t=e.target;if(e.touches.length!==1||t.closest("input,textarea,select,iframe,.pickwrap,.mapwrap")||hScrollIn(t)||e.touches[0].clientX<EDGE_PX||e.touches[0].clientX>innerWidth-EDGE_PX){sx=null;return}sx=e.touches[0].clientX;sy=e.touches[0].clientY;st=Date.now()},{passive:true});
  app.addEventListener("touchend",e=>{if(sx==null)return;if(S.ring){sx=null;return}const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;sx=null;if(S.gest.swipe&&Date.now()-st<700&&Math.abs(dx)>70&&Math.abs(dy)<Math.abs(dx)*0.5)swipeTo(dx<0?1:-1)},{passive:true})}
 {let lp=null;
  // Kreis im Bild abgeschaltet (Florian 15.11.2026): langes Drücken auf den Reiter Start öffnet Alle Bereiche (arOpen)

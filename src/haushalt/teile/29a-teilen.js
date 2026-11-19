@@ -29,7 +29,7 @@ const shareTo=to=>(shareTargets().find(t=>t[0]===to)||[to,"",to]);
 // Rezept behält den bisherigen Weg (Rezept aus Link: Text erkennen), ohne Aufteilen
 function shareRecipe(txt){S.tab="essen";S.foodTab="rezepte";S.recDraft={id:null,name:"",ing:"",note:"",link:"",book:S.book||"main",paste:true,pasteText:txt};render();window.scrollTo(0,0);
   const el=document.getElementById("rec-paste");if(el){el.value=txt;const b=document.querySelector('[data-act="recparse"]');if(b)b.click()}}
-function shareOpen(st,sx,su,files){files=files||[];S.mboxAt=Date.now();mboxClose();
+function shareOpen(st,sx,su,files,inb){files=files||[];S.mboxAt=Date.now();mboxClose();
   const urls=(String(sx||"").match(URL_RX)||[]),link=su||urls[0]||"",rest=String(sx||"").replace(URL_RX,"").trim();
   const first=rest.split(/\r?\n/).map(s=>s.trim()).find(Boolean)||"";
   const H={name:(st||(first.length<=80?first:"")||"").trim().slice(0,80),link,note:rest&&rest!==st?rest:"",to:files.length||KITA_SHARE_RX.test([st,sx].join(" "))||parseKitaTermine(sx).length>=2?"kita":SHARE_REC_RX.test(link)?"rezept":"",showNote:!!(rest&&rest!==st),split:false,off:{}};
@@ -43,7 +43,7 @@ function shareOpen(st,sx,su,files){files=files||[];S.mboxAt=Date.now();mboxClose
     <div class="fld"><span>Speichern bei</span><div class="unl">${shareTargets().map(t=>`<button type="button" class="chipbtn neutral" data-shto="${esc(t[0])}" aria-pressed="${H.to===t[0]}">${esc(t[1]+" "+t[2])}</button>`).join("")}</div>${H.to?"":`<div class="freq">Bitte antippen, wohin es soll.</div>`}</div>
     ${H.showNote?`<label class="fld"><span>Beschreibung (optional)</span><textarea data-shf="note" rows="5" maxlength="4000" placeholder="Text aus dem Beitrag hier einfügen">${esc(H.note)}</textarea></label><div id="shsplit">${splitHtml()}</div>`:`<button type="button" class="ghost" data-shnote>＋ Beschreibung einfügen</button>`}
     ${files.length?`<div class="freq">📎 ${files.map(f=>esc(f.name||"Datei")).join(", ")}</div>`:""}${H.to==="kita"?`<div class="freq">Kita-Termine: Die App sucht Termine mit Datum in Text${files.length?" und Datei":""} und zeigt sie auf der Seite Kita zum Abhaken. Fotos liest sie über Gemini.</div>`:""}${H.to==="rezept"?`<div class="freq">Rezept: Die App erkennt aus Titel, Text und Link Zutaten und Zubereitung, wie bei „Rezept aus Link“.</div>`:""}
-    <div class="btnrow"><button class="primary" type="submit"${H.to?"":" disabled"}>Speichern</button><button class="ghost" type="button" data-shx>Abbrechen</button></div></form></div>`};
+    <div class="btnrow"><button class="primary" type="submit"${H.to?"":" disabled"}>Speichern</button>${inb||files.length?"":`<button class="ghost" type="button" data-shlater>📥 Später entscheiden</button>`}<button class="ghost" type="button" data-shx>Abbrechen</button></div></form></div>`};
   draw();document.body.appendChild(el);
   el.addEventListener("input",e=>{const k=e.target.dataset&&e.target.dataset.shf;if(!k)return;H[k]=e.target.value;if(k==="note"){H.off={};const s=document.getElementById("shsplit");if(s)s.innerHTML=splitHtml()}});
   el.addEventListener("submit",async e=>{e.preventDefault();if(!H.to)return;const name=H.name.trim(),l=H.link.trim();
@@ -53,8 +53,10 @@ function shareOpen(st,sx,su,files){files=files||[];S.mboxAt=Date.now();mboxClose
     const I=H.split?items().filter((_,i)=>!H.off[i]):[];if(!I.length&&!name){toast("Bitte einen Titel eintragen.");return}
     mboxClose();const T=shareTo(H.to);
     try{if(I.length){for(const t of I)await shareSave(H.to,t,l,name?"Aus: "+name:"")}else await shareSave(H.to,name,l,H.note);
-      toast((I.length>1?I.length+" Einträge":"Gespeichert")+" bei "+T[2]);shareGo(H.to)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}});
+      if(inb)await S.store.setPath("food/inbox/"+inb,null);toast((I.length>1?I.length+" Einträge":"Gespeichert")+" bei "+T[2]);shareGo(H.to)}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}});
   el.addEventListener("click",e=>{const t=e.target.closest("[data-shto]");if(t){H.to=t.dataset.shto;draw();return}
+    if(e.target.closest("[data-shlater]")){const name=(H.name.trim()||nameFromLink(safeLink(H.link.trim())||"")||H.note.trim().slice(0,60)).slice(0,80);if(!name){toast("Bitte einen Titel eintragen.");return}mboxClose();
+      S.store.setPath("food/inbox/"+newId("i"),{name,link:safeLink(H.link.trim())||null,note:H.note.trim().slice(0,4000)||null,at:Date.now(),by:S.me||""}).then(()=>toast("📥 Liegt im Eingang: Sammlung › Noch einsortieren")).catch(()=>toast("Konnte nicht speichern."));return}
     if(e.target.closest("[data-shsplit]")){H.split=!H.split;const s=document.getElementById("shsplit");if(s)s.innerHTML=splitHtml();return}
     const it=e.target.closest("[data-shit]");if(it){const i=+it.dataset.shit;H.off[i]=!H.off[i];const s=document.getElementById("shsplit");if(s)s.innerHTML=splitHtml();return}
     if(e.target.closest("[data-shnote]")){H.showNote=true;draw();const n=el.querySelector('[data-shf="note"]');if(n)n.focus();return}
@@ -77,3 +79,13 @@ function moveOpen(kind,id){const M=moveSrc(kind,id);if(!M)return;
     async V=>{if(!V.to){toast("Bitte antippen, wohin.");return}
       if(V.to.startsWith("book:")){const to=books().find(b=>"book:"+b.id===V.to);if(!to)return;await S.store.setPath("food/rec/"+id+"/book",to.id);M.done();S.book=to.id;S.recOpen=id;toast(M.x.name+" steht jetzt in „"+to.name+"“.");render();return}
       await shareSave(V.to,M.x.name,M.x.link,M.note);await M.drop();M.done();toast("Verschoben nach "+shareTo(V.to)[2]);shareGo(V.to)})}
+
+// Eingang (Florian 19.11.2026: „Eingang, ja“): „📥 Später entscheiden“ bei „Wohin damit?“ legt food/inbox/<id> {name,link?,note?,at,by} an.
+// Die Karte „📥 Noch einsortieren (N)“ steht oben in der Sammlung; Tipp öffnet „Wohin damit?“ wieder, Speichern dort räumt den Eintrag weg.
+const inboxL=()=>listOf((S.food||{}).inbox).sort((a,b)=>(b.at||0)-(a.at||0));
+function inboxCard(){const L=inboxL();if(!L.length)return "";
+  return `<section data-fk="f_inbox|1" class="card"><div class="section-head"><h2>📥 Noch einsortieren</h2><span class="freq num">${L.length}</span></div><ul class="evlist">${L.map(x=>`<li><button class="ev" data-inbox="${esc(x.id)}"><span><b>${esc(x.name)}</b>${x.link?`<br><span class="freq">${esc(String(x.link).replace(/^https?:\/\/(www\.)?/,"").slice(0,40))}</span>`:""}</span></button><button class="catbtn" data-inboxrm="${esc(x.id)}" aria-label="${esc(x.name)} löschen" style="background:none;border:none;opacity:.6">✕</button></li>`).join("")}</ul><div class="freq">Tippen und wählen, wohin es gehört.</div></section>`}
+function inboxClick(b){const d=b.dataset;
+  if(d.inbox){const x=((S.food||{}).inbox||{})[d.inbox];if(x)shareOpen(x.name,x.note||"",x.link||"",[],d.inbox);return true}
+  if(d.inboxrm){delUndo("food/inbox/"+d.inboxrm,"Aus dem Eingang gelöscht").catch(()=>toast("Konnte nicht speichern."));return true}
+  return false}

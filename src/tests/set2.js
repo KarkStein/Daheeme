@@ -3,7 +3,7 @@ srv.listen(8765,async()=>{
   const c=await b.newContext({viewport:{width:400,height:860},deviceScaleFactor:2,timezoneId:'Europe/Berlin',acceptDownloads:true});const A=await c.newPage();A.setDefaultTimeout(8000);A.on('pageerror',e=>errs.push(e.message));
   await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');
   const key=/k=([^&]+)/.exec(A.url())[1];const r={};
-  await A.click('[data-go=settings]');await A.waitForTimeout(300);
+  await A.evaluate(()=>{const b=document.createElement('button');b.dataset.go='settings';document.getElementById('app').appendChild(b);b.click()});await A.waitForTimeout(300);
   r.cards=await A.$$eval('.setcard h2',l=>l.map(x=>x.innerText));r.quick=await A.$$eval('.setquick button',l=>l.map(x=>x.innerText));for(const k of ['aussehen','bedienung','essen','wir','daten'])await A.click('[data-setsum='+k+']');
   await A.screenshot({path:out+'/einstellungen.png',fullPage:true});
   await A.click('[data-theme-set=dark]');r.theme=await A.evaluate(()=>document.documentElement.dataset.theme);

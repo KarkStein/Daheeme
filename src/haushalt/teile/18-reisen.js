@@ -326,24 +326,28 @@ function atipFixCards(){let all=atipItems().filter(i=>i.dauer).sort((a,b)=>((a.w
 function renderTripIdeas(){const d=S.tripDraft;
   if(d){const one=(f,L)=>`<div class="unl">${L.map(c=>`<button class="chipbtn" data-tset="${f}" data-v="${c[0]}" aria-pressed="${d[f]===c[0]}">${c.length>=3?c[1]+" "+c[2]:c[1]}</button>`).join("")}</div>`;
     const many=(f,L)=>`<div class="unl">${L.map(c=>`<button class="chipbtn" data-ttog="${f}" data-v="${c[0]}" aria-pressed="${csv(d[f]).includes(c[0])}">${c[1]}</button>`).join("")}</div>`;
-    const lists=packLists();
+    const lists=packLists(),moreN=["wx","dur","drive","kid","cost","season","pack"].filter(k=>d[k]).length,more=tFoldOn("f_tripmore",false);
+    // Reihenfolge nach dem gemeinsamen Bauplan (Florian 19.11.2026): Was · Wann · Für wen · Wo · Art · Zeigen bei · Link/Notiz · 🔔 · Mehr Angaben · untere Zeile
     return `<section class="card tripform"><h2>${d.id?"Ausflug bearbeiten":"Neue Ausflugsidee"}</h2>
-    <label class="fld"><span>Wohin?</span><input type="text" id="tr-name" data-tf="name" value="${esc(d.name)}" maxlength="80" placeholder="Zum Beispiel Wasserfall im Wald" autocomplete="off"></label>${emoFld("data-tf",d.emo,"🏞️")}
-    <div class="fld"><span>Ort für 🚆 (Name, Haltestelle oder gespeicherter Ort; leer = Ziel)</span><input type="text" id="tr-place" data-tf="place" value="${esc(d.place||"")}" maxlength="160" placeholder="Zum Beispiel Bahnhof Starnberg" autocomplete="off">${placeChips(d.place||"")}</div>
-    <div class="fld"><span>Was macht man dort?</span>${one("kind",tripKinds())}<div class="unl">${catBtn("trip")}</div></div>
-    <div class="fld"><span>Wetter</span>${one("wx",TRIP_WX)}</div>
+    <label class="fld"><span>Was</span><input type="text" id="tr-name" data-tf="name" value="${esc(d.name)}" maxlength="80" placeholder="Zum Beispiel Wasserfall im Wald" autocomplete="off"></label>${emoFld("data-tf",d.emo,"🏞️")}
+    <label class="fld"><span>Wann (optional, steht dann im Kalender)</span><input type="date" id="tr-date" data-tf="date" value="${esc(d.date||"")}"></label>
+    <div class="fld"><span>Für wen</span>${one("who",whoOpts().filter(o=>o[0]!=="both").map(o=>[o[0],o[1]]))}</div>
+    <div class="fld"><span>Wo</span><input type="text" id="tr-place" data-tf="place" value="${esc(d.place||"")}" maxlength="160" placeholder="Zum Beispiel Bahnhof Starnberg" autocomplete="off">${placeChips(d.place||"")}</div>
+    <div class="fld"><span>Art</span>${one("kind",tripKinds())}<div class="unl">${catBtn("trip")}</div></div>
+    ${gmMaskRow("trip",d.id)}
+    <label class="fld"><span>Link</span><input type="url" id="tr-link" data-tf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off"></label>
+    <label class="fld"><span>Notiz</span><textarea id="tr-note" data-tf="note" rows="3" placeholder="Parkplatz, Eintritt, was man nicht vergessen darf">${esc(d.note)}</textarea></label>
+    ${d.id?`<div class="fld"><span>🔔 Erinnern</span><div class="unl">${bell("ausflug",{id:d.id})}</div></div>`:""}
+    <button type="button" class="ghost small moreb" data-tfold="f_tripmore" aria-expanded="${more}">Mehr Angaben ${more?"▴":"▾"}${moreN?" · "+moreN+" ausgefüllt":""}</button>
+    ${more?`<div class="fld"><span>Wetter</span>${one("wx",TRIP_WX)}</div>
     <div class="fld"><span>Wie lange?</span>${one("dur",TRIP_DUR)}</div>
-    <label class="fld"><span>Geplant am (optional, steht dann im Kalender)</span><input type="date" id="tr-date" data-tf="date" value="${esc(d.date||"")}"></label>
     <label class="fld"><span>Fahrzeit in Minuten</span><input type="number" min="0" max="999" id="tr-drive" data-tf="drive" value="${esc(d.drive)}" placeholder="30" style="width:110px"></label>
     <div class="fld"><span>Mit Kleinkind</span>${many("kid",TRIP_KID)}</div>
     <div class="fld"><span>Kosten</span>${one("cost",TRIP_COST)}</div>
     <div class="fld"><span>Beste Jahreszeit (nichts gewählt heißt ganzjährig)</span>${many("season",TRIP_SEA)}</div>
-    <div class="fld"><span>Welche Packliste?</span><div class="unl">${lists.map(l=>`<button class="chipbtn" data-tset="pack" data-v="${esc(l.id)}" aria-pressed="${d.pack===l.id}">🎒 ${esc(l.name)}</button>`).join("")}</div></div>
-    <label class="fld"><span>Link (Karte oder Webseite)</span><input type="url" id="tr-link" data-tf="link" value="${esc(d.link)}" placeholder="https://…" autocomplete="off"></label>
-    <label class="fld"><span>Notiz</span><textarea id="tr-note" data-tf="note" rows="3" placeholder="Parkplatz, Eintritt, was man nicht vergessen darf">${esc(d.note)}</textarea></label>
+    <div class="fld"><span>Welche Packliste?</span><div class="unl">${lists.map(l=>`<button class="chipbtn" data-tset="pack" data-v="${esc(l.id)}" aria-pressed="${d.pack===l.id}">🎒 ${esc(l.name)}</button>`).join("")}</div></div>`:""}
     ${d.id?geldSrcRow("trip:"+d.id,{name:d.name||"",cat:"frei",date:d.date||ymd(new Date())}):""}
-    ${gmMaskRow("trip",d.id)}
-    ${d.id?verkHtml("trip",d.id,trips().find(x=>x.id===d.id)):""}<div class="btnrow"><button class="primary" data-act="tripsave">Speichern</button><button class="ghost" data-act="tripcancel">Abbrechen</button>${d.id?`<button class="ghost" data-move="trip|${esc(d.id)}">↪ Verschieben</button><button class="ghost danger" data-act="tripdel">Löschen</button>`:""}</div></section>`}
+    <div class="btnrow"><button class="primary" data-act="tripsave">Speichern</button><button class="ghost" data-act="tripcancel">Abbrechen</button></div>${d.id?maskFoot(verkHtml("trip",d.id,trips().find(x=>x.id===d.id)),`data-move="trip|${esc(d.id)}"`,`data-act="tripdel"`):""}</section>`}
   const mz=musLinks("auto",3);
   const all=trips(),F=S.tripFilter||"",match=x=>!F||(F==="regen"?x.wx==="egal":x.kind===F);
   const open=all.filter(x=>!x.done&&match(x)).sort((a,b)=>(a.at||0)-(b.at||0)),done=all.filter(x=>x.done).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0));

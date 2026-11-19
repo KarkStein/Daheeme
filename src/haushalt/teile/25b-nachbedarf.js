@@ -11,7 +11,7 @@ function needTicks(id){const o=((S.food&&S.food.need)||{})[id]||{},L=Object.keys
   for(const wk in S.weeks){const v=ticksOf(wk)[id+"__p"];if(v&&v.at&&(v.by==="p0"||v.by==="p1"))L.push(Object.assign({old:wk},v))}
   return L.sort((a,b)=>a.at-b.at)}
 function needInfo(t,now){now=now||Date.now();const E=(+t.every||28)*NEED_DAY,T=needTicks(t.id),last=T[T.length-1]||null,base=last?last.at:(t.since||now);
-  const P=((S.food&&S.food.needp)||{})[t.id],due=P&&P.until>base+E?P.until:base+E,fill=Math.max(0,(now-(due-E))/E);
+  const P=((S.food&&S.food.needp)||{})[t.id],aw=awayMs(base,now),due=(P&&P.until>base+E?P.until:base+E)+aw,fill=Math.max(0,(now-(due-E))/E);
   const other=p=>p==="p0"?"p1":p==="p1"?"p0":null,who=t.owner==="alt"?(last?other(last.by):t.first||null):t.owner;
   const t0=+startOfDay(new Date(now)),today=last&&last.at>=t0?last:null;
   return {t,last,T,fill,due,who,today,st:fill>=1?"voll":fill>=NEED_BALD?"bald":"",later:!!(P&&P.until>base+E)}}
@@ -72,3 +72,12 @@ function migNeed3(cfg){const c=JSON.parse(JSON.stringify(cfg)),gp=c.tasks.find(t
   // erst die Einstellungen speichern (sonst ruft der Datenstand diese Umstellung erneut auf), dann die Termine anlegen
   S.store.saveConfig(c).then(()=>{if(!gp)return;const T=(S.food&&S.food.termin)||{},y=new Date().getFullYear(),nx=md=>{const d=y+"-"+md;return d>ymd(new Date())?d:(y+1)+"-"+md},care=gp.owner==="p0"||gp.owner==="p1"?gp.owner:gp.owner==="both"?"both":null;
     [["gp_a","04-01"],["gp_b","10-01"]].forEach(([id,md])=>{if(!T[id])S.store.setPath("food/termin/"+id,{name:String(gp.name).slice(0,80),date:nx(md),allday:true,rep:"y",care,note:"Tag bitte anpassen. War vorher eine Aufgabe im Haushalt.",at:Date.now(),by:""}).catch(()=>{})})}).catch(()=>{})}
+
+// ---------- Urlaub pausiert den Alltag (Florian 19.11.2026: „Ideen alle Gut“) ----------
+// An Urlaubstagen (Urlaub mit Datum, nicht „Idee“) ruhen Haushalt und Nach Bedarf: „Heute für dich“ bleibt leer, die Füllbalken stehen still,
+// der Rückblick zählt tägliche Kreise an diesen Tagen nicht mit und wertet Wochen-Aufgaben nicht als liegen geblieben, wenn mindestens AWAY_WEEK Tage der Woche Urlaub waren.
+const AWAY_WEEK=4;
+const awayDays=mon=>[0,1,2,3,4,5,6].map(i=>!!inUrlaub(addDays(mon,i)));
+// Urlaubszeit zwischen zwei Zeitpunkten in ms (überlappende Urlaube zählen einmal)
+function awayMs(a,b){if(!(b>a))return 0;const R=urlaube().filter(u=>reiseSt(u)!=="traum"&&u.from).map(u=>[+startOfDay(new Date(u.from+"T12:00:00")),+addDays(startOfDay(new Date((u.to||u.from)+"T12:00:00")),1)]).sort((x,y)=>x[0]-y[0]);
+  let n=0,end=a;R.forEach(([f,t])=>{f=Math.max(f,end);t=Math.min(t,b);if(t>f){n+=t-f;end=t}});return n}

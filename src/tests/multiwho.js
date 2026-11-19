@@ -12,7 +12,7 @@ srv.listen(8765,async()=>{
   await A.click('[data-terwho=kid]');await A.click('[data-terwho=p0]');r.pressed=await A.$$eval('[data-terwho][aria-pressed=true]',l=>l.map(x=>x.dataset.terwho).join());
   await A.click('[data-placeset=Praxis]');r.pl1=await A.$eval('[data-placeset=Praxis]',e=>e.getAttribute('aria-pressed'));await A.click('[data-placeset=Praxis]');r.pl2=await A.$eval('[data-placeset=Praxis]',e=>e.getAttribute('aria-pressed'));
   await A.click('#terform button[type=submit]');await A.waitForTimeout(400);
-  const T=Object.values(get(['haushalt',key,'food','termin'])||{})[0]||{};r.who=T.who;r.place=T.place||'';
+  const T=Object.values(get(['haushalt',key,'food','termin'])||{}).filter(x=>!/^Großputz/.test(x.name))[0]||{};r.who=T.who;r.place=T.place||'';
   const li=await A.$('.evlist li[data-who="p0,kid"]');r.kz=li?await li.$$eval('.kz',l=>l.length):0;r.stripe=li?await li.evaluate(e=>getComputedStyle(e,'::before').backgroundImage):'';
   await A.click('[data-fwpick=f1]');await A.waitForTimeout(200);await A.click('#mbox [data-ebm=who][data-ebv=p1]');await A.click('#mbox [data-ebm=who][data-ebv=kid]');r.fwp=await A.$$eval('#mbox [data-ebm=who][aria-pressed=true]',l=>l.map(x=>x.dataset.ebv).join());
   await A.click('#mbox button[type=submit]');await A.waitForTimeout(400);r.fw=(get(['haushalt',key,'food','ext','fwwho'])||{}).f1;

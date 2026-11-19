@@ -792,3 +792,7 @@ a.mkb{text-decoration:none;color:var(--fg)}.muslk[aria-pressed=false]{filter:gra
 .needsep{margin-top:var(--sp3)}
 .wkdaily{margin-top:var(--sp3)}
 html{scroll-padding-bottom:calc(var(--tabh,64px) + 56px)}
+#allar .argear{margin-left:auto;margin-right:var(--sp2)}
+.maskfoot{margin-top:var(--sp4);padding-top:var(--sp3);border-top:1px solid var(--line)}.maskfoot .verk{margin-bottom:var(--sp2)}.mfrow{display:flex;flex-wrap:wrap;gap:var(--sp2);justify-content:flex-end}.mfrow:empty{display:none}
+.moreb{margin:var(--sp2) 0}
+.maskfoot .verk{border-top:0;margin-top:0;padding-top:0}.tripform .bellbtn{font-size:var(--fs-l);padding:var(--sp2) var(--sp3);border:1px solid var(--line);border-radius:999px;background:none}

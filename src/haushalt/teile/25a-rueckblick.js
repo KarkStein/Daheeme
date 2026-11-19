@@ -9,18 +9,19 @@ function rbWeeks(){const mode=S.rbMode||"monat",off=S.rbOff|0,cur=mondayOf(new D
   if(+to>+cur)to=cur;const L=[];for(let m=to;+m>=+from;m=addDays(m,-7))if(+m===+cur||S.weeks[wkKey(m)]||needWeekTicks(m).length)L.push(m);return {L,lbl,mode,off}}
 // Eine Woche auswerten: erledigt/geplant (täglich und wöchentlich; die laufende Woche bis heute), Einträge fürs Logbuch, Übernommenes, Offenes, Hausdienst
 function rbWeek(mon){const wk=wkKey(mon),tk=ticksOf(wk),cur=mondayOf(new Date()),isCur=+mon===+cur,today=isCur?(new Date().getDay()+6)%7:6,split=rotSplit();
-  const R={wk,mon,isCur,c:0,n:0,log:[],took:[],open:[],per:{p0:0,p1:0},ho:{p0:0,p1:0,half:0},miss:{}};
+  const AW=awayDays(mon),awN=AW.filter(Boolean).length,awWk=awN>=AWAY_WEEK;
+  const R={wk,mon,isCur,away:awN,c:0,n:0,log:[],took:[],open:[],per:{p0:0,p1:0},ho:{p0:0,p1:0,half:0},miss:{}};
   const add=(t,v,sub,own)=>{if(!v||(v.by!=="p0"&&v.by!=="p1"))return;const e={t,v,sub,own:own||null};R.log.push(e);if(e.own)R.took.push(e)};
   tasks().forEach(t=>{const o=ownerFor(t,mon,split);
     if(t.owner==="ho"){for(let i=0;i<7;i++){const v=tk[t.id+"__"+i];if(!v||v.by==="x")continue;if(v.half==="vm")R.ho.half++;else if(R.ho[v.by]!=null)R.ho[v.by]++}return}
     if(group(t.freq)!=="week"){const v=tk[t.id+"__p"];if(v){add(t,v,null,v.own);R.per[v.by]=(R.per[v.by]||0)+(t.pts||1)}return}
-    const n=slotsOf(t);let c=0,m=0;
-    for(let i=0;i<n;i++){if(t.freq==="day"&&i>today)continue;m++;const k=t.id+"__"+i;
+    const n=slotsOf(t);let c=0,m=0,ca=0,pa=false,pc=0;
+    for(let i=0;i<n;i++){if(t.freq==="day"&&i>today)continue;const k=t.id+"__"+i;if(pa)ca+=c-pc;pa=t.freq==="day"&&AW[i];pc=c;if(!pa)m++;
       if(t.owner==="both"){const leg=tk[k],a=tk[k+"_p0"]||(leg&&leg.by==="p0"?leg:null),b=tk[k+"_p1"]||(leg&&leg.by==="p1"?leg:null);c+=(a?.5:0)+(b?.5:0);[a,b].forEach(v=>{if(v){add(t,v);R.per[v.by]+=(t.pts||1)/2}});continue}
       if(hasSubs(t)){t.subs.forEach((sn,j)=>{const sv=tk[k+"_s"+j];if(sv)add(t,sv,sn,sv.own)});if(tk[k])c++;continue}
       const v=tk[k];if(v){c++;add(t,v,null,v.own);if(R.per[v.by]!=null)R.per[v.by]+=t.pts||1}}
     if(hasSubs(t))t.subs.forEach((sn,j)=>{for(let i=0;i<n;i++){const sv=tk[t.id+"__"+i+"_s"+j];if(sv&&R.per[sv.by]!=null)R.per[sv.by]+=(t.pts||1)/t.subs.length}});
-    R.c+=c;R.n+=m;if(m&&c<m&&!(isCur)){R.open.push(t.name);R.miss[t.id]=1}else if(m&&c<m)R.miss[t.id]=0});
+    if(pa)ca+=c-pc;m+=ca;if(awWk&&t.freq!=="day"&&c<m)m=c;R.c+=c;R.n+=m;if(m&&c<m&&!(isCur)){R.open.push(t.name);R.miss[t.id]=1}else if(m&&c<m)R.miss[t.id]=0});
   needWeekTicks(mon).forEach(({t,v})=>{add(t,v,"nach Bedarf",v.own);if(R.per[v.by]!=null)R.per[v.by]+=t.pts||1});
   R.log.sort((a,b)=>(a.v.at||0)-(b.v.at||0));R.took.sort((a,b)=>(b.v.at||0)-(a.v.at||0));return R}
 const rbNum=x=>(Math.round(x*10)/10).toString().replace(".",",");
@@ -53,5 +54,5 @@ function renderRueck(){const P=rbWeeks(),W=P.L.map(rbWeek),c=W.reduce((s,w)=>s+w
   h+=`<section data-fk="f_rbtook|1" class="card rbtookc"><h2>🤝 Füreinander übernommen${took.length?` <span class="freq">(${took.length})</span>`:""}</h2>${took.length?`<ul class="rblist">${shown.map(e=>`<li><div>${rbDot(e.v.by)}<b>${rbWhat(e)}</b></div><span class="freq">${esc(fmt(new Date(e.v.at),{weekday:"short",day:"numeric",month:"short"}))} · für ${esc(pname(e.own))}</span></li>`).join("")}</ul>${took.length>5?`<button class="linkish" data-act="rbtookall">${all?"Weniger zeigen":"Alle "+took.length+" zeigen"}</button>`:""}`:`<p class="freq">Noch nichts übernommen. Hakt jemand eine Aufgabe des anderen ab, steht sie hier als Dank.</p>`}</section>`;
   h+=rbLiegen();
   h+=`<section data-fk="f_rbweeks|1" class="card rbweeks"><h2>🗄️ Vergangene Wochen</h2>${W.map(w=>{const k="rb_"+w.wk,on=tFoldOn(k,false),{w:kw}=isoWeek(w.mon);
-    return `<div class="rbwk"><button class="rbwkh" data-tfold="${esc(k)}" data-tdef="0" aria-expanded="${on}"><span><b>KW ${kw}</b> <span class="freq">${esc(fmt(w.mon,{day:"numeric",month:"short"}))} bis ${esc(fmt(addDays(w.mon,6),{day:"numeric",month:"short"}))}${w.isCur?" · läuft":""}</span></span><span class="freq">${rbNum(w.c)} von ${rbNum(w.n)}${w.took.length?" · 🤝 "+w.took.length:""} ${on?"▾":"›"}</span></button>${on?`<div class="rbwkb">${rbWeekBody(w)}</div>`:""}</div>`}).join("")}</section>`;
+    return `<div class="rbwk"><button class="rbwkh" data-tfold="${esc(k)}" data-tdef="0" aria-expanded="${on}"><span><b>KW ${kw}</b> <span class="freq">${esc(fmt(w.mon,{day:"numeric",month:"short"}))} bis ${esc(fmt(addDays(w.mon,6),{day:"numeric",month:"short"}))}${w.isCur?" · läuft":""}${w.away?" · ⛵ "+w.away+(w.away===1?" Tag":" Tage")+" Urlaub":""}</span></span><span class="freq">${rbNum(w.c)} von ${rbNum(w.n)}${w.took.length?" · 🤝 "+w.took.length:""} ${on?"▾":"›"}</span></button>${on?`<div class="rbwkb">${rbWeekBody(w)}</div>`:""}</div>`}).join("")}</section>`;
   return h}

@@ -11,6 +11,13 @@ function shareIn(){let q;try{q=new URLSearchParams(location.search)}catch(_){ret
   const st=(q.get("st")||"").trim(),sx=(q.get("sx")||"").trim(),su=(q.get("su")||"").trim();try{const u=new URL(location.href);["su","sx","st"].forEach(k=>u.searchParams.delete(k));history.replaceState(null,"",u.pathname+u.search+(S.key?"#k="+S.key:location.hash))}catch(_){}
   if(!st&&!sx&&!su)return;let n=0;const go=()=>{if((!S.config||!S.food)&&n++<20)return setTimeout(go,300);shareOpen(st,sx,su)};setTimeout(go,300)}
 
+// Abkürzungen am App-Symbol (Florian 19.11.2026: „Ja. Gute Auswahl. Lässt sich ja ändern“): manifest.json „shortcuts“ öffnen ./?ab=termin|einkauf|kalender|heute.
+// Der Sprung läuft über einen eingefügten Knopf, also denselben Weg wie ein Tipp.
+const AB_GO={termin:["act","ternewgo"],einkauf:["nav","einkauf|"],kalender:["nav","woche|wp:3"],heute:["nav","woche|wp:0"]};
+function abIn(){let q;try{q=new URLSearchParams(location.search)}catch(_){return}const g=AB_GO[q.get("ab")];if(!q.has("ab"))return;
+  try{const u=new URL(location.href);u.searchParams.delete("ab");history.replaceState(null,"",u.pathname+u.search+(S.key?"#k="+S.key:location.hash))}catch(_){}
+  if(!g)return;let n=0;const go=()=>{if((!S.config||!S.food||!S.me)&&n++<20)return setTimeout(go,300);const b=document.createElement("button");b.hidden=true;b.dataset[g[0]]=g[1];app.appendChild(b);b.click();b.remove()};setTimeout(go,300)}
+
 // ---------- Start ----------
 function start(store,mode){S.store=store;S.mode=mode;let gotCfg=false,gotWeeks=false;
   const timer=setTimeout(()=>{S.timedOut=true;if(!gotCfg)S.config=S.config||null;render()},10000);
@@ -20,7 +27,7 @@ function start(store,mode){S.store=store;S.mode=mode;let gotCfg=false,gotWeeks=f
     food=>{S.food=food||{};migSpiel();migShopBell();migPlayTrip();migKitaTer();migKidMed();linkTerSync();migGmCopies();geldFixBook();render()});// Florian 16.11.2026: früher nur bestimmte Bereiche, dadurch fehlten nach dem Neuladen auf Woche/Kalender/Suche Essen, Kita und Termine
   try{fetch("wochenideen.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.wideas=j;if(S.tab==="essen")render()}}).catch(()=>{})}catch(_){}
   try{fetch("hausfunde.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.hfunde=j;if(S.tab==="amhaus")render()}}).catch(()=>{})}catch(_){}
-  shareIn();if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+  shareIn();abIn();if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
   try{fetch("ferien.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.ferien)){S.ferien=j;render()}}).catch(()=>{})}catch(_){}
   try{fetch("ausflugtipps.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.atipps=j;if(S.tab==="ausflug")render()}}).catch(()=>{})}catch(_){}
   try{fetch("reisefunde.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.rfunde=j;if(S.tab==="ausflug")render()}}).catch(()=>{})}catch(_){}
