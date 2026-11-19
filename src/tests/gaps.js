@@ -9,7 +9,7 @@ srv.listen(8765,async()=>{
   await put('food/shop/s1',{name:'Milch',done:false,at:1});await put('food/pack/p1',{name:'Mütze',list:'main',at:1});await put('food/packlist/l2',{name:'Sommer',at:2});await put('food/buylist/b1',{name:'Bastel',emo:'📝',at:1});await A.waitForTimeout(400);
   await nav('einkauf|');await A.click('[data-shopedit=s1]');await box({name:'Milch 2 l'});r.shop=db().shop.s1.name;
   await nav('ausflug|tt:pack');await A.click('[data-packedit=p1]');await box({name:'Wollmütze'});r.pack=db().pack.p1.name;
-  await A.click('[data-packlist=l2]');await A.waitForTimeout(200);await A.click('[data-act=packlistren]');await box({name:'Sommerurlaub'});r.pl=db().packlist.l2.name;
+  await nav('ausflug|tt:packs');await A.click('[data-gopack=l2]');await A.waitForTimeout(200);await A.click('[data-act=packlistren]');await box({name:'Sommerurlaub'});r.pl=db().packlist.l2.name;
   await nav('einkauf|bl:b1');await A.click('[data-buylistedit=b1]');await box({name:'Basteln',emo:'✂️'});r.bl=[db().buylist.b1.name,db().buylist.b1.emo].join('|');
   console.error(JSON.stringify(r),errs);
   const ok=!errs.length&&r.shop==='2 l Milch'&&r.pack==='Wollmütze'&&r.pl==='Sommerurlaub'&&r.bl==='Basteln|✂️';

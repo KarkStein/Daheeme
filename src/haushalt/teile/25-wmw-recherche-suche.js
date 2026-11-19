@@ -103,7 +103,7 @@ function searchHits(q){const W=sNorm(q).split(/\s+/).filter(Boolean);if(!W.lengt
   ((S.ideas&&S.ideas.items)||[]).concat((S.ideas&&S.ideas.emmi)||[]).forEach(x=>add("Rezepte","✨",x.name,"Tagesrezept",'data-nav="essen|ft:rezepte"',(x.ing||[]).join(" ")));
   Object.keys(F.plan||{}).forEach(wk=>{if(wk<wkKey(mondayOf(addDays(new Date(),-14))))return;Object.keys(F.plan[wk]||{}).forEach(d=>{const x=F.plan[wk][d];if(x&&x.text)add("Wochenplan","🍲",x.text,wk.replace(/^\d+-W/,"KW ")+" · "+(DAYN[+d.slice(1)]||""),'data-nav="essen|ft:plan"')})});
   listOf(F.shop).filter(x=>!x.done).forEach(x=>add("Einkaufsliste","🧺",x.name,"Einkaufsliste"+(x.src?" · "+x.src:""),'data-go="einkauf"'));
-  packs().filter(x=>!x.done).forEach(x=>add("Packlisten","🧳",x.name,"Packliste",'data-nav="ausflug|tt:pack"'));
+  packs().filter(x=>!x.done).forEach(x=>add("Packlisten","🧳",x.name,"Packliste",'data-gopack="'+esc(x.list||"main")+'"'));
   kidMeds().forEach(x=>add("Kind",kidMedIc(x),x.name,"Gesundheit"+(x.date?" · "+x.date.split("-").reverse().slice(0,2).join("."):""),'data-nav="kind|kf:kid_med"',x.note));
   kitas().forEach(x=>add("Kita","🎒",x.name,"Kita"+(x.date?" · "+x.date.split("-").reverse().slice(0,2).join("."):""),`data-nav="kita|ks:${esc(x.sec||"termine")}"`,x.note));
   advCals().forEach(c=>{add("Ideen","🎄",c.name,"Adventskalender "+(c.year||""),`data-advgo="${esc(c.id)}"`);Object.values(advDoors(c.id)).forEach(x=>{if(!advHidden(c,x.day))add("Ideen","🎄",x.name,"Adventskalender · Türchen "+x.day,`data-advgo="${esc(c.id)}"`)})});

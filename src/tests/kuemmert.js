@@ -29,5 +29,5 @@ srv.listen(8765,async()=>{
   // Rückblick
   await nav('woche|wp:4');r.rb=await A.$eval('.rbcare',e=>e.innerText).catch(()=>'');
   console.log(JSON.stringify(r),errs);
-  console.log(!errs.length&&/open/.test(r.q)&&/\?/.test(r.q)&&r.noAdult&&/J/.test(r.k3)&&r.care1==='p0'&&/p1:false/.test(r.mask)&&/p0:true/.test(r.mask)&&r.care2==='p1'&&!/\d/.test(r.bell)&&/\d/.test(r.bell2)&&/open/.test(r.uhead)&&r.ucare==='both'&&/kümmern sich/.test(r.uhead2)&&/Gekümmert/.test(r.rb)?'KUEMMERT OK':'KUEMMERT FAIL');
+  console.log(!errs.length&&/open/.test(r.q)&&/\?/.test(r.q)&&r.noAdult&&/J/.test(r.k3)&&r.care1==='p0'&&/p1:false/.test(r.mask)&&/p0:true/.test(r.mask)&&r.care2==='p1'&&!/\d/.test(r.bell)&&/\d/.test(r.bell2)&&/open/.test(r.uhead)&&r.ucare==='both'&&/Florian und Judith/.test(r.uhead2)&&/Gekümmert/.test(r.rb)?'KUEMMERT OK':'KUEMMERT FAIL');
   await b.close();process.exit(0)});

@@ -803,3 +803,7 @@ a.minitile{text-decoration:none;color:inherit}
 .thtitle{background:none;border:none;color:inherit;font:inherit;padding:0;text-align:left}
 .headbtns{display:flex;gap:var(--sp1);flex:none}.mk.mkdone .mkb{opacity:.65}.urlcard .section-head .ghost.small{flex:none}
 .tripdash+.ausnew{margin-top:0}
+.tripdash a.btl{color:inherit;text-decoration:none}.tripdash .ucare{flex-wrap:wrap}.tripdash .ucare .btl{cursor:default}.tripdash .carehead{background:none;border:none;color:inherit;font:inherit;padding:0;text-decoration:underline dotted}
+.uheart{background:rgba(255,255,255,.12);border:none;border-radius:999px;color:inherit;font:inherit;font-size:var(--fs-xs);padding:var(--sp1) var(--sp2);flex:none}
+.mkgo{font-style:normal;color:var(--muted);padding:0 var(--sp2)}.reiseact{margin-top:var(--sp4);justify-content:center}
+.tripdash .carehead,.tripdash .carehead.open{color:inherit;margin:0}

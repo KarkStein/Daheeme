@@ -24,7 +24,7 @@ srv.listen(8765,async()=>{
   await lp('.prow .pnm');await A.click('h1');await A.waitForTimeout(300);r.cancel=!(await A.$('#app .lpx'))&&!!(db().prio||{}).p1;
   await nav('listen|bl:kleidung');const sum=await A.$('[data-buysum=kleidung][aria-expanded=false]');if(sum)await sum.click();await A.waitForTimeout(300);
   await del('buy','listen|bl:kleidung','[data-buydone=b1]',()=>!(db().buy||{}).b1);
-  await del('pack','ausflug|tt:pack','[data-pack=k1]',()=>!(db().pack||{}).k1,'[data-packlist=l1]');
+  await del('pack','ausflug|tt:packs','[data-pack=k1]',()=>!(db().pack||{}).k1,'[data-gopack=l1]');
   await del('rec','essen|ft:rezepte','.recbar:has([data-recrm=r1])',()=>!(db().rec||{}).r1,'[data-act=bookstog]');
   await del('kitabag','kita|ks:tasche','[data-kitatick=k2]',()=>!(db().kita||{}).k2);
   await del('kitater','kita|','.evlist li:has([data-teredit="k_k3"]) [data-teredit]',()=>!(db().termin||{}).k_k3);

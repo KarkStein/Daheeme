@@ -28,8 +28,8 @@ srv.listen(8765,async()=>{
   await put('food/idea/g1',{name:'Buch',cat:'geschenk',state:'idee',at:1});await A.waitForTimeout(300);
   await nav('projekte|pf:geschenk');await A.click('[data-projedit=g1]');await A.waitForTimeout(200);await A.fill('[data-pf=emo]','📚');await A.click('[data-act=projsave]');await A.waitForTimeout(400);r.gift=db().idea.g1.emo;
   // 5) Packliste: Name und Symbol
-  await put('food/packlist/l2',{name:'Sommer',at:2});await A.waitForTimeout(300);await nav('ausflug|tt:pack');await A.click('[data-packlist=l2]');await A.waitForTimeout(200);await A.click('[data-act=packlistren]');await A.waitForSelector('#mbox [data-ebf=emo]');await A.fill('#mbox [data-ebf=emo]','☀️');await A.click('#mbox button[type=submit]');await A.waitForTimeout(400);
-  r.pack=db().packlist.l2.emo;r.packChip=await A.$eval('[data-packlist=l2]',e=>e.innerText);
+  await put('food/packlist/l2',{name:'Sommer',at:2});await A.waitForTimeout(300);await nav('ausflug|tt:pack');await nav('ausflug|tt:packs');await A.click('[data-gopack=l2]');await A.waitForTimeout(200);await A.click('[data-act=packlistren]');await A.waitForSelector('#mbox [data-ebf=emo]');await A.fill('#mbox [data-ebf=emo]','☀️');await A.click('#mbox button[type=submit]');await A.waitForTimeout(400);
+  r.pack=db().packlist.l2.emo;r.packChip=await A.$eval('#app h1',e=>e.innerText);
   // 6) Adventskalender: Name und Symbol
   await nav('projekte|pf:advent');await A.click('[data-advnew]');await A.waitForTimeout(400);await A.click('[data-advren]');await A.waitForSelector('#mbox [data-ebf=emo]');await A.fill('#mbox [data-ebf=emo]','⭐');await A.click('#mbox button[type=submit]');await A.waitForTimeout(400);
   r.adv=Object.values(db().advent||{}).map(x=>x.emo).join();r.advHead=await A.$eval('#app',e=>/⭐ Adventskalender/.test(e.innerText));

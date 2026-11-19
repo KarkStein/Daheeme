@@ -52,7 +52,7 @@ new MutationObserver(()=>{const open=ovlOpen();
 // kann der Finger auf einen Eintrag gleiten und dort loslassen; sonst bleibt der Fächer offen, Tipp auf einen Eintrag öffnet ihn, Tipp daneben oder Zurück schließt.
 // Seit der Bündelung (Florian 17.11.2026, „A neu“): je Seite drei Bereiche, deren weitere Seiten als kleine Knöpfe daneben (FAN_SUB, sonst aus AREA_PAGES)
 const FAN={camp:["Familie und Zuhause",["kind","privat","amhaus"]],einkauf:["Freizeit und Gemerktes",["ausflug","musik","projekte"]]};
-const FAN_SUB={ausflug:[["Packlisten","ausflug|tt:pack"]]};
+const FAN_SUB={ausflug:[["Packlisten","ausflug|tt:packs"]]};
 const fanItems=k=>FAN[k][1].map(t=>AREAS.find(a=>a[2]===t)).filter(Boolean).map(a=>{const P=AREA_PAGES[a[2]];return P?[P[0],P[1],a[2]+"|",areaSubPages(a[2])]:[a[0],a[1],a[4]||a[2]+"|",FAN_SUB[a[2]]||[]]});
 function fanHtml(k){const tb=document.getElementById("tabs").getBoundingClientRect(),bt=document.querySelector(`#tabs [data-tab="${k}"]:not([hidden])`),r=bt?bt.getBoundingClientRect():null,cur=arCur();
   return `<div class="fanbg"></div>${r?`<div class="fanring" style="left:${Math.round(r.left+r.width/2-30)}px;top:${Math.round(r.top+4)}px"></div>`:""}<div class="fanlist" role="menu" aria-label="${esc(FAN[k][0])}" style="bottom:${Math.max(16,Math.round(innerHeight-tb.top+14))}px">${fanItems(k).map(t=>`<div class="fanrow"><button class="fanit${t[2]===cur?" on":""}" role="menuitem" data-fannav="${esc(t[2])}"><span>${t[0]}</span><b>${esc(t[1])}</b></button>${t[3].map(s=>`<button class="fansub${s[1]===cur?" on":""}" role="menuitem" data-fannav="${esc(s[1])}">${esc(s[0])}</button>`).join("")}</div>`).join("")}<button class="fanall" data-fanall>Alle Bereiche ›</button><div class="fanttl">${esc(FAN[k][0])}</div></div>`}

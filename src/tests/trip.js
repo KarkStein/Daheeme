@@ -5,9 +5,9 @@ srv.listen(8765,async()=>{
   const link=A.url();const B=await mk();await B.goto(link.replace('/#','/?bild=haus#'));await B.waitForSelector('[data-me=p1]');await B.click('[data-me=p1]');
   const tabs=await A.$$eval('#tabs button',l=>l.filter(x=>!x.hidden).map(x=>x.dataset.tab));console.log('tabs',tabs);
   // Packliste: neue Liste "Strand"
-  await A.click('.spot[data-go=ausflug]');await A.click('.pager [data-nav=\"ausflug|tt:pack\"]');
+  await A.click('.spot[data-go=ausflug]');await A.click('.pager [data-nav=\"ausflug|tt:urlaub\"]');await A.click('[data-gopack=main]');
   for(const n of ['Wasser','Brotzeit']){await A.click(`[data-packadd="${n}"]`);await A.waitForTimeout(150)}
-  await A.click('[data-act=packlistnew]');await A.fill('#packlistinput','Strand');await A.press('#packlistinput','Enter');await A.waitForTimeout(300);
+  await A.click('[data-nav=\"ausflug|tt:packs\"]');await A.click('[data-act=packlistnew]');await A.fill('#packlistinput','Strand');await A.press('#packlistinput','Enter');await A.waitForTimeout(300);
   for(const n of ['Sonnencreme','Mütze']){await A.click(`[data-packadd="${n}"]`);await A.waitForTimeout(150)}
   await A.fill('#packinput','Sandspielzeug');await A.press('#packinput','Enter');await A.waitForTimeout(300);
   await A.click('[data-pack]');await A.waitForTimeout(300);
@@ -26,7 +26,7 @@ srv.listen(8765,async()=>{
   await B.click('[data-rgf="w|regen"]');await B.waitForTimeout(200);const shown=await B.$$eval('.rgcard .mk .mkt b',l=>l.map(x=>x.textContent));console.log('regen',shown);
   await B.click('[data-rgf="w|regen"]');await B.waitForTimeout(200);
   await B.screenshot({path:out+'/ideen.png',fullPage:true});
-  await B.click('[data-gopack]');const pl=await B.$eval('[data-packlist][aria-pressed=true]',e=>e.textContent);console.log('gopack',pl);
+  await B.click('[data-gopack]');const pl=await B.$eval('#app h1',e=>e.textContent);console.log('gopack',pl);
   // Essen-Reiter mit Einkauf
   await A.click('[data-tab=essen]');await A.click('#tabs [data-tab=einkauf]');const sel=await A.$eval('#tabs [aria-selected=true]',e=>e.dataset.tab);console.log('einkauf markiert',sel);
   await A.screenshot({path:out+'/einkauf.png'});
