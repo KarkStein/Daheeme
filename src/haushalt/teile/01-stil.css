@@ -771,3 +771,10 @@ a.mkb{text-decoration:none;color:var(--fg)}.muslk[aria-pressed=false]{filter:gra
 .calic{display:inline-grid;grid-template-rows:auto 1fr;width:26px;height:26px;border:1.5px solid currentColor;border-radius:6px;overflow:hidden;line-height:1;text-align:center}
 .calic i{display:block;height:6px;background:var(--ochre)}
 .calic b{font-size:var(--fs-xs);font-weight:700;display:grid;place-items:center}
+/* 🧠 Kümmert sich (29i-kuemmert.js) */
+.carebtn{flex:none;display:inline-flex;align-items:center;gap:2px;border:1px solid var(--line);border-radius:999px;background:none;font:inherit;font-size:var(--fs-xs);padding:2px var(--sp2);min-height:28px;cursor:pointer;color:var(--ink)}
+.carebtn .kz{margin:0}
+.carebtn.open{border-style:dashed;color:var(--muted);opacity:.8}
+.carehead{display:inline-block;margin-top:var(--sp1);border:1px solid var(--line);border-radius:999px;background:none;font:inherit;font-size:var(--fs-s);padding:var(--sp1) var(--sp3);cursor:pointer;color:var(--ink)}
+.carehead.open{border-style:dashed;color:var(--muted)}
+.rbcare{margin-top:var(--sp2)}
