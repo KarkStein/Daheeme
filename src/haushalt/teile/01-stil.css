@@ -807,3 +807,6 @@ a.minitile{text-decoration:none;color:inherit}
 .uheart{background:rgba(255,255,255,.12);border:none;border-radius:999px;color:inherit;font:inherit;font-size:var(--fs-xs);padding:var(--sp1) var(--sp2);flex:none}
 .mkgo{font-style:normal;color:var(--muted);padding:0 var(--sp2)}.reiseact{margin-top:var(--sp4);justify-content:center}
 .tripdash .carehead,.tripdash .carehead.open{color:inherit;margin:0}
+
+.mapsrow{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp2);margin:var(--sp2) 0 var(--sp3)}
+.mapsrow .freq{flex-basis:100%}
