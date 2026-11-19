@@ -29,8 +29,8 @@ srv.listen(8765,async()=>{
   await A.click('.bellnav');const wh=await A.$eval('h1',e=>e.textContent);const secs=await A.$$eval('.section-head h2',l=>l.map(x=>x.textContent));
   await A.click('[data-priosort=bereich]');const secs2=await A.$$eval('.section-head h2',l=>l.map(x=>x.textContent));
   await A.screenshot({path:out+'/prio-liste.png',fullPage:true});
-  await A.click('[data-tab=camp]');await A.click('.today [data-go=wichtig]');const wh2=await A.$eval('h1',e=>e.textContent);
-  console.log({wh,secs,secs2,wh2,heute:await A.$$eval('.today .todayrow',l=>l.map(x=>x.innerText))});
+  await A.click('[data-tab=camp]');await A.click('.startdash .bcnt[data-go=wichtig]');const wh2=await A.$eval('h1',e=>e.textContent);
+  console.log({wh,secs,secs2,wh2,heute:await A.$$eval('.startdash .bcnt',l=>l.map(x=>x.innerText))});
   console.log({shopRowGone,pressed,rows,later,brows,after,h1,errs});
   const ok=!errs.length&&shopRowGone&&pressed==='true'&&rows.length===3&&rows.some(r=>/Laternenfest.*Erinnerung ab/.test(r))&&later.length===2&&brows.length===3&&after.length===2&&!after.some(r=>/Steuer/.test(r))&&h1==='Kita'&&/Wichtig/.test(wh)&&secs.includes('Ohne Datum')&&secs.includes('Später')&&secs2.length===3&&secs2.some(x=>/Rezepte/.test(x))&&/Wichtig/.test(wh2);
   console.log(ok?'PRIO OK':'PRIO FAIL');await b.close();srv.close();process.exit(0)});

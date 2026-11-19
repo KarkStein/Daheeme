@@ -57,7 +57,8 @@ function startHead(sea){const g=greetTxt(new Date().getHours()),w=wxToday();
   return `<div class="starthead wxrow"><button class="wxhead wxin" data-act="wxpop" aria-label="${esc(g)}. Wetter${w.pre?" morgen":""}: ${esc(w.rng)}${w.hint?", "+esc(w.hint):""}. Tippen zeigt die Vorhersage."><h1>${g}</h1><span class="wxline">${w.pre?`<span class="wxpre">${w.pre}:</span> `:""}${w.emo} ${esc(w.rng)}${w.hint?`<span class="wxhint"> · ${esc(w.hint)}</span>`:""}</span></button>${wxFunBtn(F)}</div>`}
 function wxKind(code){if(code==null||code==="")return "";code=+code;if(isNaN(code))return "";if(code>=95)return "gewitter";if(code>=71&&code<=77||code===85||code===86)return "schnee";if(code>=51&&code<=67||code>=80&&code<=82)return "regen";if(code===45||code===48)return "nebel";if(code===3)return "bedeckt";if(code===2)return "wolkig";return ""}
 // Ausschnitt des Hausbilds (Florian 15.11.2026: weniger Himmel, Haus und Wiese größer). Spots rechnen damit.
-const HVB=[4,32,352,228];
+// Florian 19.11.2026 (Start A): Bild flacher, oben weniger Himmel; Datum, Wetter und Ring liegen im Himmel (skyHead)
+const HVB=[4,62,352,198];
 // Meereslinie im Haus am Meer (Florian 17.11.2026: „B“, Meer höher, das Haus steht ganz vor dem Meer; vorher 118 = Höhe des Dachfirsts). LOW_SUN = Höhe der tiefen Sonne (Morgen/Abend), halb im Meer.
 const SEA_Y=92,LOW_SUN=72;
 function spotPos(x,y,w,h){const V=HVB;return `left:${((x-V[0])/V[2]*100).toFixed(1)}%;top:${((y-V[1])/V[3]*100).toFixed(1)}%;width:${(w/V[2]*100).toFixed(1)}%;height:${(h/V[3]*100).toFixed(1)}%`}
@@ -65,8 +66,8 @@ function spotPos(x,y,w,h){const V=HVB;return `left:${((x-V[0])/V[2]*100).toFixed
 // [x, y, Breite, Höhe, Ziel (data-go oder "tab|art:wert" für data-nav), Beschriftung (aria-label), Ding fürs Glossar, Motiv ("" beide, "meer", "stadt"), Filter Am Haus]
 const PIC_SPOTS=[[166,196,50,48,"woche","Haushalt: offene Aufträge","🧹 Besen an der Tür",""],[119,148,42,96,"essen","Essen","💨 Schornstein",""],[112,212,26,22,"einkauf","Einkauf: Korb mit Baguette","🧺 Korb mit Baguette am Fahrrad",""],
   [208,203,24,30,"kita","Kita","🎒 Rucksack an der Hauswand",""],[80,243,40,24,"ausflug","Ausflüge: Fahrrad","🚲 Fahrrad am Baum",""],[62,214,20,22,"woche|wp:3","Kalender: Aushang am Baum","📜 Aushang am Baumstamm",""],
-  [330,80,34,44,"projekte","Sammlung: Kirchtürme","⛪ Zwei Kirchtürme","stadt"],[40,133,40,38,"privat","Partner: Bank im Garten","🌹 Bank unter dem Rosenbogen","stadt"],
-  [318,80,34,64,"projekte","Sammlung","🗼 Leuchtturm","meer"],[38,122,70,42,"privat","Partner: Klippen","🪨 Klippen","meer"],
+  [330,80,34,44,"projekte","Sammlung: Kirchtürme","⛪ Zwei Kirchtürme","stadt"],[40,140,40,31,"privat","Partner: Bank im Garten","🌹 Bank unter dem Rosenbogen","stadt"],
+  [318,80,34,64,"projekte","Sammlung","🗼 Leuchtturm","meer"],[38,136,70,28,"privat","Partner: Klippen","🪨 Klippen","meer"],
   [24,244,18,26,"post","Briefkasten","📮 Briefkasten",""],[155,168,22,20,"amhaus","Am Haus: Lampe","🏮 Lampe über der Tür",""],[58,176,60,52,"amhaus","Garten: Baum","🌳 Baum","","garten"],
   [40,203,22,28,"kind","Kind: Schaukel","🪢 Schaukel am Baum",""],[15,205,18,14,"ausgaben","Ausgaben: Sparschwein","🐷 Sparschwein",""],[240,238,26,26,"spiel","Spielen","⚽ Ball am Steinweg",""],
   [270,52,44,26,"reisen","Urlaube: Flugzeug","✈️ Flugzeug","stadt"],[259,97,84,24,"ausflug","Ausflüge: Tram","🚋 Tram","stadt"],[322,196,56,66,"reisen","Urlaube: Segelboot","⛵ Segelboot","meer"],
@@ -193,26 +194,35 @@ function todoRows(tomorrowOff){const now=new Date(),today=ymd(now),tmw=ymd(addDa
   // Morgen nur darunter und kleiner (Florian 16.11.2026: „das wirklich von heute“)
   const pm=pt.filter(x=>x.due>today);if(pm.length&&!tomorrowOff)L+=`<div class="freq" style="margin-top:var(--sp2)">Morgen</div>`+pm.map(prow).join("");
   return L}
-// „🧹 Heute dran“ (Florian 16.11.2026): tägliche Aufgaben von heute plus noch offene Wochen-Aufgaben, für mich (ohne Ich bin: alle), ohne Hausdienst; dieselben wie der innere Ring
-function heuteDran(){const now=new Date(),mon=mondayOf(now),tk=ticksOf(wkKey(mon)),split=rotSplit(),di=(now.getDay()+6)%7,DN=["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
-  const done=(t,o,i)=>{const k=t.id+"__"+i;if(o!=="both")return !!tk[k];const leg=tk[k];return S.me?!!(tk[k+"_"+S.me]||(leg&&leg.by===S.me)):!!leg};
-  const row=(t,o,i,sub)=>{const d=done(t,o,i);return `<div class="trow${d?" tdone":""}"><button class="tchk" data-task="${esc(t.id)}" data-slot="${i}" ${o==="both"?'data-split="1"':""} aria-pressed="${d}" aria-label="${esc(t.name)} ${d?"erledigt":"abhaken"}"><span class="box">${d?"✓":""}</span></button><button class="ttx" data-act="gotasks"><span>${esc(t.name)}${sub?`<i>${sub}</i>`:""}</span><em>›</em></button></div>`};
-  const day=[],wk=[];
+// „Heute für dich“ (Florian 19.11.2026, „2: Heute im Wochenkopf“): Hausdienst, tägliche Aufgaben von heute und fällige Wochen-Aufgaben, für mich (ohne Ich bin: alle), ohne Hausdienst-Wechsel.
+// Wochen-Aufgaben kommen nach Florians Regel: fällig, wenn erledigt < abgerundet(Anzahl × Wochentag / 7), Mo=1 … So=7; ab Samstag alles Offene; 1× pro Woche schon ab Donnerstag („Und Wochenaufgabe an Donnerstag“).
+const HEUTE_ALL_FROM=6,HEUTE_ONE_FROM=4;
+function wkSoll(n,wd){return wd>=HEUTE_ALL_FROM?n:n===1?(wd>=HEUTE_ONE_FROM?1:0):Math.floor(n*wd/7)}
+function heuteList(){const now=new Date(),mon=mondayOf(now),tk=ticksOf(wkKey(mon)),split=rotSplit(),di=(now.getDay()+6)%7,wd=di+1,t0=+startOfDay(now);
+  const mine=(t,o,i)=>{const k=t.id+"__"+i;if(o!=="both")return tk[k]||null;const leg=tk[k];return S.me?(tk[k+"_"+S.me]||(leg&&leg.by===S.me?leg:null)):leg||null};
+  const L=[],hm=hoMine();if(hm)L.push({ho:1,t:hm.t,slot:hm.di,done:hm.done,sub:"Hausdienst"+(hm.part?" "+hm.part:"")+(S.me?"":" · "+pname(hm.me))});
   tasks().forEach(t=>{if(group(t.freq)!=="week")return;const o=t.owner==="rot"?ownerFor(t,mon,split):t.owner;if(o==="ho"||(S.me&&o!==S.me&&o!=="both"))return;
-    if(t.freq==="day"){day.push([t,o,di]);return}
-    const n=slotsOf(t);let c=0,first=-1;for(let i=0;i<n;i++){if(done(t,o,i))c++;else if(first<0)first=i}if(first>=0)wk.push([t,o,first,n>1?`diese Woche noch ${n-c} von ${n}`:"diese Woche"])});
-  const hm=hoMine(),hoRow=hm?`<div class="trow${hm.done?" tdone":""}"><button class="tchk" data-hodone="${hm.di}" aria-pressed="${hm.done}" aria-label="Hausdienst ${hm.done?"erledigt":"abhaken"}"><span class="box">${hm.done?"✓":""}</span></button><button class="ttx" data-act="gotasks"><span>🔑 ${esc(hm.t.name)}<i>Hausdienst${hm.part?" "+hm.part:""}${S.me?"":" · "+esc(pname(hm.me))}</i></span><em>›</em></button></div>`:"";
-  const open=day.filter(x=>!done(...x)).length+(hm&&!hm.done?1:0),nDay=day.length+(hm?1:0);let L=hoRow+day.map(x=>row(...x)).join("");
-  if(wk.length)L+=`<div class="freq" style="margin-top:var(--sp2)">Diese Woche noch offen</div>`+wk.slice(0,4).map(x=>row(...x)).join("")+(wk.length>4?`<div class="trow"><span class="tic">…</span><button class="ttx" data-act="gotasks"><span>Noch ${wk.length-4} weitere</span><em>›</em></button></div>`:"");
-  const sub=nDay?(open?`noch ${open} von ${nDay}`:"alles erledigt ✅"):"";
-  return `<section class="card tagcard heutedran"><div class="section-head"><h2>🧹 Heute dran</h2><span class="freq">${DN[now.getDay()]}${sub?" · "+sub:""}</span></div>${L||`<div class="freq" style="padding:8px 0">Heute ist für ${S.me?"dich":"euch"} nichts dran.</div>`}${S.me?"":`<div class="freq">Tipp: Oben „Ich bin“ wählen, dann stehen hier nur deine Aufgaben.</div>`}</section>`}
+    if(t.freq==="day"){L.push({t,o,slot:di,done:!!mine(t,o,di),sub:"täglich"});return}
+    const n=slotsOf(t);let c=0,first=-1,today=-1;for(let i=0;i<n;i++){const v=mine(t,o,i);if(v){c++;if(v.at>=t0)today=i}else if(first<0)first=i}
+    const soll=wkSoll(n,wd);if(first>=0&&c<soll)L.push({t,o,slot:first,done:false,sub:n>1?`${soll-c} von ${n} fällig`:"diese Woche"});
+    else if(today>=0)L.push({t,o,slot:today,done:true,sub:n>1?`${c} von ${n}`:"diese Woche"})});
+  return L}
+function heuteRows(L){return L.map(x=>`<li class="hrow${x.done?" hdone":""}"><span class="hn">${esc(x.t.name)}<i> · ${esc(x.sub)}</i></span><button class="hchk" ${x.ho?`data-hodone="${x.slot}"`:`data-task="${esc(x.t.id)}" data-slot="${x.slot}"${x.o==="both"?' data-split="1"':""}`} aria-pressed="${x.done}" aria-label="${esc(x.t.name)} ${x.done?"erledigt":"abhaken"}">${x.done?"✓":""}</button></li>`).join("")}
+// Kopf im Himmel (Florian 19.11.2026, „A: Bild und Dashboard zusammen“): Wochentag, Datum, Wetter mit Sonnenzeiten, Hausdienst; rechts der Doppelring. Tipp aufs Datum öffnet das Wetter
+function skyHead(night){const now=new Date(),pl=S.food&&S.food.wxplace,lat=pl&&pl.lat!=null?+pl.lat:51.0,lon=pl&&pl.lon!=null?+pl.lon:10.4,t=sunTimes(now,lat,lon),hm=m=>{m=Math.round(m);return Math.floor(m/60)+":"+String(m%60).padStart(2,"0")};
+  const DN=["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"],MN=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+  const WI={"":night?"🌙":"☀️",wolkig:"⛅",bedeckt:"☁️",nebel:"🌫️",regen:"🌧️",schnee:"🌨️",gewitter:"⛈️"},w=wxToday(),hr=S.wx&&S.wx.hours;
+  let T=null;if(hr&&hr.time){const k=ymd(now)+"T"+String(now.getHours()).padStart(2,"0"),i=hr.time.findIndex(x=>x.slice(0,13)===k);if(i>=0)T=Math.round(hr.temperature_2m[i])}
+  const I=S.wx&&S.wx.cur!=null?WI[wxKind(S.wx.cur)]||"⛅":"",F=w?wxFun():null;
+  return `<div class="skyhead${night?" night":""}"><button class="skyl" data-act="wxpop" aria-expanded="${!!S.wxPop}" aria-label="${esc(greetTxt(now.getHours()))}. Tippen zeigt das Wetter${w&&w.hint?". "+esc(w.hint):""}"><span class="skyday">${DN[now.getDay()]} · Heute</span><span class="skydate">${now.getDate()}. ${MN[now.getMonth()]}</span><span class="skywx">${T!=null?`${I} ${T}° · `:""}🌅 ${hm(t.rise)} · 🌇 ${hm(t.set)}${w&&w.hint?` · ${w.pre?w.pre+": ":""}${esc(w.hint)}`:""}${hoToday()}</span></button>${F?`<button class="skyfun" data-wxfun="${F.k}" aria-label="${esc(F.n)}: ${esc(F.t)}. Tippen zeigt passende Ausflüge">${F.e}</button>`:""}<span class="skyring">${bweekRing()}</span></div>`}
 function renderTag(){loadWx();const now=new Date(),today=ymd(now),tmw=ymd(addDays(startOfDay(now),1)),D=backDay(now),mon=mondayOf(now),sun=ymd(addDays(mon,6));
   const DN=["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"],O=S.tagOpen||(S.tagOpen={}),night=skyPhase()==="night";
   const row=(ic,txt,sub,attr,chk)=>`<div class="trow">${chk?`<button class="tchk" ${chk}><span class="box"></span></button>`:`<span class="tic">${ic}</span>`}<button class="ttx" ${attr||""}><span>${chk?ic+" ":""}${txt}${sub?`<i>${sub}</i>`:""}</span><em>›</em></button></div>`;
   // Dashboard oben (Florian 15.11.2026: wieder da): Wetter, Zeitstrahl, Zähler, Blick auf 3 Tage
   // Woche ist Hausarbeit (Florian 16.11.2026): Dashboard oben, darunter „🧹 Heute dran“ nur mit meinen Aufgaben von heute (abhakbar); Erinnerungen, Kita und Essen stehen auf Start und unter Wichtig
   const L=todoRows(),bsplit=rotSplit(),kb=kitaBring(),pr=prios().filter(x=>x.from!=="mittag"),pt=pr.filter(x=>x.due&&x.due<=tmw);
-  let h=renderBack(night,true)+heuteDran();
+  // Seit 19.11.2026 steht das Dashboard auf Start (Florian: „A: Bild und Dashboard zusammen“); hier bleibt „Heute dran“
+  let h="";
   // Die Woche darunter kommt aus renderWeek (Umbau 16.11.2026: Tag und Woche und Diese Woche sind eine Seite)
   return h}
 function renderCamp(){S.flip=false;loadWx();
@@ -226,12 +236,9 @@ function renderCamp(){S.flip=false;loadWx();
     if(t.freq==="day")chk(di);else for(let i=0;i<slotsOf(t);i++)chk(i)});{const hm=hoMine();if(hm&&!hm.done)openW++}
   const openS=shopItems().filter(i=>!i.done).length,meal=planDays(mon)["d"+di],mealTxt=meal?(meal.text||""):"";
   const spot=(x,y,w,hh,go,label,ft,pf)=>`<button class="spot" style="${spotPos(x,y,w,hh)}" ${go.includes("|")?`data-nav="${go}"`:`data-go="${go}"${pf?` data-pf="${pf}"`:""}`}${ft?` data-ft="${ft}"`:""} aria-label="${label}">${S.labels?`<span class="lab">${label.split(":")[0].replace(" mit dem Bus","").replace("Einkaufsliste","Einkauf")}</span>`:""}</button>`;
-  const city=motiv()==="stadt";let h=`${startPager(0)}${startHead(sea)}${S.me?"":meChooser()}
-   <div class="flipbox"><div class="flipin${S.flip?" flipped":""}"><div class="camp">${(houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:false,shop:openS>0,post:briefe().length>0},{ph:skyPh,wx:S.wx&&S.wx.cur!=null&&Date.now()-S.wx.at<3*3600e3?wxKind(S.wx.cur):"",city})+picSpots(city).map(p=>spot(p[0],p[1],p[2],p[3],p[4],p[5],p[4]==="essen"&&mealTxt?"plan":"",p[8])).join(""))+(()=>{const y=(night?40:(skyPh==="dusk"||skyPh==="dawn")?(city?98:LOW_SUN):44)+13,x=night?52:56;return `<button class="spot" style="${spotPos(x,y,46,46)}" data-act="wxpop" aria-expanded="${!!S.wxPop}" aria-label="${night?"Mond":"Sonne"}: Wetter">${S.labels?`<span class="lab">Wetter</span>`:""}</button>`})()+"</div>"+renderBack(night)+"</div>"}</div>
+  const city=motiv()==="stadt";let h=`${startPager(0)}${S.me?"":meChooser()}
+   <div class="flipbox"><div class="flipin${S.flip?" flipped":""}"><div class="camp">${(houseScene(has,Math.max(fire,0.12),night,items.filter(c=>c.emoji&&has[c.id]),sea,guests,{woche:false,shop:openS>0,post:briefe().length>0},{ph:skyPh,wx:S.wx&&S.wx.cur!=null&&Date.now()-S.wx.at<3*3600e3?wxKind(S.wx.cur):"",city})+skyHead(night)+picSpots(city).map(p=>spot(p[0],p[1],p[2],p[3],p[4],p[5],p[4]==="essen"&&mealTxt?"plan":"",p[8])).join(""))+(()=>{const y=(night?40:(skyPh==="dusk"||skyPh==="dawn")?(city?98:LOW_SUN):44)+13,x=night?52:56;return `<button class="spot" style="${spotPos(x,y,46,46)}" data-act="wxpop" aria-expanded="${!!S.wxPop}" aria-label="${night?"Mond":"Sonne"}: Wetter">${S.labels?`<span class="lab">Wetter</span>`:""}</button>`})()+"</div></div>"}</div>
    ${S.wxPop?wxPanel(night):""}
-   <section class="card today"><h2>Heute</h2>
-     <button class="todayrow" data-act="gotasks"><span>🧹</span><span>${openW?"Offene Aufträge":"Alles erledigt, was gerade ansteht ✅"}</span><i>›</i></button>
-     <button class="todayrow" data-go="essen" data-ft="${mealTxt?"heute":"rezepte"}"${!mealTxt?' data-mealfor="1"':""}><span>🍲</span><span>${mealTxt?"Es gibt "+esc(mealTxt):"Für heute ist noch kein Essen geplant"}</span><i>›</i></button>${(l=>{if(!l.length)return "";const u=l.filter(i=>i.urg).length,r=l.length-u;return `<button class="todayrow minialarm" data-shopview="${SHOP_TODAY}"><span>🧺</span><span>Heute einkaufen: ${l.length}${u&&r?` · ${r} fürs Abendessen, ${u} mit ❗`:""}</span><i>›</i></button>`})(shopToday())}
-     ${prioLinkRow()}</section>`;
+   ${renderBack(night,"start")}`;
   // "Als Nächstes" und "Ausstattung" sind gestrichen (Florian 15.11.2026); Leuchtturm und Gäste im Bild bleiben, weil sie den Wochenstand zeigen
   return h}

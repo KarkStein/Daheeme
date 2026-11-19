@@ -9,11 +9,11 @@ srv.listen(8765,async()=>{
     await A.route('https://api.open-meteo.com/**',rt=>rt.fulfill({contentType:'application/json',body:JSON.stringify(wx)}));
     await A.goto('http://localhost:8765/');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');await A.waitForTimeout(300);
     const key=/k=([^&]+)/.exec(A.url())[1];await fetch('http://localhost:8765/haushalt/'+key+'/food/wxplace.json',{method:'PUT',body:JSON.stringify({name:'Teststadt',lat:48.1,lon:11.6,gid:1})});await A.waitForTimeout(1200);
-    const t=await A.$eval('.starthead',e=>e.innerText.replace(/\n/g,' ')).catch(()=>'');const lines=await A.$eval('.starthead',e=>Math.round(e.getBoundingClientRect().height)).catch(()=>0);
+    const t=await A.$eval('.skyl',e=>e.getAttribute('aria-label')+' '+e.innerText.replace(/\n/g,' ')).catch(()=>'');const lines=await A.$eval('.skywx',e=>Math.round(e.getBoundingClientRect().height)).catch(()=>0);
     if(shot)await A.screenshot({path:out+'/'+shot});
-    let pop=false;if(await A.$('.wxhead')){await A.click('.wxhead');await A.waitForTimeout(300);pop=!!(await A.$('.wxpanel'))}
+    let pop=false;if(await A.$('.skyl')){await A.click('.skyl');await A.waitForTimeout(300);pop=!!(await A.$('.wxpanel'))}
     await c.close();return {t,lines,pop}};
   r.morning=await run(8,390,'gruss-wetter-morgen.png');r.even=await run(20,390,'gruss-wetter-abend.png');r.small=await run(8,360);
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&/Guten Morgen/.test(r.morning.t)&&/Regen ab 15 Uhr/.test(r.morning.t)&&/°/.test(r.morning.t)&&r.morning.pop&&r.morning.lines<60&&/Guten Abend/.test(r.even.t)&&/Morgen:/.test(r.even.t)&&/Schnee ab 10 Uhr/.test(r.even.t)&&r.small.lines<60&&/Guten Morgen/.test(r.small.t);
+  const ok=!errs.length&&/Guten Morgen/.test(r.morning.t)&&/Regen ab 15 Uhr/.test(r.morning.t)&&/°/.test(r.morning.t)&&r.morning.pop&&r.morning.lines<30&&/Guten Abend/.test(r.even.t)&&/Morgen:/.test(r.even.t)&&/Schnee ab 10 Uhr/.test(r.even.t)&&r.small.lines<30&&/Guten Morgen/.test(r.small.t);
   console.error(ok?'GREETWX OK':'GREETWX FAIL');await b.close();srv.close();process.exit(0)});

@@ -16,7 +16,7 @@ srv.listen(8765,async()=>{
   // 3 Glocke: 1 Tag vorher zählt (morgen 14 Uhr), 1 Stunde vorher übermorgen nicht
   await nav('wichtig|');r.bellT=await A.$$eval('.evlist [data-teredit]',l=>l.map(x=>x.innerText.split('\n')[0]));
   // 4 + Termin im Dashboard
-  await nav('camp|sp:tag');await A.click('[data-act=ternewgo]');await A.waitForTimeout(300);r.terform=!!(await A.$('#terform'));r.rem=await A.$$eval('#terform [data-terrem]',l=>l.length);
+  await nav('camp|');await A.click('.startdash .bmore');await A.waitForTimeout(300);await A.click('[data-act=ternewgo]');await A.waitForTimeout(300);r.terform=!!(await A.$('#terform'));r.rem=await A.$$eval('#terform [data-terrem]',l=>l.length);
   await A.fill('#ter-name','Elternabend');await A.click('#terform [data-terrem="1h"]');await A.click('#terform [type=submit]');await A.waitForTimeout(400);r.newrem=Object.values(F().termin||{}).filter(x=>x.name==='Elternabend').map(x=>x.remind).join();
   // 5 Glocke an einem Eintrag: Toast führt zur einen Maske
   await put('food/rec/r1',{name:'Testsuppe',ing:'',at:1});await A.waitForTimeout(300);await nav('essen|ft:rezepte');{const _bt=await A.$('.bookcard .setsum[aria-expanded=false]');if(_bt){await _bt.click();await A.waitForTimeout(150)}}await A.click('.bellbtn[data-prio="rezepte|r1"]');await A.waitForTimeout(300);r.toast=await A.$eval('#toast',e=>e.innerText);

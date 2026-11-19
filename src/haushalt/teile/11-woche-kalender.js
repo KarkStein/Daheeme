@@ -15,7 +15,8 @@ function panelRing(d,n,lbl,attr){const r=22,c=2*Math.PI*r,p=n?Math.min(1,d/n):0;
 const panelTile=(n,lab,attr)=>`<button class="bcnt" ${attr||""}><b class="num">${n}</b><span>${lab}</span></button>`;
 function panelHead(eye,title,sub,right){return `<div class="brim"></div><div class="btop"><div class="bhead"><div class="bday">${eye}</div><div class="bdate">${title}</div>${sub?`<div class="bsub">${sub}</div>`:""}</div>${right||""}</div>`}
 // Doppelring oben rechts (Florian 16.11.2026): außen die Woche (Wechsel-Aufgaben, Zitronengelb), innen heute (tasksToday, weiß); ohne Zusatz-Beschriftung (Florian). Tipp springt zu den offenen Aufgaben
-function bweekRing(){const [d,n]=weekMine(),A=tasksToday(),dt=A.total-A.open;if(!n&&!A.total)return "";
+// Seit 19.11.2026 ist innen „Heute für dich“ (heuteList), dieselbe Liste wie im Wochenkopf und am Zähler „Heute dran“
+function bweekRing(){const [d,n]=weekMine(),HL=heuteList(),A={total:HL.length,open:HL.filter(x=>!x.done).length},dt=A.total-A.open;if(!n&&!A.total)return "";
   const arc=(r,w,dd,nn,col,tr)=>{const c=2*Math.PI*r,p=nn?Math.min(1,dd/nn):0;return `<circle cx="27" cy="27" r="${r}" fill="none" stroke="${tr}" stroke-width="${w}"/><circle cx="27" cy="27" r="${r}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-p)).toFixed(1)}" transform="rotate(-90 27 27)"/>`};
   return `<button class="bring bring2" data-act="gotasks" aria-label="Heute ${dt} von ${A.total} Aufgaben erledigt, Woche ${d} von ${n} ${S.me?"Wochen-Aufgaben":"Wechsel-Aufgaben"}"><svg viewBox="0 0 54 54" aria-hidden="true">${arc(24,5,d,n,"var(--lemon)","rgba(255,255,255,.2)")}${arc(16,5,dt,A.total,"#fff","rgba(255,255,255,.14)")}</svg><span class="num">${dt}/${A.total}</span><small>heute</small></button>`}
 function ring(p){const r=36,c=2*Math.PI*r;const off=c*(1-Math.min(1,p));
@@ -168,14 +169,15 @@ function renderCal(){if(S.terDraft)return renderTerForm();const today=ymd(new Da
 // Woche kompakt (Florian 17.11.2026, „Alle drei nacheinander“, Bild /mnt/project-files/design/woche-kompakt-live.png): Wochenstand als schlichte Karte,
 // Abschnitte als Klapp-Karten (Stand je Gerät in hq-tfold, Schlüssel wk_<id>), Aufgaben als Zeilen mit Kreisen. Täglich zeigt nur den Kreis von heute,
 // Tipp auf den Namen klappt die ganze Aufgabe mit allen Tagen auf (S.wtOpen). „Diese Woche“ zeigt erst 6 Zeilen (S.wkMore).
-function wkFold(id,title,n,body,def){const k="wk_"+id,on=tFoldOn(k,def);return `<section class="card tfold wkfold section" id="sec-${id}"><button class="setsum" data-tfold="${k}" data-tdef="${def?1:0}" aria-expanded="${on}"><h2>${title}${n?` <span class="freq">(${n})</span>`:""}</h2><i>${on?"▾":"›"}</i></button>${on?`<div class="tfoldb">${body}</div>`:""}</section>`}
+function wkFold(id,title,n,body,def){const k="wk2_"+id,on=tFoldOn(k,def);return `<section class="card tfold wkfold section" id="sec-${id}"><button class="setsum" data-tfold="${k}" data-tdef="${def?1:0}" aria-expanded="${on}"><h2>${title}${n?` <span class="freq">(${n})</span>`:""}</h2><i>${on?"▾":"›"}</i></button>${on?`<div class="tfoldb">${body}</div>`:""}</section>`}
 const wkWho=(o,isRot)=>`<span class="owner wtw ${o==="p0"||o==="p1"?o:""}">${isRot?"↻ ":""}${esc(o==="p0"||o==="p1"?pname(o):OWNER_LABEL[o]||"")}</span>`;
 function renderWeek(){
   const mon=S.view,wk=wkKey(mon),cur=mondayOf(new Date()),isCur=+mon===+cur;
   const today=isCur?(new Date().getDay()+6)%7:(mon<cur?7:-1);
   const split=rotSplit(),tk=ticksOf(wk);
   const {w}=isoWeek(mon);
-  let h=`<div class="top"><div><h1>${isCur?"Diese Woche":(mon<cur?"Rückblick":"Vorschau")}</h1><div class="wkdate">KW ${w} · ${fmt(mon,{day:"numeric",month:"short"})} – ${fmt(addDays(mon,6),{day:"numeric",month:"short"})}</div></div>
+  // Laufende Woche: Titel und KW stehen in der Kopf-Karte, oben bleibt nur die Leiste zum Blättern
+  let h=`<div class="top${isCur?" wktop":""}"><div>${isCur?`<h1 class="sr">Diese Woche</h1>`:`<h1>${mon<cur?"Rückblick":"Vorschau"}</h1>`}<div class="wkdate">KW ${w} · ${fmt(mon,{day:"numeric",month:"short"})} – ${fmt(addDays(mon,6),{day:"numeric",month:"short"})}</div></div>
    <div class="weeknav"><button class="iconbtn" data-prionew="woche" aria-label="Erinnerung anlegen">🔔</button><button class="iconbtn" data-wknav="-1" aria-label="Vorige Woche">‹</button>${isCur?"":`<button class="ghost" data-wknav="0">Heute</button>`}<button class="iconbtn" data-wknav="1" aria-label="Nächste Woche" ${+mon>=+addDays(cur,28)?"disabled":""}>›</button></div></div>`;
   if(!isCur)h+=`<div class="wkro">${mon<cur?(S.wkEdit===wk?`✏️ Nachtragen ist an. <button class="ghost" data-act="wkedit">Fertig</button>`:`🗄️ Archiv: diese Woche ist nur zum Ansehen. <button class="ghost" data-act="wkedit">✏️ Nachtragen</button>`):`🔭 Vorschau: Hausdienst kannst du schon eintragen, abhaken geht erst in der Woche selbst.`}</div>`;
   if(!S.me)h+=meChooser();
@@ -190,9 +192,11 @@ function renderWeek(){
       const n=slotsOf(t);for(let i=0;i<n;i++){m[k][0]+=tk[t.id+"__"+i]?1:0;m[k][1]++}});
     sd=m.rot[0]+m.fix[0];sn=m.rot[1]+m.fix[1];sub=`Mein Stand · im Wechsel ${m.rot[0]}/${m.rot[1]} · fest ${m.fix[0]}/${m.fix[1]}`}
   else{sd=cnt.all[0];sn=cnt.all[1];sub=`Wochenstand${isCur?"":mon<cur?" (Rückblick)":" (Vorschau)"} · ${esc(pname("p0"))} ${cnt.p0[0]}/${cnt.p0[1]} · ${esc(pname("p1"))} ${cnt.p1[0]}/${cnt.p1[1]}`}
-  h+=`<section class="card wkstand" aria-label="Wochenstand"><div class="wkhead"><div><b>${sn-sd>0?`Noch ${sn-sd} offen`:"Alles erledigt"}</b><div class="freq">${sub}</div></div><span class="num wkn">${sd}/${sn}</span></div>
-    <div class="unl scrollrow wkf" role="group" aria-label="Ansicht"><button class="chipbtn neutral" data-filter="alle" aria-pressed="${S.filter==="alle"}">Alle</button><button class="chipbtn neutral" data-filter="meine" aria-pressed="${S.filter==="meine"}">Mein Bereich</button><button class="chipbtn neutral" data-act="hidedone" aria-pressed="${S.hideDone}">Erledigte ausblenden</button><button class="chipbtn neutral" data-act="groupby" aria-pressed="${S.groupBy==="art"}">Fest und Wechsel bündeln</button></div>
-    ${S.filter==="meine"&&!S.me?`<div class="notice">Wähle oben aus, wer du bist, damit „Mein Bereich“ funktioniert.</div>`:""}</section>`;
+  // Laufende Woche (Florian 19.11.2026, „2: Heute im Wochenkopf“): Kopf-Karte in Marine mit „Heute für dich“, direkt abhakbar; dieselben Haken wie in den Abschnitten
+  const HL=isCur?heuteList():[],hOpen=HL.filter(x=>!x.done).length;
+  h+=isCur?`<section class="campback dash wkpanel wkstand wkheute" aria-label="Wochenstand und heute">${panelHead(`Diese Woche · KW ${w}`,`${sn-sd>0?`Noch ${sn-sd} offen`:"Alles erledigt"}, ${hOpen} heute`,esc(sub),bweekRing())}`:`<section class="card wkstand" aria-label="Wochenstand"><div class="wkhead"><div><b>${sn-sd>0?`Noch ${sn-sd} offen`:"Alles erledigt"}</b><div class="freq">${sub}</div></div><span class="num wkn">${sd}/${sn}</span></div>`;
+  h+=`<div class="unl scrollrow wkf" role="group" aria-label="Ansicht"><button class="chipbtn neutral" data-filter="alle" aria-pressed="${S.filter==="alle"}">Alle</button><button class="chipbtn neutral" data-filter="meine" aria-pressed="${S.filter==="meine"}">Mein Bereich</button><button class="chipbtn neutral" data-act="hidedone" aria-pressed="${S.hideDone}">Erledigte ausblenden</button><button class="chipbtn neutral" data-act="groupby" aria-pressed="${S.groupBy==="art"}">Fest und Wechsel bündeln</button></div>
+    ${S.filter==="meine"&&!S.me?`<div class="notice">Wähle oben aus, wer du bist, damit „Mein Bereich“ funktioniert.</div>`:""}${isCur?`<div class="hhead">Heute für ${S.me?"dich":"euch"}</div>${HL.length?`<ul class="hlist">${heuteRows(HL)}</ul>`:`<div class="hnone">Heute ist nichts dran.</div>`}`:""}</section>`;
   if(sn&&sd>=sn)h+=`<div class="celebrate">${mine?"Du hast alle deine Aufgaben für diese Woche erledigt.":"Alle Wechsel-Aufgaben dieser Woche sind erledigt."}</div>`;
 
   const FO={day:0,week:1,month:2,half:3,year:4};
@@ -225,13 +229,13 @@ function renderWeek(){
   const vis=x=>!(S.filter==="meine"&&S.me&&!(x.o===S.me||x.o==="both"||x.o==="ho"))&&!(S.hideDone&&x.done);
   const order=(a,b)=>FO[a.t.freq]-FO[b.t.freq]||b.times-a.times||a.pct-b.pct;
   const secs=S.groupBy==="art"
-    ?[["rot","↻ Wechsel-Aufgaben",t=>t.owner==="rot",1],["fix","📌 Feste Aufgaben",t=>t.owner==="p0"||t.owner==="p1",1],["gem","🤝 Gemeinsam",t=>t.owner==="both",1]]
-    :[["day","☀️ Täglich",t=>t.freq==="day",1],["week","📅 Diese Woche",t=>t.freq==="week",1],["month","🗓️ Diesen Monat",t=>t.freq==="month",0],["half","🌗 Dieses Halbjahr",t=>t.freq==="half",0],["year","🎉 Dieses Jahr",t=>t.freq==="year",0]];
+    ?[["rot","↻ Wechsel-Aufgaben",t=>t.owner==="rot",0],["fix","📌 Feste Aufgaben",t=>t.owner==="p0"||t.owner==="p1",0],["gem","🤝 Gemeinsam",t=>t.owner==="both",0]]
+    :[["day","☀️ Täglich",t=>t.freq==="day",0],["week","📅 Diese Woche",t=>t.freq==="week",0],["long","🗓️ Monat, Halbjahr, Jahr",t=>t.freq==="month"||t.freq==="half"||t.freq==="year",0]];
   // Hausdienst immer als erster Abschnitt (Florian 15.11.2026), Filter blenden ihn nicht aus
   const ho=tasks().filter(t=>t.owner==="ho").map(card);
   if(ho.length){const hv=today>=0&&today<7?tk[ho[0].t.id+"__"+today]:null,hn=n=>esc(pname(n).charAt(0));
     const lab=!(today>=0&&today<7)?ho[0].c+" Tage eingetragen":!hv?"heute niemand":hv.by==="x"?"heute "+esc(hv.lbl||"jemand"):hv.half==="vm"?`heute ${hn(hv.by)} vorm. · ${hn(hv.by==="p0"?"p1":"p0")} nachm.`:"heute "+esc(pname(hv.by));
-    h+=wkFold("ho","🔑 Hausdienst",lab,`${isCur?hoChkRows(ho[0].t,hv,today):""}<div class="hoein"><b>Einteilen</b><span class="freq">Wer hat wann den Dienst? Daraus folgt, wer bringt und holt.</span></div>${ho.map(x=>x.html.replace('<article class="task','<article class="task hotask')).join("")}<div class="freq hohint">Kurz tippen trägt dich ein, lange drücken: andere Person oder geteilt. <button class="linkish" data-nav="kita|">🚸 Bringen und Abholen ›</button></div>`,1)}
+    h+=wkFold("ho","🔑 Hausdienst",lab,`${isCur?hoChkRows(ho[0].t,hv,today):""}<div class="hoein"><b>Einteilen</b><span class="freq">Wer hat wann den Dienst? Daraus folgt, wer bringt und holt.</span></div>${ho.map(x=>x.html.replace('<article class="task','<article class="task hotask')).join("")}<div class="freq hohint">Kurz tippen trägt dich ein, lange drücken: andere Person oder geteilt. <button class="linkish" data-nav="kita|">🚸 Bringen und Abholen ›</button></div>`,0)}
   secs.forEach(([id,title,fn0,def])=>{const fn=t=>t.owner!=="ho"&&fn0(t);const xs=tasks().filter(fn).map(card).filter(vis).sort(order);if(!xs.length)return;
     const lt=xs.filter(x=>x.later),op=xs.filter(x=>!x.done&&!x.later),dn=xs.filter(x=>x.done);if(!op.length&&!dn.length&&!lt.length)return;
     const lim=id==="week"&&!S.wkMore?6:99,all=op.concat(dn),shown=all.slice(0,lim),rest=all.length-shown.length;

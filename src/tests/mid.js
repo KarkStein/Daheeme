@@ -7,7 +7,7 @@ srv.listen(8765,async()=>{
     const o={};
     await A.click('#tabs [data-tab=woche]');await A.waitForTimeout(400);
     // Woche kompakt (17.11.2026): Monat ist eine Klapp-Karte, erst aufklappen
-    const mf=await A.$('[data-tfold=wk_month][aria-expanded=false]');if(mf){await mf.click();await A.waitForTimeout(300)}
+    const mf=await A.$('[data-tfold=wk2_long][aria-expanded=false]');if(mf){await mf.click();await A.waitForTimeout(300)}
     o.titles=await A.$$eval('.wt .wtn b',l=>l.map(x=>x.innerText).filter(x=>/Flächen|Zimmer drüben/.test(x)));
     o.later=await A.$$eval('.laterline',l=>l.map(x=>x.innerText).join(' | '));
     await A.click('[data-tab=camp]');await A.waitForTimeout(400);

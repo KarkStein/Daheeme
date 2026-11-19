@@ -12,10 +12,10 @@ srv.listen(8765,async()=>{
     await A.route('**/ausflugtipps.json',rt=>rt.fulfill({contentType:'application/json',body:JSON.stringify(J)}));
     await A.goto('http://localhost:8765/');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');await A.waitForTimeout(300);
     const key=/k=([^&]+)/.exec(A.url())[1];await fetch('http://localhost:8765/haushalt/'+key+'/food/wxplace.json',{method:'PUT',body:JSON.stringify({name:'Teststadt',lat:48.1,lon:11.6,gid:1})});await A.waitForTimeout(1200);
-    const res={sym:await A.$eval('.starthead',e=>e.innerText.replace(/\n/g,' ')).catch(()=>''),btn:await A.$$eval('[data-wxfun]',l=>l.map(x=>x.dataset.wxfun).join())};
-    if(shot)await (await A.$('.starthead')).screenshot({path:out+'/'+shot});
-    if(res.btn){await A.click('.wxhead');await A.waitForTimeout(300);res.panel=await A.$eval('.wxpanel',e=>e.innerText.replace(/\n/g,' ')).catch(()=>'');
-      await A.click('.starthead [data-wxfun]');await A.waitForTimeout(600);res.app=await A.$eval('#app',e=>e.innerText.replace(/\n/g,' '))}
+    const res={sym:await A.$eval('.skyhead',e=>e.innerText.replace(/\n/g,' ')).catch(()=>''),btn:await A.$$eval('[data-wxfun]',l=>l.map(x=>x.dataset.wxfun).join())};
+    if(shot)await (await A.$('.skyhead')).screenshot({path:out+'/'+shot});
+    if(res.btn){await A.click('.skyl');await A.waitForTimeout(300);res.panel=await A.$eval('.wxpanel',e=>e.innerText.replace(/\n/g,' ')).catch(()=>'');
+      await A.click('.skyhead [data-wxfun]');await A.waitForTimeout(600);res.app=await A.$eval('#app',e=>e.innerText.replace(/\n/g,' '))}
     await c.close();return res};
   r.wind=await run({t:9,w:35,r:0,c:2,s:0,sun:5},0,'wetter-drachen.png');
   r.snow=await run({t:-2,w:10,r:0,c:3,s:0,sun:2},0.12);

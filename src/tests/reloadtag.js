@@ -2,13 +2,13 @@ srv.listen(8765,async()=>{
   // Florian 16.11.2026: „Tag und Woche“ neu laden darf nichts verlieren (Beispiel Abendessen von heute im Dashboard)
   const b=await chromium.launch();const errs=[];const r={};const out=process.argv[2];
   const c=await b.newContext({viewport:{width:360,height:740},deviceScaleFactor:2,timezoneId:'Europe/Berlin',locale:'de-DE'});const A=await c.newPage();A.setDefaultTimeout(8000);A.on('pageerror',e=>errs.push(e.message));
-  await A.clock.setFixedTime(new Date('2026-11-18T17:00:00+01:00'));
+  await A.clock.setFixedTime(new Date('2026-11-18T10:00:00+01:00'));
   await A.goto('http://localhost:8765/');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');await A.waitForTimeout(300);
   const key=/k=([^&]+)/.exec(A.url())[1];
   setAt(['haushalt',key,'food','plan','2026-W47','d2'],{text:'Pfannkuchen',at:1});setAt(['haushalt',key,'food','kitaplan','2026-W47','d2'],{text:'Nudeln mit Tomatensoße'});
   await A.reload();await A.waitForTimeout(800);
   const nav=async v=>{await A.evaluate(v=>{const b=document.createElement("button");b.dataset.nav=v;b.id="zz";document.getElementById("app").appendChild(b)},v);await A.click("#zz");await A.waitForTimeout(300)};
-  await nav('woche|wp:0');const txt=()=>A.$eval('#app',e=>e.innerText);
+  await nav('camp|');const txt=()=>A.$eval('#app',e=>e.innerText);
   r.before=/Pfannkuchen/.test(await txt());r.kitaBefore=/Nudeln mit Tomaten/.test(await txt());
   const snap=async()=>{const t=await txt();return {essen:/Pfannkuchen/.test(t),kita:/Nudeln mit Tomaten/.test(t),len:t.length}};
   r.s0=await snap();

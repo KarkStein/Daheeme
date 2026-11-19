@@ -646,3 +646,35 @@ a.mkb{text-decoration:none;color:var(--fg)}.muslk[aria-pressed=false]{filter:gra
 .lparm{background:var(--line);border-radius:var(--r-s)}.prow.lparm,.recbar.lparm{display:flex;align-items:center}.lparm>.lpx{margin-left:auto}li.lparm:not(.mk)>.catbtn,li.lparm>.stbadge,.recbar.lparm>.catbtn,.prow.lparm>.catbtn{display:none}.evlist li.lparm .catbtn,.evlist li.lparm>.freq,.evlist li.lparm>a{display:none}.lparm [data-buyrm],.lparm [data-packrm],.lparm [data-kitarm],.lparm [data-recrm],.lparm [data-fundrm],.lparm [data-buyedit],.lparm [data-packedit]{display:none}
 .lpx{flex:none;border:none;border-radius:999px;background:#b3402a;color:#fff;font:inherit;font-size:var(--fs-s);font-weight:600;padding:var(--sp2) var(--sp3);min-height:36px;cursor:pointer}
 .calup .section-head{align-items:center}.calup .section-head .ghost{white-space:nowrap;font-size:var(--fs-s);padding:var(--sp1) var(--sp3)}
+/* Start A (Florian 19.11.2026): Kopf im Himmel, Dashboard unter dem Bild */
+.skyhead{position:absolute;left:0;right:0;top:0;display:flex;align-items:flex-start;gap:var(--sp2);padding:var(--sp2) var(--sp2) var(--sp5) var(--sp3);background:radial-gradient(ellipse 85% 100% at 0 0,rgba(250,244,230,.92) 0%,rgba(250,244,230,.75) 50%,rgba(250,244,230,0) 100%);color:#1f3b5c;pointer-events:none}
+.skyhead.night{background:radial-gradient(ellipse 85% 100% at 0 0,rgba(13,28,48,.85) 0%,rgba(13,28,48,.55) 50%,rgba(13,28,48,0) 100%);color:#fdf7ea}
+.skyhead>*{pointer-events:auto}
+.skyl{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;background:none;border:none;padding:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.skyday{font-size:var(--fs-xs);letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:#9a6a24}.skyhead.night .skyday{color:#f0d28c}
+.skydate{font-family:var(--f-display);font-weight:700;font-size:var(--fs-xl);line-height:1.1}
+.skywx{margin-top:var(--sp1);font-size:var(--fs-xs);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:rgba(255,255,255,.75);border-radius:999px;padding:2px var(--sp2);max-width:100%}.skyhead.night .skywx{background:rgba(255,255,255,.14)}
+.skywx .bho{white-space:nowrap}.skywx .hodot{display:inline-block;width:8px;height:8px;border-radius:999px;margin:0 2px 1px 2px;vertical-align:middle}
+.skyfun{flex:none;background:rgba(255,255,255,.75);border:none;border-radius:999px;width:36px;height:36px;font-size:var(--fs-l);line-height:1;cursor:pointer;margin-top:var(--sp1)}
+.skyring .bring{display:block;position:relative;width:56px;height:56px;border:2px solid rgba(232,180,76,.7);border-radius:999px;background:linear-gradient(180deg,var(--navy-a),var(--navy-b));color:#fdf7ea;padding:0;cursor:pointer;font:inherit}
+.skyring .bring svg{width:52px;height:52px;display:block;margin:0 auto}.skyring .bring .num{position:absolute;inset:0;display:grid;place-items:center;font-weight:700;font-size:var(--fs-xs)}.skyring .bring small{display:none}
+.campback.startdash{margin-top:var(--sp2);gap:var(--sp2);padding:var(--sp3) var(--sp4) var(--sp2)}
+.campback .bmore{background:none;border:none;color:inherit;font:inherit;font-size:var(--fs-s);opacity:.85;padding:var(--sp1) 0;cursor:pointer;text-align:center}
+@media (max-height:700px){.startdash .bline li:first-child:nth-last-child(n+6){display:none}.startdash .bline li:nth-child(n+7){display:none}.campback.startdash{padding-top:var(--sp2)}}
+/* Haushalt (Florian 19.11.2026, „2: Heute im Wochenkopf“) */
+.campback.wkheute{gap:var(--sp2);padding:var(--sp4) var(--sp4) var(--sp3)}
+.wkheute .wkf .chipbtn{background:rgba(255,255,255,.1);border-color:rgba(240,210,140,.45);color:#fdf7ea}.wkheute .wkf .chipbtn[aria-pressed="true"]{background:#fdf7ea;color:#1f3b5c}
+.wkheute .notice{color:#1f3b5c}
+.wkheute .hhead{font-size:var(--fs-xs);letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:#f0d28c;margin-top:var(--sp1)}
+.wkheute .hlist{list-style:none;margin:0;padding:0}.wkheute .hrow{display:flex;align-items:center;gap:var(--sp2);padding:var(--sp2) 0;border-top:1px solid rgba(240,210,140,.25)}
+.wkheute .hn{flex:1;min-width:0;font-size:var(--fs-m)}.wkheute .hn i{font-style:normal;font-size:var(--fs-xs);opacity:.75}
+.wkheute .hdone .hn{opacity:.55}
+.wkheute .hchk{flex:none;width:32px;height:32px;border-radius:999px;border:2px solid #fdf7ea;background:none;color:#fff;font:inherit;font-weight:700;cursor:pointer}
+.wkheute .hdone .hchk{background:#2e8b74;border-color:#2e8b74}
+.wkheute .hnone{font-size:var(--fs-s);opacity:.8}
+.wkheute .hrow.hlflash{background:rgba(240,210,140,.18)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.top.wktop{align-items:center;margin-bottom:var(--sp2)}
+.campback.wkheute .bdate{font-size:var(--fs-l)}
+.skyring{margin-right:10%}
+.skyhead{z-index:1}.skyl{flex:0 1 auto}.skyhead .skyring{margin-left:auto}

@@ -7,7 +7,7 @@ srv.listen(8765,async()=>{
   await A.goto('http://localhost:8765/?bild=haus');await A.click('[data-act=newhouse]');await A.click('[data-act=template]');await A.waitForSelector('[data-me=p0]');await A.click('[data-me=p0]');
   const key=/k=([^&]+)/.exec(A.url())[1];const r={};
   if(!(await A.$('.camp')))await A.click('#tabs [data-tab=camp]');await A.waitForTimeout(400);
-  const bx=await A.$('.camp svg');const bb=await bx.boundingBox();await A.mouse.click(bb.x+bb.width*0.72,bb.y+bb.height*0.45);await A.waitForTimeout(700);
+  await A.click('.startdash .bmore');await A.waitForTimeout(400);
   r.back=await A.$$eval('.bfoot button',l=>l.map(x=>x.innerText));
   await A.click('.bfoot [data-go=recherchen]');await A.waitForTimeout(400);
   r.h1=await A.$eval('#app h1',e=>e.innerText);r.auftr=await A.$$eval('.rauftr li',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));r.inbox=await A.$$eval('.rinbox li',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));

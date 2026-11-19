@@ -17,7 +17,7 @@ srv.listen(8765,async()=>{
   await A.click('#terform button[type=submit]');await A.waitForTimeout(400);
   const t2=Object.values(get(['haushalt',key,'food','termin'])||{}).find(x=>x.name==='Ausflug')||{};r.t2=[t2.allday,t2.time||''].join();
   r.li2=(await A.$$eval('.evlist li',l=>l.map(x=>x.innerText.replace(/\s+/g,' ')))).join('|');
-  await nav('woche|wp:0');r.dash=await A.$eval('#app',e=>e.innerText.includes('bis 10:30'));
+  await nav('camp|');r.dash=await A.$eval('#app',e=>e.innerText.includes('bis 10:30'));
   console.error(JSON.stringify(r),errs);
   const ok=!errs.length&&r.fit&&r.t1==='09:00,10:30,15:00'&&/09:00 bis 10:30/.test(r.li)&&r.hidden&&r.t2==='true,'&&/ganztägig/.test(r.li2)&&r.dash;
   console.error(ok?'TERZEIT OK':'TERZEIT FAIL');await b.close();srv.close();process.exit(0)});
