@@ -5440,6 +5440,11 @@ app.addEventListener("input",e=>{if(e.target.id==="shopinput"){S.shopText=e.targ
 
 // „Oft gekauft“ erscheint beim Tipp ins leere Feld der Einkaufsliste und geht beim Tipp daneben wieder weg
 app.addEventListener("focusin",e=>{if(e.target.id==="shopinput"&&!S.shopFavOpen){S.shopFavOpen=true;shopSuggDraw()}});
+// Termin-Uhrzeit (Florian 19.11.2026: „Bei Termin ausmachen, bitte Minutenzeiger immer auf xx:00“): ein leeres Zeitfeld im Termin bekommt vor dem Öffnen die nächste volle Stunde, „Bis“ eine Stunde nach „Von“; von Hand bleibt jede Minute möglich
+function terTimePre(el){if(!el||el.type!=="time"||el.value||!S.terDraft)return;const k=el.dataset.terf||(el.dataset.teralt!=null?el.dataset.k:"");if(k!=="time"&&k!=="tend")return;
+  let h=new Date().getHours()+1;if(k==="tend"){const o=el.dataset.teralt!=null?(S.terDraft.alt||[])[+el.dataset.teralt]:S.terDraft,f=o&&/^(\d\d):/.exec(o.time||"");if(f)h=+f[1]+1}
+  el.value=String(Math.min(h,23)).padStart(2,"0")+":00";el.dispatchEvent(new Event("input",{bubbles:true}))}
+document.addEventListener("pointerdown",e=>terTimePre(e.target),true);document.addEventListener("focusin",e=>terTimePre(e.target),true);
 document.addEventListener("click",e=>{if(S.shopFavOpen&&!(e.target.closest&&e.target.closest("#shopsugg,#shopform"))){S.shopFavOpen=false;S.favEdit=false;if(!S.shopText)shopSuggDraw()}});
 
 // ---------- Teilen: „Wohin?“ und „Verschieben nach“ (Florian 16.11.2026) ----------
