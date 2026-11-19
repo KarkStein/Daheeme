@@ -756,6 +756,10 @@ a.mkb{text-decoration:none;color:var(--fg)}.muslk[aria-pressed=false]{filter:gra
 .flarch{list-style:none;padding:0;margin:0}
 .flarch li{padding:var(--sp2) 0;border-bottom:1px solid var(--line)}
 .flarch li:last-child{border-bottom:0}
+.kimpext{background:var(--bg);border:1px solid var(--line);border-radius:var(--r-s);padding:var(--sp3);margin:var(--sp2) 0}
+.kimpext ol{margin:var(--sp2) 0 0;padding-left:var(--sp5)}
+.kimpext li{margin:var(--sp1) 0}
+.kimpext textarea{width:100%;box-sizing:border-box;margin-top:var(--sp2)}
 </style>
 
 <div class="app" id="app">
@@ -3947,12 +3951,50 @@ function parseKitaTermine(text){const out=[],t=String(text||"");
     if(m[4]){let to=ymd(new Date(Y(m[6])||y1,+m[5]-1,+m[4],12));if(to<date)to=ymd(new Date(y1+1,+m[5]-1,+m[4],12));for(let d=ymdD(date);ymd(d)<=to&&out.length<200;d=addDays(d,1))if(d.getDay()%6)out.push({date:ymd(d),name,kind:kitaKindGuess(name),note})}
     else out.push({date,name,kind:kitaKindGuess(name),note})});return out}
 function kitaImpCard(){const I=S.kitaImp,KI={fest:"🎉",zu:"🚪",eltern:"👥",mit:"📦"};
-  if(!I.list)return `<section data-fk="f_kimp|0" class="card"><div class="section-head"><h2>📋 Termine einfügen</h2></div><div class="freq">Text aus dem Kita-Kalender, einer PDF oder Nachricht einfügen (je Zeile ein Termin mit Datum, z. B. „12.11. St.-Martin-Fest“) oder eine Termin-Datei (.ics) aus Kigaroo wählen.</div>
-    <label class="fld"><textarea id="kimp-text" rows="5" placeholder="12.11. St.-Martin-Fest&#10;28.12.–5.1. Kita geschlossen">${esc(I.text||"")}</textarea></label><label class="fld"><span>Oder Termin-Datei</span><input type="file" id="kimp-file" accept=".ics,text/calendar"></label>
+  if(!I.list)return `<section data-fk="f_kimp|0" class="card"><div class="section-head"><h2>📋 Termine einfügen</h2></div><div class="freq">Text aus dem Kita-Kalender, einer PDF oder Nachricht einfügen (je Zeile ein Termin mit Datum, z. B. „12.11. St.-Martin-Fest“) oder eine Datei wählen: Termin-Datei (.ics) aus Kigaroo oder PDF. Schneller: im Brief auf Teilen tippen, Daheeme wählen, dann „🎒 Kita-Termine“.</div>${kimpExtHtml(I)}
+    <label class="fld"><textarea id="kimp-text" rows="5" placeholder="12.11. St.-Martin-Fest&#10;28.12.–5.1. Kita geschlossen">${esc(I.text||"")}</textarea></label><label class="fld"><span>Oder Datei (.ics, PDF, Foto)</span><input type="file" id="kimp-file" accept=".ics,text/calendar,.pdf,application/pdf,image/*"></label>
     <div class="btnrow"><button class="primary" data-act="kimpparse">Erkennen</button><button class="ghost" data-act="kimpcancel">Abbrechen</button></div></section>`;
   const n=I.list.filter(x=>x.on).length;
   return `<section class="card"><div class="section-head"><h2>📋 ${I.list.length} erkannt</h2><span class="freq">${n} ausgewählt</span></div>${I.list.length?`<ul class="shop">${I.list.map((x,i)=>`<li class="${x.on?"":"done"}"><button class="item" data-kimptog="${i}" aria-pressed="${x.on}"><span class="box">${x.on?"✓":""}</span><span class="nm">${KI[x.kind]||"📅"} ${esc(x.name)}<br><span class="freq">${esc(dLabel(x.date))}${x.note?" · "+telNote(x.note):""}${x.dup?" · steht schon drin":""}</span></span></button></li>`).join("")}</ul>`:`<div class="freq">Kein Termin mit Datum gefunden.</div>`}
     <div class="btnrow">${n?`<button class="primary" data-act="kimpsave">${n} übernehmen</button>`:""}<button class="ghost" data-act="kimpback">Zurück</button><button class="ghost" data-act="kimpcancel">Abbrechen</button></div></section>`}
+// ---------- Kita-Briefe teilen (Florian 19.11.2026: „ja, machen. aber falls das nicht immer geht, das manuelle einsetzen grundsätzlich weiter ermöglichen“) ----------
+// Aus Kigaroo, Mail oder WhatsApp: Teilen › Daheeme › „Wohin damit?“ › 🎒 Kita-Termine. Text und .ics erkennt die App direkt, PDFs liest sie selbst (pdf.js, erst bei Bedarf geladen),
+// Fotos und eingescannte PDFs gehen über „Als Prompt kopieren“ an Gemini oder ChatGPT; die Antwort kommt ins Feld von „📋 Termine einfügen“. Das Einfügen per Hand bleibt immer.
+const PDFJS="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+const KITA_SHARE_RX=/\b(kita|kinderkrippe|krippe|kindergarten|elternbrief|elternabend|kigaroo|schließtag|laternen|sommerfest)/i;
+function pdfLib(){if(window.pdfjsLib)return Promise.resolve(window.pdfjsLib);
+  return new Promise((ok,no)=>{const s=document.createElement("script");s.src=PDFJS+"pdf.min.js";s.onload=()=>{const L=window.pdfjsLib;if(!L)return no(new Error("pdf"));L.GlobalWorkerOptions.workerSrc=PDFJS+"pdf.worker.min.js";ok(L)};s.onerror=()=>no(new Error("pdf"));document.head.appendChild(s)})}
+// Text einer PDF, Zeile für Zeile (Wörter auf gleicher Höhe ergeben eine Zeile)
+async function pdfText(blob){const L=await pdfLib(),doc=await L.getDocument({data:new Uint8Array(await blob.arrayBuffer())}).promise,out=[];
+  for(let p=1;p<=Math.min(doc.numPages,20);p++){const tc=await (await doc.getPage(p)).getTextContent(),rows=[];
+    tc.items.forEach(it=>{if(!it.str||!it.str.trim())return;const y=it.transform[5],x=it.transform[4];let r=rows.find(r=>Math.abs(r.y-y)<3);if(!r){r={y,w:[]};rows.push(r)}r.w.push([x,it.str])});
+    rows.sort((a,b)=>b.y-a.y).forEach(r=>out.push(r.w.sort((a,b)=>a[0]-b[0]).map(w=>w[1]).join(" ").replace(/\s+/g," ").trim()))}
+  return out.join("\n")}
+const kimpIsImg=f=>/^image\//.test(f.type||"")||/\.(jpe?g|png|heic|webp)$/i.test(f.name||"");
+const kimpIsPdf=f=>/pdf/.test(f.type||"")||/\.pdf$/i.test(f.name||"");
+// Dateien lesen: Text und .ics direkt, PDF über pdf.js; was sich nicht lesen lässt (Fotos, Scans), kommt in ext
+async function kimpRead(files){let text="";const ext=[];
+  for(const f of files||[]){try{
+    if(kimpIsImg(f)){ext.push(f);continue}
+    if(kimpIsPdf(f)){toast("📄 Lese die PDF …");const t=await pdfText(f);if(t.replace(/\s/g,"").length>20)text+="\n"+t;else ext.push(f);continue}
+    text+="\n"+await f.text()}catch(_){ext.push(f)}}
+  return {text,ext}}
+function kimpMark(L){const have=new Set(kitas().concat(kitaTer()).map(x=>(x.name||"").trim().toLowerCase()+"|"+x.date));return L.map(x=>{const dup=have.has(x.name.trim().toLowerCase()+"|"+x.date);return Object.assign(x,{dup,on:!dup})})}
+// Geteiltes (Text und Dateien) auf der Seite Kita als Vorschau mit Haken öffnen
+async function kitaShareIn(text,files){goNav("kita|");const R=await kimpRead(files),all=[String(text||"").trim(),R.text.trim()].filter(Boolean).join("\n"),L=parseKitaTermine(all);
+  S.kitaImp={text:all,list:L.length?kimpMark(L):null,ext:R.ext.length?R.ext:null};render();window.scrollTo(0,0);
+  if(!L.length)toast(R.ext.length?"Das ist ein Foto oder Scan: Prompt kopieren und an Gemini geben.":"Keine Termine mit Datum erkannt. Der Text steht im Feld.")}
+const KIMP_PROMPT=()=>["Lies bitte alle Termine aus diesem Kita-Brief (Bild oder PDF).","Gib nur eine Liste zurück, je Zeile genau ein Termin in der Form:","TT.MM.JJJJ Titel, HH:MM Uhr","Bei mehreren Tagen: TT.MM.–TT.MM.JJJJ Titel.","Lass die Uhrzeit weg, wenn keine angegeben ist. Keine weiteren Sätze, keine Aufzählungszeichen."].join("\n");
+// Hilfe für Fotos und Scans im Fenster „Termine einfügen“
+function kimpExtHtml(I){if(!I.ext||!I.ext.length)return "";
+  return `<div class="kimpext"><b>📷 ${I.ext.length===1?esc(I.ext[0].name||"Foto"):I.ext.length+" Dateien"}: Text bitte über Gemini holen</b>
+    <ol><li><button class="ghost small" data-act="kimpprompt">📋 Prompt kopieren</button></li><li><button class="ghost small" data-act="kimpshare">📤 ${I.ext.length===1?"Datei":"Dateien"} an Gemini geben</button> und dort den Prompt einfügen</li><li>Antwort kopieren, hier <button class="ghost small" data-act="kimpclip">📋 Einfügen</button>, dann „Erkennen“</li></ol>${S.kimpCopy?`<textarea rows="4" readonly>${esc(S.kimpCopy)}</textarea>`:""}</div>`}
+async function kimpClick(b){const d=b.dataset;
+  if(d.act==="kimpprompt"){const t=KIMP_PROMPT();try{await navigator.clipboard.writeText(t);S.kimpCopy="";toast("Prompt kopiert")}catch(_){S.kimpCopy=t;render();toast("Bitte den Text im Feld kopieren")}return true}
+  if(d.act==="kimpshare"&&S.kitaImp&&S.kitaImp.ext){const F=S.kitaImp.ext;try{if(navigator.canShare&&navigator.canShare({files:F})){await navigator.share({files:F,text:KIMP_PROMPT()});return true}}catch(e){if(e&&e.name==="AbortError")return true}toast("Teilen geht hier nicht. Öffne die Datei direkt in Gemini.");return true}
+  if(d.act==="kimpclip"){let t="";try{t=await navigator.clipboard.readText()}catch(_){}const el=document.getElementById("kimp-text");if(!t){toast("Zwischenablage ist leer oder gesperrt. Bitte lange ins Feld tippen und Einfügen.");if(el)el.focus();return true}
+    if(el){el.value=t;S.kitaImp.text=t}return true}
+  return false}
 // ---------- Wer macht was (Florian 15.11.2026: Übersicht und Wer macht was in einer Seite). Oben Überblick, darunter ausklappbare Abschnitte ----------
 const WMW_FL=t=>t.freq==="day"?"täglich":t.freq==="week"?(t.times||1)+"× pro Woche":FREQ_LABEL[t.freq];
 const WMW_PER={month:"diesen Monat",half:"dieses Halbjahr",year:"dieses Jahr"};
@@ -4602,12 +4644,14 @@ app.addEventListener("click",async e=>{
   if(b.dataset.go){const fw=focusWeek();S.prev=S.tab;S.tab=b.dataset.go;if(S.tab==="reisen"||S.tab==="ausflug"){S.reiseOpen=null;S.tripTab=S.tab==="reisen"?"urlaub":"ideen"}if(S.tab==="woche")S.weekPage=0;if(S.tab==="essen")S.foodTab="heute";if(S.tab==="kita")S.kitaSec="termine";if(S.tab==="spiel"){S.playSec="";S.playF=""}if(S.tab==="musik"){S.musFilter=b.dataset.musf||"";S.musArtF=b.dataset.musa||""}S.tripDraft=S.projDraft=S.playDraft=S.kitaDraft=null;S.hprojOpen=null;S.hsamm=false;if(PROJ_TABS.includes(S.tab))S.projFilter=b.dataset.pf||"";if(b.dataset.ft&&b.dataset.ft!=="shop"){S.foodTab=b.dataset.ft;try{localStorage.setItem("hq-foodtab",S.foodTab)}catch(_){}}S.draft=null;focusApply(fw);render();window.scrollTo(0,0);return}
   if(b.dataset.kitasec){S.kitaDraft=null;S.kitaSec=b.dataset.kitasec;render();return}
   if(b.dataset.kset){const d=S.kitaDraft;if(d){const f=b.dataset.kset;d[f]=d[f]===b.dataset.v?"":b.dataset.v;render()}return}
+  if(await kimpClick(b))return;
   if(b.dataset.act==="kitaimp"){S.kitaImp=S.kitaImp?null:{text:"",list:null};render();return}
   if(b.dataset.act==="kimpcancel"){S.kitaImp=null;render();return}
   if(b.dataset.act==="kimpback"&&S.kitaImp){S.kitaImp.list=null;render();return}
   if(b.dataset.act==="kimpparse"&&S.kitaImp){const ta=document.getElementById("kimp-text"),fi=document.getElementById("kimp-file");const t=ta?ta.value:"";S.kitaImp.text=t;let L=parseKitaTermine(t);
-    try{if(fi&&fi.files&&fi.files[0])L=L.concat(parseKitaTermine(await fi.files[0].text()))}catch(_){}
-    const have=new Set(kitas().concat(kitaTer()).map(x=>(x.name||"").trim().toLowerCase()+"|"+x.date));S.kitaImp.list=L.map(x=>{const dup=have.has(x.name.trim().toLowerCase()+"|"+x.date);return Object.assign(x,{dup,on:!dup})});render();return}
+    if(fi&&fi.files&&fi.files.length){const R=await kimpRead([...fi.files]);L=L.concat(parseKitaTermine(R.text));if(R.text.trim()&&!t.trim())S.kitaImp.text=R.text.trim();if(R.ext.length)S.kitaImp.ext=R.ext}
+    if(!L.length){render();toast(S.kitaImp.ext?"Foto oder Scan: bitte über Gemini lesen lassen.":"Keine Termine mit Datum erkannt.");return}
+    S.kitaImp.list=kimpMark(L);render();return}
   if(b.dataset.kimptog&&S.kitaImp&&S.kitaImp.list){const x=S.kitaImp.list[+b.dataset.kimptog];if(x)x.on=!x.on;render();return}
   if(b.dataset.act==="kimpsave"&&S.kitaImp&&S.kitaImp.list){const L=S.kitaImp.list.filter(x=>x.on);try{for(const x of L){const v={name:x.name,date:x.date,tag:"kita",who:"kid",at:Date.now(),by:S.me||""};if(x.kind)v.kk=x.kind;if(x.note)v.note=x.note;{const tm=whenTime(x.note||"");if(tm)v.time=tm}await S.store.setPath("food/termin/"+newId("t"),v)}S.kitaImp=null;toast(L.length+" Termine übernommen");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.act==="kitanew"&&(S.kitaSec||"termine")==="termine"){S.terDraft={id:null,name:"",date:ymd(new Date()),time:"",who:"kid",rep:"",note:"",tag:"kita",kk:"",from:"kita",place:(placeFind("Kita")||{}).name||""};render();window.scrollTo(0,0);const el=document.getElementById("ter-name");if(el)el.focus();return}
@@ -4987,7 +5031,7 @@ document.addEventListener("click",e=>{if(S.shopFavOpen&&!(e.target.closest&&e.ta
 // Geteilter Link/Text (manifest share_target, unverändert ?st&sx&su) fragt erst, wohin: Rezept, Spielidee, Ausflug, Geschenk-Idee, Am-Haus-Projekt oder eine der Weitere Listen.
 // Vorschlag nur bei bekannten Rezept-Seiten; Instagram und Unbekanntes ohne Vorwahl. Beschreibung optional; enthält sie eine Liste, lässt sie sich in einzelne Einträge aufteilen (jeder behält den Link).
 const SHARE_REC_RX=/(chefkoch|kitchenstories|emmikochteinfach|kptncook|eat-this|zuckerundjagdwurst|chiliundciabatta|essen-und-trinken|lecker\.de|springlane|eatsmarter|einfachbacken|gutekueche|kochbar|bbcgoodfood|allrecipes|hellofresh|cookidoo|kuechengoetter|rewe\.de\/rezepte|\/rezept|\/recipe)/i;
-const SHARE_FIX=[["rezept","📖","Rezept"],["spiel","🎲","Spielidee"],["ausflug","🚲","Ausflug"],["geschenk","🎁","Geschenk-Idee"]];
+const SHARE_FIX=[["rezept","📖","Rezept"],["spiel","🎲","Spielidee"],["ausflug","🚲","Ausflug"],["geschenk","🎁","Geschenk-Idee"],["kita","🎒","Kita-Termine"]];
 function shareTargets(){return SHARE_FIX.map(x=>x.slice())
   .concat(hprojs().filter(x=>x.state!=="erledigt").map(x=>["proj:"+x.id,x.emo||"🛠️","Projekt: "+x.name]))
   .concat(buyLists().map(L=>["liste:"+L.id,L.emo,"Liste: "+L.name]))}
@@ -5013,12 +5057,12 @@ const shareTo=to=>(shareTargets().find(t=>t[0]===to)||[to,"",to]);
 // Rezept behält den bisherigen Weg (Rezept aus Link: Text erkennen), ohne Aufteilen
 function shareRecipe(txt){S.tab="essen";S.foodTab="rezepte";S.recDraft={id:null,name:"",ing:"",note:"",link:"",book:S.book||"main",paste:true,pasteText:txt};render();window.scrollTo(0,0);
   const el=document.getElementById("rec-paste");if(el){el.value=txt;const b=document.querySelector('[data-act="recparse"]');if(b)b.click()}}
-function shareOpen(st,sx,su){S.mboxAt=Date.now();mboxClose();
+function shareOpen(st,sx,su,files){files=files||[];S.mboxAt=Date.now();mboxClose();
   const urls=(String(sx||"").match(URL_RX)||[]),link=su||urls[0]||"",rest=String(sx||"").replace(URL_RX,"").trim();
   const first=rest.split(/\r?\n/).map(s=>s.trim()).find(Boolean)||"";
-  const H={name:(st||(first.length<=80?first:"")||"").trim().slice(0,80),link,note:rest&&rest!==st?rest:"",to:SHARE_REC_RX.test(link)?"rezept":"",showNote:!!(rest&&rest!==st),split:false,off:{}};
+  const H={name:(st||(first.length<=80?first:"")||"").trim().slice(0,80),link,note:rest&&rest!==st?rest:"",to:files.length||KITA_SHARE_RX.test([st,sx].join(" "))||parseKitaTermine(sx).length>=2?"kita":SHARE_REC_RX.test(link)?"rezept":"",showNote:!!(rest&&rest!==st),split:false,off:{}};
   const el=document.createElement("div");el.id="mbox";
-  const items=()=>H.to==="rezept"?[]:shareSplit(H.note);
+  const items=()=>H.to==="rezept"||H.to==="kita"?[]:shareSplit(H.note);
   const splitHtml=()=>{const I=items();if(I.length<2)return "";const on=I.filter((_,i)=>!H.off[i]).length;
     return `<div class="unl"><button type="button" class="chipbtn neutral" data-shsplit aria-pressed="${H.split}">✂️ In ${I.length} Einträge aufteilen</button></div>${H.split?`<div class="freq">Jeder Eintrag behält den Link. Abwählen, was nicht mit soll (${on} von ${I.length}).</div><div class="unl">${I.map((t,i)=>`<button type="button" class="chipbtn neutral" data-shit="${i}" aria-pressed="${!H.off[i]}">${esc(t)}</button>`).join("")}</div>`:""}`};
   const draw=()=>{el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="Geteilt: wohin?"><div class="section-head"><h2>📥 Wohin damit?</h2></div><form class="editbox" novalidate>
@@ -5026,12 +5070,13 @@ function shareOpen(st,sx,su){S.mboxAt=Date.now();mboxClose();
     <label class="fld"><span>Link</span><input type="text" inputmode="url" data-shf="link" value="${esc(H.link)}" maxlength="400" autocomplete="off" placeholder="https://"></label>
     <div class="fld"><span>Speichern bei</span><div class="unl">${shareTargets().map(t=>`<button type="button" class="chipbtn neutral" data-shto="${esc(t[0])}" aria-pressed="${H.to===t[0]}">${esc(t[1]+" "+t[2])}</button>`).join("")}</div>${H.to?"":`<div class="freq">Bitte antippen, wohin es soll.</div>`}</div>
     ${H.showNote?`<label class="fld"><span>Beschreibung (optional)</span><textarea data-shf="note" rows="5" maxlength="4000" placeholder="Text aus dem Beitrag hier einfügen">${esc(H.note)}</textarea></label><div id="shsplit">${splitHtml()}</div>`:`<button type="button" class="ghost" data-shnote>＋ Beschreibung einfügen</button>`}
-    ${H.to==="rezept"?`<div class="freq">Rezept: Die App erkennt aus Titel, Text und Link Zutaten und Zubereitung, wie bei „Rezept aus Link“.</div>`:""}
+    ${files.length?`<div class="freq">📎 ${files.map(f=>esc(f.name||"Datei")).join(", ")}</div>`:""}${H.to==="kita"?`<div class="freq">Kita-Termine: Die App sucht Termine mit Datum in Text${files.length?" und Datei":""} und zeigt sie auf der Seite Kita zum Abhaken. Fotos liest sie über Gemini.</div>`:""}${H.to==="rezept"?`<div class="freq">Rezept: Die App erkennt aus Titel, Text und Link Zutaten und Zubereitung, wie bei „Rezept aus Link“.</div>`:""}
     <div class="btnrow"><button class="primary" type="submit"${H.to?"":" disabled"}>Speichern</button><button class="ghost" type="button" data-shx>Abbrechen</button></div></form></div>`};
   draw();document.body.appendChild(el);
   el.addEventListener("input",e=>{const k=e.target.dataset&&e.target.dataset.shf;if(!k)return;H[k]=e.target.value;if(k==="note"){H.off={};const s=document.getElementById("shsplit");if(s)s.innerHTML=splitHtml()}});
   el.addEventListener("submit",async e=>{e.preventDefault();if(!H.to)return;const name=H.name.trim(),l=H.link.trim();
     if(l&&!safeLink(l)){toast("Der Link sieht nicht gültig aus.");return}
+    if(H.to==="kita"){mboxClose();kitaShareIn([name,H.note,l].filter(Boolean).join("\n"),files);return}
     if(H.to==="rezept"){mboxClose();shareRecipe([name,H.note,l].filter(Boolean).join("\n"));return}
     const I=H.split?items().filter((_,i)=>!H.off[i]):[];if(!I.length&&!name){toast("Bitte einen Titel eintragen.");return}
     mboxClose();const T=shareTo(H.to);
@@ -5056,7 +5101,7 @@ function moveSrc(kind,id){const F=S.food||{};
 function moveOpen(kind,id){const M=moveSrc(kind,id);if(!M)return;
   // Rezept: zuerst die anderen Kochbücher (Florian 16.11.2026: „von einem Kochbuch in ein anderes“), Umzug ohne Neuanlegen
   const bk=kind==="rec"?books().filter(b=>b.id!==recBook(M.x)).map((b,i)=>["book:"+b.id,"📚 Kochbuch: "+b.name]):[];
-  editBox("Verschieben: "+M.x.name,[{k:"to",label:"Nach",type:"chips",opts:bk.concat(shareTargets().filter(t=>t[0]!==M.here).map(t=>[t[0],t[1]+" "+t[2]])),val:""},{k:"n",type:"note",label:(bk.length?"Ein anderes Kochbuch: Das Rezept zieht einfach um. ":"")+"In einen anderen Bereich: Der Eintrag zieht mit Name, Link und Notiz um und verschwindet hier. Verknüpftes (Erinnerungen, Einkaufsliste) wird dabei entfernt."}],
+  editBox("Verschieben: "+M.x.name,[{k:"to",label:"Nach",type:"chips",opts:bk.concat(shareTargets().filter(t=>t[0]!==M.here&&t[0]!=="kita").map(t=>[t[0],t[1]+" "+t[2]])),val:""},{k:"n",type:"note",label:(bk.length?"Ein anderes Kochbuch: Das Rezept zieht einfach um. ":"")+"In einen anderen Bereich: Der Eintrag zieht mit Name, Link und Notiz um und verschwindet hier. Verknüpftes (Erinnerungen, Einkaufsliste) wird dabei entfernt."}],
     async V=>{if(!V.to){toast("Bitte antippen, wohin.");return}
       if(V.to.startsWith("book:")){const to=books().find(b=>"book:"+b.id===V.to);if(!to)return;await S.store.setPath("food/rec/"+id+"/book",to.id);M.done();S.book=to.id;S.recOpen=id;toast(M.x.name+" steht jetzt in „"+to.name+"“.");render();return}
       await shareSave(V.to,M.x.name,M.x.link,M.note);await M.drop();M.done();toast("Verschoben nach "+shareTo(V.to)[2]);shareGo(V.to)})}
@@ -5480,7 +5525,14 @@ function cityIvy(night,sea){if(sea==="winter")return "";const c=night?["#2a4d36"
 const CITY_GUESTS={spring:["🐦","🐝","🦋"],summer:["🦋","🐦","🐝"],autumn:["🐿️","🍄","🦔"],winter:["🐦","🐿️","🦉"]};
 
 // Teilen an die App (Florian 15./16.11.2026): Share Target aus manifest.json (?su=Link&sx=Text&st=Titel, unverändert) öffnet „Wohin damit?“ (29a-teilen.js)
-function shareIn(){let q;try{q=new URLSearchParams(location.search)}catch(_){return}if(!q.has("su")&&!q.has("sx"))return;
+// Seit 19.11.2026 auch Dateien (PDF, .ics, Fotos): manifest teilt per POST, sw.js legt alles in den Cache „hq-share“ und leitet auf ?shared=1 um
+async function shareFiles(){let st="",sx="",su="",F=[];try{const c=await caches.open("hq-share"),m=await c.match("meta");if(m){const M=await m.json();st=M.st||"";sx=M.sx||"";su=M.su||"";
+    for(let i=0;i<(M.n|0);i++){const r=await c.match("f"+i);if(r){const b=await r.blob();F.push(new File([b],M.names[i]||"Datei",{type:b.type||M.types[i]||""}))}}}await caches.delete("hq-share")}catch(_){}
+  return {st,sx,su,F}}
+function shareIn(){let q;try{q=new URLSearchParams(location.search)}catch(_){return}
+  if(q.has("shared")){try{const u=new URL(location.href);u.searchParams.delete("shared");history.replaceState(null,"",u.pathname+u.search+(S.key?"#k="+S.key:location.hash))}catch(_){}
+    shareFiles().then(R=>{if(!R.st&&!R.sx&&!R.su&&!R.F.length)return;let n=0;const go=()=>{if((!S.config||!S.food)&&n++<20)return setTimeout(go,300);shareOpen(R.st.trim(),R.sx.trim(),R.su.trim(),R.F)};setTimeout(go,300)});return}
+  if(!q.has("su")&&!q.has("sx"))return;
   const st=(q.get("st")||"").trim(),sx=(q.get("sx")||"").trim(),su=(q.get("su")||"").trim();try{const u=new URL(location.href);["su","sx","st"].forEach(k=>u.searchParams.delete(k));history.replaceState(null,"",u.pathname+u.search+(S.key?"#k="+S.key:location.hash))}catch(_){}
   if(!st&&!sx&&!su)return;let n=0;const go=()=>{if((!S.config||!S.food)&&n++<20)return setTimeout(go,300);shareOpen(st,sx,su)};setTimeout(go,300)}
 
@@ -5493,7 +5545,7 @@ function start(store,mode){S.store=store;S.mode=mode;let gotCfg=false,gotWeeks=f
     food=>{S.food=food||{};migSpiel();migShopBell();migPlayTrip();migKitaTer();migKidMed();migGmCopies();geldFixBook();render()});// Florian 16.11.2026: früher nur bestimmte Bereiche, dadurch fehlten nach dem Neuladen auf Woche/Kalender/Suche Essen, Kita und Termine
   try{fetch("wochenideen.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.wideas=j;if(S.tab==="essen")render()}}).catch(()=>{})}catch(_){}
   try{fetch("hausfunde.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.hfunde=j;if(S.tab==="amhaus")render()}}).catch(()=>{})}catch(_){}
-  shareIn();
+  shareIn();if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
   try{fetch("ferien.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.ferien)){S.ferien=j;render()}}).catch(()=>{})}catch(_){}
   try{fetch("ausflugtipps.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.atipps=j;if(S.tab==="ausflug")render()}}).catch(()=>{})}catch(_){}
   try{fetch("reisefunde.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.items)){S.rfunde=j;if(S.tab==="ausflug")render()}}).catch(()=>{})}catch(_){}

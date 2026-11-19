@@ -196,12 +196,14 @@ app.addEventListener("click",async e=>{
   if(b.dataset.go){const fw=focusWeek();S.prev=S.tab;S.tab=b.dataset.go;if(S.tab==="reisen"||S.tab==="ausflug"){S.reiseOpen=null;S.tripTab=S.tab==="reisen"?"urlaub":"ideen"}if(S.tab==="woche")S.weekPage=0;if(S.tab==="essen")S.foodTab="heute";if(S.tab==="kita")S.kitaSec="termine";if(S.tab==="spiel"){S.playSec="";S.playF=""}if(S.tab==="musik"){S.musFilter=b.dataset.musf||"";S.musArtF=b.dataset.musa||""}S.tripDraft=S.projDraft=S.playDraft=S.kitaDraft=null;S.hprojOpen=null;S.hsamm=false;if(PROJ_TABS.includes(S.tab))S.projFilter=b.dataset.pf||"";if(b.dataset.ft&&b.dataset.ft!=="shop"){S.foodTab=b.dataset.ft;try{localStorage.setItem("hq-foodtab",S.foodTab)}catch(_){}}S.draft=null;focusApply(fw);render();window.scrollTo(0,0);return}
   if(b.dataset.kitasec){S.kitaDraft=null;S.kitaSec=b.dataset.kitasec;render();return}
   if(b.dataset.kset){const d=S.kitaDraft;if(d){const f=b.dataset.kset;d[f]=d[f]===b.dataset.v?"":b.dataset.v;render()}return}
+  if(await kimpClick(b))return;
   if(b.dataset.act==="kitaimp"){S.kitaImp=S.kitaImp?null:{text:"",list:null};render();return}
   if(b.dataset.act==="kimpcancel"){S.kitaImp=null;render();return}
   if(b.dataset.act==="kimpback"&&S.kitaImp){S.kitaImp.list=null;render();return}
   if(b.dataset.act==="kimpparse"&&S.kitaImp){const ta=document.getElementById("kimp-text"),fi=document.getElementById("kimp-file");const t=ta?ta.value:"";S.kitaImp.text=t;let L=parseKitaTermine(t);
-    try{if(fi&&fi.files&&fi.files[0])L=L.concat(parseKitaTermine(await fi.files[0].text()))}catch(_){}
-    const have=new Set(kitas().concat(kitaTer()).map(x=>(x.name||"").trim().toLowerCase()+"|"+x.date));S.kitaImp.list=L.map(x=>{const dup=have.has(x.name.trim().toLowerCase()+"|"+x.date);return Object.assign(x,{dup,on:!dup})});render();return}
+    if(fi&&fi.files&&fi.files.length){const R=await kimpRead([...fi.files]);L=L.concat(parseKitaTermine(R.text));if(R.text.trim()&&!t.trim())S.kitaImp.text=R.text.trim();if(R.ext.length)S.kitaImp.ext=R.ext}
+    if(!L.length){render();toast(S.kitaImp.ext?"Foto oder Scan: bitte über Gemini lesen lassen.":"Keine Termine mit Datum erkannt.");return}
+    S.kitaImp.list=kimpMark(L);render();return}
   if(b.dataset.kimptog&&S.kitaImp&&S.kitaImp.list){const x=S.kitaImp.list[+b.dataset.kimptog];if(x)x.on=!x.on;render();return}
   if(b.dataset.act==="kimpsave"&&S.kitaImp&&S.kitaImp.list){const L=S.kitaImp.list.filter(x=>x.on);try{for(const x of L){const v={name:x.name,date:x.date,tag:"kita",who:"kid",at:Date.now(),by:S.me||""};if(x.kind)v.kk=x.kind;if(x.note)v.note=x.note;{const tm=whenTime(x.note||"");if(tm)v.time=tm}await S.store.setPath("food/termin/"+newId("t"),v)}S.kitaImp=null;toast(L.length+" Termine übernommen");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.act==="kitanew"&&(S.kitaSec||"termine")==="termine"){S.terDraft={id:null,name:"",date:ymd(new Date()),time:"",who:"kid",rep:"",note:"",tag:"kita",kk:"",from:"kita",place:(placeFind("Kita")||{}).name||""};render();window.scrollTo(0,0);const el=document.getElementById("ter-name");if(el)el.focus();return}
