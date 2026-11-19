@@ -75,7 +75,9 @@ function sammHtml(){const F=S.sammF||(S.sammF={a:"",s:""}),L=sammAll();
     <div class="freq">Alles, was ihr euch in einem Bereich merkt, steht auch hier. Ein Tipp öffnet den Eintrag in seinem Bereich.</div></section>`}
 function renderProjects(){const d=S.projDraft;
   if(S.tab==="projekte"&&(S.projFilter==="geschenk"||S.projFilter==="advent"))S.tab="geschenke";if(S.tab==="amhaus"&&HCAT_OLD[S.projFilter])S.projFilter="wohnen";
-  const G=projGroup();let h=`${S.tab==="geschenke"||S.tab==="projekte"?areaPager(S.tab):""}<div><div class="eyebrow">${G.eye}</div><h1>${G.title}</h1></div>${bellRow(S.tab)}`;
+  // Am Haus: Seiten-Leiste unten Übersicht | Einrichtung | Garten | Gemerkt (Florian 19.11.2026: „Am Haus auch entsprechend anpassen“)
+  const hpg=S.tab==="amhaus"?navPager("Am Haus",[["Übersicht","amhaus|",!HCAT[S.projFilter]],["Einrichtung","amhaus|pf:wohnen",S.projFilter==="wohnen"&&!S.hsamm],["Garten","amhaus|pf:garten",S.projFilter==="garten"&&!S.hsamm],["Gemerkt","amhaus|hs:wohnen",!!S.hsamm]]):"";
+  const G=projGroup();let h=`${hpg}${S.tab==="geschenke"||S.tab==="projekte"?areaPager(S.tab):""}<div><div class="eyebrow">${G.eye}</div><h1>${G.title}</h1></div>${bellRow(S.tab)}`;
   if(d){const one=(f,L)=>`<div class="unl">${L.map(c=>`<button class="chipbtn" data-pset="${f}" data-v="${c[0]}" aria-pressed="${(f==="state"?pjSt(d[f]):d[f])===c[0]}">${c.length>=3?c[1]+" "+c[2]:c[1]}</button>`).join("")}</div>`;
     return h+`<section class="card tripform"><h2>${d.id?"Bearbeiten":"Neue Idee"}</h2>
     <label class="fld"><span>Was</span><input type="text" id="pj-name" data-pf="name" value="${esc(d.name)}" maxlength="80" placeholder="Zum Beispiel Regal für den Flur" autocomplete="off"></label>${d.cat==="geschenk"?emoFld("data-pf",d.emo,"🎁"):""}
@@ -89,7 +91,7 @@ function renderProjects(){const d=S.projDraft;
   const all=projs();let F=S.projFilter||"";if(S.tab==="geschenke"&&F!=="advent")F="geschenk";
   if(F==="advent")return h+renderAdvent();
   if(F==="alle")return h+projOverview();
-  if(S.tab==="amhaus"&&HCAT[F]){const hp=S.hprojOpen&&hprojs().find(x=>x.id===S.hprojOpen);if(hp)return h+renderHProj(hp);S.hprojOpen=null;if(S.hsamm)return h+`<div class="btnrow"><button class="ghost" data-act="hsammback">‹ ${HCAT[F][0]}</button></div>`+renderSammlung("haus")}
+  if(S.tab==="amhaus"&&HCAT[F]){const hp=S.hprojOpen&&hprojs().find(x=>x.id===S.hprojOpen);if(hp)return h+renderHProj(hp);S.hprojOpen=null;if(S.hsamm)return h+renderSammlung("haus")}
   if(!F){const cnt=k=>all.filter(x=>!x.done&&projCat(x)===k).length;
     if(G.quick)h+=inboxCard();
     if(G.quick)h+=`<form class="addrow" id="projform" novalidate><input type="text" id="projinput" placeholder="Schnell notieren, sortieren später" value="${esc(S.projText)}" autocomplete="off" enterkeyhint="done" aria-label="Neue Idee"><button class="primary" type="submit">Merken</button></form>`;

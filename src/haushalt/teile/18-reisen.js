@@ -163,11 +163,11 @@ function renderUrlaub(){return `<section class="card"><div class="section-head">
 // dann die Vorschläge (Geht immer, Was ist los) und Ferien. Alte Sprünge tt:ideen und tt:urlaub landen in der Übersicht; tt:recherche zeigt die ausführliche Gemerkt-Seite.
 function renderTrips(){const T=["urlaub","ideen","pack","recherche"].includes(S.tripTab)?S.tripTab:"urlaub";S.tripTab=T;
   if(T==="urlaub"&&S.reiseOpen&&urlaube().find(x=>x.id===S.reiseOpen))return renderReisen();
-  const tab=T==="pack"?"pack":"urlaub";
-  let h=`<div><div class="eyebrow">Gemeinsam unterwegs</div><h1>Ausflüge und Reisen</h1></div>
-   <div class="tabrow"><div class="filters uwtabs" role="group" aria-label="Bereich">${[["urlaub","🧭 Übersicht"],["pack","🧳 Packlisten"]].map(t=>`<button class="chipbtn neutral" data-trip="${t[0]}" aria-pressed="${tab===t[0]}">${t[1]}</button>`).join("")}</div><button class="chipbtn neutral" data-prionew="ausflug" aria-label="Erinnerung anlegen">🔔</button></div>`;
+  // Seiten-Leiste unten: Ausflüge | Reisen | Packlisten (Florian 19.11.2026); Gemerkt mit allen Filtern bleibt eine Unterseite von Ausflüge
+  const pg=T==="pack"?2:T==="urlaub"?1:0;
+  let h=navPager("Ausflüge und Reisen",[["Ausflüge","ausflug|tt:ideen",pg===0],["Reisen","ausflug|tt:urlaub",pg===1],["Packlisten","ausflug|tt:pack",pg===2]])+`<div class="section-head"><div><div class="eyebrow">Ausflüge und Reisen</div><h1>${["Ausflüge","Reisen","Packlisten"][pg]}</h1></div><button class="chipbtn neutral" data-prionew="ausflug" aria-label="Erinnerung anlegen">🔔</button></div>`;
   if(S.tripDraft)return h+renderTripIdeas();
-  return h+(T==="pack"?renderPack():T==="recherche"?`<div class="btnrow"><button class="ghost" data-trip="urlaub">‹ Übersicht</button></div>`+renderRecherche():tripHome())}
+  return h+(T==="pack"?renderPack():T==="recherche"?`<div class="btnrow"><button class="ghost" data-trip="ideen">‹ Ausflüge</button></div>`+renderRecherche():T==="urlaub"?reiseHome():tripHome())}
 // Urlaube als eine Zeile kleiner Kacheln (Geplant zuerst, dann Ideen), Erledigte zugeklappt unten
 function reiseRow(){const l=urlaube(),hearts=x=>Object.values(x.hearts||{}).filter(Boolean).length;
   const A=l.filter(x=>reiseSt(x)==="aktuell").sort((a,b)=>String(a.from||"9").localeCompare(String(b.from||"9"))),T=l.filter(x=>reiseSt(x)==="traum").sort((a,b)=>hearts(b)-hearts(a)||(a.at||0)-(b.at||0));
@@ -232,12 +232,16 @@ function merkenOpen(pre){pre=pre||{};const U=urlaube().filter(u=>reiseSt(u)!=="e
       await S.store.setPath("food/trip/"+id,o);if(V.st==="geplant")calDayPick(name,nextSat(),async k=>{try{await S.store.setPath("food/trip/"+id+"/date",k);toast("Steht am "+rDate(k)+" im Kalender")}catch(_){toast("Konnte nicht speichern.")}});else toast("🔖 "+name+" gemerkt");return}
     const kind=V.kind==="ausflug"?"erleben":V.kind||kindGuess(raw,link)||"sonst",o={name,kind,st:V.st==="erledigt"?"gebucht":V.st||"idee",at:now,by:S.me||""};if(V.u)o.reise=V.u;if(link)o.link=link;
     await S.store.setPath("food/fund/"+newId("f"),o);toast(fundKind(kind,"reise")[1]+" "+name+" gemerkt")})}
-function tripHome(){const mu=(S.food&&S.food.reisemap)||"",emb=mapsEmbed(mu),E=urlaube().filter(x=>reiseSt(x)==="erledigt").sort((a,b)=>String(b.from||"").localeCompare(String(a.from||"")));
-  // Ausflug eintragen gut sichtbar, neuer Urlaub nur klein in der Urlaube-Zeile (Florian 19.11.2026: „viel zu klein im Verhältnis zum Urlaub … einen neuen anlegen ist zu präsent“)
-  let h=reiseRow()+`<button class="primary ausnew" data-act="ausflugnew">🚲 ＋ Ausflug eintragen</button>`+rgCard()+atipFixCards()+atipCard();
+function tripHome(){const mu=(S.food&&S.food.reisemap)||"",emb=mapsEmbed(mu);
+  // Ausflug eintragen gut sichtbar (Florian 19.11.2026: „viel zu klein im Verhältnis zum Urlaub“)
+  let h=`<button class="primary ausnew" data-act="ausflugnew">🚲 ＋ Ausflug eintragen</button>`+rgCard()+atipFixCards()+atipCard();
+  h+=foldCard("rmap","🗺️ Alle Ziele auf einer Karte","",`${(m=>m&&mapOk(m)?`<div class="btnrow"><a class="ghost linkbtn" href="${esc(m)}" target="_blank" rel="noopener noreferrer">🛝 Eure Spielplatz-Karte öffnen</a></div>`:"")((S.food&&S.food.playmap)||"")}${emb?`<div class="mapwrap"><iframe src="${esc(emb)}" loading="lazy" title="Karte mit allen Zielen"></iframe></div>`:mu?`<a href="${esc(mu)}" target="_blank" rel="noopener">Karte öffnen</a>`:""}<div class="freq">Legt in Google Maps unter „Meine Karten“ eine Karte an und fügt den Link hier ein, dann erscheint sie hier.</div><form class="addrow" id="reisemapform" novalidate><input type="url" id="reisemapinput" value="${esc(mu)}" placeholder="Link zur Karte" autocomplete="off"><button class="primary" type="submit">OK</button></form>`);
+  return h}
+// Seite Reisen: Urlaube (neuer Urlaub nur klein), Ferien und Feiertage, erledigte Urlaube, Musik für die Fahrt
+function reiseHome(){const E=urlaube().filter(x=>reiseSt(x)==="erledigt").sort((a,b)=>String(b.from||"").localeCompare(String(a.from||"")));
+  let h=reiseRow();
   {const F=freiNext(10);if(F.length)h+=foldCard("frei","🏖️ Ferien und Feiertage",F.length,`<ul class="evlist frei">${F.map(x=>`<li><span class="ev">${freiLine(x)}</span></li>`).join("")}</ul>${ferienList().length?"":`<div class="freq">Die Schulferien kommen gleich nach; Feiertage sind schon da.</div>`}`)}
   if(E.length)h+=foldCard("uerl","✅ Erledigte Urlaube",E.length,`<div class="urow">${E.map(x=>`<button class="ut st-erledigt" data-reise="${esc(x.id)}"><span class="te">${esc(x.emo||"⛵")}</span><span><b>${esc(x.name)}</b><span class="freq">${x.from?esc(reiseWhen(x)):"✅ Erledigt"}</span></span></button>`).join("")}</div>`);
-  h+=foldCard("rmap","🗺️ Alle Ziele auf einer Karte","",`${(m=>m&&mapOk(m)?`<div class="btnrow"><a class="ghost linkbtn" href="${esc(m)}" target="_blank" rel="noopener noreferrer">🛝 Eure Spielplatz-Karte öffnen</a></div>`:"")((S.food&&S.food.playmap)||"")}${emb?`<div class="mapwrap"><iframe src="${esc(emb)}" loading="lazy" title="Karte mit allen Zielen"></iframe></div>`:mu?`<a href="${esc(mu)}" target="_blank" rel="noopener">Karte öffnen</a>`:""}<div class="freq">Legt in Google Maps unter „Meine Karten“ eine Karte an und fügt den Link hier ein, dann erscheint sie hier.</div><form class="addrow" id="reisemapform" novalidate><input type="url" id="reisemapinput" value="${esc(mu)}" placeholder="Link zur Karte" autocomplete="off"><button class="primary" type="submit">OK</button></form>`);
   {const mz=musLinks("auto",3);if(mz)h+=foldCard("rmus","🚗 Musik für die Fahrt","",mz)}
   return h}
 const tripKinds=()=>catsOf("trip",TRIP_KIND);

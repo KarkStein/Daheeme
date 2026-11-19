@@ -5,7 +5,7 @@ srv.listen(8765,async()=>{
   const link=A.url();const B=await mk();await B.goto(link.replace('/#','/?bild=haus#'));await B.waitForSelector('[data-me=p1]');await B.click('[data-me=p1]');
   const tabs=await A.$$eval('#tabs button',l=>l.filter(x=>!x.hidden).map(x=>x.dataset.tab));console.log('tabs',tabs);
   // Packliste: neue Liste "Strand"
-  await A.click('.spot[data-go=ausflug]');await A.click('[data-trip=pack]');
+  await A.click('.spot[data-go=ausflug]');await A.click('.pager [data-nav=\"ausflug|tt:pack\"]');
   for(const n of ['Wasser','Brotzeit']){await A.click(`[data-packadd="${n}"]`);await A.waitForTimeout(150)}
   await A.click('[data-act=packlistnew]');await A.fill('#packlistinput','Strand');await A.press('#packlistinput','Enter');await A.waitForTimeout(300);
   for(const n of ['Sonnencreme','Mütze']){await A.click(`[data-packadd="${n}"]`);await A.waitForTimeout(150)}
@@ -13,7 +13,7 @@ srv.listen(8765,async()=>{
   await A.click('[data-pack]');await A.waitForTimeout(300);
   await A.screenshot({path:out+'/pack.png',fullPage:true});
   // Ideen-Maske
-  await A.click('[data-trip=urlaub]');await A.click('[data-act=tripnew]');
+  await A.click('.pager [data-nav=\"ausflug|tt:ideen\"]');await A.click('[data-act=tripnew]');
   await A.fill('#tr-name','Strand von Kerlouan');await A.click('[data-tset=kind][data-v=wasser]');await A.click('[data-tset=dur][data-v=ganz]');
   await A.fill('#tr-drive','40');await A.click('[data-ttog=kid][data-v=wagen]');await A.click('[data-ttog=kid][data-v=einkehr]');await A.click('[data-tset=cost][data-v="0"]');
   await A.click('[data-ttog=season][data-v=summer]');

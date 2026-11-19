@@ -30,7 +30,7 @@ srv.listen(8765,async()=>{
   const h1=()=>A.$eval('#app h1',e=>e.innerText);
   r.rowScrolls=await A.$eval('.atip .unl.scrollrow',e=>e.scrollWidth>e.clientWidth);
   await swipe('.atip .unl.scrollrow .chipbtn');await A.waitForTimeout(300);r.afterRow=await h1();
-  await swipe('#app h1');await A.waitForTimeout(400);r.afterH1=await h1();r.afterTab=await A.$eval('.uwtabs [aria-pressed=true]',e=>e.innerText);
+  await swipe('#app h1');await A.waitForTimeout(400);r.afterH1=await h1();r.afterTab=await A.$eval('.pager [aria-pressed=true]',e=>e.innerText);
   // Seiten im Reiter (Florian 17.11.2026): Essen Seite 1 → Rezepte, dort weiter nichts, zurück wieder Seite 1
   await nav('essen|');const pg=()=>A.$eval('.pager [aria-pressed=true]',e=>e.innerText);r.e0=await pg();await swipe('#app h1');await A.waitForTimeout(300);r.e1=await pg();
   await swipe('#app h1');await A.waitForTimeout(300);r.e2=await pg();r.eH1=await h1();await swipe('#app h1',true);await A.waitForTimeout(300);r.e3=await pg();
@@ -47,7 +47,7 @@ srv.listen(8765,async()=>{
   console.error(JSON.stringify(r),errs);
   const ok=!errs.length&&r.zuTiles.length===4&&r.zuRec===0&&r.aufBooks===3&&r.aufRec.includes('Pfannkuchen')&&r.b1Rec.join()==='Linsensuppe'&&r.zuAgain===0
     &&r.atipOpen&&/Was ist los \(2\)/.test(r.atipN)&&r.atipClosed&&r.atipBack
-    &&r.rowScrolls&&r.afterRow==='Ausflüge und Reisen'&&r.afterH1==='Ausflüge und Reisen'&&/Packlisten/.test(r.afterTab)&&/Heute/.test(r.e0)&&r.e1==='Rezepte'&&r.e2==='Rezepte'&&r.eH1==='Essen'&&/Heute/.test(r.e3)
+    &&r.rowScrolls&&r.afterRow==='Ausflüge'&&r.afterH1==='Reisen'&&/Reisen/.test(r.afterTab)&&/Heute/.test(r.e0)&&r.e1==='Rezepte'&&r.e2==='Rezepte'&&r.eH1==='Essen'&&/Heute/.test(r.e3)
     &&r.merkenKinds>=8&&r.trip.includes('Wildpark Poing:fav')&&r.fund.includes('unterkunft:idee:u1:Ferienhaus am Strand')&&r.gemerkt.includes('Wildpark Poing')&&r.gemerkt.includes('Ferienhaus am Strand')
     &&r.gH1==='Geschenke'&&r.gPager.join()==='Partner,Geschenke'&&r.gAdv&&r.sH1==='Sammlung'&&r.samm.includes('Ferienhaus am Strand')&&r.haus.join()==='Einrichtung,Garten,Gemerkt';
   console.error(ok?'STUFE1 OK':'STUFE1 FAIL');await b.close();srv.close();process.exit(0)});

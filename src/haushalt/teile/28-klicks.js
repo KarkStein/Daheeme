@@ -313,7 +313,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.briefrm){S.store.setPath("food/brief/"+b.dataset.briefrm,null).catch(()=>toast("Konnte nicht speichern."));return}
   if(b.dataset.urlaubrm){const id=b.dataset.urlaubrm;try{for(const i of packs().filter(i=>i.list==="u_"+id))await S.store.setPath("food/pack/"+i.id,null);await S.store.setPath("food/packlist/u_"+id,null);await S.store.setPath("food/urlaub/"+id,null);await splitDropRef("urlaub:"+id);await prioDropRef([id])}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.wknav!=null){const n=+b.dataset.wknav;S.view=n===0?mondayOf(new Date()):addDays(S.view,7*n);S.wkEdit=null;render();return}
-  if(b.dataset.nav!=null){if(b.dataset.calopen){S.calView=b.dataset.calopen;S.calDay=null;S.calMonth=null}goNav(b.dataset.nav);return}
+  if(b.dataset.nav!=null){S._pg=b.classList.contains("pdot");if(b.dataset.calopen){S.calView=b.dataset.calopen;S.calDay=null;S.calMonth=null}goNav(b.dataset.nav);return}
   if(b.dataset.area){const a=ALL_AREAS[+b.dataset.area];if(!a)return;const o=a[2];S.prev=S.tab;S.tab=o.go;S.weekPage=o.wp||0;if(o.ft)S.foodTab=o.ft;if(o.tt)S.tripTab=o.tt;if(PROJ_TABS.includes(o.go))S.projFilter="";render();window.scrollTo(0,0);return}
   if(b.dataset.bild){try{localStorage.setItem("hq-bild",b.dataset.bild)}catch(_){}location.href=location.pathname+"?bild="+b.dataset.bild+location.hash;return}
   if(b.dataset.trip){S.tripDraft=null;S.reiseOpen=null;S.tripTab=b.dataset.trip;render();window.scrollTo(0,0);return}

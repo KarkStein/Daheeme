@@ -11,13 +11,13 @@ srv.listen(8765,async()=>{
   const nav=async v=>{await A.evaluate(v=>{const b=document.createElement("button");b.dataset.nav=v;b.id="zz";document.getElementById("app").appendChild(b)},v);await A.click("#zz");await A.waitForTimeout(400)};
   const hold=async sel=>{const bx=await A.$eval(sel,e=>{e.scrollIntoView({block:'center',inline:'center'});const r=e.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}});await A.mouse.move(bx.x,bx.y);await A.mouse.down();await A.waitForTimeout(700);await A.mouse.up();await A.waitForTimeout(300)};
   const r={};
-  await nav('ausflug|');await A.waitForSelector('.ut[data-reise=u1]');
+  await nav('ausflug|tt:urlaub');await A.waitForSelector('.ut[data-reise=u1]');
   await hold('.ut[data-reise=u1]');r.menu=!!(await A.$('#mbox [data-rm=del]'));r.notOpened=await A.evaluate(()=>!document.querySelector('.reiseact'));
   await A.click('#mbox [data-rm=erledigt]');await A.waitForTimeout(400);r.done=db().urlaub.u1.state;
   await hold('.ut[data-reise=u2]');await A.click('#mbox [data-rm=del]');await A.waitForTimeout(200);r.ask=await A.$eval('#mbox [data-rm=del]',e=>e.textContent);r.still=!!db().urlaub.u2;
   await A.click('#mbox [data-rm=del]');await A.waitForTimeout(500);const d=db();r.gone=!d.urlaub||!d.urlaub.u2;r.packGone=!d.pack||!d.pack.p1;
   // Ansicht: Knöpfe vor Gemerkt
-  await put('food/urlaub/u3',{name:'Ostsee',state:'aktuell',at:3});await A.waitForTimeout(400);await nav('ausflug|');await A.click('.ut[data-reise=u3]');await A.waitForSelector('.reiseact');
+  await put('food/urlaub/u3',{name:'Ostsee',state:'aktuell',at:3});await A.waitForTimeout(400);await nav('ausflug|tt:urlaub');await A.click('.ut[data-reise=u3]');await A.waitForSelector('.reiseact');
   r.order=await A.evaluate(()=>{const a=document.querySelector('.reiseact'),g=[...document.querySelectorAll('h2')].find(h=>/Gemerkt/.test(h.textContent));return !!(a&&g&&(a.compareDocumentPosition(g)&Node.DOCUMENT_POSITION_FOLLOWING))});
   await A.click('.reiseact [data-act=reisedel]');await A.click('.reiseact [data-act=reisedel]');await A.waitForTimeout(500);r.del3=!(db().urlaub||{}).u3;
   console.error(JSON.stringify(r),errs);

@@ -7,7 +7,7 @@ srv.listen(8765,async()=>{
   await A.waitForTimeout(500);
   await nav('kita|');const kid=await A.$eval('#app',e=>e.innerText);
   await nav('woche|wp:3');await A.click('[data-calview=liste]');await A.waitForTimeout(300);const cal=await A.$eval('#app',e=>e.innerText);
-  await nav('ausflug|tt:urlaub');const rei=await A.$eval('#app',e=>e.innerHTML);
+  await nav('ausflug|tt:urlaub');if(await A.$('[data-tfold=frei][aria-expanded=false]')){await A.click('[data-tfold=frei]');await A.waitForTimeout(200)}const rei=await A.$eval('#app',e=>e.innerHTML);
   await nav('ausflug|tt:ideen');const aus=await A.$eval('#app',e=>e.innerText);
   
   const r={kid:/🎉\s*frei/.test(kid),cal:/1\. Weihnachtstag/.test(cal)&&/Weihnachtsferien beginnen/.test(cal),rei:/Ferien und Feiertage/.test(rei)&&/Weihnachtsferien/.test(rei),aus:/Frei bald/.test(aus)};
