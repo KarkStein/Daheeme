@@ -15,7 +15,7 @@ srv.listen(8765,async()=>{
   r.tiles=await A.$$eval('.muscard .mk',l=>l.map(x=>x.innerText.replace(/\n/g,' ')));
   await A.screenshot({path:out+'/musik.png',fullPage:true});
   await A.click('#tabs [data-tab=essen]');await A.waitForTimeout(300);r.koch=await A.$$eval('.musrow',l=>l.map(x=>x.innerText));
-  await A.click('#tabs [data-tab=camp]');await A.waitForTimeout(300);await A.click('.spot[data-go=ausflug]');await A.waitForTimeout(300);await A.click('[data-tfold=rmus]');await A.waitForTimeout(200);r.auto=await A.$$eval('.musrow',l=>l.map(x=>x.innerText));
+  await A.click('#tabs [data-tab=camp]');await A.waitForTimeout(300);await A.click('.spot[data-go=ausflug]');await A.waitForTimeout(300);await A.click('.pager [data-nav="ausflug|tt:urlaub"]');await A.waitForTimeout(200);await A.click('[data-tfold=rmus]');await A.waitForTimeout(200);r.auto=await A.$$eval('.musrow',l=>l.map(x=>x.innerText));
   await A.click('#tabs [data-tab=essen]');await A.waitForTimeout(300);await A.click('[data-food=rezepte]');{const _bt=await A.$('.bookcard .setsum[aria-expanded=false]');if(_bt){await _bt.click();await A.waitForTimeout(150)}}await A.waitForTimeout(300);r.rdb=await A.$$eval('[data-act=rdbopen]',l=>l.length);
   console.error(JSON.stringify(r,null,1),errs);
   const ok=!errs.length&&/Musik/.test(r.h1)&&r.m.some(x=>/^Spotify-Playlist\/Spotify/.test(x))&&r.m.includes('Kochen am Sonntag/Apple Music/kochen')&&r.m.some(x=>/YouTube\/kinder/.test(x))&&/Roadtrip/.test(r.tiles[0])&&/⭐/.test(r.tiles[0])&&r.koch.some(x=>/Kochen am Sonntag/.test(x))&&r.auto.some(x=>/Roadtrip/.test(x))&&r.rdb===1;

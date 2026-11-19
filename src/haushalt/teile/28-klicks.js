@@ -45,7 +45,10 @@ app.addEventListener("click",async e=>{
     const v=Object.assign({name,from:d.from||"frei",at:d.at||Date.now(),by:d.by||S.me||""},d.ref&&(src||/^[a-z]+:/.test(d.ref))?{ref:d.ref}:{},due?{due}:{},time?{time}:{},d.rep&&due?{rep:d.rep}:{},d.note&&d.note.trim()?{note:d.note.trim().slice(0,300)}:{},d.who&&d.who!=="both"?{who:d.who}:{});
     try{await S.store.setPath("food/prio/"+(d.id||newId("w")),v);S.prioDraft=null;if(TAB_FROM[S.prioBack])S.tab=S.prioBack;toast(due?"Erinnerung für "+dLabel(due)+(time?" um "+time:""):"Steht jetzt unter Wichtig");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.priosort){S.prioSort=b.dataset.priosort;render();return}
-  if(b.dataset.reise){S.reiseOpen=b.dataset.reise;S.tab="ausflug";S.tripTab="urlaub";render();window.scrollTo(0,0);return}
+  if(b.dataset.urlf!=null){S.urlF=S.urlF===b.dataset.urlf?"":b.dataset.urlf;render();return}
+  if(b.dataset.urlst){const id=b.dataset.urlst,x=urlaube().find(y=>y.id===id);if(!x)return;const o=["traum","aktuell","erledigt"],nx=o[(o.indexOf(reiseSt(x))+1)%3],old=x.state||null;try{await S.store.setPath("food/urlaub/"+id+"/state",nx);render();const s=REISE_ST.find(y=>y[0]===nx);toastAct((x.emo||"⛵")+" "+x.name+": "+s[1]+" "+s[2],"↩ Rückgängig",async()=>{await S.store.setPath("food/urlaub/"+id+"/state",old);render()})}catch(_){toast("Konnte nicht speichern.")}return}
+  if(b.dataset.thgo){const g=b.dataset.thgo;S.tFold=S.tFold||{};if(g==="atip")S.tFold.atip=true;else{S.tFold.f_rg=true;const F=S.rgF||(S.rgF={k:"",u:"",s:""});F.k="";F.w="";F.s=g==="plan"?"geplant":"";F.more=false}try{localStorage.setItem("hq-tfold",JSON.stringify(S.tFold))}catch(_){}render();const el=document.querySelector(g==="atip"?".card.atip":".rgcard");if(el)el.scrollIntoView({block:"start",behavior:"smooth"});return}
+  if(b.dataset.reise){if(b.dataset.uf){S.tFold=S.tFold||{};S.tFold[b.dataset.uf]=true}S.reiseOpen=b.dataset.reise;S.tab="ausflug";S.tripTab="urlaub";render();window.scrollTo(0,0);return}
   if(b.dataset.act==="reiseback"){S.reiseOpen=null;render();window.scrollTo(0,0);return}
   if(b.dataset.reisef!=null){S.reiseFilter=b.dataset.reisef;render();return}
   if(b.dataset.act==="reisenew"){const id=newId("u");try{await S.store.setPath("food/urlaub/"+id,{name:b.dataset.st==="traum"?"Neue Urlaubsidee":"Neuer Urlaub",state:b.dataset.st||"aktuell",emo:"⛵",at:Date.now(),by:S.me||""});await S.store.setPath("food/packlist/u_"+id,{name:"⛵ Neuer Urlaub",at:Date.now()});S.reiseOpen=id;render();window.scrollTo(0,0);const el=document.querySelector('[data-rsf=name]');if(el){el.focus();el.select()}}catch(_){toast("Konnte nicht speichern.")}return}
@@ -319,7 +322,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.trip){S.tripDraft=null;S.reiseOpen=null;S.tripTab=b.dataset.trip;render();window.scrollTo(0,0);return}
   if(b.dataset.tset){const d=S.tripDraft;if(d){const f=b.dataset.tset;d[f]=d[f]===b.dataset.v?"":b.dataset.v;render()}return}
   if(b.dataset.ttog){const d=S.tripDraft;if(d){const f=b.dataset.ttog,a=csv(d[f]),v=b.dataset.v;d[f]=(a.includes(v)?a.filter(x=>x!==v):a.concat(v)).join(",");render()}return}
-  if(b.dataset.rgf){const [k,v]=b.dataset.rgf.split("|"),F=S.rgF||(S.rgF={k:"",u:"",s:""});if(k==="more")F.more=true;else{F[k]=F[k]===v?"":v;F.more=false}render();return}
+  if(b.dataset.rgf){const [k,v]=b.dataset.rgf.split("|"),F=S.rgF||(S.rgF={k:"",u:"",s:""});if(k==="more")F.more=true;else if(k==="all"){F.k="";F.w="";F.s="";F.u="";F.more=false}else{const was=F[k]===v;F.k="";F.w="";F.s="";F.u="";F[k]=was?"":v;F.more=false}render();return}
   if(b.dataset.act==="ausflugnew"){merkenOpen({u:"",kind:"ausflug"});return}
   if(b.dataset.act==="merken"){merkenOpen(b.dataset.u?{u:b.dataset.u,kind:""}:{u:""});return}
   if(b.dataset.rguf){const [k,v]=b.dataset.rguf.split("|"),F=S.rgUF||(S.rgUF={k:"",s:""});if(k==="more")F.more=true;else{F[k]=F[k]===v?"":v;F.more=false}render();return}

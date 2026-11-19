@@ -48,6 +48,6 @@ srv.listen(8765,async()=>{
   const ok=!errs.length&&r.zuTiles.length===4&&r.zuRec===0&&r.aufBooks===3&&r.aufRec.includes('Pfannkuchen')&&r.b1Rec.join()==='Linsensuppe'&&r.zuAgain===0
     &&r.atipOpen&&/Was ist los \(2\)/.test(r.atipN)&&r.atipClosed&&r.atipBack
     &&r.rowScrolls&&r.afterRow==='Ausflüge'&&r.afterH1==='Reisen'&&/Reisen/.test(r.afterTab)&&/Heute/.test(r.e0)&&r.e1==='Rezepte'&&r.e2==='Rezepte'&&r.eH1==='Essen'&&/Heute/.test(r.e3)
-    &&r.merkenKinds>=8&&r.trip.includes('Wildpark Poing:fav')&&r.fund.includes('unterkunft:idee:u1:Ferienhaus am Strand')&&r.gemerkt.includes('Wildpark Poing')&&r.gemerkt.includes('Ferienhaus am Strand')
+    &&r.merkenKinds>=8&&r.trip.includes('Wildpark Poing:fav')&&r.fund.includes('unterkunft:idee:u1:Ferienhaus am Strand')&&r.gemerkt.includes('Wildpark Poing')&&!r.gemerkt.includes('Ferienhaus am Strand')
     &&r.gH1==='Geschenke'&&r.gPager.join()==='Partner,Geschenke'&&r.gAdv&&r.sH1==='Sammlung'&&r.samm.includes('Ferienhaus am Strand')&&r.haus.join()==='Einrichtung,Garten,Gemerkt';
   console.error(ok?'STUFE1 OK':'STUFE1 FAIL');await b.close();srv.close();process.exit(0)});

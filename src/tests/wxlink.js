@@ -14,7 +14,7 @@ srv.listen(8765,async()=>{
   r.dash=await A.$$eval('.campback.dash a.wxlink',l=>l.map(a=>a.href));
   await nav('camp|');await A.click('.skyl');await A.waitForTimeout(400);await (await A.$('.wxpanel')).screenshot({path:out+'/wetter-link.png'});r.panel=await A.$$eval('.wxpanel a.wxlink',l=>l.map(a=>a.href));await A.waitForTimeout(500);r.gid=(db().wxplace||{}).gid;
   await put('food/pref/wxlink','https://wetter.example/ort');await A.waitForTimeout(400);r.own=await A.$$eval('.wxpanel a.wxlink',l=>l.map(a=>a.href));
-  await nav('ausflug|tt:ideen');r.atip=await A.$eval('.atip',e=>e.innerText.replace(/\n/g,' '));await A.click('[data-atipwx=schnee]');await A.waitForTimeout(200);await A.click('[data-tfold^=fix_]');await A.waitForTimeout(200);r.snow=await A.$eval('#app',e=>e.innerText.replace(/\n/g,' '));
+  await nav('ausflug|tt:ideen');r.atip=await A.$eval('.atip',e=>e.innerText.replace(/\n/g,' '));await A.click('[data-atipwx=schnee]');await A.waitForTimeout(200);await A.click('[data-tfold^=fix_]');await A.waitForTimeout(200);r.snow=await A.$$eval('#app .card',l=>l.map(e=>e.innerText.replace(/\n/g,' ')).join(' '));
   console.error(JSON.stringify(r),errs);
   const ok=!errs.length&&r.gid===1234567&&r.panel.length>=2&&r.panel.every(h=>/^https:\/\/kachelmannwetter\.com\/de\/wetter\/1234567-teststadt$/.test(h))&&r.own.every(h=>h==='https://wetter.example/ort')&&/Schlitten/.test(r.atip)&&/Drachen/.test(r.atip)&&/Rodelhügel/.test(r.snow)&&!/Drachenwiese/.test(r.snow);
   console.error(ok?'WXLINK OK':'WXLINK FAIL');await b.close();srv.close();process.exit(0)});

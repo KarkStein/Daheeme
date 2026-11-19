@@ -797,3 +797,9 @@ html{scroll-padding-bottom:calc(var(--tabh,64px) + 56px)}
 .moreb{margin:var(--sp2) 0}
 .maskfoot .verk{border-top:0;margin-top:0;padding-top:0}.tripform .bellbtn{font-size:var(--fs-l);padding:var(--sp2) var(--sp3);border:1px solid var(--line);border-radius:999px;background:none}
 a.minitile{text-decoration:none;color:inherit}
+/* Ausflüge und Reisen angeglichen (19.11.2026): Kopfblöcke in Marine, Urlaube als Liste */
+.campback.tripdash .bline .btl{grid-template-columns:58px 12px 1fr auto;width:100%}.campback.tripdash .bn i{font-style:normal;opacity:.7;font-size:var(--fs-xs)}
+.tripdash .thr{display:flex;align-items:center;gap:var(--sp1)}.tripdash .thr .btl{flex:1;min-width:0}.tripdash .thr .routebtn{flex:none}
+.thtitle{background:none;border:none;color:inherit;font:inherit;padding:0;text-align:left}
+.headbtns{display:flex;gap:var(--sp1);flex:none}.mk.mkdone .mkb{opacity:.65}.urlcard .section-head .ghost.small{flex:none}
+.tripdash+.ausnew{margin-top:0}

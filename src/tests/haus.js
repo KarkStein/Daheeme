@@ -14,7 +14,7 @@ srv.listen(8765,async()=>{
   r.funds=hf.map(([k,f])=>f.kind+':'+f.name+':'+(f.proj?'P':'-'));r.budget=await A.$eval('.card .freq',e=>e.innerText);
   await A.screenshot({path:out+'/einrichtung-projekt.png',fullPage:true});
   await A.click('[data-fundopen][data-ar=haus]');await A.waitForTimeout(300);r.samm=await A.$$eval('.card:not(.rfund) .fundlist li.fund',l=>l.length);r.reiseNot=!(await A.$eval('#app',e=>/Ferienhaus/.test(e.innerText)));await A.screenshot({path:out+'/einrichtung-sammlung.png',fullPage:true});
-  await A.click('[data-act=hsammback]');await A.waitForTimeout(200);r.tileTxt=await A.$$eval('[data-hproj]',l=>l.map(x=>x.innerText.replace(/\n/g,' | ')));await A.screenshot({path:out+'/einrichtung.png',fullPage:true});
+  await A.click('.pager [data-nav="amhaus|pf:wohnen"]');await A.waitForTimeout(200);r.tileTxt=await A.$$eval('[data-hproj]',l=>l.map(x=>x.innerText.replace(/\n/g,' | ')));await A.screenshot({path:out+'/einrichtung.png',fullPage:true});
   console.error(JSON.stringify(r,null,1),errs);
   const ok=!errs.length&&r.funds.length===2&&r.funds.some(x=>/^moebel:Kallax/i.test(x))&&r.funds.includes('licht:Wolkenlampe:P')&&/69 € ausgegeben von 800 €/.test(r.budget)&&r.samm===2&&r.reiseNot&&/Kinderzimmer/.test(r.tileTxt[0]);
   console.error(ok?'HAUS OK':'HAUS FAIL');await b.close();srv.close();process.exit(0)});

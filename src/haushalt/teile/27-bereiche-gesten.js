@@ -112,7 +112,7 @@ async function calLpDel(kind,id){
   if(kind==="kita")return delUndo("food/kita/"+id,"Kita-Termin gelöscht");
   // Einträge aus anderen Bereichen (Florian 18.11.2026: „alle Termine im Kalender … einheitlich“): gelöscht wird, was den Eintrag in den Kalender bringt
   if(kind==="food"){const d=ymdD(id);calFire('data-planrm="d'+((d.getDay()+6)%7)+'" data-pday="'+esc(id)+'"');return}
-  if(kind==="reise"){reiseMenu(id);return}
+  if(kind==="reise"||kind==="urlaub")return reiseDelUndo(id);
   // Ausflug und Kurs fragen (Florian 19.11.2026: „Ja, wäre gut“): nur den Tag wegnehmen oder ganz löschen
   if(kind==="ctrip"){const x=(S.food&&S.food.trip||{})[id];if(!x)return;lpAsk("🚲 "+(x.name||"Ausflug"),"Was soll weg?",[["📅 Nur den Tag wegnehmen, das Ziel bleibt gemerkt",()=>setUndo("food/trip/"+id+"/date",null,"Aus dem Kalender genommen. Das Ziel bleibt gemerkt.")],["🗑 Ausflug ganz löschen",()=>calLpDel("trip",id)]]);return}
   if(kind==="cplay"){const x=(S.food&&S.food.play||{})[id];if(!x)return;lpAsk("🤸 "+(x.name||"Kurs"),"Was soll weg?",[["📅 Nur aus dem Kalender nehmen, der Kurs bleibt unter Spielen",()=>setUndo("food/play/"+id+"/when",null,"Kurs steht nicht mehr im Kalender. Er bleibt unter Spielen.")],["🗑 Kurs ganz löschen",()=>calLpDel("play",id)]]);return}
@@ -132,7 +132,7 @@ function lpAsk(title,note,opts){if(document.getElementById("mbox"))return;S.mbox
   document.body.appendChild(el);
   el.addEventListener("click",e=>{const b=e.target.closest("[data-la]");if(!b){if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose();return}mboxClose();const o=opts[+b.dataset.la];if(o)Promise.resolve(o[1]()).catch(()=>toast("Konnte nicht speichern."))})}
 // Dasselbe an allen Listen-Zeilen (Florian 18.11.2026: „Alle“): die Art einer Zeile ergibt sich aus ihren vorhandenen Knöpfen (LP_ROWS), neue Liste = eine Zeile dort.
-const LP_ROWS=[["[data-need]","need","need"],["[data-priodone]","prio","priodone"],["[data-buyrm]","buy","buyrm"],["[data-packrm]","pack","packrm"],["[data-recrm]","rec","recrm"],["[data-kitarm]","kita","kitarm"],["[data-kitaedit]","kita","kitaedit"],["[data-fundrm]","fund","fundrm"],["[data-fundedit]","fund","fundedit"],["[data-tripedit]","trip","tripedit"],["[data-playedit]","play","playedit"],["[data-musedit]","music","musedit"],["[data-projedit]","idea","projedit"],["[data-kidmed]","kidmed","kidmed"]];
+const LP_ROWS=[["[data-need]","need","need"],["[data-priodone]","prio","priodone"],["[data-buyrm]","buy","buyrm"],["[data-packrm]","pack","packrm"],["[data-recrm]","rec","recrm"],["[data-kitarm]","kita","kitarm"],["[data-kitaedit]","kita","kitaedit"],["[data-fundrm]","fund","fundrm"],["[data-fundedit]","fund","fundedit"],["[data-tripedit]","trip","tripedit"],["[data-playedit]","play","playedit"],["[data-musedit]","music","musedit"],["[data-projedit]","idea","projedit"],["[data-kidmed]","kidmed","kidmed"],["[data-urlst]","urlaub","urlst"]];
 function lpRowOf(t){if(!t||!t.closest||t.closest("input,textarea,select,.evlist,.gmg,#mbox"))return null;const R=t.closest("li,.prow,.recbar");if(!R||!app.contains(R))return null;
   for(const d of LP_ROWS){const n=R.querySelector(d[0]);if(n&&n.closest("li,.prow,.recbar")===R&&n.dataset[d[2]])return {R,k:[d[1],n.dataset[d[2]]]}}return null}
 // Einfacher Tipp auf einen Termin aus einem anderen Bereich öffnet gleich das Bearbeiten dort (Florian 18.11.2026: „mit einem einfachen Klick bearbeiten“)
