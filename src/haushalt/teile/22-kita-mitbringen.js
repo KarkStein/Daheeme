@@ -3,7 +3,7 @@ const KITA_SECS=[["termine","📅","Termine"],["essen","🍽️","Essen"],["tasc
 // Mitbringen (Florian 15.11.2026): offen = muss mit, done = liegt in der Kita; verbunden mit Einkaufsliste (Block KITA_SRC), Erinnerung "morgen früh", Wochenaufgabe Bringen, Rückseite
 const KITA_SRC="Kita: Mitbringen";
 const kitaBring=()=>kitas().filter(x=>x.sec==="tasche"&&!x.done).sort((a,b)=>(a.at||0)-(b.at||0));
-const kitaMitTermine=()=>{const t=ymd(new Date()),z=ymd(addDays(new Date(),7));return kitas().filter(x=>x.sec==="termine"&&x.kind==="mit"&&x.date&&x.date>=t&&x.date<=z).sort((a,b)=>a.date<b.date?-1:1)};
+const kitaMitTermine=()=>{const t=ymd(new Date()),z=ymd(addDays(new Date(),7));return kitaTer().filter(x=>x.kind==="mit"&&x.date&&x.date>=t&&x.date<=z).sort((a,b)=>a.date<b.date?-1:1)};
 const kitaShopOf=n=>shopItems().filter(i=>!i.done&&i.name.trim().toLowerCase()===String(n||"").trim().toLowerCase());
 const onShop=n=>shopItems().some(i=>!i.done&&i.name.trim().toLowerCase()===String(n).trim().toLowerCase());
 function parseKitaPlan(txt){const m=/(\d{1,2})\.(\d{1,2})\./.exec(txt||"");if(!m)return null;const now=new Date();let y=now.getFullYear();const mo=+m[2]-1;if(mo-now.getMonth()>6)y--;if(now.getMonth()-mo>6)y++;
@@ -21,4 +21,11 @@ function parseKitaPlan(txt){const m=/(\d{1,2})\.(\d{1,2})\./.exec(txt||"");if(!m
   return Object.keys(days).length?{mon,days}:null}
 const kitaMeals=mon=>((S.food&&S.food.kitaplan)||{})[wkKey(mon)]||{};
 const KITA_BAG=["Wechselkleidung","Windeln","Feuchttücher","Matschhose","Gummistiefel","Hausschuhe","Sonnenhut","Sonnencreme","Brotdose","Trinkflasche","Kuscheltier"];
-const kitas=()=>listOf(S.food&&S.food.kita);
+const kitas=()=>listOf(S.food&&S.food.kita).filter(x=>!x.moved);
+// Alle Termine leben im Kalender (Florian 19.11.2026: „Termine Kita in Termine, etc“): Kita-Termine sind Termine mit Art Kita, kk = Kita-Art (fest, zu, eltern, mit)
+const kitaTer=()=>termine().filter(x=>x.tag==="kita"&&x.date).map(x=>({id:x.id,name:x.name||"",date:x.date,to:x.to||"",time:x.time||"",kind:x.kk||"",note:x.note||"",sec:"termine",ter:1}));
+const KITA_KK=[["fest","🎉 Fest"],["zu","🚪 Kita zu"],["eltern","👥 Elternabend"],["mit","📦 Etwas mitbringen"]];
+// Einmalig: alte Kita-Termine (food/kita, sec termine, mit Datum) ziehen als Termin um; feste Id k_<id>, das Original bleibt mit moved liegen
+async function migKitaTer(){if(S.migKita||!S.food||!S.food.kita)return;S.migKita=1;const raw=Object.assign({},S.food.kita);
+  for(const id of Object.keys(raw)){const x=raw[id];if(!x||x.moved||(x.sec||"termine")!=="termine"||!/^\d{4}-\d\d-\d\d$/.test(x.date||""))continue;const tid="k_"+id;
+    try{if(!(S.food.termin&&S.food.termin[tid]))await S.store.setPath("food/termin/"+tid,{name:x.name||"Kita",date:x.date,tag:"kita",who:"kid",kk:x.kind||null,note:x.note||null,at:x.at||Date.now(),by:x.by||""});await S.store.setPath("food/kita/"+id+"/moved","ter:"+tid)}catch(_){S.migKita=0;return}}S.migKita=0}

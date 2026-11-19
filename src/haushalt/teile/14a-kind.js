@@ -40,7 +40,7 @@ function kidToday(){const now=new Date(),today=ymd(now),di=(now.getDay()+6)%7,cm
   calEvents(today,today).filter(e=>e.src!=="prio"&&e.src!=="frei"&&whoL(e.who).includes("kid")).forEach(e=>T.push({t:e.t||"",ic:e.icon||"📅",n:e.name+(e.te?" (bis "+e.te+")":""),nav:e.nav||"woche|wp:3"}));
   const rows=T.filter(x=>!x.t).concat(T.filter(x=>x.t).sort((a,b)=>a.t<b.t?-1:1));
   const row=x=>`<li><button class="btl${x.dim?" dim":""}" data-nav="${esc(x.nav)}"><span class="bt">${esc(x.t)}</span><span class="bdot"></span><span class="bn">${x.ic} ${esc(x.n)}</span>${x.who?pDot(x.who):""}</button></li>`;
-  const kb=kitaBring(),nx=kitas().filter(x=>x.sec==="termine"&&x.date&&x.date>=today).sort((a,b)=>a.date<b.date?-1:1)[0],bn=kidBuyCnt("kleidung")+kidBuyCnt("geschenke"),wear=kidWear(w);
+  const kb=kitaBring(),nx=kitaTer().filter(x=>x.date>=today).sort((a,b)=>a.date<b.date?-1:1)[0],bn=kidBuyCnt("kleidung")+kidBuyCnt("geschenke"),wear=kidWear(w);
   const nxd=nx?(d=>nx.date===today?"Heute":(d-startOfDay(now))/864e5<7?WD2[d.getDay()]:d.getDate()+"."+(d.getMonth()+1)+".")(ymdD(nx.date)):"–";
   const sub=[kidAgeTxt(),w?(w.pre?w.pre+": ":"")+w.emo+" "+w.rng+(w.hint?" "+w.hint:""):""].filter(Boolean).map(esc).join(" · ");
   return `<div class="campback dash kiddash" aria-label="${esc(kidGen(nm))} auf einen Blick">${panelHead("Heute · "+DN[di],esc(kidGen(nm)),sub,"")}

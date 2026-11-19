@@ -167,6 +167,8 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="teraltadd"&&S.terDraft){const d=S.terDraft;d.alt=d.alt||[];if(!d.alt.length&&!d.ask)d.ask=choiceOther(S.me)||"p1";d.alt.push({date:"",time:d.time||""});render();const l=document.querySelectorAll("[data-teralt][data-k=date]");if(l.length)l[l.length-1].focus();return}
   if(b.dataset.act==="terallday"&&S.terDraft){const d=S.terDraft;d.allday=!d.allday;render();return}
   if(b.dataset.teraltrm!=null&&S.terDraft){S.terDraft.alt.splice(+b.dataset.teraltrm,1);render();return}
+  if(b.dataset.terkk!=null&&S.terDraft){S.terDraft.kk=S.terDraft.kk===b.dataset.terkk?"":b.dataset.terkk;render();return}
+  if(b.dataset.fwsplit){try{await S.store.setPath("food/ext/fwsplit/"+b.dataset.fwsplit,1);toast("↔ Wieder getrennt gezeigt")}catch(_){}return}
   if(b.dataset.tertag!=null&&S.terDraft){const d=S.terDraft;d.tag=b.dataset.tertag;const t=terTag(d);if(t&&!String(d.place||"").trim()&&placeFind(t[2]))d.place=placeFind(t[2]).name;render();return}
   if(b.dataset.placeset!=null){const D=S.tripDraft||S.terDraft;if(D){D.place=b.getAttribute("aria-pressed")==="true"?"":b.dataset.placeset;render()}return}
   if(b.dataset.placenew!=null){placeEdit(null,b.dataset.placenew);return}
@@ -197,15 +199,16 @@ app.addEventListener("click",async e=>{
   if(b.dataset.act==="kimpback"&&S.kitaImp){S.kitaImp.list=null;render();return}
   if(b.dataset.act==="kimpparse"&&S.kitaImp){const ta=document.getElementById("kimp-text"),fi=document.getElementById("kimp-file");const t=ta?ta.value:"";S.kitaImp.text=t;let L=parseKitaTermine(t);
     try{if(fi&&fi.files&&fi.files[0])L=L.concat(parseKitaTermine(await fi.files[0].text()))}catch(_){}
-    const have=new Set(kitas().map(x=>(x.name||"").trim().toLowerCase()+"|"+x.date));S.kitaImp.list=L.map(x=>{const dup=have.has(x.name.trim().toLowerCase()+"|"+x.date);return Object.assign(x,{dup,on:!dup})});render();return}
+    const have=new Set(kitas().concat(kitaTer()).map(x=>(x.name||"").trim().toLowerCase()+"|"+x.date));S.kitaImp.list=L.map(x=>{const dup=have.has(x.name.trim().toLowerCase()+"|"+x.date);return Object.assign(x,{dup,on:!dup})});render();return}
   if(b.dataset.kimptog&&S.kitaImp&&S.kitaImp.list){const x=S.kitaImp.list[+b.dataset.kimptog];if(x)x.on=!x.on;render();return}
-  if(b.dataset.act==="kimpsave"&&S.kitaImp&&S.kitaImp.list){const L=S.kitaImp.list.filter(x=>x.on);try{for(const x of L){const v={name:x.name,sec:"termine",date:x.date,at:Date.now(),by:S.me||""};if(x.kind)v.kind=x.kind;if(x.note)v.note=x.note;await S.store.setPath("food/kita/"+newId("c"),v)}S.kitaImp=null;toast(L.length+" Termine übernommen");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
+  if(b.dataset.act==="kimpsave"&&S.kitaImp&&S.kitaImp.list){const L=S.kitaImp.list.filter(x=>x.on);try{for(const x of L){const v={name:x.name,date:x.date,tag:"kita",who:"kid",at:Date.now(),by:S.me||""};if(x.kind)v.kk=x.kind;if(x.note)v.note=x.note;{const tm=whenTime(x.note||"");if(tm)v.time=tm}await S.store.setPath("food/termin/"+newId("t"),v)}S.kitaImp=null;toast(L.length+" Termine übernommen");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
+  if(b.dataset.act==="kitanew"&&(S.kitaSec||"termine")==="termine"){S.terDraft={id:null,name:"",date:ymd(new Date()),time:"",who:"kid",rep:"",note:"",tag:"kita",kk:"",place:(placeFind("Kita")||{}).name||""};render();window.scrollTo(0,0);const el=document.getElementById("ter-name");if(el)el.focus();return}
   if(b.dataset.act==="kitanew"){S.kitaDraft={id:null,sec:S.kitaSec,name:"",date:"",kind:"",note:""};render();window.scrollTo(0,0);const el=document.getElementById("ki-name");if(el)el.focus();return}
   if(b.dataset.kitaedit){const x=kitas().find(y=>y.id===b.dataset.kitaedit);if(x){S.kitaDraft={id:x.id,sec:x.sec||"termine",name:x.name||"",date:x.date||"",kind:x.kind||"",note:x.note||""};render();window.scrollTo(0,0)}return}
   if(b.dataset.act==="kitacancel"){S.kitaDraft=null;render();return}
   if(b.dataset.act==="kitasave"){const d=S.kitaDraft,name=(d.name||"").trim().slice(0,80);if(!name){toast("Bitte einen Titel eintragen");return}
     const id=d.id||newId("c"),base="food/kita/"+id+"/";
-    try{await S.store.setPath(base+"name",name);await S.store.setPath(base+"sec",d.sec);await S.store.setPath(base+"date",/^\d{4}-\d{2}-\d{2}$/.test(d.date||"")?d.date:null);await S.store.setPath(base+"kind",d.kind||null);await S.store.setPath(base+"note",(d.note||"").trim().slice(0,2000)||null);if(!d.id)await S.store.setPath(base+"at",Date.now());S.kitaDraft=null;toast("Gespeichert");render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
+    try{await S.store.setPath(base+"name",name);await S.store.setPath(base+"sec",d.sec);await S.store.setPath(base+"date",/^\d{4}-\d{2}-\d{2}$/.test(d.date||"")?d.date:null);await S.store.setPath(base+"kind",d.kind||null);await S.store.setPath(base+"note",(d.note||"").trim().slice(0,2000)||null);if(!d.id)await S.store.setPath(base+"at",Date.now());S.kitaDraft=null;toast("Gespeichert");if(d.sec==="termine"&&d.date){S.migKita=0;await migKitaTer()}render()}catch(_){toast("Konnte nicht speichern. Bitte Verbindung prüfen.")}return}
   if(b.dataset.act==="kitadel"){try{const nm=S.kitaDraft.name;await S.store.setPath("food/kita/"+S.kitaDraft.id,null);S.kitaDraft=null;render();offerShopRemove("Gelöscht.",kitaShopOf(nm))}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.kitaadd){kitaAdd(b.dataset.kitaadd);return}
   if(b.dataset.suggedit){S.suggEdit=S.suggEdit===b.dataset.suggedit?null:b.dataset.suggedit;render();return}
