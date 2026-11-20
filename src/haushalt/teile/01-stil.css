@@ -803,6 +803,8 @@ a.mkb{text-decoration:none;color:var(--fg)}.muslk[aria-pressed=false]{filter:gra
 .needsep{margin-top:var(--sp3)}
 .wkdaily{margin-top:var(--sp3)}
 html{scroll-padding-bottom:calc(var(--tabh,64px) + 56px)}
+/* Nichts darf seitlich über den Rand ragen (Wisch-Animation schob #app 24 px nach rechts, Chrome machte die Seite dann breiter und die Leisten unten rutschten weg; Florian 20.11.2026) */
+html,body{overflow-x:clip}
 #allar .argear{margin-left:auto;margin-right:var(--sp2)}
 .maskfoot{margin-top:var(--sp4);padding-top:var(--sp3);border-top:1px solid var(--line)}.maskfoot .verk{margin-bottom:var(--sp2)}.mfrow{display:flex;flex-wrap:wrap;gap:var(--sp2);justify-content:flex-end}.mfrow:empty{display:none}
 .moreb{margin:var(--sp2) 0}
