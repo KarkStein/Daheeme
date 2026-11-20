@@ -38,3 +38,7 @@ function shopCatManage(){if(document.getElementById("mbox"))return;S.mboxAt=Date
     const bk=e.target.closest("[data-scback]");if(bk){try{await S.store.setPath("food/shopcat/"+bk.dataset.scback+"/hide",null);toast("Wieder da")}catch(_){toast("Konnte nicht speichern.")}draw();render();return}
     if(e.target.closest("[data-scx]")){mboxClose();return}
     if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose()})}
+// Neue Vorgabe-Reihenfolge durchsetzen (Florian 20.11.2026: „Noch zu kaufen hat noch die alte Reihenfolge? Pass bitte an“): Pfeile hatten alle festen Kategorien
+// durchnummeriert gespeichert, das überdeckte CAT_ORD. Einmalig (Flag food/pref/catord2) fällt das gespeicherte ord der festen Kategorien weg; eigene behalten ihren Platz, Symbol und Name bleiben.
+async function migCatOrd(){if(S.migCatOrd||!S.food)return;const P=S.food.pref||{};if(P.catord2){S.migCatOrd=1;return}S.migCatOrd=1;const O=S.food.shopcat||{};
+  try{for(const c of CATS){if(O[c[0]]&&O[c[0]].ord!=null)await S.store.setPath("food/shopcat/"+c[0]+"/ord",null)}await S.store.setPath("food/pref/catord2",Date.now())}catch(_){S.migCatOrd=0}}
