@@ -188,6 +188,8 @@ app.addEventListener("click",async e=>{
   if(b.dataset.terask!=null&&S.terDraft){S.terDraft.ask=b.dataset.terask;render();return}
   if(b.dataset.act==="pushtoggle"){try{await pushToggle()}catch(_){toast("Hat nicht geklappt.")}return}
   if(b.dataset.act==="pushtest"){pushTest();return}
+  if(b.dataset.act==="brieftest"){briefTest();return}
+  if(b.dataset.brief){briefClick(b.dataset.brief);return}
   if(b.dataset.chopen){const [k,id]=b.dataset.chopen.split("|");choiceOpen(k,id);return}
   if(b.dataset.chseen){const [k,id]=b.dataset.chseen.split("|");try{await choiceSet(k,id,{["told/seen/"+(S.me||"x")]:true})}catch(_){toast("Konnte nicht speichern.")}render();return}
   if(b.dataset.tercare!=null&&S.terDraft){S.terDraft.care=b.dataset.tercare;render();return}
