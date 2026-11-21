@@ -317,7 +317,7 @@ function atipCard(){const all=atipItems(),z=S.atipZ||"woche",c=S.atipC||"",io=at
     const by={};G.forEach(i=>{const k=ATIP_CAT.some(x=>x[0]===atipCat(i))?atipCat(i):"sonst";(by[k]=by[k]||[]).push(i)});
     ATIP_CAT.concat([["sonst","📎","Sonstiges"]]).forEach(a=>{const g=by[a[0]];if(!g)return;const k="ac_"+w[0]+"_"+a[0],on=tFoldOn(k,true);
       h+=`<button class="atipgrp" data-tfold="${k}" data-tdef="1" aria-expanded="${on}"><span>${a[1]} ${a[2]} <span class="freq">(${g.length})</span></span><i>${on?"▾":"›"}</i></button>${on?`<ul class="evlist atipl">${g.map(atipLi).join("")}</ul>`:""}`})});
-  return h+stoerRow()+`</section>`}
+  return h+archAusRow()+stoerRow()+`</section>`}
 // Ausflüge kompakt (Florian 16.11.2026): Gemerkt, Geht immer und Jahreszeit als Klapp-Karten mit Anzahl, Stand je Gerät in hq-tfold; Tipps zeigen nur den Titel, Tipp öffnet den Rest
 try{S.tFold=JSON.parse(localStorage.getItem("hq-tfold")||"{}")||{}}catch(_){S.tFold={}}
 const tFoldOn=(k,def)=>S.tFold&&k in S.tFold?!!S.tFold[k]:!!def;

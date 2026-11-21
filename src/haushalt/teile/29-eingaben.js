@@ -76,6 +76,7 @@ app.addEventListener("input",e=>{if(e.target.id==="shopinput"){S.shopText=e.targ
   if(S.lunchDraft&&e.target.dataset.lf){S.lunchDraft[e.target.dataset.lf]=e.target.value;return}
   if(e.target.id==="glosq"){S.glosQ=e.target.value;glosApply();return}
   if(e.target.id==="sq"){S.sq=e.target.value;const pos=e.target.selectionStart;render();const el=document.getElementById("sq");if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}return}
+  if(e.target.id==="archausq"){S.archAusQ=e.target.value;const el=document.getElementById("archausl");if(el)el.innerHTML=archAusList();return}
   if(e.target.id==="rdbq"){S.rdbQ=e.target.value;const pos=e.target.selectionStart;render();const el=document.getElementById("rdbq");if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}return}
   if(S.recDraft&&e.target.dataset.rf){S.recDraft[e.target.dataset.rf]=e.target.value;return}
   const row=e.target.closest(".editrow[data-i]");if(!row||!S.draft)return;if(e.target.dataset.f==="name")S.draft.tasks[+row.dataset.i].name=e.target.value});

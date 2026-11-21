@@ -1,0 +1,22 @@
+name: Recherchen archivieren
+on:
+  push:
+    branches: [main]
+    paths: ["ideen.json", "wochenideen.json", "ausflugtipps.json", "src/archiv.py", ".github/workflows/archiv.yml"]
+  schedule:
+    - cron: "41 6 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: archiv
+jobs:
+  archiv:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 src/archiv.py
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          git add archiv
+          git diff --cached --quiet || (git commit -m "Recherchen archiviert" && git pull --rebase origin main && git push origin main)
