@@ -196,6 +196,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.terwho){S.terDraft.who=whoToggle(S.terDraft.who,b.dataset.terwho);render();return}
   if(b.dataset.terrem!=null&&S.terDraft){S.terDraft.remind=b.dataset.terrem==="tag"?true:b.dataset.terrem||null;render();return}
   if(b.dataset.terrep!=null&&S.terDraft){S.terDraft.rep=b.dataset.terrep;render();return}
+  if(b.dataset.terevery&&S.terDraft){S.terDraft.every=+b.dataset.terevery;render();return}
   if(b.dataset.act==="tercancel"){S.terDraft=null;render();return}
   if(b.dataset.terbell){const x=termine().find(y=>y.id===b.dataset.terbell);if(x){try{await S.store.setPath("food/termin/"+x.id+"/remind",x.remind?null:true);toast(x.remind?"Keine Erinnerung mehr":"Die Glocke erinnert daran")}catch(_){toast("Konnte nicht speichern.")}}return}
   if(b.dataset.terrm){if(linkRef((S.food.termin||{})[b.dataset.terrm])){const t=b.dataset.terrm;S.terDraft=null;render();linkDel(t);return}if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Löschen?";return}try{await S.store.setPath("food/termin/"+b.dataset.terrm,null);await prioDropRef([b.dataset.terrm]);if(S.terDraft&&S.terDraft.id===b.dataset.terrm)S.terDraft=null;toast("Termin gelöscht")}catch(_){toast("Konnte nicht speichern.")}render();return}
