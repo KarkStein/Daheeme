@@ -19,9 +19,10 @@ srv.listen(8765,async()=>{
   // Kita und Musik landen auf der ersten Seite
   await nav('kita|ks:infos');await nav('kita|');r.kita=await A.$eval('[data-kitasec][aria-pressed=true]',e=>e.innerText).catch(()=>'');
   // Termin mehrtägig, Glocke bleibt beim Bearbeiten
-  await put('food/termin/t1',{name:'Oma zu Besuch',date:'2026-11-20',to:'2026-11-22',remind:true,at:1});await A.waitForTimeout(400);
+  const dd=n=>{const x=new Date();x.setDate(x.getDate()+n);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')};
+  await put('food/termin/t1',{name:'Oma zu Besuch',date:dd(1),to:dd(3),remind:true,at:1});await A.waitForTimeout(400);
   await nav('woche|wp:3');await A.click('[data-calview=liste]').catch(()=>{});await A.waitForTimeout(300);r.multi=await A.$$eval('[data-teredit=t1]',l=>l.length);
   await A.click('[data-teredit=t1] >> nth=0');await A.waitForTimeout(300);r.del=!!(await A.$('#terform [data-terrm=t1]'));await A.click('#terform [type=submit]');await A.waitForTimeout(400);r.remind=!!((F().termin||{}).t1||{}).remind;r.to=((F().termin||{}).t1||{}).to;
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&!r.rec&&!r.prio1&&r.split[0]==='https://splitwise.com/groups/9'&&!r.urlaub&&!r.pack&&!r.prio2&&!r.ref&&/Termine/.test(r.kita)&&r.multi>=3&&r.del&&r.remind&&r.to==='2026-11-22';
+  const ok=!errs.length&&!r.rec&&!r.prio1&&r.split[0]==='https://splitwise.com/groups/9'&&!r.urlaub&&!r.pack&&!r.prio2&&!r.ref&&/Termine/.test(r.kita)&&r.multi>=3&&r.del&&r.remind&&r.to===dd(3);
   console.error(ok?'VERKN OK':'VERKN FAIL');await b.close();srv.close();process.exit(0)});
