@@ -4,7 +4,7 @@
 // 🌱 Garten der Woche: jeder Haken der Woche (beide zusammen) pflanzt etwas. Nur gerechnet aus weeks/<wk>/ticks, nichts gespeichert.
 // Hausdienst-Einträge sind Einteilungen, keine Haken; dort zählt nur das Abhaken (ok).
 function gardenPlants(mon){mon=mon||mondayOf(new Date());const tk=ticksOf(wkKey(mon)),ho=(tasks().find(t=>t.owner==="ho")||{}).id,L=[];
-  Object.keys(tk).forEach(k=>{const v=tk[k];if(!v)return;if(ho&&k.startsWith(ho+"__")){Object.keys(v.ok||{}).forEach(p=>L.push({at:+v.ok[p]||v.at||0}));return}L.push({at:v.at||0})});
+  Object.keys(tk).forEach(k=>{const v=tk[k];if(!v)return;if(ho&&k.startsWith(ho+"__")){if(+k.slice(ho.length+2)>=HO_DAYS)return;Object.keys(v.ok||{}).forEach(p=>L.push({at:+v.ok[p]||v.at||0}));return}L.push({at:v.at||0})});
   return L.sort((a,b)=>a.at-b.at)}
 const GARDEN_FLOWERS=["🌷","🌻","🌼","🌸","🌺","💐"];
 // Heute gepflanztes ist noch ein Keimling, älteres blüht; sonntags blüht alles

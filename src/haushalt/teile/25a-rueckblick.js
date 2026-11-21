@@ -13,7 +13,7 @@ function rbWeek(mon){const wk=wkKey(mon),tk=ticksOf(wk),cur=mondayOf(new Date())
   const R={wk,mon,isCur,away:awN,c:0,n:0,log:[],took:[],open:[],per:{p0:0,p1:0},ho:{p0:0,p1:0,half:0},miss:{}};
   const add=(t,v,sub,own)=>{if(!v||(v.by!=="p0"&&v.by!=="p1"))return;const e={t,v,sub,own:own||null};R.log.push(e);if(e.own)R.took.push(e)};
   tasks().forEach(t=>{const o=ownerFor(t,mon,split);
-    if(t.owner==="ho"){for(let i=0;i<7;i++){const v=tk[t.id+"__"+i];if(!v||v.by==="x")continue;if(v.half==="vm")R.ho.half++;else if(R.ho[v.by]!=null)R.ho[v.by]++}return}
+    if(t.owner==="ho"){for(let i=0;i<HO_DAYS;i++){const v=tk[t.id+"__"+i];if(!v||v.by==="x")continue;if(v.half==="vm")R.ho.half++;else if(R.ho[v.by]!=null)R.ho[v.by]++}return}
     if(group(t.freq)!=="week"){const v=tk[t.id+"__p"];if(v){add(t,v,null,v.own);R.per[v.by]=(R.per[v.by]||0)+(t.pts||1)}return}
     const n=slotsOf(t);let c=0,m=0,ca=0,pa=false,pc=0;
     for(let i=0;i<n;i++){if(t.freq==="day"&&i>today)continue;const k=t.id+"__"+i;if(pa)ca+=c-pc;pa=t.freq==="day"&&AW[i];pc=c;if(!pa)m++;

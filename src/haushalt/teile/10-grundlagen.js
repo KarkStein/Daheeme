@@ -83,6 +83,8 @@ function localStore(){
 // ---------- Logik ----------
 function tasks(){return ((S.config&&S.config.tasks)||[]).filter(t=>t.freq!=="need")}
 function pname(p){const ps=(S.config&&S.config.persons)||TEMPLATE.persons;return p==="p0"?ps[0]:ps[1]}
+// Hausdienst nur Mo bis Fr (Florian 21.11.2026: „Am Wochenende raus“, wie Bringen und Abholen)
+const HO_DAYS=5;
 function slotsOf(t){return t.freq==="day"?7:t.freq==="week"?Math.max(1,t.times|0||1):1}
 function load(t){return (t.pts||0)*slotsOf(t)}
 function group(f){return f==="day"||f==="week"?"week":f}

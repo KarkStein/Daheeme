@@ -21,6 +21,6 @@ srv.listen(8765,async()=>{
   // Einteilung für künftige Tage bleibt nach dem Neuladen stehen (das Aufräumen täglicher Haken fasst den Hausdienst nicht an)
   await put('weeks/'+wk+'/ticks/essen__4',{by:'p1',at:Date.parse('2026-11-18T09:00:00+01:00')});await A.reload();await A.waitForTimeout(3000);r.future=tick('essen__4');
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&/niemand eingeteilt/.test(r.none)&&r.days==='MoDiMiDoFrSaSo'&&r.set&&r.set.by==='p0'&&!r.set.ok&&r.one.length===1&&/\|false$/.test(r.one[0])&&/heute/.test(r.one[0])&&r.ok.ok&&r.ok.ok.p0>0&&r.ok.by==='p0'&&/\|true$/.test(r.oneDone[0])
+  const ok=!errs.length&&/niemand eingeteilt/.test(r.none)&&r.days==='MoDiMiDoFr'&&r.set&&r.set.by==='p0'&&!r.set.ok&&r.one.length===1&&/\|false$/.test(r.one[0])&&/heute/.test(r.one[0])&&r.ok.ok&&r.ok.ok.p0>0&&r.ok.by==='p0'&&/\|true$/.test(r.oneDone[0])
     &&r.two.length===2&&/vormittags/.test(r.two[0])&&/nachmittags/.test(r.two[1])&&r.ok2.ok&&r.ok2.ok.p0>0&&!r.ok2.ok.p1&&/\|false$/.test(r.twoDone[0])&&/\|true$/.test(r.twoDone[1])&&r.x.length===0&&r.future&&r.future.by==='p1';
   console.error(ok?'HODIENST OK':'HODIENST FAIL');await b.close();srv.close();process.exit(0)});

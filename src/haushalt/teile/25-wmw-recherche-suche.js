@@ -6,7 +6,7 @@ function wmwState(t,p,mon,tk){if(group(t.freq)!=="week"){const pt=periodTick(t,m
   // Täglich zählt nur heute (Florian 17.11.2026: muss sich jeden Tag erneuern)
   const di=(new Date().getDay()+6)%7,i0=t.freq==="day"?di:0,n=t.freq==="day"?1:slotsOf(t);let c=0;for(let i=i0;i<i0+n;i++){const b=t.id+"__"+i;if(t.owner==="both"?(tk[b+"_"+p]||(tk[b]&&tk[b].by===p)):tk[b])c++}return {c,n}}
 function wmwList(who){const mon=mondayOf(new Date()),split=rotSplit(),tk=ticksOf(wkKey(mon)),P=who==="alle"?["p0","p1"]:[who],L=[];
-  tasks().forEach(t=>{const o=ownerFor(t,mon,split);const ps=o==="both"?P:P.includes(o)?[o]:who==="alle"&&o==="ho"?["ho"]:[];
+  tasks().forEach(t=>{const o=ownerFor(t,mon,split);const ps=o==="both"?P:P.includes(o)?[o]:who==="alle"&&o==="ho"&&(new Date().getDay()+6)%7<HO_DAYS?["ho"]:[];
     ps.forEach(p=>{const st=p==="ho"?wmwState(t,"p0",mon,tk):wmwState(t,p,mon,tk),done=st.c>=st.n;if(!done&&!periodDue(t,mon))return;L.push({t,p,o,...st,done})})});return L}
 function wmwRow(x,showP){const per=WMW_PER[x.t.freq],who=x.p==="ho"?"Hausdienst":pname(x.p);
   return `<li class="wmwrow${x.done?" done":""}">${x.done?`<span class="wmwchk" aria-label="Erledigt">✅</span>`:`<button class="wmwchk" data-wtick="${esc(x.t.id)}" data-who="${x.p}" aria-label="${esc(x.t.name)} abhaken">⬜</button>`}<span class="ev"><b>${esc(x.t.name)}</b>${taskLink(x.t,1)}<span class="freq"> · ${WMW_FL(x.t)}${per?" · "+per:""}${x.o==="rot"?" · im Wechsel":x.o==="both"?" · zu zweit":""}</span></span>${showP?`<span class="wmwp ${x.p}">${esc(who)}</span>`:""}${group(x.t.freq)==="week"&&x.n>1?`<span class="freq num">${x.c}/${x.n}</span>`:""}</li>`}

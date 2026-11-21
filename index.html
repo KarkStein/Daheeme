@@ -1025,6 +1025,8 @@ function localStore(){
 // ---------- Logik ----------
 function tasks(){return ((S.config&&S.config.tasks)||[]).filter(t=>t.freq!=="need")}
 function pname(p){const ps=(S.config&&S.config.persons)||TEMPLATE.persons;return p==="p0"?ps[0]:ps[1]}
+// Hausdienst nur Mo bis Fr (Florian 21.11.2026: „Am Wochenende raus“, wie Bringen und Abholen)
+const HO_DAYS=5;
 function slotsOf(t){return t.freq==="day"?7:t.freq==="week"?Math.max(1,t.times|0||1):1}
 function load(t){return (t.pts||0)*slotsOf(t)}
 function group(f){return f==="day"||f==="week"?"week":f}
@@ -1312,7 +1314,7 @@ function renderWeek(){
 
   const FO={day:0,week:1,month:2,half:3,year:4};
   const card=t=>{const f=t.freq,o=ownerFor(t,mon,split),isRot=t.owner==="rot";let html,doneAll,pct;const sl=[];let c=0,n=1,pb="",pinfo="";const TK={},isTk=v=>!!v&&(o==="p0"||o==="p1")&&(v.by==="p0"||v.by==="p1")&&v.by!==o,tkTxt=()=>Object.keys(TK).map(p=>`↔ ${esc(pname(p))} hat ${TK[p]}× übernommen`).join(" · ");
-    if(f==="day"||f==="week"){n=slotsOf(t);const isHO=t.owner==="ho",isBoth=t.owner==="both";let slots="";
+    if(f==="day"||f==="week"){const isHO=t.owner==="ho";n=isHO?HO_DAYS:slotsOf(t);const isBoth=t.owner==="both";let slots="";
       for(let i=0;i<n;i++){const k=t.id+"__"+i;const cls=["slot"];let lbl=f==="day"?DAYS[i]:"",aria="",on=false,tl="";
         if(isBoth){const leg=tk[k],a=tk[k+"_p0"]||(leg&&leg.by==="p0"?leg:null),b=tk[k+"_p1"]||(leg&&leg.by==="p1"?leg:null);
           c+=(a?0.5:0)+(b?0.5:0);cls.push("split");if(a)cls.push("h0");if(b)cls.push("h1");if(a&&b)lbl="✓";on=!!(a&&b);
@@ -1346,9 +1348,9 @@ function renderWeek(){
   const three=S.groupBy!=="art";let hoIn="";
   // Hausdienst immer als erster Abschnitt (Florian 15.11.2026), Filter blenden ihn nicht aus
   const ho=tasks().filter(t=>t.owner==="ho").map(card);
-  if(ho.length){const hv=today>=0&&today<7?tk[ho[0].t.id+"__"+today]:null,hn=n=>esc(pname(n).charAt(0));
-    const lab=!(today>=0&&today<7)?ho[0].c+" Tage eingetragen":!hv?"heute niemand":hv.by==="x"?"heute "+esc(hv.lbl||"jemand"):hv.half==="vm"?`heute ${hn(hv.by)} vorm. · ${hn(hv.by==="p0"?"p1":"p0")} nachm.`:"heute "+esc(pname(hv.by));
-    const hoB=`${isCur?hoChkRows(ho[0].t,hv,today):""}<div class="hoein"><b>Einteilen</b><span class="freq">Wer hat wann den Dienst? Daraus folgt, wer bringt und holt.</span></div>${ho.map(x=>x.html.replace('<article class="task','<article class="task hotask')).join("")}<div class="freq hohint">Kurz tippen trägt dich ein, lange drücken: andere Person oder geteilt. <button class="linkish" data-nav="kita|">🚸 Bringen und Abholen ›</button></div>`;
+  if(ho.length){const hoWe=today>=HO_DAYS&&today<7,hv=today>=0&&today<HO_DAYS?tk[ho[0].t.id+"__"+today]:null,hn=n=>esc(pname(n).charAt(0));
+    const lab=hoWe?"Wochenende: kein Dienst":!(today>=0&&today<7)?ho[0].c+" Tage eingetragen":!hv?"heute niemand":hv.by==="x"?"heute "+esc(hv.lbl||"jemand"):hv.half==="vm"?`heute ${hn(hv.by)} vorm. · ${hn(hv.by==="p0"?"p1":"p0")} nachm.`:"heute "+esc(pname(hv.by));
+    const hoB=`${isCur?(hoWe?`<div class="hochk none"><span class="freq">🛋️ Wochenende: Den Hausdienst gibt es nur von Montag bis Freitag, wie Bringen und Abholen.</span></div>`:hoChkRows(ho[0].t,hv,today)):""}<div class="hoein"><b>Einteilen</b><span class="freq">Wer hat wann den Dienst? Daraus folgt, wer bringt und holt.</span></div>${ho.map(x=>x.html.replace('<article class="task','<article class="task hotask')).join("")}<div class="freq hohint">Kurz tippen trägt dich ein, lange drücken: andere Person oder geteilt. <button class="linkish" data-nav="kita|">🚸 Bringen und Abholen ›</button></div>`;
     if(three)hoIn=`<div id="sec-ho" class="hoin"><div class="hoinh"><b>🔑 Hausdienst</b> <span class="freq">${lab}</span></div>${hoB}</div>`;else h+=wkFold("ho","🔑 Hausdienst",lab,hoB,0)}
   const dayX=[];
   secs.forEach(([id,title,fn0,def])=>{const fn=t=>t.owner!=="ho"&&fn0(t);const xs=tasks().filter(fn).map(card).filter(vis).sort(order);if(id==="day")dayX.push(...xs);
@@ -2618,7 +2620,7 @@ function backDay(d){const k=ymd(d),di=(d.getDay()+6)%7,ev=calEvents(k,k).filter(
 function prioTarget(x){return x.from==="mittag"?` data-go="privat"`:(x.from==="rezepte"||x.from==="essen")&&x.ref&&recs().some(r=>r.id===x.ref)?` data-openrec="${esc(x.ref)}"`:x.from==="rezepte"?` data-go="essen" data-ft="rezepte"`:x.ref&&String(x.ref).startsWith("advent:")?` data-advgo="${esc(x.ref.slice(7))}"`:x.from==="kind"?` data-nav="kind|kf:kid_med"`:x.from&&x.from!=="frei"?` data-go="${x.from}"`:` data-prioedit="${esc(x.id)}"`}
 // Aufgaben für heute (Florian 16.11.2026, statt „im Einkauf“): tägliche Aufgaben von heute plus offene Wochen-Aufgaben, für mich (ohne Ich bin: alle), ohne Hausdienst
 // Hausdienst als Aufgabe für die zuständige Person (Florian 16.11.2026): nur wer heute Hausdienst hat (geteilt: beide, vormittags/nachmittags), ohne Zuständigen nichts; erledigt steht im Hausdienst-Haken unter ok:{p0|p1:Zeit}
-function hoMine(){const now=new Date(),mon=mondayOf(now),di=(now.getDay()+6)%7,t=tasks().find(x=>x.owner==="ho");if(!t)return null;const v=ticksOf(wkKey(mon))[t.id+"__"+di];if(!v||!(v.by==="p0"||v.by==="p1"))return null;
+function hoMine(){const now=new Date(),mon=mondayOf(now),di=(now.getDay()+6)%7,t=tasks().find(x=>x.owner==="ho");if(!t||di>=HO_DAYS)return null;const v=ticksOf(wkKey(mon))[t.id+"__"+di];if(!v||!(v.by==="p0"||v.by==="p1"))return null;
   const oth=v.by==="p0"?"p1":"p0",me=S.me||v.by;if(S.me&&S.me!==v.by&&v.half!=="vm")return null;
   const part=v.half==="vm"?(me===v.by?"vormittags":"nachmittags"):"";return {t,di,v,me,part,done:!!(v.ok&&v.ok[me])}}
 // Hausdienst abhaken (Florian 17.11.2026: Einteilen und Abhaken sind zwei Felder): täglich ein eigenes Feld bei der Person, die heute den Dienst hat; geteilter Tag = zwei Felder (vormittags, nachmittags). Haken in ok:{p0|p1} am Hausdienst-Eintrag des Tages.
@@ -2636,7 +2638,7 @@ function tasksCount(day){const mon=mondayOf(new Date()),tk=ticksOf(wkKey(mon)),s
     const chk=i=>{total++;if(o==="both"){const leg=tk[t.id+"__"+i];if(S.me?!(tk[t.id+"__"+i+"_"+S.me]||(leg&&leg.by===S.me)):!leg)open++}else if(!tk[t.id+"__"+i])open++};
     if(t.freq==="day")chk(di);else for(let i=0;i<slotsOf(t);i++)chk(i)});const hm=hoMine();if(hm){total++;if(!hm.done)open++}return {open,total}}
 // Hausdienst heute (Florian 16.11.2026): dezent in der Zeile unter dem Datum, Farbpunkt der Person, geteilt „F vorm. · J nachm.“
-function hoToday(){const mon=mondayOf(new Date()),di=(new Date().getDay()+6)%7,hoT=tasks().find(t=>t.owner==="ho"),x=hoT?ticksOf(wkKey(mon))[hoT.id+"__"+di]:null;if(!x||!(x.by==="p0"||x.by==="p1"))return "";
+function hoToday(){const mon=mondayOf(new Date()),di=(new Date().getDay()+6)%7,hoT=tasks().find(t=>t.owner==="ho"),x=hoT&&di<HO_DAYS?ticksOf(wkKey(mon))[hoT.id+"__"+di]:null;if(!x||!(x.by==="p0"||x.by==="p1"))return "";
   const o=x.by==="p0"?"p1":"p0",dot=p=>`<i class="hodot bgw-${p}"></i>`;
   return ` · <span class="bho" aria-label="Hausdienst heute">🔑 ${x.half==="vm"?dot(x.by)+esc(pname(x.by).charAt(0))+" vorm. · "+dot(o)+esc(pname(o).charAt(0))+" nachm.":dot(x.by)+esc(pname(x.by))}</span>`}
 function renderBack(night,dash){const now=new Date(),today=ymd(now),D=backDay(now),pr=prios().filter(x=>x.from!=="mittag"),due=pr.filter(x=>x.due&&x.due<=today),shop=shopItems().filter(x=>!x.done),w=wxFor(now);
@@ -4105,7 +4107,7 @@ function renderPlay(){const d=S.playDraft,PS=playSecs(),F=S.playF||"",cur=PS.fin
 // 🌱 Garten der Woche: jeder Haken der Woche (beide zusammen) pflanzt etwas. Nur gerechnet aus weeks/<wk>/ticks, nichts gespeichert.
 // Hausdienst-Einträge sind Einteilungen, keine Haken; dort zählt nur das Abhaken (ok).
 function gardenPlants(mon){mon=mon||mondayOf(new Date());const tk=ticksOf(wkKey(mon)),ho=(tasks().find(t=>t.owner==="ho")||{}).id,L=[];
-  Object.keys(tk).forEach(k=>{const v=tk[k];if(!v)return;if(ho&&k.startsWith(ho+"__")){Object.keys(v.ok||{}).forEach(p=>L.push({at:+v.ok[p]||v.at||0}));return}L.push({at:v.at||0})});
+  Object.keys(tk).forEach(k=>{const v=tk[k];if(!v)return;if(ho&&k.startsWith(ho+"__")){if(+k.slice(ho.length+2)>=HO_DAYS)return;Object.keys(v.ok||{}).forEach(p=>L.push({at:+v.ok[p]||v.at||0}));return}L.push({at:v.at||0})});
   return L.sort((a,b)=>a.at-b.at)}
 const GARDEN_FLOWERS=["🌷","🌻","🌼","🌸","🌺","💐"];
 // Heute gepflanztes ist noch ein Keimling, älteres blüht; sonntags blüht alles
@@ -4417,7 +4419,7 @@ function wmwState(t,p,mon,tk){if(group(t.freq)!=="week"){const pt=periodTick(t,m
   // Täglich zählt nur heute (Florian 17.11.2026: muss sich jeden Tag erneuern)
   const di=(new Date().getDay()+6)%7,i0=t.freq==="day"?di:0,n=t.freq==="day"?1:slotsOf(t);let c=0;for(let i=i0;i<i0+n;i++){const b=t.id+"__"+i;if(t.owner==="both"?(tk[b+"_"+p]||(tk[b]&&tk[b].by===p)):tk[b])c++}return {c,n}}
 function wmwList(who){const mon=mondayOf(new Date()),split=rotSplit(),tk=ticksOf(wkKey(mon)),P=who==="alle"?["p0","p1"]:[who],L=[];
-  tasks().forEach(t=>{const o=ownerFor(t,mon,split);const ps=o==="both"?P:P.includes(o)?[o]:who==="alle"&&o==="ho"?["ho"]:[];
+  tasks().forEach(t=>{const o=ownerFor(t,mon,split);const ps=o==="both"?P:P.includes(o)?[o]:who==="alle"&&o==="ho"&&(new Date().getDay()+6)%7<HO_DAYS?["ho"]:[];
     ps.forEach(p=>{const st=p==="ho"?wmwState(t,"p0",mon,tk):wmwState(t,p,mon,tk),done=st.c>=st.n;if(!done&&!periodDue(t,mon))return;L.push({t,p,o,...st,done})})});return L}
 function wmwRow(x,showP){const per=WMW_PER[x.t.freq],who=x.p==="ho"?"Hausdienst":pname(x.p);
   return `<li class="wmwrow${x.done?" done":""}">${x.done?`<span class="wmwchk" aria-label="Erledigt">✅</span>`:`<button class="wmwchk" data-wtick="${esc(x.t.id)}" data-who="${x.p}" aria-label="${esc(x.t.name)} abhaken">⬜</button>`}<span class="ev"><b>${esc(x.t.name)}</b>${taskLink(x.t,1)}<span class="freq"> · ${WMW_FL(x.t)}${per?" · "+per:""}${x.o==="rot"?" · im Wechsel":x.o==="both"?" · zu zweit":""}</span></span>${showP?`<span class="wmwp ${x.p}">${esc(who)}</span>`:""}${group(x.t.freq)==="week"&&x.n>1?`<span class="freq num">${x.c}/${x.n}</span>`:""}</li>`}
@@ -4583,7 +4585,7 @@ function rbWeek(mon){const wk=wkKey(mon),tk=ticksOf(wk),cur=mondayOf(new Date())
   const R={wk,mon,isCur,away:awN,c:0,n:0,log:[],took:[],open:[],per:{p0:0,p1:0},ho:{p0:0,p1:0,half:0},miss:{}};
   const add=(t,v,sub,own)=>{if(!v||(v.by!=="p0"&&v.by!=="p1"))return;const e={t,v,sub,own:own||null};R.log.push(e);if(e.own)R.took.push(e)};
   tasks().forEach(t=>{const o=ownerFor(t,mon,split);
-    if(t.owner==="ho"){for(let i=0;i<7;i++){const v=tk[t.id+"__"+i];if(!v||v.by==="x")continue;if(v.half==="vm")R.ho.half++;else if(R.ho[v.by]!=null)R.ho[v.by]++}return}
+    if(t.owner==="ho"){for(let i=0;i<HO_DAYS;i++){const v=tk[t.id+"__"+i];if(!v||v.by==="x")continue;if(v.half==="vm")R.ho.half++;else if(R.ho[v.by]!=null)R.ho[v.by]++}return}
     if(group(t.freq)!=="week"){const v=tk[t.id+"__p"];if(v){add(t,v,null,v.own);R.per[v.by]=(R.per[v.by]||0)+(t.pts||1)}return}
     const n=slotsOf(t);let c=0,m=0,ca=0,pa=false,pc=0;
     for(let i=0;i<n;i++){if(t.freq==="day"&&i>today)continue;const k=t.id+"__"+i;if(pa)ca+=c-pc;pa=t.freq==="day"&&AW[i];pc=c;if(!pa)m++;

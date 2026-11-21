@@ -3,7 +3,7 @@ function backDay(d){const k=ymd(d),di=(d.getDay()+6)%7,ev=calEvents(k,k).filter(
 function prioTarget(x){return x.from==="mittag"?` data-go="privat"`:(x.from==="rezepte"||x.from==="essen")&&x.ref&&recs().some(r=>r.id===x.ref)?` data-openrec="${esc(x.ref)}"`:x.from==="rezepte"?` data-go="essen" data-ft="rezepte"`:x.ref&&String(x.ref).startsWith("advent:")?` data-advgo="${esc(x.ref.slice(7))}"`:x.from==="kind"?` data-nav="kind|kf:kid_med"`:x.from&&x.from!=="frei"?` data-go="${x.from}"`:` data-prioedit="${esc(x.id)}"`}
 // Aufgaben für heute (Florian 16.11.2026, statt „im Einkauf“): tägliche Aufgaben von heute plus offene Wochen-Aufgaben, für mich (ohne Ich bin: alle), ohne Hausdienst
 // Hausdienst als Aufgabe für die zuständige Person (Florian 16.11.2026): nur wer heute Hausdienst hat (geteilt: beide, vormittags/nachmittags), ohne Zuständigen nichts; erledigt steht im Hausdienst-Haken unter ok:{p0|p1:Zeit}
-function hoMine(){const now=new Date(),mon=mondayOf(now),di=(now.getDay()+6)%7,t=tasks().find(x=>x.owner==="ho");if(!t)return null;const v=ticksOf(wkKey(mon))[t.id+"__"+di];if(!v||!(v.by==="p0"||v.by==="p1"))return null;
+function hoMine(){const now=new Date(),mon=mondayOf(now),di=(now.getDay()+6)%7,t=tasks().find(x=>x.owner==="ho");if(!t||di>=HO_DAYS)return null;const v=ticksOf(wkKey(mon))[t.id+"__"+di];if(!v||!(v.by==="p0"||v.by==="p1"))return null;
   const oth=v.by==="p0"?"p1":"p0",me=S.me||v.by;if(S.me&&S.me!==v.by&&v.half!=="vm")return null;
   const part=v.half==="vm"?(me===v.by?"vormittags":"nachmittags"):"";return {t,di,v,me,part,done:!!(v.ok&&v.ok[me])}}
 // Hausdienst abhaken (Florian 17.11.2026: Einteilen und Abhaken sind zwei Felder): täglich ein eigenes Feld bei der Person, die heute den Dienst hat; geteilter Tag = zwei Felder (vormittags, nachmittags). Haken in ok:{p0|p1} am Hausdienst-Eintrag des Tages.
@@ -21,7 +21,7 @@ function tasksCount(day){const mon=mondayOf(new Date()),tk=ticksOf(wkKey(mon)),s
     const chk=i=>{total++;if(o==="both"){const leg=tk[t.id+"__"+i];if(S.me?!(tk[t.id+"__"+i+"_"+S.me]||(leg&&leg.by===S.me)):!leg)open++}else if(!tk[t.id+"__"+i])open++};
     if(t.freq==="day")chk(di);else for(let i=0;i<slotsOf(t);i++)chk(i)});const hm=hoMine();if(hm){total++;if(!hm.done)open++}return {open,total}}
 // Hausdienst heute (Florian 16.11.2026): dezent in der Zeile unter dem Datum, Farbpunkt der Person, geteilt „F vorm. · J nachm.“
-function hoToday(){const mon=mondayOf(new Date()),di=(new Date().getDay()+6)%7,hoT=tasks().find(t=>t.owner==="ho"),x=hoT?ticksOf(wkKey(mon))[hoT.id+"__"+di]:null;if(!x||!(x.by==="p0"||x.by==="p1"))return "";
+function hoToday(){const mon=mondayOf(new Date()),di=(new Date().getDay()+6)%7,hoT=tasks().find(t=>t.owner==="ho"),x=hoT&&di<HO_DAYS?ticksOf(wkKey(mon))[hoT.id+"__"+di]:null;if(!x||!(x.by==="p0"||x.by==="p1"))return "";
   const o=x.by==="p0"?"p1":"p0",dot=p=>`<i class="hodot bgw-${p}"></i>`;
   return ` · <span class="bho" aria-label="Hausdienst heute">🔑 ${x.half==="vm"?dot(x.by)+esc(pname(x.by).charAt(0))+" vorm. · "+dot(o)+esc(pname(o).charAt(0))+" nachm.":dot(x.by)+esc(pname(x.by))}</span>`}
 function renderBack(night,dash){const now=new Date(),today=ymd(now),D=backDay(now),pr=prios().filter(x=>x.from!=="mittag"),due=pr.filter(x=>x.due&&x.due<=today),shop=shopItems().filter(x=>!x.done),w=wxFor(now);

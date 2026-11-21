@@ -204,7 +204,7 @@ function renderWeek(){
 
   const FO={day:0,week:1,month:2,half:3,year:4};
   const card=t=>{const f=t.freq,o=ownerFor(t,mon,split),isRot=t.owner==="rot";let html,doneAll,pct;const sl=[];let c=0,n=1,pb="",pinfo="";const TK={},isTk=v=>!!v&&(o==="p0"||o==="p1")&&(v.by==="p0"||v.by==="p1")&&v.by!==o,tkTxt=()=>Object.keys(TK).map(p=>`↔ ${esc(pname(p))} hat ${TK[p]}× übernommen`).join(" · ");
-    if(f==="day"||f==="week"){n=slotsOf(t);const isHO=t.owner==="ho",isBoth=t.owner==="both";let slots="";
+    if(f==="day"||f==="week"){const isHO=t.owner==="ho";n=isHO?HO_DAYS:slotsOf(t);const isBoth=t.owner==="both";let slots="";
       for(let i=0;i<n;i++){const k=t.id+"__"+i;const cls=["slot"];let lbl=f==="day"?DAYS[i]:"",aria="",on=false,tl="";
         if(isBoth){const leg=tk[k],a=tk[k+"_p0"]||(leg&&leg.by==="p0"?leg:null),b=tk[k+"_p1"]||(leg&&leg.by==="p1"?leg:null);
           c+=(a?0.5:0)+(b?0.5:0);cls.push("split");if(a)cls.push("h0");if(b)cls.push("h1");if(a&&b)lbl="✓";on=!!(a&&b);
@@ -238,9 +238,9 @@ function renderWeek(){
   const three=S.groupBy!=="art";let hoIn="";
   // Hausdienst immer als erster Abschnitt (Florian 15.11.2026), Filter blenden ihn nicht aus
   const ho=tasks().filter(t=>t.owner==="ho").map(card);
-  if(ho.length){const hv=today>=0&&today<7?tk[ho[0].t.id+"__"+today]:null,hn=n=>esc(pname(n).charAt(0));
-    const lab=!(today>=0&&today<7)?ho[0].c+" Tage eingetragen":!hv?"heute niemand":hv.by==="x"?"heute "+esc(hv.lbl||"jemand"):hv.half==="vm"?`heute ${hn(hv.by)} vorm. · ${hn(hv.by==="p0"?"p1":"p0")} nachm.`:"heute "+esc(pname(hv.by));
-    const hoB=`${isCur?hoChkRows(ho[0].t,hv,today):""}<div class="hoein"><b>Einteilen</b><span class="freq">Wer hat wann den Dienst? Daraus folgt, wer bringt und holt.</span></div>${ho.map(x=>x.html.replace('<article class="task','<article class="task hotask')).join("")}<div class="freq hohint">Kurz tippen trägt dich ein, lange drücken: andere Person oder geteilt. <button class="linkish" data-nav="kita|">🚸 Bringen und Abholen ›</button></div>`;
+  if(ho.length){const hoWe=today>=HO_DAYS&&today<7,hv=today>=0&&today<HO_DAYS?tk[ho[0].t.id+"__"+today]:null,hn=n=>esc(pname(n).charAt(0));
+    const lab=hoWe?"Wochenende: kein Dienst":!(today>=0&&today<7)?ho[0].c+" Tage eingetragen":!hv?"heute niemand":hv.by==="x"?"heute "+esc(hv.lbl||"jemand"):hv.half==="vm"?`heute ${hn(hv.by)} vorm. · ${hn(hv.by==="p0"?"p1":"p0")} nachm.`:"heute "+esc(pname(hv.by));
+    const hoB=`${isCur?(hoWe?`<div class="hochk none"><span class="freq">🛋️ Wochenende: Den Hausdienst gibt es nur von Montag bis Freitag, wie Bringen und Abholen.</span></div>`:hoChkRows(ho[0].t,hv,today)):""}<div class="hoein"><b>Einteilen</b><span class="freq">Wer hat wann den Dienst? Daraus folgt, wer bringt und holt.</span></div>${ho.map(x=>x.html.replace('<article class="task','<article class="task hotask')).join("")}<div class="freq hohint">Kurz tippen trägt dich ein, lange drücken: andere Person oder geteilt. <button class="linkish" data-nav="kita|">🚸 Bringen und Abholen ›</button></div>`;
     if(three)hoIn=`<div id="sec-ho" class="hoin"><div class="hoinh"><b>🔑 Hausdienst</b> <span class="freq">${lab}</span></div>${hoB}</div>`;else h+=wkFold("ho","🔑 Hausdienst",lab,hoB,0)}
   const dayX=[];
   secs.forEach(([id,title,fn0,def])=>{const fn=t=>t.owner!=="ho"&&fn0(t);const xs=tasks().filter(fn).map(card).filter(vis).sort(order);if(id==="day")dayX.push(...xs);
