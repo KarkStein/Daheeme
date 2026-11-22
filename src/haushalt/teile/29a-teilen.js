@@ -77,7 +77,7 @@ function moveOpen(kind,id){const M=moveSrc(kind,id);if(!M)return;
   const bk=kind==="rec"?books().filter(b=>b.id!==recBook(M.x)).map((b,i)=>["book:"+b.id,"📚 Kochbuch: "+b.name]):[];
   editBox("Verschieben: "+M.x.name,[{k:"to",label:"Nach",type:"chips",opts:bk.concat(shareTargets().filter(t=>t[0]!==M.here&&t[0]!=="kita").map(t=>[t[0],t[1]+" "+t[2]])),val:""},{k:"n",type:"note",label:(bk.length?"Ein anderes Kochbuch: Das Rezept zieht einfach um. ":"")+"In einen anderen Bereich: Der Eintrag zieht mit Name, Link und Notiz um und verschwindet hier. Verknüpftes (Erinnerungen, Einkaufsliste) wird dabei entfernt."}],
     async V=>{if(!V.to){toast("Bitte antippen, wohin.");return}
-      if(V.to.startsWith("book:")){const to=books().find(b=>"book:"+b.id===V.to);if(!to)return;await S.store.setPath("food/rec/"+id+"/book",to.id);M.done();S.book=to.id;S.recOpen=id;toast(M.x.name+" steht jetzt in „"+to.name+"“.");render();return}
+      if(V.to.startsWith("book:")){const to=books().find(b=>"book:"+b.id===V.to);if(!to)return;await S.store.setPath("food/rec/"+id+"/book",to.id);M.done();S.book=to.id;S.recOpen=null;booksSet(true);toast(M.x.name+" steht jetzt in „"+to.name+"“.");render();return}
       await shareSave(V.to,M.x.name,M.x.link,M.note);await M.drop();M.done();toast("Verschoben nach "+shareTo(V.to)[2]);shareGo(V.to)})}
 
 // Eingang (Florian 19.11.2026: „Eingang, ja“): „📥 Später entscheiden“ bei „Wohin damit?“ legt food/inbox/<id> {name,link?,note?,at,by} an.
