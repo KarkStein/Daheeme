@@ -1,6 +1,6 @@
 {
-"updated": "2026-11-21",
-"n": 78,
+"updated": "2026-11-22",
+"n": 88,
 "items": [
 {
 "name": "Buddha Bowl mit Erdnusssoße",
@@ -3029,6 +3029,399 @@
 ],
 "first": "2026-11-21",
 "last": "2026-11-21"
+},
+{
+"name": "Blumenkohl-Pasta in pikanter Erdnussbuttersoße",
+"source": "emmikochteinfach.de",
+"link": "https://emmikochteinfach.de/blumenkohl-pasta-in-pikanter-erdnussbuttersosse/#wprm-recipe-container-17682",
+"ing": [
+"800 g Blumenkohl",
+"300 g Nudeln (z. B. Fusilli)",
+"100 g Babyspinat",
+"4 Frühlingszwiebeln",
+"1 Handvoll gesalzene Erdnüsse",
+"400 ml Kokosmilch",
+"80 g cremige Erdnussbutter",
+"3 EL Limettensaft",
+"2 EL Sojasoße",
+"2 TL Sambal Oelek",
+"2 TL frischer Ingwer, gerieben",
+"3 Knoblauchzehen",
+"2 TL brauner Zucker",
+"2 EL Olivenöl"
+],
+"min": 30,
+"wx": "egal",
+"veg": true,
+"tags": [
+"Ernährung|vegetarisch",
+"Ernährung|vegan",
+"Zeit|30 Min",
+"Grundlage|Nudeln",
+"Art|Pfanne",
+"Region|asiatisch",
+"Saison|Herbst",
+"Zutaten|Blumenkohl",
+"Zutaten|Nudel",
+"Zutaten|Erdnussbutter",
+"Zutaten|Spinat"
+],
+"note": "Schnelle Nudeln mit cremiger Erdnusssoße, der Blumenkohl wird mitgeröstet. Fürs Kleinkind das Sambal erst am Tisch dazugeben und die ganzen Erdnüsse weglassen.",
+"from": [
+"emmi"
+],
+"first": "2026-11-22",
+"last": "2026-11-22"
+},
+{
+"name": "Cremige One-Pot-Pasta mit Brokkoli",
+"cat": "schnell",
+"source": "lecker.de",
+"link": "https://www.lecker.de/cremige-one-pot-pasta-mit-brokkoli-127722.html",
+"ing": [
+"2 kleine Zwiebeln",
+"1 Knoblauchzehe",
+"1 Brokkoli (ca. 400 g)",
+"250 g braune Champignons",
+"2 EL Olivenöl",
+"250 g Tortiglioni-Nudeln",
+"1 l Gemüsebrühe",
+"200 g Schlagsahne",
+"80 g Babyspinat",
+"1 Prise Muskatnuss"
+],
+"min": 30,
+"veg": true,
+"tags": [
+"Ernährung|vegetarisch",
+"Zeit|30 Min",
+"Grundlage|Nudeln",
+"Art|Pfanne",
+"Region|italienisch",
+"Saison|Herbst",
+"Saison|Winter",
+"Familie|kleinkindtauglich",
+"Zutaten|Nudel",
+"Zutaten|Brokkoli",
+"Zutaten|Champignon",
+"Zutaten|Spinat"
+],
+"note": "Alles in einem Topf in 30 Minuten, wenig Abwasch. Mild und cremig, Kinder mögen es meist gern.",
+"from": [
+"tag"
+],
+"first": "2026-11-22",
+"last": "2026-11-22"
+},
+{
+"name": "Kohlrabigemüse mit Kartoffeln und Möhren",
+"source": "emmikochteinfach.de",
+"link": "https://emmikochteinfach.de/kohlrabigemuese-mit-kartoffeln-und-moehren/#wprm-recipe-container-16267",
+"ing": [
+"1 kg Kohlrabi (ca. 4 Stück)",
+"500 g festkochende Kartoffeln",
+"300 g Möhren",
+"500 ml Gemüsebrühe",
+"200 g Kräuterfrischkäse",
+"2 EL Speisestärke",
+"1–2 Spritzer Zitronensaft",
+"1 Prise Muskatnuss"
+],
+"min": 35,
+"wx": "egal",
+"veg": true,
+"tags": [
+"Ernährung|vegetarisch",
+"Zeit|länger",
+"Grundlage|Kartoffeln",
+"Region|deutsch/bayerisch",
+"Saison|Herbst",
+"Familie|kleinkindtauglich",
+"Zutaten|Kohlrabi",
+"Zutaten|Kartoffel",
+"Zutaten|Möhre",
+"Zutaten|Frischkäse"
+],
+"note": "Leichtes Gemüse-Abendessen in heller Kräutersoße, gut für Tage mit deftigem Kita-Mittag. Weich gegart und mild, passt gut fürs Kleinkind.",
+"from": [
+"emmi"
+],
+"first": "2026-11-22",
+"last": "2026-11-22"
+},
+{
+"name": "Lachs-Sahne-Gratin",
+"source": "emmikochteinfach.de",
+"link": "https://emmikochteinfach.de/lachs-sahne-gratin/#wprm-recipe-container-246029",
+"ing": [
+"550 g Lachsfilet ohne Haut",
+"300 g Schlagsahne",
+"125 ml Milch",
+"5 g frischer Dill",
+"2 EL Tomatenmark",
+"2 TL gekörnte Gemüsebrühe",
+"2 TL Senf",
+"1 TL Zitronensaft"
+],
+"min": 35,
+"wx": "kalt",
+"veg": false,
+"tags": [
+"Ernährung|Fisch",
+"Zeit|länger",
+"Art|Auflauf/Ofen",
+"Saison|Winter",
+"Familie|kleinkindtauglich",
+"Zutaten|Lachs",
+"Zutaten|Sahne",
+"Zutaten|Dill"
+],
+"note": "Lachs im Ofen in cremiger Soße, dazu Reis oder Kartoffeln. Ganz durchgaren lassen und fürs Kind auf Gräten prüfen.",
+"from": [
+"emmi"
+],
+"first": "2026-11-22",
+"last": "2026-11-22"
+},
+{
+"name": "Lazy Currynudeln aus dem Ofen",
+"cat": "vegetarisch",
+"source": "eat-this.org",
+"link": "https://www.eat-this.org/lazy-currynudeln-aus-dem-ofen/#wprm-recipe-container-58507",
+"ing": [
+"200 g Möhren",
+"200 g Paprika",
+"200 g Brokkoli",
+"400 g Tofu",
+"160 g Bambussprossen (aus dem Glas, abgetropft)",
+"800 ml Kokosmilch (fettreduziert)",
+"2 EL rote Thai-Currypaste",
+"2 EL Tomatenmark",
+"2 TL helle Misopaste",
+"4 Knoblauchzehen",
+"360 g dünne Reisnudeln",
+"2 EL Erdnüsse",
+"10 g Koriander",
+"1 Limette"
+],
+"min": 50,
+"veg": true,
+"tags": [
+"Ernährung|vegetarisch",
+"Ernährung|vegan",
+"Zeit|länger",
+"Grundlage|Nudeln",
+"Art|Auflauf/Ofen",
+"Region|asiatisch",
+"Saison|Winter",
+"Zutaten|Reisnudel",
+"Zutaten|Tofu",
+"Zutaten|Brokkoli",
+"Zutaten|Kokosmilch",
+"Zutaten|Paprika"
+],
+"note": "Vegane Currynudeln, die fast von allein im Ofen garen. Fürs Kleinkind weniger Currypaste nehmen und die Erdnüsse weglassen oder fein hacken.",
+"from": [
+"tag"
+],
+"first": "2026-11-22",
+"last": "2026-11-22"
+},
+{
+"name": "Libanesisches Huhn mit roten Zwiebeln und Linsen",
+"cat": "exotisch",
+"source": "kuechengoetter.de",
+"link": "https://www.kuechengoetter.de/rezepte/libanesisches-huhn-mit-roten-zwiebeln-linsen-28149#zutaten",
+"ing": [
+"400 g Hähnchenbrustfilet",
+"2 EL Limettensaft",
+"400 g rote Zwiebeln",
+"400 g Möhren",
+"2 EL Olivenöl",
+"80 g rote Linsen",
+"1/2 TL Chiliflocken",
+"500 ml Hühnerbrühe",
+"4 Stängel Minze",
+"8 Stängel glatte Petersilie",
+"300 g Joghurt (1,5 % Fett)",
+"1 Prise Muskatnuss",
+"3 Msp. Kardamompulver",
+"3 Msp. Zimtpulver"
+],
+"min": 55,
+"veg": false,
+"tags": [
+"Ernährung|Fleisch",
+"Zeit|länger",
+"Grundlage|Hülsenfrüchte",
+"Art|Pfanne",
+"Region|orientalisch",
+"Saison|Herbst",
+"Saison|Winter",
+"Zutaten|Hähnchen",
+"Zutaten|Linse",
+"Zutaten|Möhre",
+"Zutaten|Zwiebel",
+"Zutaten|Joghurt"
+],
+"note": "Libanesisch gewürzt mit Zimt, Kardamom und Minze, dazu passen Fladenbrot oder Reis. Fürs Kleinkind die Chiliflocken weglassen, das Huhn ist durchgeschmort.",
+"from": [
+"tag"
+],
+"first": "2026-11-22",
+"last": "2026-11-22"
+},
+{
+"name": "Omas Steckrübeneintopf",
+"cat": "saisonal",
+"source": "kuechengoetter.de",
+"link": "https://www.kuechengoetter.de/rezepte/omas-steckruebeneintopf-2206#zutaten",
+"ing": [
+"500 g frischer Schweinebauch",
+"1,5 kg Steckrüben",
+"2 Zwiebeln",
+"2 EL Gänseschmalz (oder Schweineschmalz)",
+"2 Prisen Zucker",
+"1/2 TL Kümmel",
+"600 g mehligkochende Kartoffeln",
+"1 Prise Muskatnuss",
+"2 EL gehackte Petersilie"
+],
+"min": 70,
+"veg": false,
+"tags": [
+"Ernährung|Fleisch",
+"Zeit|länger",
+"Grundlage|Kartoffeln",
+"Art|Eintopf",
+"Region|deutsch/bayerisch",
+"Saison|Winter",
+"Familie|Vorkochen/Reste",
+"Zutaten|Steckrübe",
+"Zutaten|Kartoffel",
+"Zutaten|Schweinebauch",
+"Zutaten|Zwiebel"
+],
+"note": "Steckrüben haben jetzt Saison, ein deftiger Eintopf für kalte Tage, schmeckt aufgewärmt noch besser. Das Fleisch wird lange gekocht und ist durchgegart, fürs Kind klein schneiden.",
+"from": [
+"tag"
+],
+"first": "2026-11-22",
+"last": "2026-11-22"
+},
+{
+"name": "Rosenkohlsuppe",
+"source": "emmikochteinfach.de",
+"link": "https://emmikochteinfach.de/rosenkohlsuppe/#wprm-recipe-container-247586",
+"ing": [
+"700 ml Gemüsebrühe",
+"500 g Rosenkohl",
+"150 g mehligkochende Kartoffeln",
+"150 g Sahne",
+"1 Zwiebel (ca. 70 g)",
+"20 g Parmesan",
+"20 g Butterschmalz",
+"1 TL Zitronensaft",
+"1 Prise Muskatnuss"
+],
+"min": 35,
+"wx": "kalt",
+"veg": true,
+"tags": [
+"Ernährung|vegetarisch",
+"Zeit|länger",
+"Grundlage|Gemüse pur",
+"Art|Suppe",
+"Region|deutsch/bayerisch",
+"Saison|Winter",
+"Familie|kleinkindtauglich",
+"Zutaten|Rosenkohl",
+"Zutaten|Kartoffel",
+"Zutaten|Sahne"
+],
+"note": "Cremige, wärmende Suppe für nasse Tage, püriert schmeckt der Rosenkohl mild. Ideal fürs Kleinkind, dazu Brot.",
+"from": [
+"emmi"
+],
+"first": "2026-11-22",
+"last": "2026-11-22"
+},
+{
+"name": "Sauerkrautsuppe vegan",
+"cat": "gesund",
+"source": "eatsmarter.de",
+"link": "https://eatsmarter.de/rezepte/sauerkrautsuppe-vegan",
+"ing": [
+"1 rote Paprikaschote",
+"2 Zwiebeln",
+"2 Möhren",
+"300 g frisches Sauerkraut",
+"800 g passierte Tomaten",
+"1 l Gemüsebrühe",
+"1 TL Kreuzkümmel",
+"1 TL Currypulver",
+"1 Handvoll Petersilie"
+],
+"min": 30,
+"veg": true,
+"tags": [
+"Ernährung|vegetarisch",
+"Ernährung|vegan",
+"Zeit|30 Min",
+"Grundlage|Gemüse pur",
+"Art|Suppe",
+"Region|deutsch/bayerisch",
+"Saison|Winter",
+"Familie|Vorkochen/Reste",
+"Zutaten|Sauerkraut",
+"Zutaten|Tomate",
+"Zutaten|Paprika",
+"Zutaten|Möhre"
+],
+"note": "Leichte, wärmende Wintersuppe mit viel Gemüse und Sauerkraut. Fürs Kleinkind das Sauerkraut gut weich köcheln, dazu passt Brot.",
+"from": [
+"tag"
+],
+"first": "2026-11-22",
+"last": "2026-11-22"
+},
+{
+"name": "Spitzkohlpfanne mit Hackfleisch",
+"source": "emmikochteinfach.de",
+"link": "https://emmikochteinfach.de/spitzkohlpfanne-mit-hackfleisch/#wprm-recipe-container-9512",
+"ing": [
+"500 g Rinderhackfleisch",
+"1 kleiner Spitzkohl (ca. 800 bis 1000 g)",
+"2 Zwiebeln (ca. 200 g)",
+"250 ml Gemüsebrühe",
+"2 EL Tomatenmark",
+"2 EL Crème fraîche",
+"1 EL Rapsöl",
+"2 TL Paprikapulver edelsüß",
+"1/2 TL Paprikapulver rosenscharf"
+],
+"min": 30,
+"wx": "kalt",
+"veg": false,
+"tags": [
+"Ernährung|Fleisch",
+"Zeit|30 Min",
+"Grundlage|Gemüse pur",
+"Art|Pfanne",
+"Region|deutsch/bayerisch",
+"Saison|Herbst",
+"Saison|Winter",
+"Familie|kleinkindtauglich",
+"Zutaten|Spitzkohl",
+"Zutaten|Hackfleisch",
+"Zutaten|Zwiebel"
+],
+"note": "Schnelle, sättigende Pfanne in 30 Minuten, gut für volle Tage. Hack ganz durchbraten und fürs Kind das scharfe Paprikapulver weglassen.",
+"from": [
+"emmi"
+],
+"first": "2026-11-22",
+"last": "2026-11-22"
 }
 ]
 }
