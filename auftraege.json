@@ -6,7 +6,7 @@
       "id": "rezepte-taeglich",
       "area": "rezepte",
       "name": "Tägliche Rezept-Recherche",
-      "what": "Ein Rezept pro Rubrik (gesund, schnell, vegetarisch, saisonal, exotisch) und 4 bis 5 Emmi-Rezepte, mit Mengen und Tags",
+      "what": "Ein Rezept pro Rubrik (gesund, schnell, Kinderessen, saisonal, exotisch) und 4 bis 5 Emmi-Rezepte, mit Mengen und Tags",
       "rhythm": "täglich 5:43",
       "file": "ideen.json"
     },

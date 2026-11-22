@@ -10,9 +10,14 @@ https://www.ndr.de/ratgeber/kochen/rezepte/ernaehrungsdocs
 https://www.lecker.de
 https://www.kitchenstories.com/de
 
-# Vegetarisch
-https://www.zuckerundjagdwurst.com
-https://www.eat-this.org
+# Kinderessen
+# Gemeint ist ein Gericht für die ganze Familie, das einem Kleinkind (2 bis 3 Jahre) und älteren Kindern schmeckt: mild, wenig Salz, gut zu essen. Kein Babybrei.
+https://www.lecker.de/rezepte-fuer-kinder
+https://www.lecker.de/rezepte-fuer-die-familie
+# Emmikocht: Suche https://emmikochteinfach.de/?s=kinder oder ?s=familie
+# Küchengötter: https://www.kuechengoetter.de/suche/kinder
+# EAT SMARTER: https://eatsmarter.de/suche/rezepte?ft=kinder
+# Erst erreichbar, wenn unter Allowed domains freigeschaltet: gesundheit.gv.at, rewe.de/rezeptsammlung/kindergerichte, familie.de, aldi-sued.de/rezepte, familienkost.de, gaumenfreundin.de
 
 # Saisonal
 https://www.essen-und-trinken.de
@@ -28,3 +33,5 @@ https://www.kuechengoetter.de
 https://emmikochteinfach.de
 # Emmikocht: Die Startseite zeigt Robotern nur eine Warteseite. Diese Wege funktionieren: Suche https://emmikochteinfach.de/?s=<Zutat>, neueste Rezepte https://emmikochteinfach.de/rezepte/ oder https://emmikochteinfach.de/feed/, alle Rezepte https://emmikochteinfach.de/post-sitemap.xml
 https://www.kptncook.com
+https://www.zuckerundjagdwurst.com
+https://www.eat-this.org
