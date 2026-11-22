@@ -8,7 +8,7 @@ srv.listen(8765,async()=>{
   const chk=()=>A.$$eval('#sec-ho .hochk [data-hodone]',l=>l.map(x=>x.closest('.wt').innerText.replace(/\n/g,' ')+'|'+x.getAttribute('aria-pressed')));
   r.none=await A.$eval('#sec-ho .hochk',e=>e.innerText);r.days=await A.$$eval('#sec-ho .hocol small',l=>l.map(x=>x.innerText).join(''));
   // Einteilen: kurzer Tipp auf Mittwoch trägt mich ein, ohne Haken
-  await A.click('#sec-ho .slot.hoslot[data-slot="2"]');await A.waitForTimeout(600);r.set=tick('essen__2');r.one=await chk();
+  await A.click('#sec-ho .slot.hoslot[data-slot="2"]');await A.waitForTimeout(600);await A.click('#mbox [data-hop="p0"]');await A.waitForTimeout(400);r.set=tick('essen__2');r.one=await chk();
   // Abhaken: eigenes Feld
   await A.click('#sec-ho .hochk [data-hodone]');await A.waitForTimeout(600);r.ok=tick('essen__2');r.oneDone=await chk();
   await A.$eval('#sec-ho',e=>e.scrollIntoView({block:'start'}));await A.screenshot({path:out+'/hausdienst-neu.png'});

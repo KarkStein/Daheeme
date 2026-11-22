@@ -501,6 +501,9 @@ app.addEventListener("click",async e=>{
   if(b.dataset.hodone!=null){const [d0,p0]=b.dataset.hodone.split("|"),hm0=p0?null:hoMine(),hoT=tasks().find(x=>x.owner==="ho");if(!hoT||(!p0&&!hm0))return;const wk=wkKey(mondayOf(new Date())),hv=ticksOf(wk)[hoT.id+"__"+(p0?+d0:hm0.di)];if(!hv)return;const hm=p0?{t:hoT,di:+d0,me:p0,v:hv}:hm0,k=hm.t.id+"__"+hm.di,ok=Object.assign({},hm.v.ok||{});if(ok[hm.me])delete ok[hm.me];else ok[hm.me]=Date.now();
     try{await S.store.tick(wk,k,Object.assign({},hm.v,{ok:Object.keys(ok).length?ok:null}))}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.need){needTick(b.dataset.need).catch(()=>toast("Konnte nicht speichern."));return}
+  // Hausdienst (Florian 22.11.2026, „Ja, so bauen“): Tipp auf einen Tag öffnet die Auswahl der Person, lange drücken löscht (hoArm)
+  if(b.dataset.hox!=null){hoDel(b.dataset.hox);return}
+  if(b.classList.contains("hoslot")){hoPick(b);return}
   if(b.dataset.task){toggle(b);return}
   if(b.dataset.del){S.draft.tasks.splice(+b.dataset.del,1);render();return}
   const act=b.dataset.act;

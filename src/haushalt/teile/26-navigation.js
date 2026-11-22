@@ -57,10 +57,10 @@ const hScrollIn=t=>{for(let el=t;el&&el!==app&&el.nodeType===1;el=el.parentEleme
  // Kreis im Bild abgeschaltet (Florian 15.11.2026): langes Drücken auf den Reiter Start öffnet Alle Bereiche (arOpen)
  app.addEventListener("touchmove",e=>{if(lp){const p=e.touches[0];if(Math.hypot(p.clientX-lp.x,p.clientY-lp.y)>10){clearTimeout(lp.timer);lp=null}}},{passive:false});
  const end=()=>{if(lp){clearTimeout(lp.timer);lp=null}};app.addEventListener("touchend",end,{passive:true});app.addEventListener("touchcancel",end,{passive:true});
- app.addEventListener("contextmenu",e=>{const ho=e.target.closest&&e.target.closest(".slot.hoslot");if(ho){e.preventDefault();hoPick(ho);return}});
- {let ht=null;app.addEventListener("touchstart",e=>{const t=e.touches.length===1&&e.target.closest&&e.target.closest(".slot.hoslot");if(!t)return;const p=e.touches[0];ht={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{ht=null;hoPick(t)},450)}},{passive:true});
+ app.addEventListener("contextmenu",e=>{const ho=e.target.closest&&e.target.closest(".slot.hoslot");if(ho){e.preventDefault();hoArm(ho);return}});
+ {let ht=null;app.addEventListener("touchstart",e=>{const t=e.touches.length===1&&e.target.closest&&e.target.closest(".slot.hoslot");if(!t)return;const p=e.touches[0];ht={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{ht=null;hoArm(t)},450)}},{passive:true});
   app.addEventListener("touchmove",e=>{if(ht){const p=e.touches[0];if(Math.hypot(p.clientX-ht.x,p.clientY-ht.y)>10){clearTimeout(ht.timer);ht=null}}},{passive:true});
-  const he=()=>{if(ht){clearTimeout(ht.timer);ht=null}if(document.getElementById("mbox"))S.mboxAt=Date.now()};app.addEventListener("touchend",he,{passive:true});app.addEventListener("touchcancel",he,{passive:true})}
+  const he=()=>{if(ht){clearTimeout(ht.timer);ht=null}if(document.getElementById("mbox")||document.querySelector("#app .hox"))S.mboxAt=Date.now()};app.addEventListener("touchend",he,{passive:true});app.addEventListener("touchcancel",he,{passive:true})}
  app.addEventListener("contextmenu",e=>{if(e.target.closest(".camp"))e.preventDefault();const k=quickKey(e.target.closest(".spot"));if(k)quickOpen(k)})
  {let mt=null;app.addEventListener("touchstart",e=>{const k=e.touches.length===1&&e.target.closest&&quickKey(e.target.closest(".spot"));if(!k)return;const p=e.touches[0];mt={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{mt=null;quickOpen(k)},450)}},{passive:true});
   app.addEventListener("touchmove",e=>{if(mt){const p=e.touches[0];if(Math.hypot(p.clientX-mt.x,p.clientY-mt.y)>10){clearTimeout(mt.timer);mt=null}}},{passive:true});

@@ -97,6 +97,14 @@ function hoCanEdit(){const cm=mondayOf(new Date());if(+S.view<+cm&&S.wkEdit!==wk
 // Vier Möglichkeiten (Florian 16.11.2026): ganzer Tag je Person, geteilt vormittags/nachmittags in beide Richtungen. Wert "p|vm" = p vormittags.
 function hoOpts(P){const o=q=>q==="p0"?"p1":"p0",n=q=>esc(pname(q)),c=q=>esc(pname(q).charAt(0));
   return P.map(p=>[p,c(p),`${n(p)} hat Hausdienst <small>(${n(o(p))} bringt und holt)</small>`]).concat(P.map(p=>[p+"|vm",c(p)+"/"+c(o(p)),`Vormittags ${n(p)}, nachmittags ${n(o(p))} <small>(${n(o(p))} bringt, ${n(p)} holt)</small>`]))}
+// Lange drücken auf einen belegten Tag = „✕ Löschen“ am Feld, Tipp darauf löscht mit Rückgängig (Florian 22.11.2026)
+function hoArm(btn){if(!hoCanEdit())return;const t=tasks().find(x=>x.id===btn.dataset.task);if(!t)return;const wk=wkKey(S.view),key=t.id+"__"+btn.dataset.slot;if(!ticksOf(wk)[key])return;
+  hoDisarm();S.mboxAt=Date.now();S._hoxAt=Date.now();try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}const col=btn.closest(".hocol")||btn.parentElement;col.classList.add("hoarm");const x=document.createElement("button");x.type="button";x.className="hox";x.dataset.hox=wk+"|"+key;x.textContent="✕ Löschen";col.appendChild(x)}
+function hoDisarm(){document.querySelectorAll("#app .hox").forEach(x=>{x.parentElement.classList.remove("hoarm");x.remove()})}
+async function hoDel(v){const [wk,key]=v.split("|");hoDisarm();const old=ticksOf(wk)[key];if(!old)return;
+  try{await S.store.tick(wk,key,null);await hoKidSync(wk,key)}catch(_){toast("Konnte nicht speichern.");return}
+  toastAct("Hausdienst gelöscht.","↩ Rückgängig",async()=>{try{await S.store.tick(wk,key,old);await hoKidSync(wk,key)}catch(_){toast("Konnte nicht speichern.")}})}
+document.addEventListener("click",e=>{if(!document.querySelector("#app .hox")||Date.now()-(S._hoxAt||0)<700)return;if(e.target.closest&&e.target.closest(".hox"))return;hoDisarm();e.stopPropagation();e.preventDefault()},true);
 function hoPick(btn){if(!hoCanEdit())return;S.mboxAt=Date.now();if(document.getElementById("mbox"))return;const t=tasks().find(x=>x.id===btn.dataset.task);if(!t)return;const wk=wkKey(S.view),key=t.id+"__"+btn.dataset.slot,cur=ticksOf(wk)[key];
   const set=async v=>{mboxClose();try{await S.store.tick(wk,key,v);await hoKidSync(wk,key)}catch(_){toast("Konnte nicht speichern. Bitte nochmal tippen.")}};
   const el=document.createElement("div");el.id="mbox";el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="Hausdienst"><div class="section-head"><h2>🔑 ${esc(DAYS[+btn.dataset.slot]||"")}: wer hat Hausdienst?</h2></div><div class="quicklist">

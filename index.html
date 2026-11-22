@@ -644,7 +644,7 @@ a.mkb{text-decoration:none;color:var(--fg)}.muslk[aria-pressed=false]{filter:gra
 .wkfold .hotask{box-shadow:none;border:none;background:none;padding:var(--sp2) 0 0}.wkfold .hotask .task-title{font-size:var(--fs-s);font-weight:500;color:var(--muted)}
 .wkfold .donesep{margin:var(--sp2) 0 var(--sp1)}.wkfold .linkish{margin-top:var(--sp2);align-self:flex-start}.wkhint{text-align:center;margin-top:var(--sp2)}
 .wt .wtl{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.wt .wtm{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.wt .wtm .tlink{padding:0 2px;font-size:var(--fs-xs)}.wt .wtn{padding:2px 0}
-.wkfold .hotask .meta{display:none}.wkfold .hotask .task-title{display:none}.hocol{display:flex;flex-direction:column;align-items:center;gap:2px}.hocol small{font-size:var(--fs-xs);color:var(--muted)}.hocol.today small{font-weight:700;color:var(--ink)}.hotask .slots{justify-content:space-between;gap:var(--sp1)}.hoein{display:flex;flex-direction:column;margin-top:var(--sp2);padding-top:var(--sp2);border-top:1px solid var(--line)}.hochk .wt{border-top:none}.hochk .slot:not(.on){border-style:solid;border-color:var(--ink)}.hochkh{display:block}.hochk .hochkn{font-weight:500}.hochk.none{padding:var(--sp1) 0}.hochkn{font-weight:700}.hohint{margin-top:var(--sp2)}
+.wkfold .hotask .meta{display:none}.wkfold .hotask .task-title{display:none}.hocol{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px}.hocol small{font-size:var(--fs-xs);color:var(--muted)}.hocol.today small{font-weight:700;color:var(--ink)}.hotask .slots{justify-content:space-between;gap:var(--sp1)}.hoein{display:flex;flex-direction:column;margin-top:var(--sp2);padding-top:var(--sp2);border-top:1px solid var(--line)}.hochk .wt{border-top:none}.hochk .slot:not(.on){border-style:solid;border-color:var(--ink)}.hochkh{display:block}.hochk .hochkn{font-weight:500}.hochk.none{padding:var(--sp1) 0}.hochkn{font-weight:700}.hohint{margin-top:var(--sp2)}
 .wtx .task-title{display:none}.wtx .tlink,.wkfold .hotask .tlink{align-self:flex-start}
 /* Fächer mit Seiten (Bündelung 17.11.2026): kleine Knöpfe neben dem Bereich */
 #fan .fanrow{display:flex;align-items:center;gap:var(--sp2);flex-wrap:wrap;max-width:100%}#fan.r .fanrow{flex-direction:row-reverse}
@@ -891,6 +891,10 @@ a.minitile{text-decoration:none;color:inherit}
 .bcw-p0{border-color:var(--who-p0)!important}.bcw-p1{border-color:var(--who-p1)!important}.bcw-kid{border-color:var(--who-kid)!important}.bcw-both{border-color:var(--who-all)!important}
 .bg-p0{background:var(--p0)}.bg-p1{background:var(--p1)}.fg-p0{color:var(--p0)}.fg-p1{color:var(--p1)}
 input[type=time],input[type=date]{padding-inline:var(--sp2)}
+
+/* Hausdienst: lange drücken = ✕ Löschen am Feld (22.11.2026) */
+.hox{position:absolute;top:100%;left:50%;transform:translateX(-50%);z-index:5;white-space:nowrap;border:none;border-radius:999px;background:var(--warn);color:var(--on);font:inherit;font-size:var(--fs-xs);font-weight:600;padding:var(--sp1) var(--sp2);min-height:32px;cursor:pointer}
+.hocol:first-child .hox{left:0;transform:none}.hocol:last-child .hox{left:auto;right:0;transform:none}
 </style>
 
 <div class="app" id="app">
@@ -1350,7 +1354,7 @@ function renderWeek(){
   const ho=tasks().filter(t=>t.owner==="ho").map(card);
   if(ho.length){const hoWe=today>=HO_DAYS&&today<7,hv=today>=0&&today<HO_DAYS?tk[ho[0].t.id+"__"+today]:null,hn=n=>esc(pname(n).charAt(0));
     const lab=hoWe?"Wochenende: kein Dienst":!(today>=0&&today<7)?ho[0].c+" Tage eingetragen":!hv?"heute niemand":hv.by==="x"?"heute "+esc(hv.lbl||"jemand"):hv.half==="vm"?`heute ${hn(hv.by)} vorm. · ${hn(hv.by==="p0"?"p1":"p0")} nachm.`:"heute "+esc(pname(hv.by));
-    const hoB=`${isCur?(hoWe?`<div class="hochk none"><span class="freq">🛋️ Wochenende: Den Hausdienst gibt es nur von Montag bis Freitag, wie Bringen und Abholen.</span></div>`:hoChkRows(ho[0].t,hv,today)):""}<div class="hoein"><b>Einteilen</b><span class="freq">Wer hat wann den Dienst? Daraus folgt, wer bringt und holt.</span></div>${ho.map(x=>x.html.replace('<article class="task','<article class="task hotask')).join("")}<div class="freq hohint">Kurz tippen trägt dich ein, lange drücken: andere Person oder geteilt. <button class="linkish" data-nav="kita|">🚸 Bringen und Abholen ›</button></div>`;
+    const hoB=`${isCur?(hoWe?`<div class="hochk none"><span class="freq">🛋️ Wochenende: Den Hausdienst gibt es nur von Montag bis Freitag, wie Bringen und Abholen.</span> <button class="linkish" data-wknav="1">Nächste Woche einteilen ›</button></div>`:hoChkRows(ho[0].t,hv,today)):""}<div class="hoein"><b>Einteilen</b><span class="freq">Wer hat wann den Dienst? Daraus folgt, wer bringt und holt.</span></div>${ho.map(x=>x.html.replace('<article class="task','<article class="task hotask')).join("")}<div class="freq hohint">Tippen: wer hat Dienst. Lange drücken: löschen. <button class="linkish" data-nav="kita|">🚸 Bringen und Abholen ›</button></div>`;
     if(three)hoIn=`<div id="sec-ho" class="hoin"><div class="hoinh"><b>🔑 Hausdienst</b> <span class="freq">${lab}</span></div>${hoB}</div>`;else h+=wkFold("ho","🔑 Hausdienst",lab,hoB,0)}
   const dayX=[];
   secs.forEach(([id,title,fn0,def])=>{const fn=t=>t.owner!=="ho"&&fn0(t);const xs=tasks().filter(fn).map(card).filter(vis).sort(order);if(id==="day")dayX.push(...xs);
@@ -2393,6 +2397,14 @@ function hoCanEdit(){const cm=mondayOf(new Date());if(+S.view<+cm&&S.wkEdit!==wk
 // Vier Möglichkeiten (Florian 16.11.2026): ganzer Tag je Person, geteilt vormittags/nachmittags in beide Richtungen. Wert "p|vm" = p vormittags.
 function hoOpts(P){const o=q=>q==="p0"?"p1":"p0",n=q=>esc(pname(q)),c=q=>esc(pname(q).charAt(0));
   return P.map(p=>[p,c(p),`${n(p)} hat Hausdienst <small>(${n(o(p))} bringt und holt)</small>`]).concat(P.map(p=>[p+"|vm",c(p)+"/"+c(o(p)),`Vormittags ${n(p)}, nachmittags ${n(o(p))} <small>(${n(o(p))} bringt, ${n(p)} holt)</small>`]))}
+// Lange drücken auf einen belegten Tag = „✕ Löschen“ am Feld, Tipp darauf löscht mit Rückgängig (Florian 22.11.2026)
+function hoArm(btn){if(!hoCanEdit())return;const t=tasks().find(x=>x.id===btn.dataset.task);if(!t)return;const wk=wkKey(S.view),key=t.id+"__"+btn.dataset.slot;if(!ticksOf(wk)[key])return;
+  hoDisarm();S.mboxAt=Date.now();S._hoxAt=Date.now();try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}const col=btn.closest(".hocol")||btn.parentElement;col.classList.add("hoarm");const x=document.createElement("button");x.type="button";x.className="hox";x.dataset.hox=wk+"|"+key;x.textContent="✕ Löschen";col.appendChild(x)}
+function hoDisarm(){document.querySelectorAll("#app .hox").forEach(x=>{x.parentElement.classList.remove("hoarm");x.remove()})}
+async function hoDel(v){const [wk,key]=v.split("|");hoDisarm();const old=ticksOf(wk)[key];if(!old)return;
+  try{await S.store.tick(wk,key,null);await hoKidSync(wk,key)}catch(_){toast("Konnte nicht speichern.");return}
+  toastAct("Hausdienst gelöscht.","↩ Rückgängig",async()=>{try{await S.store.tick(wk,key,old);await hoKidSync(wk,key)}catch(_){toast("Konnte nicht speichern.")}})}
+document.addEventListener("click",e=>{if(!document.querySelector("#app .hox")||Date.now()-(S._hoxAt||0)<700)return;if(e.target.closest&&e.target.closest(".hox"))return;hoDisarm();e.stopPropagation();e.preventDefault()},true);
 function hoPick(btn){if(!hoCanEdit())return;S.mboxAt=Date.now();if(document.getElementById("mbox"))return;const t=tasks().find(x=>x.id===btn.dataset.task);if(!t)return;const wk=wkKey(S.view),key=t.id+"__"+btn.dataset.slot,cur=ticksOf(wk)[key];
   const set=async v=>{mboxClose();try{await S.store.tick(wk,key,v);await hoKidSync(wk,key)}catch(_){toast("Konnte nicht speichern. Bitte nochmal tippen.")}};
   const el=document.createElement("div");el.id="mbox";el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="Hausdienst"><div class="section-head"><h2>🔑 ${esc(DAYS[+btn.dataset.slot]||"")}: wer hat Hausdienst?</h2></div><div class="quicklist">
@@ -4775,10 +4787,10 @@ const hScrollIn=t=>{for(let el=t;el&&el!==app&&el.nodeType===1;el=el.parentEleme
  // Kreis im Bild abgeschaltet (Florian 15.11.2026): langes Drücken auf den Reiter Start öffnet Alle Bereiche (arOpen)
  app.addEventListener("touchmove",e=>{if(lp){const p=e.touches[0];if(Math.hypot(p.clientX-lp.x,p.clientY-lp.y)>10){clearTimeout(lp.timer);lp=null}}},{passive:false});
  const end=()=>{if(lp){clearTimeout(lp.timer);lp=null}};app.addEventListener("touchend",end,{passive:true});app.addEventListener("touchcancel",end,{passive:true});
- app.addEventListener("contextmenu",e=>{const ho=e.target.closest&&e.target.closest(".slot.hoslot");if(ho){e.preventDefault();hoPick(ho);return}});
- {let ht=null;app.addEventListener("touchstart",e=>{const t=e.touches.length===1&&e.target.closest&&e.target.closest(".slot.hoslot");if(!t)return;const p=e.touches[0];ht={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{ht=null;hoPick(t)},450)}},{passive:true});
+ app.addEventListener("contextmenu",e=>{const ho=e.target.closest&&e.target.closest(".slot.hoslot");if(ho){e.preventDefault();hoArm(ho);return}});
+ {let ht=null;app.addEventListener("touchstart",e=>{const t=e.touches.length===1&&e.target.closest&&e.target.closest(".slot.hoslot");if(!t)return;const p=e.touches[0];ht={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{ht=null;hoArm(t)},450)}},{passive:true});
   app.addEventListener("touchmove",e=>{if(ht){const p=e.touches[0];if(Math.hypot(p.clientX-ht.x,p.clientY-ht.y)>10){clearTimeout(ht.timer);ht=null}}},{passive:true});
-  const he=()=>{if(ht){clearTimeout(ht.timer);ht=null}if(document.getElementById("mbox"))S.mboxAt=Date.now()};app.addEventListener("touchend",he,{passive:true});app.addEventListener("touchcancel",he,{passive:true})}
+  const he=()=>{if(ht){clearTimeout(ht.timer);ht=null}if(document.getElementById("mbox")||document.querySelector("#app .hox"))S.mboxAt=Date.now()};app.addEventListener("touchend",he,{passive:true});app.addEventListener("touchcancel",he,{passive:true})}
  app.addEventListener("contextmenu",e=>{if(e.target.closest(".camp"))e.preventDefault();const k=quickKey(e.target.closest(".spot"));if(k)quickOpen(k)})
  {let mt=null;app.addEventListener("touchstart",e=>{const k=e.touches.length===1&&e.target.closest&&quickKey(e.target.closest(".spot"));if(!k)return;const p=e.touches[0];mt={x:p.clientX,y:p.clientY,timer:setTimeout(()=>{mt=null;quickOpen(k)},450)}},{passive:true});
   app.addEventListener("touchmove",e=>{if(mt){const p=e.touches[0];if(Math.hypot(p.clientX-mt.x,p.clientY-mt.y)>10){clearTimeout(mt.timer);mt=null}}},{passive:true});
@@ -5470,6 +5482,9 @@ app.addEventListener("click",async e=>{
   if(b.dataset.hodone!=null){const [d0,p0]=b.dataset.hodone.split("|"),hm0=p0?null:hoMine(),hoT=tasks().find(x=>x.owner==="ho");if(!hoT||(!p0&&!hm0))return;const wk=wkKey(mondayOf(new Date())),hv=ticksOf(wk)[hoT.id+"__"+(p0?+d0:hm0.di)];if(!hv)return;const hm=p0?{t:hoT,di:+d0,me:p0,v:hv}:hm0,k=hm.t.id+"__"+hm.di,ok=Object.assign({},hm.v.ok||{});if(ok[hm.me])delete ok[hm.me];else ok[hm.me]=Date.now();
     try{await S.store.tick(wk,k,Object.assign({},hm.v,{ok:Object.keys(ok).length?ok:null}))}catch(_){toast("Konnte nicht speichern.")}return}
   if(b.dataset.need){needTick(b.dataset.need).catch(()=>toast("Konnte nicht speichern."));return}
+  // Hausdienst (Florian 22.11.2026, „Ja, so bauen“): Tipp auf einen Tag öffnet die Auswahl der Person, lange drücken löscht (hoArm)
+  if(b.dataset.hox!=null){hoDel(b.dataset.hox);return}
+  if(b.classList.contains("hoslot")){hoPick(b);return}
   if(b.dataset.task){toggle(b);return}
   if(b.dataset.del){S.draft.tasks.splice(+b.dataset.del,1);render();return}
   const act=b.dataset.act;

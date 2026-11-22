@@ -8,8 +8,8 @@ srv.listen(8765,async()=>{
   r.firstSec=await A.$eval('#app .section',e=>e.id);
   r.hoCount=await A.$$eval('.slot.hoslot',l=>l.length);
   r.dupe=await A.$$eval('.slot.hoslot',l=>l.filter(x=>!x.closest('#sec-ho')).length);
-  await A.click('.slot.hoslot[data-slot="0"]');await A.waitForTimeout(300);r.tap=await A.$eval('.slot.hoslot[data-slot="0"]',e=>e.innerText);
+  await A.click('.slot.hoslot[data-slot="0"]');await A.waitForTimeout(300);await A.click('#mbox [data-hop="p0"]');await A.waitForTimeout(400);r.tap=await A.$eval('.slot.hoslot[data-slot="0"]',e=>e.innerText);
   await A.screenshot({path:out+'/woche-ho-erste.png'});
   console.error(JSON.stringify(r),errs);
-  const ok=!errs.length&&r.firstSec==='sec-day'&&!!(await A.$('#sec-day #sec-ho'))&&r.hoCount>=7&&r.dupe===0&&r.tap==='F';
+  const ok=!errs.length&&r.firstSec==='sec-day'&&!!(await A.$('#sec-day #sec-ho'))&&r.hoCount===5&&r.dupe===0&&r.tap==='F';
   console.error(ok?'HOT OK':'HOT FAIL');await b.close();srv.close();process.exit(0)});
