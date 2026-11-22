@@ -15,7 +15,7 @@
       "area": "rezepte",
       "name": "Wochenrezepte",
       "what": "20 Abendessen für die kommende Woche als Vorrat für den Wochenvorschlag, mit Mengen und Tags",
-      "rhythm": "samstags 5:17",
+      "rhythm": "Fr bis Mo 5:17, sobald das Kita-Essen der Woche da ist",
       "file": "wochenideen.json"
     },
     {
