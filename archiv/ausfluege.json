@@ -1,6 +1,6 @@
 {
-"updated": "2026-11-19",
-"n": 51,
+"updated": "2026-11-22",
+"n": 69,
 "items": [
 {
 "name": "1-Euro-Sonntag im Museum Mensch und Natur",
@@ -134,7 +134,7 @@
 "from": "2026-11-21",
 "run": "woche",
 "first": "2026-11-15",
-"last": "2026-11-19"
+"last": "2026-11-22"
 },
 {
 "name": "Die Kasperl (Puppentheater)",
@@ -322,7 +322,7 @@
 "note": "Eislaufen mitten in der Stadt, vormittags günstig und leer.",
 "run": "woche",
 "first": "2026-11-15",
-"last": "2026-11-19"
+"last": "2026-11-22"
 },
 {
 "name": "Pettersson feiert Weihnachten",
@@ -383,7 +383,7 @@
 "note": "Großer Weihnachtsmarkt mit zwei Eisbahnen, schon geöffnet.",
 "run": "woche",
 "first": "2026-11-15",
-"last": "2026-11-19"
+"last": "2026-11-22"
 },
 {
 "name": "Wichtel-Werk (Indoor-Spielplatz)",
@@ -487,7 +487,7 @@
 "from": "2026-11-18",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-19"
+"last": "2026-11-22"
 },
 {
 "name": "BilderBuchZeit in der Stadtbibliothek im Motorama",
@@ -512,7 +512,7 @@
 "from": "2026-11-20",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-19"
+"last": "2026-11-22"
 },
 {
 "name": "CVJM Indoor-Spielplatz für Kleinkinder",
@@ -523,7 +523,6 @@
 "regen",
 "schnee"
 ],
-"top": true,
 "date": "2026-11-24",
 "time": "Di 15:30–16:30 Uhr, wöchentlich bis April (nicht in den Ferien)",
 "place": "Turnhalle des CVJM, Schwabing-West",
@@ -536,10 +535,10 @@
 "hüpfen"
 ],
 "link": "https://cvjm-muenchen.org/projekte/indoorspielplatz",
-"note": "Spielplatz der Woche: Turnhalle zum Klettern und Toben, seit dieser Woche wieder offen.",
+"note": "Turnhalle zum Klettern und Toben für die Kleinsten, jeden Dienstag.",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-19"
+"last": "2026-11-22"
 },
 {
 "name": "Chiemsee-Kasperl im Kulturzentrum Giesinger Bahnhof",
@@ -561,7 +560,7 @@
 "note": "Kasperl am Sonntagvormittag, direkt am Bahnhof.",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-19"
+"last": "2026-11-22"
 },
 {
 "name": "Chiemsee-Kasperl in Laim",
@@ -593,7 +592,7 @@
 "sonne"
 ],
 "to": "2026-12-24",
-"time": "Mo–Sa 10–21, So 10–20 Uhr; Eröffnung Fr 20.11. um 17 Uhr; am 22.11. zu",
+"time": "Mo–Sa 10–21, So 10–20 Uhr",
 "place": "Marienplatz und Altstadt",
 "travel": "🚇 U3/U6 oder S-Bahn Marienplatz",
 "price": "frei",
@@ -602,11 +601,11 @@
 "dur": "kurz",
 "cafe": true,
 "link": "https://www.muenchen.de/veranstaltungen/muenchner-christkindlmarkt-marienplatz",
-"note": "Eröffnung am Freitag mit dem Anleuchten des großen Christbaums.",
+"note": "Der große Klassiker, vormittags unter der Woche am ruhigsten.",
 "from": "2026-11-20",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-19"
+"last": "2026-11-22"
 },
 {
 "name": "Christkindlmarkt der Lebenshilfe Freising",
@@ -669,7 +668,7 @@
 "from": "2026-11-27",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-19"
+"last": "2026-11-22"
 },
 {
 "name": "Der kleine Siebenschläfer (Theater für Kinder)",
@@ -728,7 +727,7 @@
 "from": "2026-11-20",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-19"
+"last": "2026-11-22"
 },
 {
 "name": "Germeringer Christkindlmarkt mit Märcheneisenbahn",
@@ -749,7 +748,7 @@
 "from": "2026-11-27",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-19"
+"last": "2026-11-22"
 },
 {
 "name": "Großes Kinderkino: Mitten in der Winternacht",
@@ -792,7 +791,7 @@
 "note": "Das Trambahnmuseum hat nur an wenigen Sonntagen offen, dieser ist einer davon.",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-19"
+"last": "2026-11-22"
 },
 {
 "name": "Mini Disco in Erding",
@@ -818,7 +817,7 @@
 "note": "Tanzen und Hüpfen für die Kleinsten, gut mit dem Christkindlmarkt zu verbinden.",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-19"
+"last": "2026-11-22"
 },
 {
 "name": "Märchenbazar im Olympiapark",
@@ -830,16 +829,18 @@
 "schnee"
 ],
 "to": "2026-12-28",
-"time": "Zeiten vorab auf der Seite prüfen",
+"time": "Kinderprogramm Mo–Fr 15–17, Sa 12:30–16:30, So 11–16:30 Uhr",
 "place": "Olympiapark Süd",
 "travel": "🚇 U3 Olympiazentrum",
-"kid": "Kasperltheater, Märchenstunden, Kerzenziehen",
-"link": "https://muc-blog.com/weihnachtsmaerkte-muenchen-2026/",
-"note": "Öffnet am Donnerstag vor dem ersten Advent, mit viel Programm für Kinder.",
+"kid": "täglich Märchenstunde, Kasperl, Kerzenziehen und Kinderkarussell",
+"link": "https://www.in-muenchen.de/kids/weihnachtsmarkte-kinderprogramm.html",
+"note": "Öffnet am Donnerstag; das tägliche Kinderprogramm ist kostenlos.",
 "from": "2026-11-26",
 "run": "woche",
+"price": "Kinderprogramm frei",
+"free": true,
 "first": "2026-11-19",
-"last": "2026-11-19"
+"last": "2026-11-22"
 },
 {
 "name": "Neukeferloher Adventsgeflüster",
@@ -860,7 +861,7 @@
 "from": "2026-11-28",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-19"
+"last": "2026-11-22"
 },
 {
 "name": "Nussknacker, Wölfe und geheimnisvolle Bilder (Klassik für Kinder)",
@@ -902,7 +903,7 @@
 "from": "2026-11-28",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-19"
+"last": "2026-11-22"
 },
 {
 "name": "Sendlinger Bergweihnacht am Harras",
@@ -944,7 +945,7 @@
 "note": "Großer Spielzeugbasar kurz vor Weihnachten, gut für Geschenke aus zweiter Hand.",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-19"
+"last": "2026-11-22"
 },
 {
 "name": "Timmy entdeckt die Oper (Klassik für Kinder)",
@@ -963,7 +964,7 @@
 "note": "Kinderkonzert mit Geschichte, um 16:30 Uhr folgt ein zweites mit Nussknacker-Musik.",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-19"
+"last": "2026-11-22"
 },
 {
 "name": "Tollwood Winterfestival mit Kinderzelt",
@@ -987,7 +988,7 @@
 "from": "2026-11-24",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-19"
+"last": "2026-11-22"
 },
 {
 "name": "Unterschleißheimer Christkindlmarkt",
@@ -1020,7 +1021,7 @@
 "schnee"
 ],
 "to": "2026-12-22",
-"time": "täglich 11–21 Uhr, am 22.11. zu",
+"time": "täglich 11–21 Uhr; Kasperltheater Mo 23.11. und 30.11., 15–16 Uhr",
 "place": "Kaiserhof der Residenz",
 "travel": "🚇 U3/U6 Odeonsplatz",
 "price": "frei, Märchenwald und Kinderprogramm kostenlos",
@@ -1029,11 +1030,11 @@
 "dur": "kurz",
 "pram": true,
 "link": "https://www.kimapa.de/das-weihnachtsdorf-im-kaiserhof-der-residenz-muenchen/",
-"note": "Kleiner Markt im ruhigen Innenhof, der Märchenwald ist für Kita-Kinder gemacht.",
+"note": "Kasperl im Märchenwald am Montag und nächsten Montag, kostenlos.",
 "from": "2026-11-16",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-19"
+"last": "2026-11-22"
 },
 {
 "name": "Weihnachtsmarkt am Chinesischen Turm",
@@ -1055,7 +1056,7 @@
 "from": "2026-11-19",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-19"
+"last": "2026-11-22"
 },
 {
 "name": "Winterzauber am Hollerner See",
@@ -1076,7 +1077,426 @@
 "from": "2026-11-27",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-19"
+"last": "2026-11-22"
+},
+{
+"name": "Bilderbuchkino: Die kleine Qualle",
+"where": "stadt",
+"io": "drinnen",
+"cat": "kinder",
+"wx": [
+"regen",
+"schnee"
+],
+"date": "2026-11-25",
+"time": "15 Uhr, etwa 20 Minuten",
+"place": "Stadtbibliothek Fürstenried",
+"price": "frei, ohne Anmeldung",
+"free": true,
+"kid": "ab 3 Jahren, Bilder groß auf der Leinwand",
+"age": 3,
+"dur": "kurz",
+"link": "https://www.muenchner-stadtbibliothek.de/veranstaltungen/details/bilderbuchkino-46169",
+"note": "Kurzes Vorlesen mit großen Bildern, genau richtig für Kleine.",
+"run": "woche",
+"first": "2026-11-22",
+"last": "2026-11-22"
+},
+{
+"name": "Bilderbuchkino: Kleine Maus auf großer Fahrt",
+"where": "stadt",
+"io": "drinnen",
+"cat": "kinder",
+"wx": [
+"regen",
+"schnee"
+],
+"date": "2026-11-27",
+"time": "16 Uhr",
+"place": "Stadtbibliothek Laim",
+"price": "frei, ohne Anmeldung",
+"free": true,
+"kid": "Bilderbuch groß auf der Leinwand",
+"dur": "kurz",
+"link": "https://www.muenchner-stadtbibliothek.de/veranstaltungen/details/bilderbuchkino-45139",
+"note": "Kostenloses Bilderbuchkino am Freitagnachmittag.",
+"run": "woche",
+"first": "2026-11-22",
+"last": "2026-11-22"
+},
+{
+"name": "Christkindlmarkt Pullach",
+"where": "umland",
+"io": "draussen",
+"cat": "fest",
+"wx": [
+"sonne",
+"schnee"
+],
+"from": "2026-11-27",
+"to": "2026-11-29",
+"time": "Zeiten vorab prüfen",
+"place": "Kirchplatz, Pullach",
+"travel": "🚆 S7 Pullach, ca. 20 Min",
+"kid": "kleiner Gemeindemarkt, kurze Wege",
+"dur": "kurz",
+"link": "https://www.mvv-muenchen.de/freizeitideen/ausflugsziele-in-den-landkreisen-des-muenchner-verkehrsverbunds/mvv-christkindlmarkttour/",
+"note": "Kleiner Markt am ersten Adventswochenende, schnell mit der S-Bahn erreicht.",
+"run": "woche",
+"first": "2026-11-22",
+"last": "2026-11-22"
+},
+{
+"name": "Christkindltram ab Sendlinger Tor",
+"where": "stadt",
+"io": "drinnen",
+"cat": "fahrzeug",
+"wx": [
+"regen",
+"schnee"
+],
+"from": "2026-11-27",
+"to": "2026-12-20",
+"time": "Fr 15:30–19:15, Sa/So 11–19:15 Uhr (letzte Abfahrt), alle 45 Min",
+"place": "Sendlinger-Tor-Platz",
+"travel": "🚇 U1/U2/U3/U6 Sendlinger Tor",
+"price": "5 €, Kinder unter 6 frei",
+"kid": "30 Minuten Rundfahrt in der geschmückten Tram, Kinderpunsch an Bord",
+"dur": "kurz",
+"link": "https://www.in-muenchen.de/stadtleben/die-christkindltram-faehrt-wieder.html",
+"note": "Startet am Freitag: Trambahnfahren durch die Altstadt, am besten vorher online buchen.",
+"run": "woche",
+"first": "2026-11-22",
+"last": "2026-11-22"
+},
+{
+"name": "Haidhauser Weihnachtsmarkt mit Kasperl",
+"where": "stadt",
+"io": "draussen",
+"cat": "fest",
+"wx": [
+"sonne",
+"schnee"
+],
+"from": "2026-11-23",
+"to": "2026-12-24",
+"time": "täglich 11–21 Uhr; Kasperl Mi 11 Uhr, Mo und Fr 15 und 16 Uhr",
+"place": "Weißenburger Platz, Haidhausen",
+"travel": "🚆 S-Bahn/U5 Ostbahnhof",
+"kid": "Kasperltheater mehrmals pro Woche",
+"dur": "kurz",
+"link": "https://www.in-muenchen.de/kids/weihnachtsmarkte-kinderprogramm.html",
+"note": "Familien-Klassiker wegen des Kasperltheaters, öffnet am Montag.",
+"run": "woche",
+"first": "2026-11-22",
+"last": "2026-11-22"
+},
+{
+"name": "Hänsel und Gretel mit Küchengeräten",
+"where": "stadt",
+"io": "draussen",
+"cat": "kinder",
+"wx": [
+"sonne"
+],
+"date": "2026-11-29",
+"time": "11–12 Uhr",
+"place": "Café Gans am Wasser, Westpark",
+"travel": "🚇 U6 Westpark",
+"price": "frei, Spende erwünscht",
+"free": true,
+"kid": "Märchen, bei dem Schneebesen und Bürsten zu Figuren werden",
+"age": 4,
+"dur": "kurz",
+"pram": true,
+"cafe": true,
+"link": "https://www.kindaling.de/kindertheater-shows/kindertheater-vorhang-auf-fuer-haensel-und-gretel/muenchen-sendling-westpark",
+"note": "Gut mit dem Winterzauber am Mollsee am selben Ort zu verbinden.",
+"run": "woche",
+"first": "2026-11-22",
+"last": "2026-11-22"
+},
+{
+"name": "Indoor-Spielplatz im Familienzentrum Trudering",
+"where": "stadt",
+"io": "drinnen",
+"cat": "spiel",
+"wx": [
+"regen",
+"schnee"
+],
+"top": true,
+"date": "2026-11-24",
+"time": "Di 15–17 Uhr, auch am 1.12.",
+"place": "Familienzentrum Trudering",
+"kid": "Bewegungslandschaft für 0 bis 6 Jahre, vor allem für 0- bis 3-Jährige",
+"dur": "kurz",
+"like": [
+"klettern",
+"hüpfen"
+],
+"link": "https://www.kindaling.de/sonstige-veranstaltungen/woechentlicher-indoor-spielplatz/muenchen-trudering-riem",
+"note": "Spielplatz der Woche: 270 Quadratmeter zum Klettern, Hüpfen und Balancieren, ohne Anmeldung.",
+"run": "woche",
+"first": "2026-11-22",
+"last": "2026-11-22"
+},
+{
+"name": "Kinderlieder zum Mitmachen",
+"where": "stadt",
+"io": "draussen",
+"cat": "musik",
+"wx": [
+"sonne"
+],
+"date": "2026-11-29",
+"time": "13–14 Uhr (bei sehr schlechtem Wetter verschoben)",
+"place": "Gans Woanders, Untergiesing",
+"travel": "🚇 U1/U2 Kolumbusplatz",
+"price": "frei, Spende erwünscht",
+"free": true,
+"kid": "Mitsingen und Tanzen mit Bildern, Gitarre und Percussion",
+"age": 4,
+"dur": "kurz",
+"cafe": true,
+"like": [
+"hüpfen"
+],
+"link": "https://www.kindaling.de/kindertheater-shows/kinderlieder-zum-mitmachen-muenchen-untergiesing-harlaching/muenchen-untergiesing-harlaching",
+"note": "Eine Stunde Singen und Tanzen am Sonntagmittag, kostenlos.",
+"run": "woche",
+"first": "2026-11-22",
+"last": "2026-11-22"
+},
+{
+"name": "LUMAGICA Lichterpark",
+"where": "stadt",
+"io": "draussen",
+"cat": "fest",
+"wx": [
+"sonne",
+"schnee"
+],
+"from": "2026-11-13",
+"to": "2027-01-24",
+"time": "Fr–So 16:30–20:30 Uhr (Zeiten auf der Seite prüfen)",
+"place": "Showpalast-Eventpark, Freimann",
+"kid": "1,5 km Rundweg voller Lichtfiguren, früh am Abend kommen",
+"link": "https://www.kindaling.de/sonstige-veranstaltungen/lumagica-muenchen-in-80-tagen-um-die-welt/muenchen-schwabing-freimann",
+"note": "Leuchtende Welt zum Staunen, wenn es früh dunkel wird.",
+"run": "woche",
+"first": "2026-11-22",
+"last": "2026-11-22"
+},
+{
+"name": "Märchen-Weihnachtsmarkt auf Schloss Kaltenberg",
+"where": "umland",
+"io": "draussen",
+"cat": "fest",
+"wx": [
+"sonne",
+"schnee"
+],
+"from": "2026-11-27",
+"to": "2026-11-29",
+"time": "Fr 16–21:30, Sa 12:30–21:30, So 11:30–20 Uhr; auch an den weiteren Adventswochenenden",
+"place": "Schloss Kaltenberg",
+"travel": "🚗 50 Min",
+"price": "Kinder bis 15 frei mit Online-Ticket",
+"kid": "Märchenwelt nach den Brüdern Grimm, Eislaufbahn in der Arena",
+"link": "https://www.schloss-kaltenberg-weihnachtsmarkt.de/",
+"note": "Ein Ausflug mit dem Auto, dafür eine ganze Märchenwelt für Kinder.",
+"run": "woche",
+"first": "2026-11-22",
+"last": "2026-11-22"
+},
+{
+"name": "Percussion-Mitmachlesung: Mausige Weihnachten",
+"where": "stadt",
+"io": "draussen",
+"cat": "musik",
+"wx": [
+"sonne"
+],
+"date": "2026-11-28",
+"time": "13–14:15 Uhr (bei sehr schlechtem Wetter verschoben)",
+"place": "Gans Woanders, Untergiesing",
+"travel": "🚇 U1/U2 Kolumbusplatz",
+"price": "frei, Spende erwünscht",
+"free": true,
+"kid": "ab 4 Jahren, Kinder trommeln und klappern mit",
+"age": 4,
+"dur": "kurz",
+"cafe": true,
+"link": "https://www.kindaling.de/kindertheater-shows/percussion-mitmachlesung-lomaeus-barthaar-mausige-weihnachten/muenchen-untergiesing-harlaching",
+"note": "Geschichte mit vielen Rhythmus-Instrumenten, bei der alle mitmachen dürfen.",
+"run": "woche",
+"first": "2026-11-22",
+"last": "2026-11-22"
+},
+{
+"name": "Perlacher Christkindlmarkt mit Nikolaus",
+"where": "stadt",
+"io": "draussen",
+"cat": "fest",
+"wx": [
+"sonne",
+"schnee"
+],
+"from": "2026-11-28",
+"to": "2026-11-29",
+"time": "Sa 14–19, So ab 11:45 Uhr; Nikolaus an beiden Tagen um 15 Uhr",
+"place": "Pfanzeltplatz, Perlach",
+"travel": "🚆 S7 Perlach",
+"price": "frei",
+"free": true,
+"kid": "Nikolaus um 15 Uhr, Krippenausstellung im Pfarrheim",
+"dur": "kurz",
+"link": "https://www.muenchen.de/veranstaltungen/freizeit/weihnachtsmarkt-christkindlmarkt/perlacher-christkindlmarkt",
+"note": "Gemütlicher Dorfmarkt am ersten Advent, der Nikolaus kommt schon jetzt.",
+"run": "woche",
+"first": "2026-11-22",
+"last": "2026-11-22"
+},
+{
+"name": "Raumanzüge in der Flugwerft Schleißheim (letzte Woche)",
+"where": "umland",
+"io": "drinnen",
+"cat": "fahrzeug",
+"wx": [
+"regen",
+"schnee"
+],
+"from": "2026-11-22",
+"to": "2026-11-30",
+"time": "täglich 9–17 Uhr",
+"place": "Flugwerft Schleißheim, Oberschleißheim",
+"travel": "🚆 S1 Oberschleißheim, dann 15 Min zu Fuß",
+"kid": "große Flugzeughallen zum Staunen, Sonderausstellung über Raumanzüge",
+"pram": true,
+"link": "https://www.muenchen.de/veranstaltungen/ausstellung-museen/familie-kinder/inside-suit-der-mensch-im-raumanzug",
+"note": "Die Sonderausstellung endet am 30.11.; Flugzeuge gibt es für Kleine ohnehin genug.",
+"run": "woche",
+"first": "2026-11-22",
+"last": "2026-11-22"
+},
+{
+"name": "Schwabinger Weihnachtsmarkt mit Kinderprogramm",
+"where": "stadt",
+"io": "draussen",
+"cat": "fest",
+"wx": [
+"sonne",
+"schnee"
+],
+"from": "2026-11-25",
+"to": "2026-12-24",
+"time": "Mo–Fr 12–20:30, Sa/So 11–20:30 Uhr; Geschichten meist Di und Do 15 Uhr",
+"place": "Münchner Freiheit, Schwabing",
+"travel": "🚇 U3/U6 Münchner Freiheit",
+"kid": "Geschichten, Theater und Malworkshops auf der Musikbühne",
+"dur": "kurz",
+"link": "https://www.schwabingerweihnachtsmarkt.de/programm/kinderprogramm/",
+"note": "Künstlermarkt mit eigenem Kinderprogramm, öffnet am Mittwoch.",
+"run": "woche",
+"first": "2026-11-22",
+"last": "2026-11-22"
+},
+{
+"name": "Turn und Tanz für 3- bis 4-Jährige (Schnuppertag)",
+"where": "stadt",
+"io": "drinnen",
+"cat": "klettern",
+"wx": [
+"regen",
+"schnee"
+],
+"date": "2026-11-29",
+"time": "10:45–11:30 Uhr",
+"place": "Tanzstudio Step by Step, Obergiesing",
+"price": "10 €",
+"kid": "mit Eltern, bequeme Kleidung und Trinkflasche mitbringen",
+"age": 3,
+"dur": "kurz",
+"like": [
+"hüpfen"
+],
+"link": "https://www.kindaling.de/tanzen/turn-tanz-schnuppertag/muenchen-obergiesing",
+"note": "Eine Probestunde Bewegung zu Musik, ideal für kleine Hüpfer.",
+"run": "woche",
+"first": "2026-11-22",
+"last": "2026-11-22"
+},
+{
+"name": "Weihnachtsmarkt am Schneckenplatz",
+"where": "stadt",
+"io": "draussen",
+"cat": "fest",
+"wx": [
+"sonne",
+"schnee"
+],
+"from": "2026-11-20",
+"to": "2026-12-22",
+"time": "Mo–Do 12–21:30, Fr 12–22, Sa 11–22, So 11–21 Uhr; Kinderprogramm ab 16 Uhr",
+"place": "Am Bavariapark, vor dem Verkehrszentrum",
+"travel": "🚇 U4/U5 Schwanthalerhöhe",
+"kid": "Kinderkarussell mit Feuerwehrautos und Motorrädern",
+"dur": "kurz",
+"link": "https://www.in-muenchen.de/kids/weihnachtsmarkte-kinderprogramm.html",
+"note": "Kleiner ruhiger Markt, gut mit dem Verkehrszentrum zu verbinden.",
+"run": "woche",
+"first": "2026-11-22",
+"last": "2026-11-22"
+},
+{
+"name": "Wintermärchen auf dem Mondscheinexpress",
+"where": "stadt",
+"io": "drinnen",
+"cat": "kinder",
+"wx": [
+"regen",
+"schnee"
+],
+"date": "2026-11-28",
+"time": "15–15:45 und 16–16:45 Uhr",
+"place": "Bahnwärter Thiel, Schlachthofviertel",
+"travel": "🚇 U3/U6 Poccistraße",
+"price": "frei, ohne Anmeldung",
+"free": true,
+"kid": "Märchen mit Flöte und Glocken, mal zum Zuhören, mal zum Mitmachen",
+"age": 4,
+"dur": "kurz",
+"link": "https://www.kindaling.de/lesungen/wintermaerchen-auf-dem-mondscheinexpress/muenchen-sendling",
+"note": "Märchenstunde in einem alten Zugwaggon, kurz genug für Kleine.",
+"run": "woche",
+"first": "2026-11-22",
+"last": "2026-11-22"
+},
+{
+"name": "Winterzauber am Mollsee im Westpark",
+"where": "stadt",
+"io": "draussen",
+"cat": "fest",
+"wx": [
+"sonne",
+"schnee"
+],
+"from": "2026-11-27",
+"to": "2027-01-01",
+"time": "bis 23.12. Mo–Sa 10–21, So 10–18 Uhr; Kinderprogramm Fr–So",
+"place": "Gans am Wasser, Westpark",
+"travel": "🚇 U6 Westpark",
+"price": "frei",
+"free": true,
+"kid": "Kinderprogramm am Wochenende, Feuerschalen, Eisstockbahn",
+"pram": true,
+"cafe": true,
+"link": "https://www.in-muenchen.de/kids/weihnachtsmarkte-kinderprogramm.html",
+"note": "Kleiner Markt mitten im Park mit Programm für Kinder an jedem Wochenende.",
+"run": "woche",
+"first": "2026-11-22",
+"last": "2026-11-22"
 }
 ]
 }
