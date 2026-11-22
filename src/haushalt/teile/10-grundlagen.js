@@ -100,7 +100,10 @@ function rotParity(freq,mon){const th=addDays(mon,3);
   if(freq==="month")return (th.getMonth()+1)%2;
   if(freq==="half")return th.getMonth()<6?1:0;
   return th.getFullYear()%2}
+// Nur diese Woche jemand anderem geben (Florian 22.11.2026: „Plastikmüll … Judith geben“): food/wkown/<Woche>/<Aufgabe> = p0|p1
+function wkOwn(t,mon){if(!t||t.owner==="ho"||t.owner==="both"||!mon)return null;const o=S.food&&S.food.wkown&&S.food.wkown[wkKey(mon)];const v=o&&o[t.id];return v==="p0"||v==="p1"?v:null}
 function ownerFor(t,mon,split){
+  const ov=wkOwn(t,mon);if(ov)return ov;
   if(t.owner!=="rot")return t.owner;
   const flip=(rotParity(t.freq,mon)+((S.config&&S.config.rotOffset)|0))%2;
   const pack=(split||rotSplit())[t.id]||"A";

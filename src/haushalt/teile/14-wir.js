@@ -97,6 +97,16 @@ function hoCanEdit(){const cm=mondayOf(new Date());if(+S.view<+cm&&S.wkEdit!==wk
 // Vier Möglichkeiten (Florian 16.11.2026): ganzer Tag je Person, geteilt vormittags/nachmittags in beide Richtungen. Wert "p|vm" = p vormittags.
 function hoOpts(P){const o=q=>q==="p0"?"p1":"p0",n=q=>esc(pname(q)),c=q=>esc(pname(q).charAt(0));
   return P.map(p=>[p,c(p),`${n(p)} hat Hausdienst <small>(${n(o(p))} bringt und holt)</small>`]).concat(P.map(p=>[p+"|vm",c(p)+"/"+c(o(p)),`Vormittags ${n(p)}, nachmittags ${n(o(p))} <small>(${n(o(p))} bringt, ${n(p)} holt)</small>`]))}
+// Aufgabe nur diese Woche jemand anderem geben (Florian 22.11.2026). Tipp auf die Person unter dem Namen öffnet die Auswahl.
+function wkOwnPick(id){const t=tasks().find(x=>x.id===id);if(!t)return;const mon=S.view,wk=wkKey(mon);if(+mon<+mondayOf(new Date())){toast("Vergangene Wochen bleiben, wie sie waren.");return}
+  S.mboxAt=Date.now();if(document.getElementById("mbox"))return;const ov=wkOwn(t,mon),plan=(()=>{const s=S.food.wkown;S.food.wkown=null;const o=ownerFor(t,mon);S.food.wkown=s;return o})(),cur=ov||plan,{w}=isoWeek(mon);
+  const lab=o=>o==="p0"||o==="p1"?pname(o):OWNER_LABEL[o]||o;
+  const el=document.createElement("div");el.id="mbox";el.innerHTML=`<div class="mboxbg"></div><div class="mboxcard quickcard" role="dialog" aria-label="Wer macht es?"><div class="section-head"><h2>${esc(t.name)}</h2></div><p class="freq mt0">Wer macht es diese Woche (KW ${w})? Geplant: ${esc(lab(plan))}${t.owner==="rot"?" (im Wechsel)":""}.</p><div class="quicklist">
+    ${["p0","p1"].map(p=>`<button class="quickbtn" data-wko="${p}"${cur===p?' aria-pressed="true"':""}><span class="qi">${esc(pname(p).charAt(0))}</span><span>${esc(pname(p))}${p===plan?" <small>(wie geplant)</small>":" <small>(nur diese Woche)</small>"}</span></button>`).join("")}
+    </div><p class="freq">Dauerhaft ändern: <button class="linkish" data-wko="edit">Aufgaben bearbeiten ›</button></p></div>`;
+  const set=async p=>{mboxClose();if(p==="edit"){goNav("woche|wp:1");return}try{await S.store.setPath("food/wkown/"+wk+"/"+t.id,p===plan?null:p)}catch(_){toast("Konnte nicht speichern.");return}if(p!==plan)toast(esc(pname(p))+" macht es diese Woche.")};
+  el.addEventListener("click",e=>{const b=e.target.closest("[data-wko]");if(b){set(b.dataset.wko);return}if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<400)return;mboxClose()});
+  document.body.appendChild(el)}
 // Lange drücken auf einen belegten Tag = „✕ Löschen“ am Feld, Tipp darauf löscht mit Rückgängig (Florian 22.11.2026)
 function hoArm(btn){if(!hoCanEdit())return;const t=tasks().find(x=>x.id===btn.dataset.task);if(!t)return;const wk=wkKey(S.view),key=t.id+"__"+btn.dataset.slot;if(!ticksOf(wk)[key])return;
   hoDisarm();S.mboxAt=Date.now();S._hoxAt=Date.now();try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}const col=btn.closest(".hocol")||btn.parentElement;col.classList.add("hoarm");const x=document.createElement("button");x.type="button";x.className="hox";x.dataset.hox=wk+"|"+key;x.textContent="✕ Löschen";col.appendChild(x)}

@@ -228,7 +228,7 @@ function renderWeek(){
     else if(f==="week"){if(!x.subs)circ=x.sl.join("")}
     else{circ=x.pb;info=x.pinfo}
     const subs=x.subs&&!op?`<div class="wtsubs">${x.sl.join("")}</div>`:"";
-    return `<div class="wt${x.done?" done":""}${op?" open":""}"><div class="wtl"><button class="wtn" data-wtopen="${esc(t.id)}" aria-expanded="${op}"><b>${esc(t.name)}</b></button><div class="wtm">${wkWho(x.o,x.isRot)}${info?`<span class="freq">${info}</span>`:""}${taskLink(t,true)}</div>${x.took&&!op?`<div class="freq tookinfo">${x.took}</div>`:""}${subs}</div>${op?"":`<span class="wtc">${circ}</span>`}</div>${op?`<div class="wtx">${x.html}<button class="linkish" data-wtopen="${esc(t.id)}">Zuklappen</button></div>`:""}`};
+    return `<div class="wt${x.done?" done":""}${op?" open":""}"><div class="wtl"><button class="wtn" data-wtopen="${esc(t.id)}" aria-expanded="${op}"><b>${esc(t.name)}</b></button><div class="wtm">${t.owner==="ho"?wkWho(x.o,x.isRot):`<button type="button" class="wtwb" data-wkown="${esc(t.id)}" aria-label="${esc(t.name)}: wer macht es diese Woche?">${wkWho(x.o,x.isRot&&!wkOwn(t,mon))}</button>${wkOwn(t,mon)?`<span class="freq">nur diese Woche</span>`:""}`}${info?`<span class="freq">${info}</span>`:""}${taskLink(t,true)}</div>${x.took&&!op?`<div class="freq tookinfo">${x.took}</div>`:""}${subs}</div>${op?"":`<span class="wtc">${circ}</span>`}</div>${op?`<div class="wtx">${x.html}<button class="linkish" data-wtopen="${esc(t.id)}">Zuklappen</button></div>`:""}`};
   const vis=x=>!(S.filter==="meine"&&S.me&&!(x.o===S.me||x.o==="both"||x.o==="ho"))&&!(S.hideDone&&x.done);
   const order=(a,b)=>FO[a.t.freq]-FO[b.t.freq]||b.times-a.times||a.pct-b.pct;
   const secs=S.groupBy==="art"
