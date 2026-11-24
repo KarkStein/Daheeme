@@ -1,6 +1,6 @@
 {
-"updated": "2026-11-23",
-"n": 98,
+"updated": "2026-11-24",
+"n": 103,
 "items": [
 {
 "name": "Buddha Bowl mit Erdnusssoße",
@@ -3814,6 +3814,187 @@
 ],
 "first": "2026-11-23",
 "last": "2026-11-23"
+},
+{
+"name": "Feta auf Ofenlauch mit Kichererbsen und Orangen-Salsa",
+"cat": "gesund",
+"source": "eatsmarter.de",
+"link": "https://eatsmarter.de/rezepte/feta-auf-ofenlauch-mit-kichererbsen-und-orangen-salsa",
+"ing": [
+"2 Stangen Lauch",
+"4 EL Olivenöl",
+"265 g Kichererbsen (Dose, abgetropft)",
+"300 g Feta",
+"1 Prise Chiliflocken",
+"2 Orangen",
+"10 g Koriander"
+],
+"min": 35,
+"veg": true,
+"tags": [
+"Ernährung|vegetarisch",
+"Zeit|länger",
+"Grundlage|Hülsenfrüchte",
+"Art|Auflauf/Ofen",
+"Saison|Herbst",
+"Saison|Winter",
+"Familie|kleinkindtauglich",
+"Zutaten|Lauch",
+"Zutaten|Feta",
+"Zutaten|Kichererbse",
+"Zutaten|Orange"
+],
+"note": "Lauch und Orangen haben jetzt Saison, viel Eiweiß aus Kichererbsen und Feta; mit Brot dazu wird es satt. Fürs Kind die Chiliflocken weglassen und Feta aus pasteurisierter Milch nehmen.",
+"from": [
+"tag"
+],
+"first": "2026-11-24",
+"last": "2026-11-24"
+},
+{
+"name": "Linguine mit Petersilienpesto",
+"cat": "schnell",
+"source": "lecker.de",
+"link": "https://www.lecker.de/linguine-mit-petersilienpesto-73040.html",
+"ing": [
+"500 g Linguine",
+"50 g Walnusskerne",
+"1 Bund Petersilie",
+"1 Knoblauchzehe",
+"50 g vegetarischer Hartkäse oder Pecorino",
+"100 ml Olivenöl"
+],
+"min": 25,
+"veg": true,
+"tags": [
+"Ernährung|vegetarisch",
+"Zeit|30 Min",
+"Grundlage|Nudeln",
+"Region|italienisch",
+"Familie|kleinkindtauglich",
+"Zutaten|Nudel",
+"Zutaten|Petersilie",
+"Zutaten|Walnuss",
+"Zutaten|Hartkäse"
+],
+"note": "In 25 Minuten fertig, nur sechs Zutaten. Fürs Kind die Walnüsse im Pesto ganz fein mixen und einen Hartkäse aus pasteurisierter Milch nehmen (Pecorino ist oft Rohmilch).",
+"from": [
+"tag"
+],
+"first": "2026-11-24",
+"last": "2026-11-24"
+},
+{
+"name": "Mini-Lasagne in der Muffinform",
+"cat": "kinder",
+"source": "lecker.de",
+"link": "https://www.lecker.de/mini-lasagne-der-muffinform-70272.html",
+"ing": [
+"250 g Wan-Tan-Teigblätter (ca. 40 Stück)",
+"1 Gemüsezwiebel",
+"2 Knoblauchzehen",
+"3 EL Olivenöl",
+"350 g Hackfleisch",
+"400 ml passierte Tomaten",
+"4 Stiele Basilikum",
+"400 g Ricotta",
+"125 g Mozzarella",
+"Fett für die Muffinform"
+],
+"min": 50,
+"veg": false,
+"tags": [
+"Ernährung|Fleisch",
+"Zeit|länger",
+"Grundlage|Nudeln",
+"Art|Auflauf/Ofen",
+"Region|italienisch",
+"Familie|kleinkindtauglich",
+"Familie|Gäste",
+"Zutaten|Hackfleisch",
+"Zutaten|Tomate",
+"Zutaten|Ricotta",
+"Zutaten|Mozzarella"
+],
+"note": "Lasagne im Kleinformat: 12 Stück, die Kinder gut selbst in die Hand nehmen; beim Schichten können sie mithelfen. Hack ganz durchgaren und etwas abkühlen lassen.",
+"from": [
+"tag"
+],
+"first": "2026-11-24",
+"last": "2026-11-24"
+},
+{
+"name": "Schnelles Wirsing-Polenta-Gratin",
+"cat": "saisonal",
+"source": "kuechengoetter.de",
+"link": "https://www.kuechengoetter.de/rezepte/schnelles-wirsing-polenta-gratin-28336#zutaten",
+"ing": [
+"800 ml Gemüsebrühe",
+"1 EL Butter",
+"200 g Polenta",
+"1 kleiner Wirsing (ca. 600 g)",
+"1 Zwiebel",
+"2 EL Öl",
+"150 g Bergkäse",
+"1 Prise Currypulver",
+"100 g Sahne",
+"1 Prise Muskatnuss"
+],
+"min": 30,
+"veg": true,
+"tags": [
+"Ernährung|vegetarisch",
+"Zeit|30 Min",
+"Art|Auflauf/Ofen",
+"Saison|Herbst",
+"Saison|Winter",
+"Familie|kleinkindtauglich",
+"Zutaten|Wirsing",
+"Zutaten|Polenta",
+"Zutaten|Bergkäse",
+"Zutaten|Sahne"
+],
+"note": "Wirsing hat im November Hochsaison; cremige Polenta mit Käsekruste wärmt an kalten Tagen. Bergkäse aus pasteurisierter Milch nehmen (oder Gouda), das Curry nur sparsam.",
+"from": [
+"tag"
+],
+"first": "2026-11-24",
+"last": "2026-11-24"
+},
+{
+"name": "Tteokguk – Koreanische Reiskuchensuppe",
+"cat": "exotisch",
+"source": "kuechengoetter.de",
+"link": "https://www.kuechengoetter.de/rezepte/tteokguk-suedkoreanische-reiskuchensuppe-100763#zutaten",
+"ing": [
+"500 g Reiskuchenscheiben (Asiamarkt)",
+"100 g Rinderbrust",
+"3 Eier",
+"3 Frühlingszwiebeln",
+"1 Knoblauchzehe",
+"1 EL Sojasauce"
+],
+"min": 80,
+"veg": false,
+"tags": [
+"Ernährung|Fleisch",
+"Zeit|länger",
+"Grundlage|Reis",
+"Art|Suppe",
+"Region|asiatisch",
+"Saison|Winter",
+"Familie|kleinkindtauglich",
+"Zutaten|Reiskuchen",
+"Zutaten|Rindfleisch",
+"Zutaten|Ei",
+"Zutaten|Frühlingszwiebel"
+],
+"note": "Das koreanische Neujahrsgericht: klare, milde Brühe mit weichen Reiskuchen und Eierstreifen, gar nicht scharf. Fürs Kind die Reiskuchen klein schneiden (zäh, nicht am Stück schlucken lassen) und die Eier ganz stocken lassen.",
+"from": [
+"tag"
+],
+"first": "2026-11-24",
+"last": "2026-11-24"
 }
 ]
 }
