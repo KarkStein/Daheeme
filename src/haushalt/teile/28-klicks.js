@@ -413,7 +413,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.idea){const x=((S.ideas&&S.ideas.items)||[])[+b.dataset.idea];if(!x)return;recWohin(recVal(x));return}
   if(b.dataset.openrec){openRec(b.dataset.openrec);return}
   if(b.dataset.hstick||b.dataset.hsedit||b.dataset.act==="hsnew"||b.dataset.act==="hstpl"){if(await hstepClick(b))return}
-  if((b.dataset.act==="rdbarch"||b.dataset.act==="archaus"||b.dataset.archtake!=null||b.dataset.archausf!=null||b.dataset.archmerk!=null)&&archClick(b))return;
+  if((/^(rdbarch|rgarch|archgo|archrezgo)$/.test(b.dataset.act||"")||b.dataset.archtake!=null||b.dataset.archrgf!=null||b.dataset.archcal!=null||b.dataset.archmerk!=null)&&archClick(b))return;
   if(b.dataset.tagfix||b.dataset.rdbgo!=null||/^(tagfix|tagbasic|rdbing)/.test(b.dataset.act||"")){if(await tagClick(b))return}
   if(b.dataset.srclink===KITA_SRC){S.prev=S.tab;S.tab="kita";S.kitaSec="tasche";render();window.scrollTo(0,0);return}
   if(b.dataset.srclink&&/^adventskalender/i.test(b.dataset.srclink)){const m=b.dataset.srclink.match(/(\d+)\s*$/);S.prev=S.tab;S.tab="geschenke";S.projFilter="advent";S.advCal=null;S.advDoor=m?+m[1]:null;render();window.scrollTo(0,0);return}

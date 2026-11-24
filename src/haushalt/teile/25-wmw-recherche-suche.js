@@ -77,7 +77,7 @@ function renderResearch(){if(!S.auftrLoad){S.auftrLoad=1;try{fetch("auftraege.js
   h+=`<section data-fk="f_rfix|0" class="card"><div class="section-head"><h2>⚙️ Feste Aufträge</h2><span class="freq num">${A.length}</span></div>`;
   h+=A.length?`<ul class="evlist rauftr">${A.map(a=>{const ar=rArea(a.area),src=RSRC.find(r=>r.file===a.file),j=src&&src.get(),last=j&&j.updated?rDate(j.updated):"";
     return `<li><div class="ev"><b>${ar[1]} ${esc(a.name||"")}</b><div class="freq">${esc(ar[2])} · ${esc(a.rhythm||"")}${last?` · zuletzt ${last}`:" · noch kein Lauf"}</div>${a.what?`<div class="freq">${esc(a.what)}</div>`:""}<div class="mt1 btnrow">${src?`<button class="ghost" data-nav="${src.nav}">Ergebnisse ›</button>`:""}<button class="ghost" data-rchange="${esc(a.id||"")}">✎ Ändern wünschen</button></div></div></li>`}).join("")}</ul>`:`<div class="freq">Noch keine Liste geladen.</div>`;
-  h+=`</section>`;
+  h+=`</section>`+archResCard();
   if(d)h+=`<section class="card"><div class="section-head"><h2>${d.id?"✎ Wunsch ändern":"＋ Neuer Wunsch"}</h2></div><div class="bkform">
     <label class="fld"><span>Bereich</span><select data-rwf="area">${RAREA.map(a=>`<option value="${a[0]}"${d.area===a[0]?" selected":""}>${a[1]} ${esc(a[2])}</option>`).join("")}</select></label>
     <label class="fld"><span>Was soll gesucht werden?</span><textarea data-rwf="what" rows="3" maxlength="600" placeholder="z. B. Ferienwohnungen an der Ostsee für 4, mit Kleinkind">${esc(d.what||"")}</textarea></label>

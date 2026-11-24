@@ -2255,7 +2255,7 @@ function recWin(id){const r=recs().find(x=>x.id===id);if(!r)return;mboxClose();S
   el.addEventListener("click",e=>{const k=e.target.closest("[data-rw]");if(k){const a=k.dataset.rw;mboxClose();if(a!=="x")calFire("data-"+a+'="'+esc(k.dataset.rwv||"")+'"');return}if(e.target.closest(".mboxcard"))return;if(Date.now()-(S.mboxAt||0)<600)return;mboxClose()})}
 // ---------- Archiv der Recherchen (Florian 21.11.2026: „nur findbar unter der Rezeptsuche. Mit möglichen Filter um sie ggf mit auszuwählen“) ----------
 // Der Lauf archiv.yml (src/archiv.py) sammelt jede Recherche in archiv/rezepte.json und archiv/ausfluege.json. Die App lädt sie erst bei Bedarf.
-// Rezepte: nur in der Rezept-Datenbank, Chip „🗄️ Auch Archiv“ (Vorgabe aus). Ausflüge: Zeile „🗄️ Frühere Tipps“ unten in „Was ist los“.
+// Rezepte: nur in der Rezept-Datenbank, Chip „🗄️ Auch Archiv“ (Vorgabe aus). Ausflüge: in Ausflüge › Gemerkt, Chip „🗄️ Auch frühere Tipps“; „Was ist los“ und Sammlung › Recherchen springen hin.
 const ARCH_FROM={tag:"Tagesrezept",woche:"Wochenidee",emmi:"Emmi-Tipp"};
 function archGet(k){const f=k==="rez"?"archiv/rezepte.json":"archiv/ausfluege.json",key=k==="rez"?"archRez":"archAus";
   if(S[key]||S["_"+key])return S[key]||null;S["_"+key]=1;
@@ -2285,21 +2285,41 @@ function archSeason(i){const a=archMD(i.date||i.from),b=archMD(i.to)||a;if(a==nu
   const inR=x=>{for(const k of [x,x+372,x-372])if(k>=lo&&k<=hi)return true;return false};return inR(a)||inR(b)||(b>=a?a<=now&&b>=now:a<=now||b>=now)}
 function archAusWhen(i){const d=x=>{const m=String(x||"").match(/(\d{4})-(\d\d)-(\d\d)/);return m?`${+m[3]}.${+m[2]}.${m[1]}`:""};const f=i.date||i.from,t=i.to;
   return f?"war "+(t&&t!==f?d(f).replace(/\d{4}$/,"")+"–"+d(t):d(f)):(i.last?"Tipp vom "+d(i.last):"")}
-function archAusList(){const q=sNorm(S.archAusQ||"").trim(),f=S.archAusF||"",L=archAusItems().filter(i=>(!f||(f==="jz"?archSeason(i):atipCat(i)===f))&&(!q||sNorm([i.name,i.place,i.note,(ATIP_CAT.find(c=>c[0]===atipCat(i))||[])[2]].join(" ")).includes(q)))
-    .sort((a,b)=>String(b.date||b.from||b.last||"").localeCompare(String(a.date||a.from||a.last||"")));
+// Ausflüge (Florian 24.11.2026, „C: Getrennt plus Einstieg“): in Ausflüge › Gemerkt der Chip „🗄️ Auch frühere Tipps“ (S.rgArch, Vorgabe aus),
+// an = Karte „🗄️ Aus den Recherchen“ unter Gemerkt mit Suche und Filtern. „Was ist los“ und Sammlung › Recherchen springen nur dorthin.
+const ARCH_MN=["Jan.","Feb.","März","April","Mai","Juni","Juli","Aug.","Sept.","Okt.","Nov.","Dez."];
+// je Name nur der neueste Eintrag; schon Gemerktes (gleicher Name) fällt weg
+function archRgItems(){const A=archAusItems();if(!A.length)return [];const g=new Set(trips().map(x=>sNorm(x.name||"").trim()).concat(funde("reise").map(f=>sNorm(f.name||"").trim())));
+  const yrs={},seen=new Set(),out=[];((S.archAus&&S.archAus.items)||[]).forEach(i=>{if(!i||!i.name)return;const y=String(i.date||i.from||i.to||"").slice(0,4);if(y)(yrs[sNorm(i.name).trim()]=yrs[sNorm(i.name).trim()]||new Set()).add(y)});
+  A.map((i,ix)=>({i,ix})).sort((a,b)=>String(b.i.date||b.i.from||b.i.last||"").localeCompare(String(a.i.date||a.i.from||a.i.last||""))).forEach(o=>{const n=sNorm(o.i.name).trim();if(g.has(n)||seen.has(n))return;seen.add(n);o.yearly=(yrs[n]||new Set()).size>1;out.push(o)});
+  return out}
+function archMon(i){const m=String(i.date||i.from||i.last||"").match(/(\d{4})-(\d\d)/);return m?ARCH_MN[+m[2]-1]+" "+m[1]:""}
+function archRgList(){const q=sNorm(S.archRgQ||"").trim(),f=S.archRgF||"",L=archRgItems().filter(({i})=>(!f||(f==="jz"?archSeason(i):f==="umland"?i.where==="umland":atipCat(i)===f))&&(!q||sNorm([i.name,i.place,i.note,(ATIP_CAT.find(c=>c[0]===atipCat(i))||[])[2]].join(" ")).includes(q)));
   if(!L.length)return `<div class="freq">Nichts gefunden.</div>`;
-  const all=archAusItems();return `<ul class="evlist">${L.slice(0,60).map(i=>{const c=ATIP_CAT.find(x=>x[0]===atipCat(i)),u=safeLink(i.link||"");
-    return `<li class="archrow"><span class="ev minw0"><b>${c?c[1]+" ":""}${esc(i.name)}</b><br><span class="freq">${[archAusWhen(i),c?c[2]:"",i.where==="umland"?"Umland":""].filter(Boolean).map(esc).join(" · ")}</span></span>${u?`<a class="catbtn" href="${esc(u)}" target="_blank" rel="noopener" aria-label="Website">🔗</a>`:""}<button class="catbtn" data-archmerk="${all.indexOf(i)}" aria-label="${esc(i.name)} als Ausflugsziel merken">🔖</button></li>`}).join("")}</ul>${L.length>60?`<div class="freq">Noch ${L.length-60} weitere, bitte genauer suchen.</div>`:""}`}
-function archAusRow(){const A=archAusItems();if(!A.length)return "";const on=!!S.archAusOpen;
-  let h=`<button class="atipgrp archgrp" data-act="archaus" aria-expanded="${on}"><span>🗄️ Frühere Tipps <span class="freq">(${A.length})</span></span><i>${on?"▾":"›"}</i></button>`;
-  if(!on)return h;const f=S.archAusF||"",cats=ATIP_CAT.filter(c=>A.some(i=>atipCat(i)===c[0]));
-  const chip=(v,txt)=>`<button class="chipbtn neutral" data-archausf="${v}" aria-pressed="${f===v}">${txt}</button>`;
-  return h+`<div class="archaus"><input type="search" class="w100" id="archausq" value="${esc(S.archAusQ||"")}" placeholder="Suchen: Name, Ort, Rubrik" autocomplete="off" aria-label="Frühere Tipps durchsuchen"><div class="unl scrollrow mt2">${chip("","Alle")}${chip("jz","📅 Um diese Jahreszeit")}${cats.map(c=>chip(c[0],c[1]+" "+c[2])).join("")}</div><div id="archausl">${archAusList()}</div><div class="freq mt1">🔖 merkt einen Tipp als Ausflugsziel. Frühere Tipps stehen nicht im Kalender und nicht in der Suche.</div></div>`}
+  return `<ul class="evlist">${L.slice(0,60).map(({i,ix,yearly})=>{const c=ATIP_CAT.find(x=>x[0]===atipCat(i)),u=safeLink(i.link||"");
+    return `<li class="archrow"><span class="ev minw0"><b>${c?c[1]+" ":""}${esc(i.name)}</b><br><span class="freq">${[archMon(i),c?c[2]:"",i.where==="umland"?"🚆 Umland":"",yearly?"🔁 kommt jedes Jahr":""].filter(Boolean).map(esc).join(" · ")}</span></span>${u?`<a class="catbtn" href="${esc(u)}" target="_blank" rel="noopener" aria-label="Website">🔗</a>`:""}<button class="catbtn" data-archcal="${ix}" aria-label="${esc(i.name)}: Tag planen">📅</button><button class="catbtn" data-archmerk="${ix}" aria-label="${esc(i.name)} als Ausflugsziel merken">🔖</button></li>`}).join("")}</ul>${L.length>60?`<div class="freq">Noch ${L.length-60} weitere, bitte genauer suchen.</div>`:""}`}
+// Chip für die Filterzeile in Gemerkt (rgCard)
+function archRgChip(){const A=archRgItems();if(!A.length)return "";const on=!!S.rgArch;
+  return `<button class="chipbtn neutral archchip" data-act="rgarch" aria-pressed="${on}">${on?"✕ ":""}🗄️ Auch frühere Tipps${on?"":` <span class="freq">${A.length}</span>`}</button>`}
+function archRgCard(){if(!S.rgArch)return "";const A=archRgItems();if(!A.length)return "";const f=S.archRgF||"",cats=ATIP_CAT.filter(c=>A.some(o=>atipCat(o.i)===c[0]));
+  const chip=(v,txt)=>`<button class="chipbtn neutral" data-archrgf="${v}" aria-pressed="${f===v}">${txt}</button>`;
+  return `<section data-fk="f_rgarch|1" class="card archcard rgarch"><div class="section-head"><h2>🗄️ Aus den Recherchen <span class="freq">(${A.length})</span></h2></div><input type="search" class="w100" id="archrgq" value="${esc(S.archRgQ||"")}" placeholder="Suchen: Name, Ort, Rubrik" autocomplete="off" aria-label="Frühere Tipps durchsuchen"><div class="unl scrollrow mt2">${chip("","Alle")}${chip("jz","📅 Um diese Jahreszeit")}${A.some(o=>o.i.where==="umland")?chip("umland","🚆 Umland"):""}${cats.map(c=>chip(c[0],c[1]+" "+c[2])).join("")}</div><div id="archrgl">${archRgList()}</div><div class="freq mt1">📅 plant einen Tag im Kalender, 🔖 merkt den Tipp als Ausflugsziel.</div></section>`}
+// „Was ist los“: nur noch ein Sprung nach Gemerkt mit eingeschaltetem Chip
+function archAusRow(){const A=archRgItems();if(!A.length)return "";return `<button class="atipgrp archgrp" data-act="archgo"><span>🗄️ ${A.length} ${A.length===1?"früherer Tipp":"frühere Tipps"}</span><i>›</i></button>`}
+function archAusGo(){if(S.tab!=="ausflug"||S.tripTab!=="ideen"||S.tripDraft){S.tripDraft=null;goNav("ausflug|tt:ideen")}S.rgArch=true;S.tFold=S.tFold||{};S.tFold.f_rgarch=true;render();
+  setTimeout(()=>{const el=document.querySelector(".rgarch");if(el)el.scrollIntoView({block:"start"})},40)}
+// Sammlung › Recherchen: Karte „🗄️ Archiv“ mit zwei Sprüngen (lädt die Dateien erst, wenn die Seite offen ist)
+function archResCard(){archGet("rez");const nr=archRecs().length,A=archRgItems(),nj=A.filter(o=>archSeason(o.i)).length;if(!nr&&!A.length)return "";
+  return `<section data-fk="f_rarch|1" class="card archres"><div class="section-head"><h2>🗄️ Archiv</h2></div><div class="freq">Alles, was die Recherchen je gefunden haben. Nichts wird gelöscht.</div>${nr?`<button class="todayrow" data-act="archrezgo"><span>🍲</span><span>${nr} ${nr===1?"Rezept":"Rezepte"}</span><i>›</i></button>`:""}${A.length?`<button class="todayrow" data-act="archgo"><span>🚲</span><span>${A.length} ${A.length===1?"Ausflug-Tipp":"Ausflug-Tipps"}${nj?`, ${nj} passen um diese Jahreszeit`:""}</span><i>›</i></button>`:""}</section>`}
 function archClick(b){
   if(b.dataset.act==="rdbarch"){S.rdbArch=!S.rdbArch;render();return true}
   if(b.dataset.archtake!=null){const x=archCook(b.dataset.archtake);if(!x)return true;recWohin(recVal({name:x.name,ing:x.ing,link:x.link,note:x.note}));return true}
-  if(b.dataset.act==="archaus"){S.archAusOpen=!S.archAusOpen;render();return true}
-  if(b.dataset.archausf!=null){S.archAusF=b.dataset.archausf;render();return true}
+  if(b.dataset.act==="rgarch"){S.rgArch=!S.rgArch;render();if(S.rgArch)setTimeout(()=>{const el=document.querySelector(".rgarch");if(el)el.scrollIntoView({block:"start",behavior:"smooth"})},40);return true}
+  if(b.dataset.act==="archgo"){archAusGo();return true}
+  if(b.dataset.act==="archrezgo"){goNav("essen|ft:rezepte");S.recDraft=null;S.recDb=true;S.rdbArch=true;S.rdbQ="";S.rdbSel=[];render();window.scrollTo(0,0);return true}
+  if(b.dataset.archrgf!=null){S.archRgF=b.dataset.archrgf;render();return true}
+  if(b.dataset.archcal!=null){const i=archAusItems()[+b.dataset.archcal];if(!i)return true;const tm=/^(\d{1,2})[:.](\d{2})/.exec(i.time||""),md=String(i.date||i.from||"").slice(4),t=ymd(new Date());let sg=md?new Date().getFullYear()+md:"";if(sg&&sg<t)sg="";
+    calDayPick(i.name,sg&&/^\d{4}-\d\d-\d\d$/.test(sg)?sg:nextSat(),async k=>{try{await S.store.setPath("food/termin/"+newId("t"),{name:String(i.name).slice(0,80),date:k,time:tm?tm[1].padStart(2,"0")+":"+tm[2]:null,place:String(i.place||i.name).slice(0,120),link:safeLink(i.link)||null,note:[i.travel,i.price].filter(Boolean).join(" · ").slice(0,200)||null,at:Date.now(),by:S.me||""});toast("Steht am "+rDate(k)+" im Kalender")}catch(_){toast("Konnte nicht speichern.")}});return true}
   if(b.dataset.archmerk!=null){const i=archAusItems()[+b.dataset.archmerk];if(!i)return true;const k={natur:"wandern",kultur:"stadt",kinder:"stadt",tiere:"tiere",spiel:"spiel"}[i.cat]||"sonst";
     S.tripDraft={id:null,name:i.name||"",note:[i.place,i.travel,i.time,i.price,i.note,archAusWhen(i)].filter(Boolean).join(" · "),link:safeLink(i.link)||"",kind:tripKinds().some(x=>x[0]===i.kind)?i.kind:k,dur:"",wx:i.io==="drinnen"?"egal":"",drive:"",kid:"",cost:"",season:"",pack:"",place:i.place||"",date:""};render();window.scrollTo(0,0);return true}
   return false}
@@ -3169,7 +3189,7 @@ function rgCard(uid){const inU=!!uid,F=inU?(S.rgUF&&S.rgUF.uid===uid?S.rgUF:(S.r
   const us=urlaube().filter(u=>open.some(x=>x.u===u.id)||F.u===u.id);
   const badge=x=>{const s=SAMM_ST.find(y=>y[0]===x.st)||SAMM_ST[0],lb=x.st==="geplant"&&x.date?"📅 "+dLabel(x.date):s[1]+" "+s[2];return `<button class="stbadge st-${x.st}" ${x.t==="t"?`data-tripst="${esc(x.id)}"`:`data-fundst="${esc(x.id)}" data-ar="reise"`} aria-label="Stand von ${esc(x.name)}: ${s[2]}, antippen schaltet weiter">${esc(lb)}</button>`};
   return `<section data-fk="${inU?"f_rgu":"f_rg"}|1" class="card rgcard"><div class="aic section-head"><h2>🔖 Gemerkt <span class="freq">(${inU?all.length:open.length})</span></h2><button class="primary" data-act="merken"${inU?` data-u="${esc(uid)}"`:""}>＋ Merken</button></div>
-    ${inU?(all.length?`<div class="unl scrollrow">${chip("k","","Alle")}${arts.map(a=>chip("k",a[0],a[1]+" "+a[2])).join("")}${all.some(x=>x.st==="erledigt")||F.s==="erledigt"?chip("s","erledigt","✅ Gebucht"):""}</div>`:""):all.length?`<div class="unl scrollrow"><button class="chipbtn neutral" data-rgf="all|" aria-pressed="${!F.k&&!F.w&&!F.s}">Alle</button>${arts.map(a=>chip("k",a[0],a[1]+" "+a[2])).join("")}${open.some(x=>x.rain)||F.w?chip("w","regen","☔ Bei Regen"):""}${all.some(x=>x.st==="favorit")||F.s==="favorit"?chip("s","favorit","⭐ Favoriten"):""}${all.some(x=>x.st==="geplant")||F.s==="geplant"?chip("s","geplant","📅 Geplant"):""}${all.some(x=>x.st==="erledigt")||F.s==="erledigt"?chip("s","erledigt","✅ Erledigt"):""}</div>`:""}
+    ${inU?(all.length?`<div class="unl scrollrow">${chip("k","","Alle")}${arts.map(a=>chip("k",a[0],a[1]+" "+a[2])).join("")}${all.some(x=>x.st==="erledigt")||F.s==="erledigt"?chip("s","erledigt","✅ Gebucht"):""}</div>`:""):all.length?`<div class="unl scrollrow"><button class="chipbtn neutral" data-rgf="all|" aria-pressed="${!F.k&&!F.w&&!F.s}">Alle</button>${arts.map(a=>chip("k",a[0],a[1]+" "+a[2])).join("")}${open.some(x=>x.rain)||F.w?chip("w","regen","☔ Bei Regen"):""}${all.some(x=>x.st==="favorit")||F.s==="favorit"?chip("s","favorit","⭐ Favoriten"):""}${all.some(x=>x.st==="geplant")||F.s==="geplant"?chip("s","geplant","📅 Geplant"):""}${all.some(x=>x.st==="erledigt")||F.s==="erledigt"?chip("s","erledigt","✅ Erledigt"):""}${archRgChip()}</div>`:archRgChip()?`<div class="unl scrollrow">${archRgChip()}</div>`:""}
     ${R.length?`<ul class="mklist">${R.slice(0,n).map(x=>`<li class="mk"><button class="mkb" ${x.t==="t"?`data-tripedit="${esc(x.id)}"`:`data-fundedit="${esc(x.id)}"`} aria-label="${esc(x.name)} ansehen und ändern"><span class="mki">${esc(x.ic)}</span><span class="mkt"><b>${esc(x.name)}</b><span class="freq">${esc(x.artL)}${x.ref?" · Buchung "+esc(refMask(x.ref)):""}${esc(x.also||"")}</span></span></button>${x.pack&&x.st!=="erledigt"?`<button class="catbtn routebtn" data-gopack="${esc(x.pack.id)}" aria-label="Packliste ${esc(x.pack.name)} öffnen">🎒</button>`:""}${x.st!=="erledigt"&&x.place?transitA(x.place):""}${badge(x)}</li>`).join("")}</ul>${R.length>n?`<button class="ghost small" ${inU?"data-rguf":"data-rgf"}="more|1">Alle ${R.length} zeigen</button>`:""}${GG?`<ul class="mklist gmlist">${GG}</ul>`:""}`
       :GG?`<ul class="mklist gmlist">${GG}</ul>`:`<div class="freq">${all.length?"Für diesen Filter ist nichts gemerkt.":inU?"Unterkunft, Anreise, Strände, Spielplätze, Restaurants: mit ＋ Merken anlegen. Alles steht auch in der 🗃️ Sammlung.":"Noch nichts gemerkt. Ausflugsziele, Spielplätze und Cafés für hier kommen mit ＋ Merken dazu."}</div>`}
     ${inU?`<div class="freq"><button class="linkish" data-act="bkopen">＋ Buchung mit Nummer eintragen</button> · <button class="linkish" data-fundopen="${esc(uid)}" data-ar="reise">✨ Vorschläge und alle Filter</button></div>${S.bkOpen===uid?`<form id="bkform" class="bkform" novalidate><input id="bk-name" placeholder="Was (z. B. Ferienhaus, Fähre)" maxlength="80" autocomplete="off"><input id="bk-ref" placeholder="Buchungsnummer" maxlength="60" autocomplete="off"><input id="bk-link" type="url" placeholder="Link" autocomplete="off"><input id="bk-addr" placeholder="Adresse oder Anfahrt" maxlength="160" autocomplete="off"><button class="primary" type="submit">Hinzufügen</button></form>`:""}`
@@ -3203,7 +3223,7 @@ function tripHome(){const mu=(S.food&&S.food.reisemap)||"",emb=mapsEmbed(mu);
   let h=tripHead();
   if(tFoldOn("rmap",false))h+=`<section class="card" id="rmapcard"><div class="section-head"><h2>🗺️ Alle Ziele auf einer Karte</h2><button class="ghost small" data-tfold="rmap" data-tdef="0" aria-label="Karte schließen">✕</button></div>${(m=>m&&mapOk(m)?`<div class="btnrow"><a class="ghost linkbtn" href="${esc(m)}" target="_blank" rel="noopener noreferrer">🛝 Eure Spielplatz-Karte öffnen</a></div>`:"")((S.food&&S.food.playmap)||"")}${emb?`<div class="mapwrap"><iframe src="${esc(emb)}" loading="lazy" title="Karte mit allen Zielen"></iframe></div>`:mu?`<a href="${esc(mu)}" target="_blank" rel="noopener">Karte öffnen</a>`:""}<form class="addrow" id="reisemapform" novalidate><input type="url" id="reisemapinput" value="${esc(mu)}" placeholder="Link zu eurer Karte aus Google Maps" autocomplete="off"><button class="primary" type="submit">OK</button></form></section>`;
   // Ausflug eintragen gut sichtbar (Florian 19.11.2026: „viel zu klein im Verhältnis zum Urlaub“)
-  h+=`<button class="primary ausnew" data-act="ausflugnew">🚲 ＋ Ausflug eintragen</button>`+rgCard()+atipCard()+atipFixCards();
+  h+=`<button class="primary ausnew" data-act="ausflugnew">🚲 ＋ Ausflug eintragen</button>`+rgCard()+archRgCard()+atipCard()+atipFixCards();
   return h}
 // Seite Reisen: Kopfblock „Nächster Urlaub“, Urlaube als Liste im Gemerkt-Bauplan (Filter Alle | Geplant | Idee | Erledigt), darunter Klapp-Karten
 function reiseNext(){const A=urlaube().filter(x=>reiseSt(x)==="aktuell"&&!(reiseDays(x)||{}).past);return A.filter(x=>x.from).sort((a,b)=>a.from<b.from?-1:1)[0]||A[0]||null}
@@ -4517,7 +4537,7 @@ function renderResearch(){if(!S.auftrLoad){S.auftrLoad=1;try{fetch("auftraege.js
   h+=`<section data-fk="f_rfix|0" class="card"><div class="section-head"><h2>⚙️ Feste Aufträge</h2><span class="freq num">${A.length}</span></div>`;
   h+=A.length?`<ul class="evlist rauftr">${A.map(a=>{const ar=rArea(a.area),src=RSRC.find(r=>r.file===a.file),j=src&&src.get(),last=j&&j.updated?rDate(j.updated):"";
     return `<li><div class="ev"><b>${ar[1]} ${esc(a.name||"")}</b><div class="freq">${esc(ar[2])} · ${esc(a.rhythm||"")}${last?` · zuletzt ${last}`:" · noch kein Lauf"}</div>${a.what?`<div class="freq">${esc(a.what)}</div>`:""}<div class="mt1 btnrow">${src?`<button class="ghost" data-nav="${src.nav}">Ergebnisse ›</button>`:""}<button class="ghost" data-rchange="${esc(a.id||"")}">✎ Ändern wünschen</button></div></div></li>`}).join("")}</ul>`:`<div class="freq">Noch keine Liste geladen.</div>`;
-  h+=`</section>`;
+  h+=`</section>`+archResCard();
   if(d)h+=`<section class="card"><div class="section-head"><h2>${d.id?"✎ Wunsch ändern":"＋ Neuer Wunsch"}</h2></div><div class="bkform">
     <label class="fld"><span>Bereich</span><select data-rwf="area">${RAREA.map(a=>`<option value="${a[0]}"${d.area===a[0]?" selected":""}>${a[1]} ${esc(a[2])}</option>`).join("")}</select></label>
     <label class="fld"><span>Was soll gesucht werden?</span><textarea data-rwf="what" rows="3" maxlength="600" placeholder="z. B. Ferienwohnungen an der Ostsee für 4, mit Kleinkind">${esc(d.what||"")}</textarea></label>
@@ -5409,7 +5429,7 @@ app.addEventListener("click",async e=>{
   if(b.dataset.idea){const x=((S.ideas&&S.ideas.items)||[])[+b.dataset.idea];if(!x)return;recWohin(recVal(x));return}
   if(b.dataset.openrec){openRec(b.dataset.openrec);return}
   if(b.dataset.hstick||b.dataset.hsedit||b.dataset.act==="hsnew"||b.dataset.act==="hstpl"){if(await hstepClick(b))return}
-  if((b.dataset.act==="rdbarch"||b.dataset.act==="archaus"||b.dataset.archtake!=null||b.dataset.archausf!=null||b.dataset.archmerk!=null)&&archClick(b))return;
+  if((/^(rdbarch|rgarch|archgo|archrezgo)$/.test(b.dataset.act||"")||b.dataset.archtake!=null||b.dataset.archrgf!=null||b.dataset.archcal!=null||b.dataset.archmerk!=null)&&archClick(b))return;
   if(b.dataset.tagfix||b.dataset.rdbgo!=null||/^(tagfix|tagbasic|rdbing)/.test(b.dataset.act||"")){if(await tagClick(b))return}
   if(b.dataset.srclink===KITA_SRC){S.prev=S.tab;S.tab="kita";S.kitaSec="tasche";render();window.scrollTo(0,0);return}
   if(b.dataset.srclink&&/^adventskalender/i.test(b.dataset.srclink)){const m=b.dataset.srclink.match(/(\d+)\s*$/);S.prev=S.tab;S.tab="geschenke";S.projFilter="advent";S.advCal=null;S.advDoor=m?+m[1]:null;render();window.scrollTo(0,0);return}
@@ -5596,7 +5616,7 @@ app.addEventListener("input",e=>{if(e.target.id==="shopinput"){S.shopText=e.targ
   if(S.lunchDraft&&e.target.dataset.lf){S.lunchDraft[e.target.dataset.lf]=e.target.value;return}
   if(e.target.id==="glosq"){S.glosQ=e.target.value;glosApply();return}
   if(e.target.id==="sq"){S.sq=e.target.value;const pos=e.target.selectionStart;render();const el=document.getElementById("sq");if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}return}
-  if(e.target.id==="archausq"){S.archAusQ=e.target.value;const el=document.getElementById("archausl");if(el)el.innerHTML=archAusList();return}
+  if(e.target.id==="archrgq"){S.archRgQ=e.target.value;const el=document.getElementById("archrgl");if(el)el.innerHTML=archRgList();return}
   if(e.target.id==="rdbq"){S.rdbQ=e.target.value;const pos=e.target.selectionStart;render();const el=document.getElementById("rdbq");if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}return}
   if(S.recDraft&&e.target.dataset.rf){S.recDraft[e.target.dataset.rf]=e.target.value;return}
   const row=e.target.closest(".editrow[data-i]");if(!row||!S.draft)return;if(e.target.dataset.f==="name")S.draft.tasks[+row.dataset.i].name=e.target.value});
