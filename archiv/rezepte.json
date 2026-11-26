@@ -1,6 +1,6 @@
 {
-"updated": "2026-11-25",
-"n": 112,
+"updated": "2026-11-26",
+"n": 117,
 "items": [
 {
 "name": "Buddha Bowl mit Erdnusssoße",
@@ -4322,6 +4322,209 @@
 ],
 "first": "2026-11-25",
 "last": "2026-11-25"
+},
+{
+"name": "Flammkuchen mit Rote Bete, Dill & Zitrone",
+"cat": "schnell",
+"source": "lecker.de",
+"link": "https://www.lecker.de/flammkuchen-mit-rote-bete-dill-und-zitrone-132696.html",
+"ing": [
+"4 Knoblauchzehen",
+"200 g Crème fraîche",
+"1 Spritzer Zitronensaft",
+"4 Flammkuchenteige (Kühlregal)",
+"900 g gegarte Rote Bete (vakuumiert)",
+"1 TL TK-Dill",
+"4 EL Olivenöl",
+"100 g Haselnüsse",
+"1 Bio-Zitrone (Schale)"
+],
+"min": 25,
+"veg": true,
+"tags": [
+"Ernährung|vegetarisch",
+"Zeit|30 Min",
+"Grundlage|Brot/Teig",
+"Art|Auflauf/Ofen",
+"Region|französisch",
+"Saison|Herbst",
+"Saison|Winter",
+"Zutaten|Rote Bete",
+"Zutaten|Crème fraîche",
+"Zutaten|Haselnuss",
+"Zutaten|Flammkuchenteig"
+],
+"note": "In 25 Minuten fertig, weil Teig und Rote Bete fertig gekauft sind. Haselnüsse fürs Kleinkind fein hacken oder auf seinem Stück weglassen.",
+"from": [
+"tag"
+],
+"first": "2026-11-26",
+"last": "2026-11-26"
+},
+{
+"name": "Grünkohl-Kartoffel-Auflauf",
+"cat": "saisonal",
+"source": "kuechengoetter.de",
+"link": "https://www.kuechengoetter.de/rezepte/gruenkohl-kartoffel-auflauf-58779#zutaten",
+"ing": [
+"1 kg Grünkohl",
+"2 Zwiebeln",
+"80 g Butter",
+"200 g Sahne",
+"250 ml Gemüsebrühe",
+"1 Prise Muskatnuss",
+"2 Msp. gemahlener Piment",
+"2 Msp. Zimtpulver",
+"1 EL körniger Senf",
+"600 g festkochende Kartoffeln",
+"2 Äpfel (z. B. Boskop)",
+"60 g Semmelbrösel",
+"50 g geriebener Hartkäse (z. B. Emmentaler)"
+],
+"min": 105,
+"veg": true,
+"tags": [
+"Ernährung|vegetarisch",
+"Zeit|länger",
+"Grundlage|Kartoffeln",
+"Art|Auflauf/Ofen",
+"Region|deutsch/bayerisch",
+"Saison|Winter",
+"Familie|Vorkochen/Reste",
+"Zutaten|Grünkohl",
+"Zutaten|Kartoffel",
+"Zutaten|Apfel",
+"Zutaten|Sahne",
+"Zutaten|Käse"
+],
+"note": "Grünkohl hat jetzt nach dem ersten Frost Hochsaison; hier vegetarisch und mild mit Apfel und Käsekruste. Gut fürs Wochenende, Reste lassen sich aufwärmen.",
+"from": [
+"tag"
+],
+"first": "2026-11-26",
+"last": "2026-11-26"
+},
+{
+"name": "Vietnamesischer Hühnertopf mit Pilzen",
+"cat": "exotisch",
+"source": "kuechengoetter.de",
+"link": "https://www.kuechengoetter.de/rezepte/vietnamesischer-huehnertopf-mit-pilzen-95350#zutaten",
+"ing": [
+"80 g Rohrohrzucker",
+"60 ml Fischsauce",
+"4 Knoblauchzehen",
+"1 Stück Ingwer (4 cm)",
+"600 g Hähnchenbrustfilet",
+"3 Bird's-Eye-Chilischoten",
+"500 g Möhren",
+"200 g Shiitake-Pilze",
+"400 g grüne Bohnen",
+"3 EL Rapsöl"
+],
+"min": 55,
+"veg": false,
+"tags": [
+"Ernährung|Fleisch",
+"Zeit|länger",
+"Art|Eintopf",
+"Region|asiatisch",
+"Zutaten|Hähnchen",
+"Zutaten|Shiitake",
+"Zutaten|Möhre",
+"Zutaten|Bohne",
+"Zutaten|Fischsauce"
+],
+"note": "Süß-salziges Schmorgericht im Stil von Gà kho mit Karamell und Fischsauce, dazu passt Reis. Chilis erst am Tisch für die Großen dazugeben, Hähnchen ganz durchgaren.",
+"from": [
+"tag"
+],
+"first": "2026-11-26",
+"last": "2026-11-26"
+},
+{
+"name": "Würzige Linsensuppe",
+"cat": "gesund",
+"source": "eatsmarter.de",
+"link": "https://eatsmarter.de/rezepte/wuerzige-linsensuppe-3",
+"ing": [
+"1 Zwiebel",
+"2 Knoblauchzehen",
+"1 Aubergine",
+"2 EL Olivenöl",
+"200 g rote Linsen",
+"1,5 TL Harissa-Paste",
+"1 TL gemahlener Kreuzkümmel",
+"1 TL Paprikapulver",
+"800 ml Gemüsebrühe",
+"4 Tomaten",
+"4 Stiele Petersilie",
+"1 EL Zitronensaft",
+"80 g Joghurt (3,5 % Fett)"
+],
+"min": 35,
+"veg": true,
+"tags": [
+"Ernährung|vegetarisch",
+"Zeit|länger",
+"Grundlage|Hülsenfrüchte",
+"Art|Suppe",
+"Region|orientalisch",
+"Saison|Herbst",
+"Saison|Winter",
+"Familie|Vorkochen/Reste",
+"Zutaten|Linse",
+"Zutaten|Aubergine",
+"Zutaten|Tomate",
+"Zutaten|Joghurt"
+],
+"note": "Wärmende, eiweißreiche Suppe mit viel Gemüse. Harissa erst nach dem Abfüllen der Kinderportion einrühren, Joghurt macht es zusätzlich mild.",
+"from": [
+"tag"
+],
+"first": "2026-11-26",
+"last": "2026-11-26"
+},
+{
+"name": "Zucchini-Bällchen mit Nudeln",
+"cat": "kinder",
+"source": "lecker.de",
+"link": "https://www.lecker.de/zucchini-baellchen-mit-nudeln-78167.html",
+"ing": [
+"2 Knoblauchzehen",
+"5 Stiele Oregano",
+"1 Zucchini (ca. 175 g)",
+"1 Dose Kichererbsen (425 ml)",
+"1 Ei",
+"75 g Haferflocken",
+"4 EL Olivenöl",
+"200 g Nudeln (z. B. Fusilli)",
+"1 Zwiebel",
+"1 Dose passierte Tomaten (425 ml)",
+"1 TL Zucker",
+"1 TL getrockneter Oregano"
+],
+"min": 45,
+"veg": true,
+"tags": [
+"Ernährung|vegetarisch",
+"Zeit|länger",
+"Grundlage|Nudeln",
+"Grundlage|Hülsenfrüchte",
+"Art|Pfanne",
+"Region|italienisch",
+"Familie|kleinkindtauglich",
+"Zutaten|Zucchini",
+"Zutaten|Kichererbse",
+"Zutaten|Nudel",
+"Zutaten|Tomate",
+"Zutaten|Haferflocke"
+],
+"note": "Vegetarische „Fleischbällchen“ in milder Tomatensoße, die Kleine gut mit der Hand oder Gabel essen. Bällchen beim Formen gern mithelfen lassen, gut durchbraten (Ei).",
+"from": [
+"tag"
+],
+"first": "2026-11-26",
+"last": "2026-11-26"
 }
 ]
 }
