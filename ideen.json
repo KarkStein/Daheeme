@@ -1,61 +1,127 @@
 {
-  "updated": "2026-11-26",
+  "updated": "2026-11-27",
   "items": [
     {
-      "name": "Würzige Linsensuppe",
+      "name": "Kürbissuppe mit Apfel und Ingwer",
       "cat": "gesund",
       "source": "eatsmarter.de",
-      "link": "https://eatsmarter.de/rezepte/wuerzige-linsensuppe-3",
-      "ing": ["1 Zwiebel", "2 Knoblauchzehen", "1 Aubergine", "2 EL Olivenöl", "200 g rote Linsen", "1,5 TL Harissa-Paste", "1 TL gemahlener Kreuzkümmel", "1 TL Paprikapulver", "800 ml Gemüsebrühe", "4 Tomaten", "4 Stiele Petersilie", "1 EL Zitronensaft", "80 g Joghurt (3,5 % Fett)"],
-      "min": 35,
-      "veg": true,
-      "tags": ["Ernährung|vegetarisch", "Zeit|länger", "Grundlage|Hülsenfrüchte", "Art|Suppe", "Region|orientalisch", "Saison|Herbst", "Saison|Winter", "Familie|Vorkochen/Reste", "Zutaten|Linse", "Zutaten|Aubergine", "Zutaten|Tomate", "Zutaten|Joghurt"],
-      "note": "Wärmende, eiweißreiche Suppe mit viel Gemüse. Harissa erst nach dem Abfüllen der Kinderportion einrühren, Joghurt macht es zusätzlich mild."
-    },
-    {
-      "name": "Flammkuchen mit Rote Bete, Dill & Zitrone",
-      "cat": "schnell",
-      "source": "lecker.de",
-      "link": "https://www.lecker.de/flammkuchen-mit-rote-bete-dill-und-zitrone-132696.html",
-      "ing": ["4 Knoblauchzehen", "200 g Crème fraîche", "1 Spritzer Zitronensaft", "4 Flammkuchenteige (Kühlregal)", "900 g gegarte Rote Bete (vakuumiert)", "1 TL TK-Dill", "4 EL Olivenöl", "100 g Haselnüsse", "1 Bio-Zitrone (Schale)"],
-      "min": 25,
-      "veg": true,
-      "tags": ["Ernährung|vegetarisch", "Zeit|30 Min", "Grundlage|Brot/Teig", "Art|Auflauf/Ofen", "Region|französisch", "Saison|Herbst", "Saison|Winter", "Zutaten|Rote Bete", "Zutaten|Crème fraîche", "Zutaten|Haselnuss", "Zutaten|Flammkuchenteig"],
-      "note": "In 25 Minuten fertig, weil Teig und Rote Bete fertig gekauft sind. Haselnüsse fürs Kleinkind fein hacken oder auf seinem Stück weglassen."
-    },
-    {
-      "name": "Zucchini-Bällchen mit Nudeln",
-      "cat": "kinder",
-      "source": "lecker.de",
-      "link": "https://www.lecker.de/zucchini-baellchen-mit-nudeln-78167.html",
-      "ing": ["2 Knoblauchzehen", "5 Stiele Oregano", "1 Zucchini (ca. 175 g)", "1 Dose Kichererbsen (425 ml)", "1 Ei", "75 g Haferflocken", "4 EL Olivenöl", "200 g Nudeln (z. B. Fusilli)", "1 Zwiebel", "1 Dose passierte Tomaten (425 ml)", "1 TL Zucker", "1 TL getrockneter Oregano"],
+      "link": "https://eatsmarter.de/rezepte/kuerbissuppe-mit-apfel-und-ingwer-0",
+      "ing": ["1 Zwiebel", "2 Knoblauchzehen", "20 g Ingwer", "600 g Hokkaido-Kürbis (Fruchtfleisch)", "2 Äpfel", "1 Zweig Thymian", "1 EL Olivenöl", "1 Sternanis", "100 ml naturtrüber Apfelsaft", "1 l Gemüsebrühe", "1 EL Butter", "2 EL Sonnenblumenkerne", "1 Handvoll Petersilie"],
       "min": 45,
       "veg": true,
-      "tags": ["Ernährung|vegetarisch", "Zeit|länger", "Grundlage|Nudeln", "Grundlage|Hülsenfrüchte", "Art|Pfanne", "Region|italienisch", "Familie|kleinkindtauglich", "Zutaten|Zucchini", "Zutaten|Kichererbse", "Zutaten|Nudel", "Zutaten|Tomate", "Zutaten|Haferflocke"],
-      "note": "Vegetarische „Fleischbällchen“ in milder Tomatensoße, die Kleine gut mit der Hand oder Gabel essen. Bällchen beim Formen gern mithelfen lassen, gut durchbraten (Ei)."
+      "tags": ["Ernährung|vegetarisch", "Zeit|länger", "Grundlage|Gemüse pur", "Art|Suppe", "Saison|Herbst", "Saison|Winter", "Familie|kleinkindtauglich", "Familie|Vorkochen/Reste", "Zutaten|Kürbis", "Zutaten|Apfel", "Zutaten|Ingwer", "Zutaten|Sonnenblumenkern"],
+      "note": "Leichte, fruchtige Suppe mit viel Vitamin A, der Apfel macht sie mild-süß. Fürs Kleinkind Ingwer sparsam dosieren und den Sternanis vor dem Pürieren herausnehmen."
     },
     {
-      "name": "Grünkohl-Kartoffel-Auflauf",
+      "name": "Paprika-Sahne-Hähnchen",
+      "cat": "schnell",
+      "source": "lecker.de",
+      "link": "https://www.lecker.de/paprika-sahne-haehnchen-schnelles-rezept-129257.html",
+      "ing": ["1 Zwiebel", "2 Knoblauchzehen", "3 rote Paprikaschoten", "4 Hähnchenbrustfilets (à ca. 150 g)", "2 EL Öl", "1 EL Tomatenmark", "125 ml Gemüsebrühe", "200 ml Sahne", "200 g Schmand", "1 EL Paprikapulver", "1 TL Thymian (getrocknet)", "etwas Petersilie"],
+      "min": 30,
+      "veg": false,
+      "tags": ["Ernährung|Fleisch", "Zeit|30 Min", "Art|Pfanne", "Familie|kleinkindtauglich", "Zutaten|Hähnchen", "Zutaten|Paprika", "Zutaten|Sahne", "Zutaten|Schmand"],
+      "note": "In 30 Minuten fertig, dazu Reis oder Nudeln. Edelsüßes Paprikapulver nehmen und das Hähnchen ganz durchgaren, dann isst das Kleinkind gut mit."
+    },
+    {
+      "name": "Erbsen-Feta-Bratlinge mit Joghurt-Dip",
+      "cat": "kinder",
+      "source": "lecker.de",
+      "link": "https://www.lecker.de/erbsen-feta-bratlinge-mit-joghurt-dip-128738.html",
+      "ing": ["250 g TK-Erbsen", "2 Lauchzwiebeln", "150 g Feta", "200 g Schmand", "2 Eigelb", "1 TL geriebene Zitronenschale", "75 g Semmelbrösel", "4 Stiele Minze", "300 g griechischer Joghurt", "1 Prise Zucker", "3 EL Öl"],
+      "min": 35,
+      "veg": true,
+      "tags": ["Ernährung|vegetarisch", "Zeit|länger", "Grundlage|Hülsenfrüchte", "Art|Pfanne", "Familie|kleinkindtauglich", "Zutaten|Erbse", "Zutaten|Feta", "Zutaten|Joghurt", "Zutaten|Schmand"],
+      "note": "Kleine grüne Bratlinge zum Selbst-in-die-Hand-Nehmen und Dippen, mild und bunt. Gut durchbraten (Eigelb im Teig), Feta salzt schon, also kaum nachsalzen."
+    },
+    {
+      "name": "Rosenkohl und Kartoffeln mit Gremolata",
       "cat": "saisonal",
       "source": "kuechengoetter.de",
-      "link": "https://www.kuechengoetter.de/rezepte/gruenkohl-kartoffel-auflauf-58779#zutaten",
-      "ing": ["1 kg Grünkohl", "2 Zwiebeln", "80 g Butter", "200 g Sahne", "250 ml Gemüsebrühe", "1 Prise Muskatnuss", "2 Msp. gemahlener Piment", "2 Msp. Zimtpulver", "1 EL körniger Senf", "600 g festkochende Kartoffeln", "2 Äpfel (z. B. Boskop)", "60 g Semmelbrösel", "50 g geriebener Hartkäse (z. B. Emmentaler)"],
-      "min": 105,
+      "link": "https://www.kuechengoetter.de/rezepte/rosenkohl-und-kartoffeln-mit-gremolata-73184#zutaten",
+      "ing": ["600 g Rosenkohl", "500 g festkochende Kartoffeln", "2 Schalotten", "3 EL Butter", "250 ml Gemüsebrühe", "1 Bund Petersilie", "1 Bio-Zitrone (Schale)", "2 Knoblauchzehen", "1 EL Olivenöl"],
+      "min": 35,
       "veg": true,
-      "tags": ["Ernährung|vegetarisch", "Zeit|länger", "Grundlage|Kartoffeln", "Art|Auflauf/Ofen", "Region|deutsch/bayerisch", "Saison|Winter", "Familie|Vorkochen/Reste", "Zutaten|Grünkohl", "Zutaten|Kartoffel", "Zutaten|Apfel", "Zutaten|Sahne", "Zutaten|Käse"],
-      "note": "Grünkohl hat jetzt nach dem ersten Frost Hochsaison; hier vegetarisch und mild mit Apfel und Käsekruste. Gut fürs Wochenende, Reste lassen sich aufwärmen."
+      "tags": ["Ernährung|vegetarisch", "Zeit|länger", "Grundlage|Kartoffeln", "Art|Pfanne", "Region|italienisch", "Saison|Herbst", "Saison|Winter", "Zutaten|Rosenkohl", "Zutaten|Kartoffel", "Zutaten|Petersilie", "Zutaten|Zitrone"],
+      "note": "Rosenkohl hat jetzt Hochsaison, die Zitronen-Petersilie-Gremolata nimmt ihm die Bitterkeit. Fürs Kleinkind die Röschen klein schneiden und weich garen, dazu passt ein Spiegelei (ganz durchgebraten)."
     },
     {
-      "name": "Vietnamesischer Hühnertopf mit Pilzen",
+      "name": "Bibimbap – koreanische Reis-Bowl",
       "cat": "exotisch",
       "source": "kuechengoetter.de",
-      "link": "https://www.kuechengoetter.de/rezepte/vietnamesischer-huehnertopf-mit-pilzen-95350#zutaten",
-      "ing": ["80 g Rohrohrzucker", "60 ml Fischsauce", "4 Knoblauchzehen", "1 Stück Ingwer (4 cm)", "600 g Hähnchenbrustfilet", "3 Bird's-Eye-Chilischoten", "500 g Möhren", "200 g Shiitake-Pilze", "400 g grüne Bohnen", "3 EL Rapsöl"],
-      "min": 55,
-      "veg": false,
-      "tags": ["Ernährung|Fleisch", "Zeit|länger", "Art|Eintopf", "Region|asiatisch", "Zutaten|Hähnchen", "Zutaten|Shiitake", "Zutaten|Möhre", "Zutaten|Bohne", "Zutaten|Fischsauce"],
-      "note": "Süß-salziges Schmorgericht im Stil von Gà kho mit Karamell und Fischsauce, dazu passt Reis. Chilis erst am Tisch für die Großen dazugeben, Hähnchen ganz durchgaren."
+      "link": "https://www.kuechengoetter.de/rezepte/bibimbap-koreanische-reis-bowl-95477#zutaten",
+      "ing": ["2 große Möhren", "200 g weißer Rettich", "200 g Kräuterseitlinge oder braune Champignons", "10 Blätter Grünkohl", "4 Knoblauchzehen", "6 Frühlingszwiebeln", "6 EL Tamari (Sojasoße)", "1 TL Chiliflocken", "4 EL Sesamöl", "2 EL Reisessig", "4 Prisen Zucker", "6 EL Sonnenblumenöl", "300 g Wildreis-Mischung oder Vollkornreis", "4 EL Misopaste", "1 TL Chilisoße (z. B. Sriracha)", "4 Eier", "150 g Kimchi", "2 EL Sesamsamen"],
+      "min": 120,
+      "veg": true,
+      "tags": ["Ernährung|vegetarisch", "Zeit|länger", "Grundlage|Reis", "Region|asiatisch", "Saison|Winter", "Zutaten|Reis", "Zutaten|Grünkohl", "Zutaten|Möhre", "Zutaten|Rettich", "Zutaten|Ei", "Zutaten|Pilz"],
+      "note": "Echtes koreanisches Bibimbap, jetzt mit saisonalem Grünkohl; die Zeit ist vor allem Durchziehen. Fürs Kleinkind ein Stück Gemüse ohne Chili abnehmen, Kimchi und Chilisoße weglassen und das Spiegelei ganz durchbraten (im Rezept bleibt das Eigelb flüssig)."
     }
   ],
-  "emmi": []
+  "emmi": [
+    {
+      "name": "Kürbis-Kartoffel-Puffer mit Schnittlauch-Dip",
+      "source": "emmikochteinfach.de",
+      "link": "https://emmikochteinfach.de/kuerbis-kartoffel-puffer/#wprm-recipe-container-13137",
+      "ing": ["500 g Hokkaido-Kürbis (ungeschält)", "500 g festkochende Kartoffeln", "1 große Zwiebel", "2 Eier", "2 EL Schmand", "2 EL Mehl", "3 EL Kürbiskerne", "1 Prise Muskat", "7 EL Pflanzenöl", "150 g Schmand (Dip)", "20 g Schnittlauch", "1 Spritzer Zitronensaft"],
+      "min": 50,
+      "wx": "kalt",
+      "haupt": "Kartoffeln",
+      "art": "pfanne",
+      "veg": true,
+      "tags": ["Ernährung|vegetarisch", "Zeit|länger", "Grundlage|Kartoffeln", "Art|Pfanne", "Region|deutsch/bayerisch", "Saison|Herbst", "Familie|kleinkindtauglich", "Zutaten|Kürbis", "Zutaten|Kartoffel", "Zutaten|Schmand", "Zutaten|Schnittlauch"],
+      "note": "Knusprige Puffer mit Saisonkürbis, die Kinder gut mit der Hand essen. Gut durchbraten, Kürbiskerne fürs Kleinkind weglassen oder fein hacken."
+    },
+    {
+      "name": "Kichererbsen-Curry – einfach und schnell",
+      "source": "emmikochteinfach.de",
+      "link": "https://emmikochteinfach.de/schnelles-kichererbsen-curry/#wprm-recipe-container-19954",
+      "ing": ["2 Dosen Kichererbsen", "1 Dose geschälte Tomaten (400 g)", "400 ml Kokosmilch", "50 g Schalotten", "5 g Ingwer", "2 Knoblauchzehen", "2 TL Currypulver", "2 TL brauner Zucker", "1 Msp. Chiliflocken", "1 Zimtstange", "1 Spritzer Limettensaft", "5 g Koriander", "1,5 TL gemahlener Kreuzkümmel", "2 EL Olivenöl"],
+      "min": 25,
+      "wx": "kalt",
+      "haupt": "Hülsenfrüchte",
+      "art": "eintopf",
+      "veg": true,
+      "tags": ["Ernährung|vegan", "Ernährung|vegetarisch", "Zeit|30 Min", "Grundlage|Hülsenfrüchte", "Art|Eintopf", "Region|asiatisch", "Familie|kleinkindtauglich", "Familie|Vorkochen/Reste", "Zutaten|Kichererbse", "Zutaten|Tomate", "Zutaten|Kokosmilch"],
+      "note": "Wärmendes Vorratsgericht in 25 Minuten, dazu Reis oder Fladenbrot. Mildes Currypulver nehmen und die Chiliflocken fürs Kleinkind weglassen."
+    },
+    {
+      "name": "Gemüselasagne mit Spitzkohl und Möhren",
+      "source": "emmikochteinfach.de",
+      "link": "https://emmikochteinfach.de/gemueselasagne-mit-spitzkohl-und-moehren/#wprm-recipe-container-15502",
+      "ing": ["170 g Lasagneplatten (ohne Vorkochen)", "1 kleiner Spitzkohl (ca. 400 g)", "330 g Möhren", "100 g Kohlrabi", "1 Knoblauchzehe", "2 EL Thymianblättchen", "100 g Emmentaler", "50 g Butter", "15 g Mehl", "330 ml Vollmilch", "70 g Kräuterfrischkäse", "1 Prise Muskat"],
+      "min": 60,
+      "wx": "kalt",
+      "haupt": "Nudeln",
+      "art": "ofen",
+      "veg": true,
+      "tags": ["Ernährung|vegetarisch", "Zeit|länger", "Grundlage|Nudeln", "Art|Auflauf/Ofen", "Region|italienisch", "Saison|Herbst", "Saison|Winter", "Familie|kleinkindtauglich", "Familie|Vorkochen/Reste", "Zutaten|Spitzkohl", "Zutaten|Möhre", "Zutaten|Kohlrabi", "Zutaten|Lasagneplatte", "Zutaten|Emmentaler"],
+      "note": "Deftig-cremige Ofen-Lasagne mit Wintergemüse, ideal für einen kalten Abend und Reste am nächsten Tag. Mengen von 6 auf 4 Personen umgerechnet."
+    },
+    {
+      "name": "Hähnchengeschnetzeltes mit Pilzen",
+      "source": "emmikochteinfach.de",
+      "link": "https://emmikochteinfach.de/haehnchengeschnetzeltes-mit-pilzen/#wprm-recipe-container-26511",
+      "ing": ["400 g Hähnchenbrustfilet", "250 g braune Champignons", "250 g Schlagsahne", "200 ml Geflügelfond", "1 Zwiebel", "1 Knoblauchzehe", "2 EL Butterschmalz", "1 EL Mehl", "1 TL Sojasoße", "1 Prise Muskat", "etwas Petersilie"],
+      "min": 35,
+      "wx": "egal",
+      "haupt": "Geflügel",
+      "art": "pfanne",
+      "veg": false,
+      "tags": ["Ernährung|Fleisch", "Zeit|länger", "Art|Pfanne", "Region|deutsch/bayerisch", "Saison|Herbst", "Familie|kleinkindtauglich", "Zutaten|Hähnchen", "Zutaten|Champignon", "Zutaten|Sahne"],
+      "note": "Klassiker aus der Pfanne, dazu Reis, Nudeln oder Spätzle. Hähnchen klein schneiden und ganz durchgaren, dann isst das Kleinkind gut mit."
+    },
+    {
+      "name": "Gemüsepfanne – schnell und einfach",
+      "source": "emmikochteinfach.de",
+      "link": "https://emmikochteinfach.de/gemuesepfanne/#wprm-recipe-container-33955",
+      "ing": ["4 Schalotten (ca. 100 g)", "2 Möhren (ca. 200 g)", "1 rote Paprika (ca. 200 g)", "1 gelbe Paprika (ca. 200 g)", "1 Zucchini (ca. 350 g)", "3 Knoblauchzehen", "1 EL Thymianblättchen", "4 EL Olivenöl", "2 EL dunkler Balsamico", "2 EL Ahornsirup"],
+      "min": 25,
+      "wx": "warm",
+      "haupt": "Gemüse",
+      "art": "pfanne",
+      "veg": true,
+      "tags": ["Ernährung|vegan", "Ernährung|vegetarisch", "Zeit|30 Min", "Grundlage|Gemüse pur", "Art|Pfanne", "Region|italienisch", "Familie|kleinkindtauglich", "Zutaten|Paprika", "Zutaten|Zucchini", "Zutaten|Möhre", "Zutaten|Schalotte"],
+      "note": "Leichtes, buntes Gemüse in 25 Minuten für Tage nach einem üppigen Kita-Mittag, dazu Reis, Couscous oder Brot. Die süße Balsamico-Glasur mögen auch Kinder."
+    }
+  ]
 }
