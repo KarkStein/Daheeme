@@ -1,6 +1,6 @@
 {
-"updated": "2026-11-22",
-"n": 69,
+"updated": "2026-11-27",
+"n": 113,
 "items": [
 {
 "name": "1-Euro-Sonntag im Museum Mensch und Natur",
@@ -134,7 +134,7 @@
 "from": "2026-11-21",
 "run": "woche",
 "first": "2026-11-15",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Die Kasperl (Puppentheater)",
@@ -322,7 +322,7 @@
 "note": "Eislaufen mitten in der Stadt, vormittags günstig und leer.",
 "run": "woche",
 "first": "2026-11-15",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Pettersson feiert Weihnachten",
@@ -383,7 +383,7 @@
 "note": "Großer Weihnachtsmarkt mit zwei Eisbahnen, schon geöffnet.",
 "run": "woche",
 "first": "2026-11-15",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Wichtel-Werk (Indoor-Spielplatz)",
@@ -487,7 +487,7 @@
 "from": "2026-11-18",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "BilderBuchZeit in der Stadtbibliothek im Motorama",
@@ -512,19 +512,21 @@
 "from": "2026-11-20",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "CVJM Indoor-Spielplatz für Kleinkinder",
+"run": "monat",
 "where": "stadt",
 "io": "drinnen",
-"cat": "spiel",
+"cat": "klettern",
 "wx": [
 "regen",
 "schnee"
 ],
-"date": "2026-11-24",
-"time": "Di 15:30–16:30 Uhr, wöchentlich bis April (nicht in den Ferien)",
+"from": "2026-12-01",
+"to": "2026-12-22",
+"time": "jeden Di 15:30–16:30 Uhr (nicht in den Ferien)",
 "place": "Turnhalle des CVJM, Schwabing-West",
 "price": "frei, Spende erwünscht",
 "free": true,
@@ -535,10 +537,9 @@
 "hüpfen"
 ],
 "link": "https://cvjm-muenchen.org/projekte/indoorspielplatz",
-"note": "Turnhalle zum Klettern und Toben für die Kleinsten, jeden Dienstag.",
-"run": "woche",
+"note": "Turnhalle zum Toben für die Kleinsten, bis zu den Ferien.",
 "first": "2026-11-19",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Chiemsee-Kasperl im Kulturzentrum Giesinger Bahnhof",
@@ -560,27 +561,30 @@
 "note": "Kasperl am Sonntagvormittag, direkt am Bahnhof.",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Chiemsee-Kasperl in Laim",
+"run": "monat",
 "where": "stadt",
 "io": "drinnen",
 "cat": "kinder",
 "wx": [
-"regen"
+"regen",
+"schnee"
 ],
-"date": "2026-11-22",
+"date": "2026-12-06",
+"time": "11–12 Uhr",
 "place": "Laim",
-"price": "ab 10 €",
+"travel": "🚆 S-Bahn Laim",
+"price": "Kinder 10 €, Erw. 12 € im Vorverkauf",
 "kid": "ab 3 Jahren",
 "age": 3,
 "dur": "kurz",
 "link": "https://www.kindaling.de/kindertheater-shows/der-chiemsee-kasperl-kommt-wieder-nach-muenchen-laim/muenchen-pasing-obermenzing",
-"note": "Klassischer Kasperl mit Mitmachen, ideal für Dreijährige.",
-"run": "woche",
+"note": "Bayerischer Kasperl am Nikolaustag.",
 "first": "2026-11-19",
-"last": "2026-11-19"
+"last": "2026-11-27"
 },
 {
 "name": "Christkindlmarkt am Marienplatz",
@@ -605,7 +609,7 @@
 "from": "2026-11-20",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Christkindlmarkt der Lebenshilfe Freising",
@@ -668,7 +672,7 @@
 "from": "2026-11-27",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Der kleine Siebenschläfer (Theater für Kinder)",
@@ -727,7 +731,7 @@
 "from": "2026-11-20",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Germeringer Christkindlmarkt mit Märcheneisenbahn",
@@ -748,7 +752,7 @@
 "from": "2026-11-27",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Großes Kinderkino: Mitten in der Winternacht",
@@ -791,7 +795,7 @@
 "note": "Das Trambahnmuseum hat nur an wenigen Sonntagen offen, dieser ist einer davon.",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Mini Disco in Erding",
@@ -817,7 +821,7 @@
 "note": "Tanzen und Hüpfen für die Kleinsten, gut mit dem Christkindlmarkt zu verbinden.",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Märchenbazar im Olympiapark",
@@ -840,7 +844,7 @@
 "price": "Kinderprogramm frei",
 "free": true,
 "first": "2026-11-19",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Neukeferloher Adventsgeflüster",
@@ -861,7 +865,7 @@
 "from": "2026-11-28",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Nussknacker, Wölfe und geheimnisvolle Bilder (Klassik für Kinder)",
@@ -903,7 +907,7 @@
 "from": "2026-11-28",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Sendlinger Bergweihnacht am Harras",
@@ -945,7 +949,7 @@
 "note": "Großer Spielzeugbasar kurz vor Weihnachten, gut für Geschenke aus zweiter Hand.",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Timmy entdeckt die Oper (Klassik für Kinder)",
@@ -964,7 +968,7 @@
 "note": "Kinderkonzert mit Geschichte, um 16:30 Uhr folgt ein zweites mit Nussknacker-Musik.",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Tollwood Winterfestival mit Kinderzelt",
@@ -988,7 +992,7 @@
 "from": "2026-11-24",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Unterschleißheimer Christkindlmarkt",
@@ -1034,7 +1038,7 @@
 "from": "2026-11-16",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Weihnachtsmarkt am Chinesischen Turm",
@@ -1056,7 +1060,7 @@
 "from": "2026-11-19",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Winterzauber am Hollerner See",
@@ -1077,7 +1081,7 @@
 "from": "2026-11-27",
 "run": "woche",
 "first": "2026-11-19",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Bilderbuchkino: Die kleine Qualle",
@@ -1122,7 +1126,7 @@
 "note": "Kostenloses Bilderbuchkino am Freitagnachmittag.",
 "run": "woche",
 "first": "2026-11-22",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Christkindlmarkt Pullach",
@@ -1144,7 +1148,7 @@
 "note": "Kleiner Markt am ersten Adventswochenende, schnell mit der S-Bahn erreicht.",
 "run": "woche",
 "first": "2026-11-22",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Christkindltram ab Sendlinger Tor",
@@ -1167,7 +1171,7 @@
 "note": "Startet am Freitag: Trambahnfahren durch die Altstadt, am besten vorher online buchen.",
 "run": "woche",
 "first": "2026-11-22",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Haidhauser Weihnachtsmarkt mit Kasperl",
@@ -1189,7 +1193,7 @@
 "note": "Familien-Klassiker wegen des Kasperltheaters, öffnet am Montag.",
 "run": "woche",
 "first": "2026-11-22",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Hänsel und Gretel mit Küchengeräten",
@@ -1214,32 +1218,35 @@
 "note": "Gut mit dem Winterzauber am Mollsee am selben Ort zu verbinden.",
 "run": "woche",
 "first": "2026-11-22",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Indoor-Spielplatz im Familienzentrum Trudering",
+"run": "monat",
 "where": "stadt",
 "io": "drinnen",
-"cat": "spiel",
+"cat": "klettern",
 "wx": [
 "regen",
 "schnee"
 ],
-"top": true,
-"date": "2026-11-24",
-"time": "Di 15–17 Uhr, auch am 1.12.",
+"from": "2026-12-01",
+"to": "2026-12-22",
+"time": "jeden Di 15–17 Uhr",
 "place": "Familienzentrum Trudering",
-"kid": "Bewegungslandschaft für 0 bis 6 Jahre, vor allem für 0- bis 3-Jährige",
+"travel": "🚇 U2 Trudering",
+"price": "frei",
+"free": true,
+"kid": "Bewegungslandschaft für 0 bis 6 Jahre, ohne Anmeldung",
 "dur": "kurz",
 "like": [
 "klettern",
 "hüpfen"
 ],
 "link": "https://www.kindaling.de/sonstige-veranstaltungen/woechentlicher-indoor-spielplatz/muenchen-trudering-riem",
-"note": "Spielplatz der Woche: 270 Quadratmeter zum Klettern, Hüpfen und Balancieren, ohne Anmeldung.",
-"run": "woche",
+"note": "270 Quadratmeter zum Klettern und Hüpfen, jeden Dienstag im Advent.",
 "first": "2026-11-22",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Kinderlieder zum Mitmachen",
@@ -1266,7 +1273,7 @@
 "note": "Eine Stunde Singen und Tanzen am Sonntagmittag, kostenlos.",
 "run": "woche",
 "first": "2026-11-22",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "LUMAGICA Lichterpark",
@@ -1286,7 +1293,7 @@
 "note": "Leuchtende Welt zum Staunen, wenn es früh dunkel wird.",
 "run": "woche",
 "first": "2026-11-22",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Märchen-Weihnachtsmarkt auf Schloss Kaltenberg",
@@ -1308,7 +1315,7 @@
 "note": "Ein Ausflug mit dem Auto, dafür eine ganze Märchenwelt für Kinder.",
 "run": "woche",
 "first": "2026-11-22",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Percussion-Mitmachlesung: Mausige Weihnachten",
@@ -1332,7 +1339,7 @@
 "note": "Geschichte mit vielen Rhythmus-Instrumenten, bei der alle mitmachen dürfen.",
 "run": "woche",
 "first": "2026-11-22",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Perlacher Christkindlmarkt mit Nikolaus",
@@ -1356,7 +1363,7 @@
 "note": "Gemütlicher Dorfmarkt am ersten Advent, der Nikolaus kommt schon jetzt.",
 "run": "woche",
 "first": "2026-11-22",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Raumanzüge in der Flugwerft Schleißheim (letzte Woche)",
@@ -1378,7 +1385,7 @@
 "note": "Die Sonderausstellung endet am 30.11.; Flugzeuge gibt es für Kleine ohnehin genug.",
 "run": "woche",
 "first": "2026-11-22",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Schwabinger Weihnachtsmarkt mit Kinderprogramm",
@@ -1400,7 +1407,7 @@
 "note": "Künstlermarkt mit eigenem Kinderprogramm, öffnet am Mittwoch.",
 "run": "woche",
 "first": "2026-11-22",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Turn und Tanz für 3- bis 4-Jährige (Schnuppertag)",
@@ -1425,7 +1432,7 @@
 "note": "Eine Probestunde Bewegung zu Musik, ideal für kleine Hüpfer.",
 "run": "woche",
 "first": "2026-11-22",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Weihnachtsmarkt am Schneckenplatz",
@@ -1447,7 +1454,7 @@
 "note": "Kleiner ruhiger Markt, gut mit dem Verkehrszentrum zu verbinden.",
 "run": "woche",
 "first": "2026-11-22",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Wintermärchen auf dem Mondscheinexpress",
@@ -1471,7 +1478,7 @@
 "note": "Märchenstunde in einem alten Zugwaggon, kurz genug für Kleine.",
 "run": "woche",
 "first": "2026-11-22",
-"last": "2026-11-22"
+"last": "2026-11-27"
 },
 {
 "name": "Winterzauber am Mollsee im Westpark",
@@ -1496,7 +1503,999 @@
 "note": "Kleiner Markt mitten im Park mit Programm für Kinder an jedem Wochenende.",
 "run": "woche",
 "first": "2026-11-22",
-"last": "2026-11-22"
+"last": "2026-11-27"
+},
+{
+"name": "Bilderbuchkino: Dr. Brumm feiert Weihnachten",
+"run": "monat",
+"where": "stadt",
+"io": "drinnen",
+"cat": "kinder",
+"wx": [
+"regen",
+"schnee"
+],
+"date": "2026-12-16",
+"time": "15 Uhr, ca. 45 Minuten",
+"place": "Stadtbibliothek Fürstenried",
+"price": "frei, ohne Anmeldung",
+"free": true,
+"kid": "ab 3 Jahren, danach wird gebastelt",
+"age": 3,
+"dur": "kurz",
+"link": "https://www.muenchner-stadtbibliothek.de/veranstaltungen/details/bilderbuchkino-46170",
+"note": "Bilderbuchkino mit Basteln danach.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Bilderbuchkino: Drachenstarke Weihnachtsnacht",
+"run": "monat",
+"where": "stadt",
+"io": "drinnen",
+"cat": "kinder",
+"wx": [
+"regen",
+"schnee"
+],
+"date": "2026-12-08",
+"time": "15:30 und 16:30 Uhr",
+"place": "Stadtbibliothek Bogenhausen",
+"price": "frei",
+"free": true,
+"kid": "ab 3 Jahren",
+"age": 3,
+"dur": "kurz",
+"link": "https://www.muenchner-stadtbibliothek.de/veranstaltungen/details/bilderbuchkino-43997",
+"note": "Weihnachtliches Bilderbuch auf großer Leinwand.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Bilderbuchkino: Lieselotte Weihnachtskuh",
+"run": "monat",
+"where": "stadt",
+"io": "drinnen",
+"cat": "kinder",
+"wx": [
+"regen",
+"schnee"
+],
+"date": "2026-12-23",
+"time": "16 Uhr",
+"place": "Stadtbibliothek Laim",
+"price": "frei, ohne Anmeldung",
+"free": true,
+"dur": "kurz",
+"link": "https://www.muenchner-stadtbibliothek.de/veranstaltungen/details/bilderbuchkino-45140",
+"note": "Lieselotte kurz vor Heiligabend, zum Warten aufs Christkind.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Bilderbuchkino: Lumpi sucht ein Plätzchen",
+"run": "monat",
+"where": "stadt",
+"io": "drinnen",
+"cat": "kinder",
+"wx": [
+"regen",
+"schnee"
+],
+"date": "2026-12-09",
+"time": "15:30 Uhr",
+"place": "Stadtbibliothek Hadern",
+"price": "frei, ohne Anmeldung",
+"free": true,
+"kid": "laut Bibliothek ab 4 Jahren",
+"age": 4,
+"dur": "kurz",
+"link": "https://www.muenchner-stadtbibliothek.de/veranstaltungen/details/bilderbuchkino-46722",
+"note": "Kurze Geschichte auf der Leinwand, ohne Anmeldung.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Blutenburger Weihnacht",
+"run": "monat",
+"where": "stadt",
+"io": "draussen",
+"cat": "fest",
+"wx": [
+"schnee",
+"sonne"
+],
+"from": "2026-12-03",
+"to": "2026-12-06",
+"place": "Schlosshof Blutenburg, Obermenzing",
+"travel": "🚆 S2 Obermenzing, dann 15 Min zu Fuß",
+"kid": "kleiner, ruhiger Markt im Schlosshof mit Wasser und Enten drumherum",
+"dur": "kurz",
+"link": "https://muc-blog.com/veranstaltungen-muenchen-dezember-2026/",
+"note": "Gemütlicher kleiner Schlossmarkt, viel ruhiger als die Innenstadt.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Cavalluna Kids: WinterWünscheLand",
+"run": "monat",
+"where": "stadt",
+"io": "drinnen",
+"cat": "tiere",
+"wx": [
+"regen",
+"schnee"
+],
+"from": "2026-12-18",
+"to": "2027-01-10",
+"time": "u. a. Sa 11–13 Uhr",
+"place": "Showpalast, Fröttmaning",
+"travel": "🚇 U6 Fröttmaning",
+"price": "ab 32,90 €",
+"kid": "Pferdeshow für Familien",
+"dur": "kurz",
+"link": "https://www.kindaling.de/kindertheater-shows/cavalluna-kids-winterwuenscheland-muenchen-schwabing-freimann/muenchen-schwabing-freimann",
+"note": "Pferde-Wintermärchen in der Halle, ideal für die Ferien.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Chiemsee-Kasperl in Waldperlach",
+"run": "monat",
+"where": "stadt",
+"io": "drinnen",
+"cat": "kinder",
+"wx": [
+"regen",
+"schnee"
+],
+"date": "2026-12-13",
+"time": "11–12 Uhr",
+"place": "Waldperlach",
+"travel": "🚇 U5 Neuperlach Süd, dann Bus",
+"price": "Kinder 10 €, Erw. 12 € im Vorverkauf",
+"kid": "ab 3 Jahren",
+"age": 3,
+"dur": "kurz",
+"link": "https://www.kindaling.de/kindertheater-shows/der-chiemsee-kasperl-kommt-wieder-nach-muenchen-waldperlach/muenchen-ramersdorf-perlach",
+"note": "Kasperl am dritten Advent im Münchner Osten.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Christkindlmarkt am Kloster Andechs",
+"run": "monat",
+"where": "umland",
+"io": "draussen",
+"cat": "fest",
+"wx": [
+"schnee",
+"sonne"
+],
+"from": "2026-12-04",
+"to": "2026-12-06",
+"place": "Kloster Andechs",
+"travel": "🚆 S8 Herrsching, dann Bus, etwa 1 Std",
+"kid": "am Berg, Trage statt Kinderwagen",
+"dur": "halb",
+"link": "https://www.mvv-muenchen.de/freizeitideen/ausflugsziele-in-den-landkreisen-des-muenchner-verkehrsverbunds/mvv-christkindlmarkttour/",
+"note": "Markt am Heiligen Berg mit weitem Blick, ein ganzer Ausflug.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Christkindlmarkt im Kloster Schäftlarn",
+"run": "monat",
+"where": "umland",
+"io": "draussen",
+"cat": "fest",
+"wx": [
+"schnee",
+"sonne"
+],
+"from": "2026-12-05",
+"to": "2026-12-06",
+"place": "Kloster Schäftlarn",
+"travel": "🚆 S7 Hohenschäftlarn, dann zu Fuß ins Isartal",
+"kid": "Weg zum Kloster ist steil",
+"dur": "halb",
+"link": "https://www.mvv-muenchen.de/freizeitideen/ausflugsziele-in-den-landkreisen-des-muenchner-verkehrsverbunds/mvv-christkindlmarkttour/",
+"note": "Klostermarkt im Isartal, schön mit Winterspaziergang.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Circus Krone: Weihnachtspremiere",
+"run": "monat",
+"where": "stadt",
+"io": "drinnen",
+"cat": "kinder",
+"wx": [
+"regen",
+"schnee"
+],
+"date": "2026-12-25",
+"place": "Circus-Krone-Bau, Marsstraße",
+"travel": "🚆 S-Bahn Hackerbrücke",
+"kid": "Start der Winterspielzeit, für Kleine eher eine Nachmittagsvorstellung wählen",
+"dur": "kurz",
+"link": "https://muc-blog.com/veranstaltungen-muenchen-dezember-2026/",
+"note": "Am ersten Weihnachtstag beginnt der Winterzirkus.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Ein Engel fällt aus allen Wolken (mini.musik)",
+"run": "monat",
+"where": "stadt",
+"io": "drinnen",
+"cat": "musik",
+"wx": [
+"regen",
+"schnee"
+],
+"date": "2026-12-13",
+"time": "16–17 Uhr",
+"place": "Gasteig HP8, Saal X, Sendling",
+"travel": "🚇 U3 Brudermühlstraße",
+"price": "Kinder 12 €, Erw. 23 €",
+"kid": "laut Veranstalter 3 bis 7 Jahre",
+"age": 3,
+"dur": "kurz",
+"link": "https://www.kindaling.de/kinderkonzerte/ein-engel-faellt-aus-allen-wolken/muenchen-thalk-obers-fuerst-forst-solln",
+"note": "Weihnachtliches Kinderkonzert am dritten Advent.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Emmeringer Weihnacht",
+"run": "monat",
+"where": "umland",
+"io": "draussen",
+"cat": "fest",
+"wx": [
+"schnee",
+"sonne"
+],
+"from": "2026-12-11",
+"to": "2026-12-13",
+"place": "Bürgerhausvorplatz, Emmering",
+"travel": "🚆 S4 Fürstenfeldbruck, dann Bus, 45 Min",
+"dur": "kurz",
+"link": "https://www.mvv-muenchen.de/freizeitideen/ausflugsziele-in-den-landkreisen-des-muenchner-verkehrsverbunds/mvv-christkindlmarkttour/",
+"note": "Kleiner Dorfmarkt im Westen, überschaubar für Kleine.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Familienführung: Sonne, Mond und Kerzenschein",
+"run": "monat",
+"where": "stadt",
+"io": "drinnen",
+"cat": "kultur",
+"wx": [
+"regen",
+"schnee"
+],
+"date": "2026-12-13",
+"time": "11 Uhr",
+"place": "Alte Pinakothek, Maxvorstadt",
+"travel": "🚋 Tram 27 Pinakotheken",
+"price": "Ticket an der Museumskasse oder im Webshop",
+"kid": "Familienführung, eher für Ältere, Kleine schauen mit",
+"dur": "kurz",
+"link": "https://www.kindaling.de/sonstige-veranstaltungen/familienfuehrung-sonne-mond-und-kerzenschein/muenchen-maxvorstadt",
+"note": "Lichter und Sterne auf alten Bildern entdecken.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Flohmarkt im Olympiapark",
+"run": "monat",
+"where": "stadt",
+"io": "draussen",
+"cat": "floh",
+"wx": [
+"sonne"
+],
+"from": "2026-12-04",
+"to": "2026-12-19",
+"time": "Fr und Sa ab 7 Uhr (4./5., 11./12., 18./19.12.)",
+"place": "Parkharfe, Olympiapark",
+"travel": "🚇 U3 Olympiazentrum",
+"price": "Eintritt frei",
+"free": true,
+"kid": "früh am Morgen, warm anziehen",
+"dur": "kurz",
+"pram": true,
+"link": "https://muc-blog.com/veranstaltungen-muenchen-dezember-2026/",
+"note": "Großer Flohmarkt an den Adventswochenenden, gut für Spielsachen.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Frau Holle im Theater für Kinder",
+"run": "monat",
+"where": "stadt",
+"io": "drinnen",
+"cat": "kinder",
+"wx": [
+"regen",
+"schnee"
+],
+"from": "2026-12-05",
+"to": "2026-12-29",
+"time": "Sa 5., 12. und 26.12. 10 Uhr, Di 29.12. 15 Uhr",
+"place": "Münchner Theater für Kinder, Maxvorstadt",
+"travel": "🚇 U1 Stiglmaierplatz",
+"price": "13 bis 18 €",
+"kid": "laut Theater ab 4 Jahren",
+"age": 4,
+"dur": "kurz",
+"link": "https://www.kindaling.de/kindertheater-shows/frau-holle-nach-den-gebruedern-grimm/muenchen-maxvorstadt",
+"note": "Das Wintermärchen schlechthin, wenn draußen Schnee fehlt.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Grafrather Christkindlmarkt",
+"run": "monat",
+"where": "umland",
+"io": "draussen",
+"cat": "fest",
+"wx": [
+"schnee",
+"sonne"
+],
+"from": "2026-12-04",
+"to": "2026-12-06",
+"place": "an der Schule, Grafrath",
+"travel": "🚆 S4 Grafrath, 40 Min",
+"dur": "kurz",
+"link": "https://www.mvv-muenchen.de/freizeitideen/ausflugsziele-in-den-landkreisen-des-muenchner-verkehrsverbunds/mvv-christkindlmarkttour/",
+"note": "Kleiner Dorfmarkt, gut mit Spaziergang an der Amper.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Herrmannsdorfer Weihnachtsmarkt",
+"run": "monat",
+"where": "umland",
+"io": "draussen",
+"cat": "tiere",
+"wx": [
+"schnee",
+"sonne"
+],
+"from": "2026-12-05",
+"to": "2026-12-06",
+"place": "Herrmannsdorfer Landwerkstätten, Glonn",
+"travel": "🚗 40 Min (mit Bahn S4/S6 Grafing und Bus deutlich länger)",
+"kid": "Markt auf einem Bauernhof",
+"dur": "halb",
+"link": "https://www.mvv-muenchen.de/freizeitideen/ausflugsziele-in-den-landkreisen-des-muenchner-verkehrsverbunds/mvv-christkindlmarkttour/",
+"note": "Hofmarkt auf dem Land, Ausnahme mit Auto.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Herrschinger Weihnachtsmarkt",
+"run": "monat",
+"where": "umland",
+"io": "draussen",
+"cat": "fest",
+"wx": [
+"schnee",
+"sonne"
+],
+"from": "2026-12-12",
+"to": "2026-12-13",
+"place": "Kurpark, Herrsching am Ammersee",
+"travel": "🚆 S8, 50 Min",
+"kid": "direkt am Ammersee, Endstation S8",
+"dur": "halb",
+"pram": true,
+"link": "https://www.mvv-muenchen.de/freizeitideen/ausflugsziele-in-den-landkreisen-des-muenchner-verkehrsverbunds/mvv-christkindlmarkttour/",
+"note": "Weihnachtsmarkt am Seeufer, die S-Bahn hält ganz nah.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Kasperl im Märchenwald der Residenz",
+"run": "monat",
+"where": "stadt",
+"io": "draussen",
+"cat": "kinder",
+"wx": [
+"sonne"
+],
+"from": "2026-12-08",
+"to": "2026-12-14",
+"time": "Di 8. und Mo 14.12., 15–16 Uhr",
+"place": "Kaiserhof der Residenz, Odeonsplatz",
+"travel": "🚇 U3/U4/U5/U6 Odeonsplatz",
+"price": "frei",
+"free": true,
+"kid": "kostenloser Märchenwald mit Szenen zum Anschauen",
+"dur": "kurz",
+"link": "https://www.in-muenchen.de/kids/weihnachtsmarkte-kinderprogramm.html",
+"note": "Kasperletheater im Weihnachtsdorf, dazu der Märchenwald.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Kasperletheater im Café Gans am Wasser",
+"run": "monat",
+"where": "stadt",
+"io": "beides",
+"cat": "kinder",
+"wx": [
+"sonne"
+],
+"date": "2026-12-07",
+"time": "14–17:15 Uhr, weitere Termine beim Anbieter",
+"place": "Westpark am Mollsee",
+"travel": "🚇 U6 Westpark",
+"price": "frei, Spende willkommen",
+"free": true,
+"kid": "ab 3 Jahren",
+"age": 3,
+"dur": "kurz",
+"cafe": true,
+"link": "https://www.kindaling.de/kindertheater-shows/kasperletheater-3-7-j/muenchen-sendling-westpark",
+"note": "Kasperl am Feuer im Westpark, Eintritt frei.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Kasperletheater im Gans Woanders",
+"run": "monat",
+"where": "stadt",
+"io": "beides",
+"cat": "kinder",
+"wx": [
+"sonne"
+],
+"date": "2026-12-10",
+"time": "14–17 Uhr",
+"place": "Gans Woanders, Untergiesing",
+"travel": "🚇 U1 Kolumbusplatz",
+"price": "frei",
+"free": true,
+"kid": "laut Anbieter 4 bis 8 Jahre; bei sehr schlechtem Wetter verschoben",
+"age": 4,
+"dur": "kurz",
+"link": "https://www.kindaling.de/kindertheater-shows/kasperletheater-4e40902a-07bc-4ba3-be90-d4673a3917d5/muenchen-untergiesing-harlaching",
+"note": "Kostenloser Kasperl auf dem Winterrausch.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Kinderkonzert Tim Mohr fürs Kinderohr",
+"run": "monat",
+"where": "stadt",
+"io": "draussen",
+"cat": "musik",
+"wx": [
+"sonne"
+],
+"date": "2026-12-05",
+"time": "13–14 Uhr",
+"place": "Café Gans am Wasser, Westpark",
+"travel": "🚇 U6 Westpark",
+"price": "frei, Spende willkommen",
+"free": true,
+"kid": "ab 3 Jahren, draußen am Mollsee",
+"age": 3,
+"dur": "kurz",
+"cafe": true,
+"link": "https://www.kindaling.de/kinderkonzerte/kinderkonzert-tim-mohr-fuer-s-kinderohr/muenchen-sendling-westpark",
+"note": "Mitsing-Konzert unter freiem Himmel beim Winterzauber.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Krippenweg Ebersberg",
+"run": "monat",
+"where": "umland",
+"io": "draussen",
+"cat": "fest",
+"wx": [
+"schnee",
+"sonne"
+],
+"from": "2026-11-28",
+"to": "2027-01-06",
+"place": "Marienplatz, Ebersberg",
+"travel": "🚆 S4/S6 Ebersberg, 40 Min",
+"price": "frei",
+"free": true,
+"kid": "Krippen zum Anschauen entlang eines Wegs, gut zu Fuß",
+"dur": "kurz",
+"pram": true,
+"link": "https://www.mvv-muenchen.de/freizeitideen/ausflugsziele-in-den-landkreisen-des-muenchner-verkehrsverbunds/mvv-christkindlmarkttour/",
+"note": "Spaziergang von Krippe zu Krippe, bis Dreikönig.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Kunst und Spiele: Bei den Rittern mit Graf Schack",
+"run": "monat",
+"where": "stadt",
+"io": "drinnen",
+"cat": "kultur",
+"wx": [
+"regen",
+"schnee"
+],
+"date": "2026-12-11",
+"time": "15:30 Uhr",
+"place": "Sammlung Schack, Lehel",
+"travel": "🚋 Tram 16/100 Reitmorstraße",
+"price": "Ticket an der Museumskasse",
+"kid": "extra für 2 bis 5 Jahre mit einer Begleitperson",
+"dur": "kurz",
+"link": "https://www.kindaling.de/sonstige-veranstaltungen/kunst-und-spiele-bei-den-rittern-mit-graf-schack/altstadt-lehel-schwabing-freimann",
+"note": "Seltenes Museumsangebot genau fürs Kleinkind-Alter.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Musikalisches Bilderbuchkino: Ein Musikmärchen",
+"run": "monat",
+"where": "stadt",
+"io": "drinnen",
+"cat": "musik",
+"wx": [
+"regen",
+"schnee"
+],
+"date": "2026-12-19",
+"time": "11 Uhr",
+"place": "Stadtbibliothek Maxvorstadt",
+"price": "frei, mit Anmeldung",
+"free": true,
+"kid": "ab 3 Jahren, vorher in der Bibliothek anmelden",
+"age": 3,
+"dur": "kurz",
+"link": "https://www.muenchner-stadtbibliothek.de/veranstaltungen/details/musikalisches-bilderbuchkino-46088",
+"note": "Bilderbuch mit Live-Musik an einem Samstagvormittag.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Nikolaus am Chinesischen Turm",
+"run": "monat",
+"where": "stadt",
+"io": "draussen",
+"cat": "fest",
+"wx": [
+"schnee",
+"sonne"
+],
+"from": "2026-12-05",
+"to": "2026-12-07",
+"time": "16–18:30 Uhr",
+"place": "Chinesischer Turm, Englischer Garten",
+"travel": "🚌 Bus 54/154 Chinesischer Turm",
+"price": "frei",
+"free": true,
+"kid": "dazu Kindereisenbahn und historisches Karussell",
+"dur": "kurz",
+"pram": true,
+"cafe": true,
+"link": "https://www.in-muenchen.de/kids/weihnachtsmarkte-kinderprogramm.html",
+"note": "Drei Tage Nikolaus-Besuch auf dem Markt im Englischen Garten.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Nikolaus im Tierpark Hellabrunn",
+"run": "monat",
+"where": "stadt",
+"io": "draussen",
+"cat": "tiere",
+"wx": [
+"sonne",
+"schnee"
+],
+"date": "2026-12-06",
+"time": "10–12 Uhr",
+"place": "Tierpark Hellabrunn, Thalkirchen",
+"travel": "🚇 U3 Thalkirchen",
+"price": "normaler Tierpark-Eintritt",
+"kid": "Nikolaus mit Engeln und kleinen Überraschungen",
+"dur": "halb",
+"pram": true,
+"cafe": true,
+"link": "https://www.hellabrunn.de/eventdetailseite/nikolaus-kommt-in-den-tierpark-hellabrunn-1",
+"note": "Nikolaus zwischen den Tieren, am besten gleich um 10 Uhr.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Offener Garten im Erlebnisgarten Hösi",
+"run": "monat",
+"where": "umland",
+"io": "draussen",
+"cat": "natur",
+"wx": [
+"sonne"
+],
+"date": "2026-12-20",
+"time": "14–18 Uhr",
+"place": "Höhenkirchen-Siegertsbrunn",
+"travel": "🚆 S7 Höhenkirchen-Siegertsbrunn, 35 Min",
+"price": "frei, Spende erwünscht",
+"free": true,
+"kid": "für jedes Alter, Garten zum Entdecken",
+"dur": "kurz",
+"link": "https://www.kindaling.de/tiere-natur/offener-garten/hoehenkirchen-siegertsbrunn",
+"note": "Offener Garten am vierten Advent, kostenlos.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Pettersson und Findus feiern Weihnachten",
+"run": "monat",
+"where": "stadt",
+"io": "drinnen",
+"cat": "kinder",
+"wx": [
+"regen",
+"schnee"
+],
+"from": "2026-12-05",
+"to": "2026-12-29",
+"time": "viele Termine, z. B. Sa 5.12. 15 Uhr, So 13.12. 10 Uhr",
+"place": "Münchner Theater für Kinder, Maxvorstadt",
+"travel": "🚇 U1 Stiglmaierplatz",
+"price": "13 bis 18 €",
+"kid": "bekannte Bilderbuch-Figuren, gut für Kleine",
+"dur": "kurz",
+"link": "https://www.kindaling.de/kindertheater-shows/kindertheater-pettersson-und-findus-feiern-weihnachten/muenchen-maxvorstadt",
+"note": "Weihnachtsstück mit Pettersson und Findus.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Pianokids im Schloss Nymphenburg",
+"run": "monat",
+"where": "stadt",
+"io": "drinnen",
+"cat": "musik",
+"wx": [
+"regen",
+"schnee"
+],
+"date": "2026-12-05",
+"time": "11:30–12:15 Uhr",
+"place": "Johannissaal, Schloss Nymphenburg",
+"travel": "🚋 Tram 17 Schloss Nymphenburg",
+"price": "29 €",
+"kid": "für 2 bis 6 Jahre",
+"dur": "kurz",
+"link": "https://www.kindaling.de/kinderkonzerte/pianokids-das-kinderkonzert-im-schloss-nymphenburg-schloss-nymphenburg-19-johannissaal/muenchen-neuhausen-nymphenburg",
+"note": "Kurzes Klavierkonzert für Kleine im Schloss.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Spielzeug- und Medienbasar im Kindergarten Christuskirche",
+"run": "monat",
+"where": "stadt",
+"io": "drinnen",
+"cat": "floh",
+"wx": [
+"regen"
+],
+"date": "2026-12-05",
+"time": "10–14 Uhr",
+"place": "Dom-Pedro-Platz, Neuhausen",
+"travel": "🚋 Tram 12 Dom-Pedro-Platz",
+"kid": "gebrauchtes Spielzeug, Bücher und Spiele, keine Kleidung",
+"dur": "kurz",
+"cafe": true,
+"link": "https://www.kindaling.de/flohmaerkte/spielzeug-und-medienbasar-kindergarten-christuskirche/muenchen-neuhausen-nymphenburg",
+"note": "Kleiner Basar kurz vor Weihnachten, mit Kaffee und Kuchen.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Starnberger Christkindlmarkt",
+"run": "monat",
+"where": "umland",
+"io": "draussen",
+"cat": "fest",
+"wx": [
+"schnee",
+"sonne"
+],
+"from": "2026-12-03",
+"to": "2026-12-06",
+"place": "Kirchplatz, Starnberg",
+"travel": "🚆 S6, 35 Min",
+"kid": "danach zum See und zu den Schwänen",
+"dur": "halb",
+"link": "https://www.mvv-muenchen.de/freizeitideen/ausflugsziele-in-den-landkreisen-des-muenchner-verkehrsverbunds/mvv-christkindlmarkttour/",
+"note": "Kleiner Markt nahe am See, schnell mit der S-Bahn.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Stockbrot am Lagerfeuer im Westpark",
+"run": "monat",
+"where": "stadt",
+"io": "draussen",
+"cat": "natur",
+"wx": [
+"sonne",
+"schnee"
+],
+"from": "2026-12-06",
+"to": "2026-12-20",
+"time": "So 6. und 20.12., 14–16 Uhr",
+"place": "Café Gans am Wasser, Westpark",
+"travel": "🚇 U6 Westpark",
+"price": "frei, Spende willkommen",
+"free": true,
+"kid": "ab 3 Jahren; bei Regen evtl. verschoben",
+"age": 3,
+"dur": "kurz",
+"cafe": true,
+"link": "https://www.kindaling.de/weihnachtsmaerkte/stockbrot-am-lagerfeuer-3-12-j/muenchen-sendling-westpark",
+"note": "Stockbrot über dem Feuer, ein kleines Winter-Abenteuer.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Tanzspaß in der Rumpelkammer",
+"run": "monat",
+"where": "stadt",
+"io": "drinnen",
+"cat": "musik",
+"wx": [
+"regen",
+"schnee"
+],
+"from": "2026-12-02",
+"to": "2026-12-23",
+"time": "Mi und Sa 14–16 Uhr",
+"place": "Gans Woanders, Untergiesing",
+"travel": "🚇 U1 Kolumbusplatz",
+"price": "frei",
+"free": true,
+"kid": "Tanzen und Toben, laut Anbieter ab 4",
+"age": 4,
+"dur": "kurz",
+"like": [
+"hüpfen"
+],
+"link": "https://www.kindaling.de/weihnachtsmaerkte/tanzspass-in-der-rumpelkammer/muenchen-untergiesing-harlaching",
+"note": "Zweimal die Woche zum Austoben und Tanzen auf dem Winterrausch.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Tölzer Christkindlmarkt",
+"run": "monat",
+"where": "umland",
+"io": "draussen",
+"cat": "fest",
+"wx": [
+"schnee",
+"sonne"
+],
+"from": "2026-11-27",
+"to": "2026-12-24",
+"place": "Marktstraße, Bad Tölz",
+"travel": "🚆 BOB, etwa 1 Std",
+"kid": "die Marktstraße ist abschüssig, Trage praktisch",
+"dur": "halb",
+"link": "https://www.mvv-muenchen.de/freizeitideen/ausflugsziele-in-den-landkreisen-des-muenchner-verkehrsverbunds/mvv-christkindlmarkttour/",
+"note": "Den ganzen Advent geöffnet, schöne historische Marktstraße.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Vierter Münchner Kinderadvent",
+"run": "monat",
+"where": "stadt",
+"io": "drinnen",
+"cat": "musik",
+"wx": [
+"regen",
+"schnee"
+],
+"date": "2026-12-06",
+"time": "11–12 Uhr",
+"place": "Prinzregententheater, Bogenhausen",
+"travel": "🚇 U4 Prinzregentenplatz",
+"price": "Kinder 14 €, Erw. 28 €",
+"kid": "laut Veranstalter ab 3 Jahren",
+"age": 3,
+"dur": "kurz",
+"link": "https://www.kindaling.de/kinderkonzerte/vierter-muenchner-kinderadvent/muenchen-bogenhausen",
+"note": "Adventliche Volksmusik und Lieder für Kinder in festlichem Saal.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Wasmeiers Weihnachtsmarktl",
+"run": "monat",
+"where": "umland",
+"io": "draussen",
+"cat": "fest",
+"wx": [
+"schnee",
+"sonne"
+],
+"from": "2026-12-05",
+"to": "2026-12-13",
+"time": "Sa und So 5./6. und 12./13.12.",
+"place": "Markus Wasmeier Freilichtmuseum, Schliersee",
+"travel": "🚆 BOB bis Fischhausen-Neuhaus, etwa 1 Std",
+"kid": "alte Bauernhöfe zum Anschauen",
+"dur": "halb",
+"link": "https://www.mvv-muenchen.de/freizeitideen/ausflugsziele-in-den-landkreisen-des-muenchner-verkehrsverbunds/mvv-christkindlmarkttour/",
+"note": "Advent zwischen alten Höfen im Freilichtmuseum am Schliersee.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "We are family: Himmlische Klänge",
+"run": "monat",
+"where": "stadt",
+"io": "drinnen",
+"cat": "musik",
+"wx": [
+"regen",
+"schnee"
+],
+"date": "2026-12-13",
+"time": "11–17 Uhr, Einstieg jederzeit",
+"place": "Alte Pinakothek, Maxvorstadt",
+"travel": "🚋 Tram 27 Pinakotheken",
+"price": "Ticket im Webshop",
+"kid": "offener Familientag, man kommt und geht wann man will",
+"dur": "kurz",
+"link": "https://www.kindaling.de/kreatives/we-are-family-himmlische-klaenge/muenchen-maxvorstadt",
+"note": "Offener Mitmach-Familientag im Museum am dritten Advent.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Weihnachts-Babykonzert",
+"run": "monat",
+"where": "stadt",
+"io": "drinnen",
+"cat": "musik",
+"wx": [
+"regen",
+"schnee"
+],
+"date": "2026-12-06",
+"time": "11–11:45 Uhr",
+"place": "Kulturhaus Milbertshofen",
+"travel": "🚇 U2 Milbertshofen",
+"price": "21 € (1 Erw. mit Kind), 39 € Doppelkarte",
+"kid": "für 0 bis 3 Jahre, Decke mitbringen",
+"dur": "kurz",
+"link": "https://www.kindaling.de/kinderkonzerte/weihnachts-babykonzert-muenchen-kulturhaus-milbertshofen/muenchen-schwabing-west",
+"note": "Weihnachtliches Konzert extra für die Kleinsten.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "WeihnachtsMacherei mit Nikolaus und Eisstock",
+"run": "monat",
+"where": "stadt",
+"io": "draussen",
+"cat": "fest",
+"wx": [
+"schnee",
+"sonne"
+],
+"from": "2026-11-19",
+"to": "2026-12-19",
+"place": "Werksviertel, Berg am Laim",
+"travel": "🚆 S-Bahn/U5 Ostbahnhof",
+"price": "Eintritt frei",
+"free": true,
+"kid": "mit Nikolaus und Eisstockbahn",
+"dur": "kurz",
+"link": "https://www.kindaling.de/weihnachtsmaerkte/weihnachtsmacherei-weihnachtsmarkt-mit-nikolaus-und-eisstock/muenchen-berg-am-laim",
+"note": "Weihnachtsmarkt in der Macherei mit Nikolaus und Eisstock.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Weihnachtsshow Lightfall im Pepe Dome",
+"run": "monat",
+"where": "stadt",
+"io": "drinnen",
+"cat": "kinder",
+"wx": [
+"regen",
+"schnee"
+],
+"date": "2026-12-05",
+"time": "17–18 Uhr, Einlass 16:30",
+"place": "Pepe Dome, Ostpark",
+"travel": "🚇 U2/U5 Michaelibad",
+"price": "Kinder 5 €, Erw. 8 €",
+"kid": "Luftakrobatik zum Staunen, eine Stunde",
+"dur": "kurz",
+"link": "https://www.kindaling.de/kindertheater-shows/weihnachtsshow-lightfall-magie-in-der-luft/muenchen",
+"note": "Junge Luftakrobaten zeigen eine Weihnachtsshow, günstig.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Winterrausch im Hexenhaus (Gans Woanders)",
+"run": "monat",
+"where": "stadt",
+"io": "beides",
+"cat": "fest",
+"wx": [
+"schnee",
+"regen"
+],
+"from": "2026-11-13",
+"to": "2026-12-23",
+"time": "Mo–Do 14–23, Fr 14–24, Sa 12–24, So 11–22 Uhr",
+"place": "Gans Woanders, Untergiesing",
+"travel": "🚆 S-Bahn Kolumbusplatz/🚇 U1 Kolumbusplatz",
+"price": "Eintritt frei",
+"free": true,
+"kid": "Kinderprogramm laut Kulturkalender, ab 3 Jahren",
+"age": 3,
+"dur": "kurz",
+"cafe": true,
+"link": "https://www.in-muenchen.de/kids/weihnachtsmarkte-kinderprogramm.html",
+"note": "Alternativer Wintermarkt mit Kasperl, Basteln und Tanzen für Kinder.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Winterzauber Holzkirchen",
+"run": "monat",
+"where": "umland",
+"io": "draussen",
+"cat": "fest",
+"wx": [
+"schnee",
+"sonne"
+],
+"from": "2026-12-12",
+"to": "2026-12-13",
+"place": "Marktplatz, Holzkirchen",
+"travel": "🚆 S3 oder BOB, 35 Min",
+"dur": "kurz",
+"pram": true,
+"link": "https://www.mvv-muenchen.de/freizeitideen/ausflugsziele-in-den-landkreisen-des-muenchner-verkehrsverbunds/mvv-christkindlmarkttour/",
+"note": "Marktplatz-Markt am dritten Advent, schnell erreichbar.",
+"first": "2026-11-27",
+"last": "2026-11-27"
+},
+{
+"name": "Winterzauber und Herzlmarkt in der Neuen Ziegelei",
+"run": "monat",
+"where": "stadt",
+"io": "beides",
+"cat": "fest",
+"wx": [
+"sonne"
+],
+"date": "2026-12-06",
+"place": "Neue Ziegelei, Prinz-Eugen-Park",
+"travel": "🚋 Tram 16/17 bis Johanneskirchen",
+"kid": "Handgemachtes, Workshops und Programm am Nikolaustag",
+"dur": "kurz",
+"link": "https://muc-blog.com/veranstaltungen-muenchen-dezember-2026/",
+"note": "Kleiner Nachbarschafts-Markt am Nikolaustag im Prinz-Eugen-Park.",
+"first": "2026-11-27",
+"last": "2026-11-27"
 }
 ]
 }
