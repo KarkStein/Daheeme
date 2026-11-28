@@ -1,6 +1,6 @@
 {
-"updated": "2026-11-27",
-"n": 127,
+"updated": "2026-11-28",
+"n": 137,
 "items": [
 {
 "name": "Buddha Bowl mit Erdnusssoße",
@@ -4934,6 +4934,425 @@
 ],
 "first": "2026-11-27",
 "last": "2026-11-27"
+},
+{
+"name": "Chop Suey mit Hähnchen",
+"cat": "schnell",
+"source": "lecker.de",
+"link": "https://www.lecker.de/chop-suey-schnell-wuerzig-koestlich-128787.html",
+"ing": [
+"400 g Hähnchenfilet",
+"6 EL helle Sojasoße (Marinade)",
+"6 EL Wasser (Marinade)",
+"1 TL Zucker (Marinade)",
+"2 EL Speisestärke",
+"1 Zwiebel",
+"1 kleine Stange Lauch",
+"1 Knoblauchzehe",
+"2 Möhren",
+"1 rote Paprika",
+"1 gelbe Paprika",
+"200 g Brokkoli",
+"200 g Champignons",
+"150 g Sojasprossen (Glas)",
+"2 EL Sesamöl",
+"100 ml helle Sojasoße (Soße)",
+"100 ml Wasser (Soße)",
+"1 TL Zucker (Soße)"
+],
+"min": 30,
+"veg": false,
+"tags": [
+"Ernährung|Fleisch",
+"Zeit|30 Min",
+"Grundlage|Reis",
+"Art|Pfanne",
+"Region|asiatisch",
+"Familie|kleinkindtauglich",
+"Zutaten|Hähnchen",
+"Zutaten|Paprika",
+"Zutaten|Brokkoli",
+"Zutaten|Champignon",
+"Zutaten|Möhre"
+],
+"note": "Buntes Wokgemüse mit Hähnchen in 30 Minuten, dazu Reis. Fürs Kind das Sambal weglassen, weniger Sojasoße nehmen und das Hähnchen ganz durchbraten.",
+"from": [
+"tag"
+],
+"first": "2026-11-28",
+"last": "2026-11-28"
+},
+{
+"name": "Gebratener Reis mit Ei, Gemüse und Hähnchen",
+"source": "emmikochteinfach.de",
+"link": "https://emmikochteinfach.de/gebratener-reis-mit-ei-gemuese-haehnchen/#wprm-recipe-container-20952",
+"ing": [
+"200 g Langkornreis (oder 450 g gekochter Reis vom Vortag)",
+"250 g Hähnchenbrustfilet",
+"150 g Möhren",
+"100 g TK-Erbsen",
+"10 g Ingwer",
+"2 Eier",
+"2 Knoblauchzehen",
+"1 Bund Frühlingszwiebeln",
+"1 Zwiebel",
+"1 gelbe oder rote Paprika",
+"1 Peperoni",
+"5 EL Rapsöl",
+"1 EL Sesamöl",
+"2 EL Sojasoße",
+"2 TL Currypulver",
+"0,5 TL Kreuzkümmel",
+"1 Msp. Kurkuma",
+"1 Limette",
+"etwas frischer Koriander"
+],
+"min": 35,
+"wx": "egal",
+"veg": false,
+"tags": [
+"Ernährung|Fleisch",
+"Zeit|länger",
+"Grundlage|Reis",
+"Art|Pfanne",
+"Region|asiatisch",
+"Familie|kleinkindtauglich",
+"Familie|Vorkochen/Reste",
+"Zutaten|Reis",
+"Zutaten|Hähnchen",
+"Zutaten|Ei",
+"Zutaten|Erbse",
+"Zutaten|Möhre"
+],
+"note": "Bunte Reispfanne, ideal für Reis vom Vortag. Fürs Kind Peperoni und Sambal weglassen, Ei und Hähnchen ganz durchgaren.",
+"from": [
+"emmi"
+],
+"first": "2026-11-28",
+"last": "2026-11-28"
+},
+{
+"name": "Kürbislasagne mit Hokkaido-Kürbis",
+"source": "emmikochteinfach.de",
+"link": "https://emmikochteinfach.de/kuerbislasagne/#wprm-recipe-container-264522",
+"ing": [
+"8 Lasagneplatten (ohne Vorkochen)",
+"550 g Hokkaido-Fruchtfleisch",
+"130 g milder Bergkäse",
+"100 ml Wasser",
+"15 g Parmesan",
+"170 g Mozzarella",
+"1 große Schalotte",
+"1 Zweig Thymian",
+"1 Zweig Rosmarin",
+"1 EL Olivenöl",
+"0,5 TL gekörnte Gemüsebrühe",
+"1 Msp. Cayennepfeffer",
+"350 ml Milch",
+"15 g Butter",
+"15 g Mehl",
+"1 Prise Muskatnuss"
+],
+"min": 75,
+"wx": "kalt",
+"veg": true,
+"tags": [
+"Ernährung|vegetarisch",
+"Zeit|länger",
+"Grundlage|Nudeln",
+"Art|Auflauf/Ofen",
+"Region|italienisch",
+"Saison|Herbst",
+"Familie|kleinkindtauglich",
+"Familie|Vorkochen/Reste",
+"Zutaten|Kürbis",
+"Zutaten|Lasagneplatte",
+"Zutaten|Bergkäse",
+"Zutaten|Mozzarella"
+],
+"note": "Cremige, wärmende Ofen-Lasagne mit Hokkaido und Béchamel für einen ruhigen Abend. Mengen aus dem Rezept für 6 umgerechnet; den Cayennepfeffer fürs Kind weglassen.",
+"from": [
+"emmi"
+],
+"first": "2026-11-28",
+"last": "2026-11-28"
+},
+{
+"name": "Lauchsalat mit Äpfeln und geräuchertem Forellenfilet",
+"source": "emmikochteinfach.de",
+"link": "https://emmikochteinfach.de/lauchsalat-mit-aepfeln-forellenfilet/#wprm-recipe-container-394",
+"ing": [
+"2 geräucherte Forellenfilets (Packung)",
+"3 Stangen Lauch",
+"2 Äpfel (z. B. Boskop)",
+"4 EL Rapsöl",
+"3 EL Weißweinessig",
+"0,5 Orange (Saft)",
+"2 EL frisch geriebener Meerrettich",
+"1 Prise Zucker"
+],
+"min": 20,
+"wx": "warm",
+"veg": false,
+"tags": [
+"Ernährung|Fisch",
+"Zeit|bis 20 Min",
+"Grundlage|Gemüse pur",
+"Art|Salat",
+"Region|deutsch/bayerisch",
+"Saison|Herbst",
+"Saison|Winter",
+"Zutaten|Lauch",
+"Zutaten|Apfel",
+"Zutaten|Forelle"
+],
+"note": "Leichter, frischer Winter-Salat in 20 Minuten, dazu Brot. Fürs Kind den Lauch kurz in der Pfanne weich dünsten, den Meerrettich weglassen und die Forelle auf Gräten prüfen.",
+"from": [
+"emmi"
+],
+"first": "2026-11-28",
+"last": "2026-11-28"
+},
+{
+"name": "Makrele mit Wirsing-Pastinaken-Stampf",
+"cat": "saisonal",
+"source": "kuechengoetter.de",
+"link": "https://www.kuechengoetter.de/rezepte/makrele-mit-wirsing-pastinaken-stampf-99218#zutaten",
+"ing": [
+"600 g Wirsing",
+"600 g Pastinaken",
+"1 TL Kümmel",
+"40 g Butter",
+"1 Bund Petersilie",
+"8 Makrelenfilets mit Haut (à ca. 80 g)",
+"2 EL Rapsöl"
+],
+"min": 30,
+"veg": false,
+"tags": [
+"Ernährung|Fisch",
+"Zeit|30 Min",
+"Grundlage|Gemüse pur",
+"Art|Pfanne",
+"Region|deutsch/bayerisch",
+"Saison|Herbst",
+"Saison|Winter",
+"Familie|kleinkindtauglich",
+"Zutaten|Makrele",
+"Zutaten|Wirsing",
+"Zutaten|Pastinake"
+],
+"note": "Wirsing und Pastinaken haben jetzt Saison, der weiche Stampf passt gut zum Kleinkind. Die Makrele ganz durchbraten und fürs Kind die Gräten sorgfältig entfernen (Mengen aus dem Rezept für 2 verdoppelt).",
+"from": [
+"tag"
+],
+"first": "2026-11-28",
+"last": "2026-11-28"
+},
+{
+"name": "Marokkanische Gemüse-Tajine mit Couscous",
+"cat": "exotisch",
+"source": "kuechengoetter.de",
+"link": "https://www.kuechengoetter.de/rezepte/marokkanische-gemuese-tajine-mit-couscous-88005#zutaten",
+"ing": [
+"1 rote Zwiebel",
+"2 Knoblauchzehen",
+"20 g Ingwer",
+"6 EL Olivenöl",
+"2 TL Harissa-Pulver",
+"0,5 TL Zimt",
+"1 Dose stückige Tomaten (400 g)",
+"500 ml Gemüsebrühe",
+"600 g Auberginen (2 Stück)",
+"2 Möhren",
+"100 g getrocknete Aprikosen",
+"1 Dose Kichererbsen (265 g abgetropft)",
+"4 Stängel Minze",
+"200 g Instant-Couscous",
+"2 EL Zitronensaft"
+],
+"min": 30,
+"veg": true,
+"tags": [
+"Ernährung|vegan",
+"Ernährung|vegetarisch",
+"Zeit|30 Min",
+"Grundlage|Hülsenfrüchte",
+"Art|Eintopf",
+"Region|orientalisch",
+"Saison|Herbst",
+"Saison|Winter",
+"Familie|Vorkochen/Reste",
+"Zutaten|Aubergine",
+"Zutaten|Kichererbse",
+"Zutaten|Aprikose",
+"Zutaten|Couscous",
+"Zutaten|Möhre"
+],
+"note": "Echte marokkanische Schmorküche mit Zimt und süßen Aprikosen, wärmend und in 30 Minuten fertig. Harissa ist scharf: erst die Hälfte nehmen oder fürs Kind eine Portion vorher abnehmen.",
+"from": [
+"tag"
+],
+"first": "2026-11-28",
+"last": "2026-11-28"
+},
+{
+"name": "Pilzpfanne mit gerösteten Champignons",
+"source": "emmikochteinfach.de",
+"link": "https://emmikochteinfach.de/pilzpfanne/#wprm-recipe-container-265587",
+"ing": [
+"500 g braune Champignons",
+"50 g Zwiebeln",
+"30 g Butter",
+"3 Knoblauchzehen",
+"1 EL Pflanzenöl",
+"1 EL Schnittlauchröllchen",
+"0,5 TL Paprikapulver, edelsüß",
+"200 g Crème fraîche"
+],
+"min": 25,
+"wx": "egal",
+"veg": true,
+"tags": [
+"Ernährung|vegetarisch",
+"Zeit|30 Min",
+"Grundlage|Gemüse pur",
+"Art|Pfanne",
+"Region|deutsch/bayerisch",
+"Saison|Herbst",
+"Familie|kleinkindtauglich",
+"Zutaten|Champignon",
+"Zutaten|Crème fraîche",
+"Zutaten|Zwiebel"
+],
+"note": "Schnelle Pilzpfanne mit Knoblauch-Dip in 25 Minuten. Als Abendessen mit Brot, Semmelknödeln oder Kartoffeln reichen; fürs Kind die Pilze klein schneiden.",
+"from": [
+"emmi"
+],
+"first": "2026-11-28",
+"last": "2026-11-28"
+},
+{
+"name": "Quetschkartoffeln mit Kräuterquark",
+"cat": "kinder",
+"source": "lecker.de",
+"link": "https://www.lecker.de/quetschkartoffeln-mit-kraeuterquark-128815.html",
+"ing": [
+"2 kg kleine Kartoffeln",
+"3 EL Olivenöl",
+"3 Zweige Thymian",
+"500 g Magerquark",
+"100 g Joghurt",
+"1 EL Olivenöl (Quark)",
+"1 Bund Kräuter (z. B. Petersilie, Schnittlauch, Dill)",
+"1 Spritzer Zitronensaft"
+],
+"min": 40,
+"veg": true,
+"tags": [
+"Ernährung|vegetarisch",
+"Zeit|länger",
+"Grundlage|Kartoffeln",
+"Art|Auflauf/Ofen",
+"Region|deutsch/bayerisch",
+"Familie|kleinkindtauglich",
+"Zutaten|Kartoffel",
+"Zutaten|Quark",
+"Zutaten|Joghurt"
+],
+"note": "Knusprige, platt gedrückte Ofenkartoffeln zum Dippen: Kinder essen sie gut mit den Fingern, und das Quetschen dürfen sie selbst machen. Mild, Salz nach Geschmack erst am Tisch.",
+"from": [
+"tag"
+],
+"first": "2026-11-28",
+"last": "2026-11-28"
+},
+{
+"name": "Rote Linsensuppe mit Kokosmilch",
+"source": "emmikochteinfach.de",
+"link": "https://emmikochteinfach.de/rote-linsensuppe-mit-kokosmilch/#wprm-recipe-container-44699",
+"ing": [
+"500 ml Gemüsebrühe",
+"200 g rote Linsen",
+"2 Möhren (ca. 200 g)",
+"1 Dose Kokosmilch (400 g)",
+"1 Dose stückige Tomaten (400 g)",
+"1 rote Zwiebel",
+"1 Knoblauchzehe",
+"20 g Ingwer",
+"2 EL Pflanzenöl",
+"2 TL Kurkuma",
+"1 TL Kreuzkümmel",
+"0,5 TL Zucker",
+"0,25 TL Chili, gemahlen",
+"1 EL Limettensaft"
+],
+"min": 35,
+"wx": "kalt",
+"veg": true,
+"tags": [
+"Ernährung|vegan",
+"Ernährung|vegetarisch",
+"Zeit|länger",
+"Grundlage|Hülsenfrüchte",
+"Art|Suppe",
+"Region|orientalisch",
+"Saison|Herbst",
+"Saison|Winter",
+"Familie|kleinkindtauglich",
+"Familie|Vorkochen/Reste",
+"Zutaten|Linse",
+"Zutaten|Kokosmilch",
+"Zutaten|Möhre",
+"Zutaten|Tomate"
+],
+"note": "Sämige, wärmende Suppe für nasskalte Tage, lässt sich gut vorkochen. Fürs Kind das Chili weglassen; püriert isst sie sich leicht mit dem Löffel.",
+"from": [
+"emmi"
+],
+"first": "2026-11-28",
+"last": "2026-11-28"
+},
+{
+"name": "Süßkartoffeln mit Feta und Grünkohl",
+"cat": "gesund",
+"source": "eatsmarter.de",
+"link": "https://eatsmarter.de/rezepte/suesskartoffeln-mit-feta-und-gruenkohl-0",
+"ing": [
+"1,2 kg Süßkartoffeln (4 kleine)",
+"250 g Kichererbsen (Dose, abgetropft)",
+"2 rote Zwiebeln",
+"3 EL Rotweinessig",
+"1 TL Honig",
+"50 g Feta",
+"2 EL Olivenöl",
+"0,5 TL Chiliflocken",
+"100 g junger Grünkohl",
+"1 Handvoll Rucola",
+"30 g Kürbiskerne"
+],
+"min": 45,
+"veg": true,
+"tags": [
+"Ernährung|vegetarisch",
+"Zeit|länger",
+"Grundlage|Gemüse pur",
+"Grundlage|Hülsenfrüchte",
+"Art|Auflauf/Ofen",
+"Saison|Herbst",
+"Saison|Winter",
+"Familie|kleinkindtauglich",
+"Zutaten|Süßkartoffel",
+"Zutaten|Grünkohl",
+"Zutaten|Kichererbse",
+"Zutaten|Feta"
+],
+"note": "Ofen-Süßkartoffeln mit Kichererbsen und Grünkohl, der gerade Saison hat: viele Ballaststoffe und Vitamine. Fürs Kind die Chiliflocken erst am Tisch für die Großen dazugeben.",
+"from": [
+"tag"
+],
+"first": "2026-11-28",
+"last": "2026-11-28"
 }
 ]
 }
