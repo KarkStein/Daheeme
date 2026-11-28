@@ -15,7 +15,7 @@ srv.listen(8765,async()=>{
   // Bereiche aus der Bereichsliste, mit Kurz erklärt und Bild-Ding
   await A.click('[data-glossec=bereiche]');await A.waitForTimeout(200);
   const ber=await A.$$eval('[data-gs=bereiche] .glosrow',l=>l.map(x=>x.innerText.replace(/\s+/g,' ')));
-  r.bereiche=ber.length===17&&ber.some(t=>/Haushalt.*Hausarbeit.*Reiter unten.*Im Bild: Besen/.test(t));
+  r.bereiche=ber.length===18&&ber.some(t=>/Haushalt.*Hausarbeit.*Reiter unten.*Im Bild: Besen/.test(t));
   // Filter beim Tippen: Fokus bleibt, nur Treffer sichtbar
   await A.fill('#glosq','hausdienst');await A.waitForTimeout(200);
   r.focus=await A.evaluate(()=>document.activeElement&&document.activeElement.id==='glosq');

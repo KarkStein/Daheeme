@@ -213,6 +213,7 @@ app.addEventListener("click",async e=>{
   if(verkClick(b))return;
   if(careClick(b))return;
   if(inboxClick(b))return;
+  if(cwClick(b))return;
   if(stayClick(b))return;
   if(b.dataset.terplus){const [k,...r]=b.dataset.terplus.split("|");terPlus(k,r.join("|"));return}
   if(b.dataset.act==="kitaimp"){S.kitaImp=S.kitaImp?null:{text:"",list:null};render();return}

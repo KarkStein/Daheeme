@@ -29,6 +29,6 @@ srv.listen(8765,async()=>{
   await A.click('[data-allar]');await A.waitForTimeout(400);r.arMain=await A.$$eval('#allar .armain b',l=>l.map(x=>x.innerText).join('|'));r.arKind=await A.$$eval('#allar .armain',l=>{const k=l.find(x=>/Kind/.test(x.innerText));const s=k&&k.nextElementSibling;return s?[...s.querySelectorAll('button')].map(x=>x.innerText).join('|'):''});
   console.error(JSON.stringify(r),errs);
   const ok=!errs.length&&r.moved==='trip:tpl_pa,trip:tpl_pb,,'&&r.trip==='spiel,true,true'&&r.trips.includes('tpl_pb')&&r.h1==='Spielen'&&r.pSpiel==='Kind|Kita|*Spielen|Minispiele'&&r.spielRows.split('|').sort().join('|')==='Höhle aus Decken|Kinderturnen'&&!r.spielArts.includes('spielplatz')
-    &&r.pKita==='Kind|*Kita|Spielen|Minispiele'&&r.pGesch==='Partner|*Geschenke'&&r.pRech==='Alles Gemerkte|*Recherchen'&&r.kitaH1==='Kita'&&r.rg==='Spielplatz am Bach|Wasserspielplatz am Park'&&r.rgChip==='true'&&r.newTrip==='spiel'
+    &&r.pKita==='Kind|*Kita|Spielen|Minispiele'&&r.pGesch==='Partner|*Geschenke'&&r.pRech==='Alles Gemerkte|*Recherchen|An Claude'&&r.kitaH1==='Kita'&&r.rg==='Spielplatz am Bach|Wasserspielplatz am Park'&&r.rgChip==='true'&&r.newTrip==='spiel'
     &&r.fan_camp==='🧒 Kind|Kita|Spielen|Minispiele|🫶 Wir|Partner|Geschenke|🛠️ Am Haus'&&/Ausflüge und Reisen\|Packlisten\|🎵 Musik\|🗃️ Sammlung\|Alles Gemerkte\|Recherchen/.test(r.fan_einkauf)&&/Kind/.test(r.arMain)&&!/Kita|Spielen|Geschenke/.test(r.arMain)&&/^Kita\|Spielen/.test(r.arKind);
   console.error(ok?'BUENDEL OK':'BUENDEL FAIL');await b.close();srv.close();process.exit(0)});

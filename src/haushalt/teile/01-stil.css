@@ -878,3 +878,5 @@ input[type=time],input[type=date]{padding-inline:var(--sp2)}
 .hocol:first-child .hox{left:0;transform:none}.hocol:last-child .hox{left:auto;right:0;transform:none}
 /* Person unter dem Aufgabennamen ist antippbar (22.11.2026) */
 .wtwb{border:0;background:none;padding:0;font:inherit;cursor:pointer;min-height:32px}
+/* Briefkasten An Claude (28.11.2026): Verlauf wie ein langsamer Chat */
+.cwchat{display:flex;flex-direction:column;margin:0 0 var(--sp3)}.cwmsg{max-width:85%;padding:var(--sp2) var(--sp3);border-radius:var(--r);background:var(--surface-2);color:var(--fg);overflow-wrap:anywhere}.cwmsg.me{align-self:flex-end;background:var(--navy-a);color:var(--on)}.cwmsg.me a{color:var(--on)}.cwmeta{font-size:var(--fs-xs);color:var(--muted);margin:var(--sp1) 0 var(--sp3)}.cwmeta.me{align-self:flex-end}.cwnew{color:var(--ochre)}
